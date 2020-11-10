@@ -1,0 +1,15 @@
+//
+// Created by denn nevera on 2019-07-25.
+//
+
+#ifndef DEHANCER_GPU_LIB_VERSION_CONFIG_H
+#define DEHANCER_GPU_LIB_VERSION_CONFIG_H
+
+namespace dehancer::gpulib {
+    inline static unsigned int version()
+    {
+      return @DEHANCER_GPULIB_VERSION@;
+    }
+}
+
+#endif // DEHANCER_GPU_LIB_VERSION_CONFIG_H

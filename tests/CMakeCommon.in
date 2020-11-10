@@ -1,0 +1,40 @@
+set(TEST_LIBRARIES)
+set (CMAKE_CXX_STANDARD 17)
+
+if (GTEST_FOUND)
+    include_directories(${GTEST_INCLUDE_DIRS})
+    set(TEST_LIBRARIES ${GTEST_BOTH_LIBRARIES})
+else()
+    set(TEST_LIBRARIES gtest;gtest_main)
+endif()
+
+file(GLOB TESTS_SOURCES ${TESTS_SOURCES}
+        ./*.cpp
+        ./*.mm
+        )
+
+include_directories(
+        ./
+        ${CMAKE_BINARY_DIR}/external/include
+)
+
+add_executable(${TEST} ${TESTS_SOURCES} ${EMBEDDED_OPENCL_KERNELS})
+
+target_link_libraries(
+        ${TEST}
+        ${PROJECT_LIB}
+        ${TEST_LIBRARIES}
+        clHelperLib
+        ${COMMON_LIBRARIES}
+)
+
+if (COMMON_DEPENDECIES)
+    add_dependencies(
+            ${TEST}
+            ${COMMON_DEPENDECIES}
+    )
+endif ()
+
+add_test(test ${TEST})
+enable_testing()
+
