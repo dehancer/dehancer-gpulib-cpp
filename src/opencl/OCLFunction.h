@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include <dehancer/Texture.h>
-#include <dehancer/Function.h>
+#include <dehancer/gpu/Texture.h>
+#include <dehancer/gpu/Function.h>
 #include "OCLCommand.h"
 
 namespace dehancer::opencl {

@@ -27,7 +27,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -rdynamic")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Dcimg_display=0 -Dcimg_use_jpeg=1 -Dcimg_use_tiff=1 -Dcimg_use_png=1")
+
 set(CMAKE_MACOSX_RPATH TRUE)
+set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
 
 # googletes, etc
 set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
@@ -44,7 +47,7 @@ endif ()
 # Generators
 #
 file (WRITE "${VERSION_FILE}" "${PROJECT_NAME} ${PROJECT_VERSION}")
-configure_file(include/dehancer/gpulib_version.h.in ${CMAKE_BINARY_DIR}/generated/gpulib_version.h)
+configure_file(include/dehancer/gpu/gpulib_version.h.in ${CMAKE_BINARY_DIR}/generated/gpulib_version.h)
 
 #
 # Packages
@@ -55,6 +58,11 @@ find_package (PkgConfig REQUIRED)
 find_package (BLAS REQUIRED)
 find_package (LAPACK REQUIRED)
 find_package (OpenCL REQUIRED)
+find_package (JPEG REQUIRED)
+find_package (TIFF REQUIRED)
+find_package (PNG REQUIRED)
+find_package (ZLIB REQUIRED)
+find_package (OpenCV REQUIRED )
 
 #
 # External projects
@@ -86,8 +94,10 @@ ExternalProject_Add(dehancer_opencl_helper
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
         )
+
 set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};dehancer_opencl_helper)
 set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};clHelperLib)
+
 set(clHelper_DIR ${CMAKE_SOURCE_DIR}/lib/cmake)
 
 link_directories(
@@ -100,6 +110,7 @@ include_directories(
         ${CMAKE_BINARY_DIR}/external/include/openfx
         ${CMAKE_SOURCE_DIR}/include
         ./
+        ${OpenCV_INCLUDE_DIRS}
 )
 
 set(COMMON_LIBRARIES
@@ -107,6 +118,10 @@ set(COMMON_LIBRARIES
         ${BLAS_LIBRARIES};
         ${LAPACK_LIBRARIES};
         ${OpenCL_LIBRARIES};
+        ${PNG_LIBRARIES};
+        ${JPEG_LIBRARIES};
+        ${TIFF_LIBRARIES};
+        ${OpenCV_LIBS};
         )
 
 add_subdirectory(lib)

@@ -6,12 +6,13 @@
 #include "dehancer/opencl/embeddedProgram.h"
 #include "gtest/gtest.h"
 
-#include "dehancer/Texture.h"
-#include "dehancer/Function.h"
+#include "dehancer/gpu/Texture.h"
+#include "dehancer/gpu/Function.h"
 #include "Image.h"
 
 #include <algorithm>
 #include <chrono>
+#include <opencv2/opencv.hpp>
 
 cl_command_queue make_command_queue(const std::shared_ptr<clHelper::Device>& device) {
   /* Create OpenCL context */
@@ -54,6 +55,25 @@ int run_bench2(int num, const std::shared_ptr<clHelper::Device>& device) {
   originst[0] = 0; originst[1] = 0; originst[2] = 0;
   regionst[0] = width; regionst[1] = height; regionst[2] = 1;
 
+//  cl_int ret = clEnqueueReadImage(
+//          command_queue,
+//          static_cast<cl_mem>(ao_bench_text->get_contents()),
+//          CL_TRUE,
+//          originst,
+//          regionst,
+//          rowPitch,
+//          slicePitch,
+//          image.pix,
+//          0,
+//          nullptr,
+//          nullptr );
+//
+//  if (ret != CL_SUCCESS) {
+//    throw std::runtime_error("Unable to create texture");
+//  }
+
+  auto cv_output_ = cv::Mat(height, width, CV_32FC4);
+
   cl_int ret = clEnqueueReadImage(
           command_queue,
           static_cast<cl_mem>(ao_bench_text->get_contents()),
@@ -62,13 +82,13 @@ int run_bench2(int num, const std::shared_ptr<clHelper::Device>& device) {
           regionst,
           rowPitch,
           slicePitch,
-          image.pix,
+          cv_output_.data,
           0,
           nullptr,
           nullptr );
 
   if (ret != CL_SUCCESS) {
-    std::runtime_error("Unable to create texture");
+    throw std::runtime_error("Unable to create texture");
   }
 
   std::chrono::time_point<std::chrono::system_clock> clock_end
@@ -79,9 +99,20 @@ int run_bench2(int num, const std::shared_ptr<clHelper::Device>& device) {
   std::cout << "[aobench cl]:\t" << seconds.count() << "s "
             << ", for a " << width << "x" << height << " pixels" << std::endl;
 
-  std::string out_file = "ao-cl-"; out_file.append(std::to_string(num)); out_file.append(".ppm");
+  //std::string out_file = "ao-cl-"; out_file.append(std::to_string(num)); out_file.append(".ppm");
+  std::string out_file_cv = "ao-cl-"; out_file_cv.append(std::to_string(num)); out_file_cv.append(".tif");
 
-  image.savePPM(out_file.c_str());
+  std::cout << " cv::imwrite " << out_file_cv << std::endl;
+  cv::cvtColor(cv_output_, cv_output_, cv::COLOR_RGBA2BGRA);
+  //cv::cvtColor(cv_output_, cv_output_, CV_8U); //cvtColor(Temp, Result, CV_BGRA2BGR);
+  //cv::Mat tmp;
+  //cv_output_ *= 65536;
+  //cv_output_.convertTo(tmp,CV_32F);
+  //cv::cvtColor(tmp, tmp, cv::COLOR_RGBA2BGRA);
+  //cv::cvtColor(cv_output_, cv_output_, );
+  cv::imwrite(out_file_cv, cv_output_);
+
+  //image.savePPM(out_file.c_str());
 
   return 0;
 }

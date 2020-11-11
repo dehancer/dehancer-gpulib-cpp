@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "dehancer/Command.h"
+#include "dehancer/gpu/Command.h"
 #include "OCLContext.h"
 
 namespace dehancer::opencl {

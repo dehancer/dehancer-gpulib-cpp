@@ -339,7 +339,7 @@ __kernel void ao_bench_kernel(int nsubsamples, __write_only image2d_t destinatio
 
   ret *= (invSamples * invSamples);
 
-  float4 color = (float4)(ret,ret,ret,1);
+  float4 color = (float4)(ret,0,0,1);
 
   int2 gid = (int2)(x, y);
 

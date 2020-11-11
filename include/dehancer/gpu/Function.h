@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "dehancer/Command.h"
+#include "Command.h"
 
 namespace dehancer {
 
