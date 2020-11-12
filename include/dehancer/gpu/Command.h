@@ -4,8 +4,6 @@
 
 #pragma once
 
-//#include "GpuConfig.h"
-
 #include <string>
 #include <memory>
 #include <functional>

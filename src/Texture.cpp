@@ -7,7 +7,7 @@
 
 namespace dehancer {
 
-    Texture TextureHolder::Make(const void *command_queue, const TextureDesc &desc) {
-      return std::make_shared<dehancer::opencl::TextureHolder>(command_queue,desc);
+    Texture TextureHolder::Make(const void *command_queue, const TextureDesc &desc, void *from_memory) {
+      return std::make_shared<dehancer::opencl::TextureHolder>(command_queue,desc,from_memory);
     }
 }

@@ -11,6 +11,7 @@ file (GLOB COMMON_SRC ${COMMON_SRC}
 
 file (GLOB COMMON_IMPL_SRC ${COMMON_IMPL_SRC}
         ../src/opencl/*.cpp
+        ../src/ocio/*.cpp
         )
 
 add_library(${PROJECT_NAME} ${COMMON_SRC} ${COMMON_IMPL_SRC})

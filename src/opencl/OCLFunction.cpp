@@ -87,4 +87,11 @@ namespace dehancer::opencl {
 
       encoder_ = std::make_shared<opencl::OCLCommandEncoder>(kernel_);
     }
+
+    Function::~Function() {
+      if (kernel_)
+        clReleaseKernel(kernel_);
+      if (program_)
+        clReleaseProgram(program_);
+    }
 }

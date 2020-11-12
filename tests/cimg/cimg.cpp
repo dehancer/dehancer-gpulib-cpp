@@ -8,7 +8,7 @@
 #include <chrono>
 #include "../src/external/CImg.h"
 
-TEST(USER, CIMG) {
+TEST(TEST, CIMG) {
 
   std::cout << std::endl;
   std::cerr << std::endl;

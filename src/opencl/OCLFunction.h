@@ -15,6 +15,8 @@ namespace dehancer::opencl {
         Function(dehancer::opencl::Command* command, const std::string& kernel_name);
         void execute(const dehancer::Function::FunctionHandler& block);
 
+        ~Function();
+
     private:
         dehancer::opencl::Command* command_;
         std::string kernel_name_;

@@ -16,13 +16,24 @@ namespace dehancer::opencl {
       ///
       /// TODO: right desc
       ///
+
+      TextureDesc::Type type = TextureDesc::Type::i2d;
+
+      if (depth>1) {
+        type = TextureDesc::Type::i3d;
+      }
+      else if (height==1) {
+        type = TextureDesc::Type::i1d;
+      }
+
       dehancer::TextureDesc desc = {
               .width = width,
               .height = height,
               .depth = depth,
               .pixel_format = TextureDesc::PixelFormat::rgba32float,
-              .type = TextureDesc::Type::i2d
+              .type = type,
+              .mem_flags = TextureDesc::MemFlags::read_write
       };
-      return TextureHolder::Make(get_command_queue(),desc);
+      return TextureHolder::Make(get_command_queue(), desc, nullptr);
     }
 }

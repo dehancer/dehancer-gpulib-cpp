@@ -10,6 +10,12 @@ namespace dehancer {
 
     struct TextureDesc {
 
+        enum MemFlags:uint32_t {
+            read_write = (1 << 0),
+            write_only = (1 << 1),
+            read_only  = (1 << 2),
+        };
+
         enum class PixelFormat:int {
             rgba16float = 0,
             rgba32float,
@@ -29,7 +35,7 @@ namespace dehancer {
         size_t depth  = 1;
         PixelFormat pixel_format = PixelFormat::rgba32float;
         Type type = Type::i2d;
-
+        MemFlags mem_flags = MemFlags::read_write;
     };
 
     struct TextureHolder;
@@ -37,7 +43,14 @@ namespace dehancer {
 
     struct TextureHolder: public std::enable_shared_from_this<TextureHolder> {
     public:
-        static Texture Make(const void *command_queue, const TextureDesc& desc);
+        /***
+         * Make a new empty read/write texture in command_queue
+         * @param command_queue - gpu command_queue or context
+         * @param desc - texture description
+         * @param from_memory - from memory texture should bee created
+         * @return Texture object
+         */
+        static Texture Make(const void *command_queue, const TextureDesc &desc, void *from_memory = nullptr);
 
         Texture get_ptr() { return shared_from_this(); }
 

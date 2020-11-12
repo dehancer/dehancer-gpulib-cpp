@@ -7,7 +7,7 @@
 
 namespace dehancer::opencl {
 
-    TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc):
+    TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc, void *from_memory) :
             OCLContext(command_queue),
             desc_(desc),
             memobj_(nullptr)
@@ -42,6 +42,7 @@ namespace dehancer::opencl {
           break;
 
       }
+
       memset( &image_desc, 0, sizeof( image_desc ) );
 
       switch (desc_.type) {
@@ -58,15 +59,37 @@ namespace dehancer::opencl {
 
       image_desc.image_width = desc_.width;
       image_desc.image_height = desc_.height;
-      image_desc.image_depth = 1;
+      image_desc.image_depth = desc_.depth;
+
+      cl_mem_flags mem_flags = 0;
+
+      mem_flags |= TextureDesc::MemFlags::read_write & desc.mem_flags ? CL_MEM_READ_WRITE : 0;
+      mem_flags |= TextureDesc::MemFlags::read_only & desc.mem_flags ? CL_MEM_READ_ONLY : 0;
+      mem_flags |= TextureDesc::MemFlags::write_only & desc.mem_flags ? CL_MEM_WRITE_ONLY : 0;
+
+      //if (from_memory)
+      //  mem_flags |=  CL_MEM_COPY_HOST_PTR;
+
+      //unsigned char *data = static_cast<unsigned char *>(from_memory);
+      //auto *buffer = reinterpret_cast<unsigned char *>(from_memory);
+      auto buffer = nullptr;
+
+      if (from_memory) {
+        new unsigned char [image_desc.image_width*image_desc.image_height*4*sizeof(float)];
+        memcpy(buffer,from_memory,image_desc.image_width*image_desc.image_height*4*sizeof(float));
+        mem_flags |= CL_MEM_COPY_HOST_PTR;
+      }
 
       memobj_ = clCreateImage(
               get_context(),
-              CL_MEM_READ_WRITE,
+              mem_flags,
               &format,
               &image_desc,
-              nullptr,
+              buffer,
               &last_error_);
+
+      if (last_error_ != CL_SUCCESS)
+        throw std::runtime_error("Unable to create texture: " + std::to_string(last_error_));
     }
 
     const void *TextureHolder::get_contents() const {

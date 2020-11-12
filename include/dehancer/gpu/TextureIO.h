@@ -3,12 +3,15 @@
 //
 
 #pragma once
-
+#include "dehancer/Common.h"
+#include "dehancer/gpu/Texture.h"
 
 namespace dehancer {
 
-    class TextureIO {
+    class TextureIO /*: public TextureHolder */{
     public:
+
+        TextureIO() = default; //: TextureHolder() {}
 
         struct Options {
             enum Type {
@@ -24,11 +27,5 @@ namespace dehancer {
 
         virtual Texture get_texture() = 0;
         [[nodiscard]] virtual const Texture get_texture() const = 0;
-
-        [[nodiscard]] virtual size_t get_width() const = 0;
-        [[nodiscard]] virtual size_t get_height() const = 0;
-        [[nodiscard]] virtual size_t get_depth() const = 0;
-        [[nodiscard]] virtual size_t get_channels() const = 0;
-        [[nodiscard]] virtual size_t get_pixel_bytes() const = 0;
     };
 }

@@ -8,9 +8,10 @@
 
 #include "dehancer/gpu/Texture.h"
 #include "dehancer/gpu/Function.h"
+#include "dehancer/gpu/TextureInput.h"
+
 #include "Image.h"
 
-#include <algorithm>
 #include <chrono>
 #include <opencv2/opencv.hpp>
 
@@ -96,17 +97,17 @@ int run_bench2(int num, const std::shared_ptr<clHelper::Device>& device) {
   std::chrono::duration<double> seconds = clock_end-clock_begin;
 
   // Report results and save image
-  std::cout << "[aobench cl]:\t" << seconds.count() << "s "
+  std::cout << "[aobench cl ("<<device->name<<")]:\t" << seconds.count() << "s "
             << ", for a " << width << "x" << height << " pixels" << std::endl;
 
   //std::string out_file = "ao-cl-"; out_file.append(std::to_string(num)); out_file.append(".ppm");
-  std::string out_file_cv = "ao-cl-"; out_file_cv.append(std::to_string(num)); out_file_cv.append(".tif");
+  std::string out_file_cv = "ao-cl-"; out_file_cv.append(std::to_string(num)); out_file_cv.append(".png");
 
-  std::cout << " cv::imwrite " << out_file_cv << std::endl;
+  //std::cout << " cv::imwrite " << out_file_cv << std::endl;
   cv::cvtColor(cv_output_, cv_output_, cv::COLOR_RGBA2BGRA);
-  //cv::cvtColor(cv_output_, cv_output_, CV_8U); //cvtColor(Temp, Result, CV_BGRA2BGR);
+  cv::cvtColor(cv_output_, cv_output_, CV_8U); //cvtColor(Temp, Result, CV_BGRA2BGR);
   //cv::Mat tmp;
-  //cv_output_ *= 65536;
+  cv_output_ *= 256;
   //cv_output_.convertTo(tmp,CV_32F);
   //cv::cvtColor(tmp, tmp, cv::COLOR_RGBA2BGRA);
   //cv::cvtColor(cv_output_, cv_output_, );
@@ -114,11 +115,26 @@ int run_bench2(int num, const std::shared_ptr<clHelper::Device>& device) {
 
   //image.savePPM(out_file.c_str());
 
+  auto blend_kernel = dehancer::Function(command_queue, "blend_kernel");
+  auto input_text = dehancer::TextureInput(command_queue);
+
+  std::ifstream ifs(out_file_cv, std::ios::binary);
+  ifs >> input_text;
+  auto source = input_text.get_texture();
+
+  blend_kernel.execute([&source, &ao_bench_text](dehancer::CommandEncoder& command_encoder){
+      int count = 0;
+
+      command_encoder.set(source, count++);
+      command_encoder.set(ao_bench_text, count++);
+
+      return ao_bench_text;
+  });
+
   return 0;
 }
 
-
-TEST(USER, OpenCL) {
+TEST(TEST, OpenCL) {
 
   std::cout << std::endl;
   std::cerr << std::endl;
@@ -140,9 +156,11 @@ TEST(USER, OpenCL) {
 
     std::cout << "Bench: " << std::endl;
     dev_num = 0;
-    for (auto d: devices) {
-      if (run_bench2(dev_num++, d)!=0) return;
-    }
+//    for (auto d: devices) {
+//      if (run_bench2(dev_num++, d)!=0) return;
+//    }
+
+    if (run_bench2(0, devices[0])!=0) return;
 
   }
   catch (const std::runtime_error &e) {

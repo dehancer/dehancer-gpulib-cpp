@@ -23,9 +23,9 @@ add_executable(${TEST} ${TESTS_SOURCES} ${EMBEDDED_OPENCL_KERNELS})
 target_link_libraries(
         ${TEST}
         ${PROJECT_LIB}
-        ${TEST_LIBRARIES}
         clHelperLib
         ${COMMON_LIBRARIES}
+        ${TEST_LIBRARIES}
         ${CMAKE_DL_LIBS}
 )
 
