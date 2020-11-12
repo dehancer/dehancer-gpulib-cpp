@@ -58,9 +58,9 @@ find_package (PkgConfig REQUIRED)
 find_package (BLAS REQUIRED)
 find_package (LAPACK REQUIRED)
 find_package (OpenCL REQUIRED)
-find_package (JPEG REQUIRED)
-find_package (TIFF REQUIRED)
-find_package (PNG REQUIRED)
+#find_package (JPEG REQUIRED)
+#find_package (TIFF REQUIRED)
+#find_package (PNG REQUIRED)
 find_package (ZLIB REQUIRED)
 find_package (OpenCV REQUIRED )
 
@@ -79,6 +79,7 @@ if (NOT GTEST_FOUND)
             CMAKE_ARGS
             -DCMAKE_CXX_STANDARD=${DCMAKE_CXX_STANDARD}
             -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             )
     set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};googletest)
 endif()
@@ -97,6 +98,89 @@ ExternalProject_Add(dehancer_opencl_helper
 
 set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};dehancer_opencl_helper)
 set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};clHelperLib)
+
+#
+# Ed25519
+#
+pkg_check_modules(ed25519cpp ed25519cpp)
+if (ed25519cpp_FOUND)
+
+    include_directories(
+            ${ed25519cpp_INCLUDE_DIRS}
+    )
+    link_directories(
+            ${ed25519cpp_LIBRARY_DIRS}
+    )
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${ed25519cpp_LIBRARIES})
+
+else()
+    ExternalProject_Add(ed25519cpplib
+            GIT_REPOSITORY https://github.com/dnevera/ed25519cpp
+            CMAKE_ARGS
+            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            )
+    set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};ed25519cpplib)
+    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};ed25519cpp)
+endif()
+
+#
+# Base64
+#
+pkg_check_modules(base64cpp base64cpp)
+if (base64cpp_FOUND)
+
+    message(STATUS "base64cpp: ${base64cpp_LIBRARIES}, ${base64cpp_LIBRARY_DIRS} ${base64cpp_INCLUDE_DIRS}")
+    include_directories(
+            ${base64cpp_INCLUDE_DIRS}
+    )
+    link_directories(
+            ${base64cpp_LIBRARY_DIRS}
+    )
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${base64cpp_LIBRARIES})
+
+else()
+    ExternalProject_Add(base64cpplib
+            GIT_REPOSITORY https://github.com/dnevera/base64cpp
+            CMAKE_ARGS
+            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            )
+    set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};base64cpplib)
+    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};base64cpp)
+endif()
+
+#
+# Common
+#
+pkg_check_modules(dehancer_common_cpp dehancer-common-cpp)
+if (dehancer_common_cpp_FOUND)
+
+    message(STATUS "dehancer_common_cpp: ${dehancer_common_cpp_LIBRARIES}, ${dehancer_common_cpp_LIBRARY_DIRS} ${dehancer_common_cpp_INCLUDE_DIRS}")
+    include_directories(
+            ${dehancer_common_cpp_INCLUDE_DIRS}
+    )
+    link_directories(
+            ${dehancer_common_cpp_LIBRARY_DIRS}
+    )
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${dehancer_common_cpp_LIBRARIES})
+
+else()
+    ExternalProject_Add(dehancer_common_cpplib
+            GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
+            CMAKE_ARGS
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=${DCMAKE_OSX_DEPLOYMENT_TARGET}
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            )
+    set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};dehancer_common_cpplib)
+    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};dehancer_common_cpp)
+endif()
 
 set(clHelper_DIR ${CMAKE_SOURCE_DIR}/lib/cmake)
 
@@ -118,14 +202,16 @@ set(COMMON_LIBRARIES
         ${BLAS_LIBRARIES};
         ${LAPACK_LIBRARIES};
         ${OpenCL_LIBRARIES};
-        ${PNG_LIBRARIES};
-        ${JPEG_LIBRARIES};
-        ${TIFF_LIBRARIES};
         ${OpenCV_LIBS};
+#        ${PNG_LIBRARIES};
+#        ${JPEG_LIBRARIES};
+#        ${TIFF_LIBRARIES};
         )
 
 add_subdirectory(lib)
 
 if(BUILD_TESTING)
+    include(CTest)
     add_subdirectory(tests)
+    enable_testing()
 endif()
