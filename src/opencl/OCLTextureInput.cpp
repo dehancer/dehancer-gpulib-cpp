@@ -6,12 +6,13 @@
 #include <opencv4/opencv2/opencv.hpp>
 
 namespace dehancer::opencl {
+
     TextureInput::TextureInput(const void *command_queue, const dehancer::StreamSpace &space,
                                dehancer::StreamSpace::Direction direction):
-                               OCLContext(command_queue),
-                               texture_(nullptr),
-                               space_(space),
-                               direction_(direction)
+            OCLContext(command_queue),
+            texture_(nullptr),
+            space_(space),
+            direction_(direction)
     {
     }
 
@@ -38,27 +39,7 @@ namespace dehancer::opencl {
     Error TextureInput::load_from_image(const std::vector<uint8_t> &buffer) {
 
       try {
-        auto stdw = std::setw(15);
-
         auto image = cv::Mat(cv::imdecode(buffer,cv::IMREAD_UNCHANGED));
-
-        //std::cout << stdw << "SOURCE Pixel Depth:" <<  image.depth() << std::endl;
-        //std::cout << stdw << "SOURCE Pixel Chann:" <<  image.channels() << std::endl;
-
-        std::cout << std::left << std::setfill(' ') <<  std::setw(15) << " Read buffer " << std:: endl;
-
-        std::cout << stdw << "Width:" <<  image.cols << std::endl;
-        std::cout << stdw << "Height:" <<  image.rows << std::endl;
-
-        std::cout << stdw << "Pixel Depth:" <<  image.depth() << std::endl;
-        std::cout << stdw << "Pixel Dims:" <<  image.dims << std::endl;
-        std::cout << stdw << "Channels:" <<  image.channels() << std::endl;
-
-        std::cout << stdw << "Width Step:" <<  image.step << std::endl;
-        std::cout << stdw << "Image Size:" <<  image.size << std::endl;
-        std::cout << stdw << "Image Type:" <<  image.type() << std::endl;
-        std::cout << stdw << "Image Flags:" << image.flags << std::endl;
-
 
         auto scale = 1.0f;
 
@@ -100,48 +81,49 @@ namespace dehancer::opencl {
 
         image.convertTo(image, CV_32FC4, scale);
 
-        dehancer::TextureDesc desc = {
-                .width = static_cast<size_t>(image.cols),
-                .height = static_cast<size_t>(image.rows),
-                .depth = 1,
-                .pixel_format = TextureDesc::PixelFormat::rgba32float,
-                .type = TextureDesc::Type::i2d,
-                .mem_flags = TextureDesc::MemFlags::read_only
-        };
+        return load_from_data(reinterpret_cast<float *>(image.data),
+                              static_cast<size_t>(image.cols),
+                              static_cast<size_t>(image.rows),
+                              1
+        );
 
-        texture_ = TextureHolder::Make(get_command_queue(), desc, image.data);
       }
       catch (const std::exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
-
-      return Error(CommonError::OK);
     }
 
-    Error TextureInput::load_from_data(const std::vector<float> &buffer, size_t width, size_t height, size_t depth,
-                                       size_t channels) {
-      return load_from_data(buffer.data(), width, height, depth, channels);
+    Error TextureInput::load_from_data(const std::vector<float> &buffer, size_t width, size_t height, size_t depth) {
+      auto* _buffer = const_cast<float *>(buffer.data());
+      return load_from_data(_buffer, width, height, depth);
     }
 
     Error
-    TextureInput::load_from_data(const float *buffer, size_t width, size_t height, size_t depth, size_t channels) {
-      TextureDesc::Type type = TextureDesc::Type::i2d;
+    TextureInput::load_from_data(float *buffer, size_t width, size_t height, size_t depth) {
+      try {
+        TextureDesc::Type type = TextureDesc::Type::i2d;
 
-      if (depth>1) {
-        type = TextureDesc::Type::i3d;
+        if (depth > 1) {
+          type = TextureDesc::Type::i3d;
+        } else if (height == 1) {
+          type = TextureDesc::Type::i1d;
+        }
+
+        dehancer::TextureDesc desc = {
+                .width = width,
+                .height = height,
+                .depth = depth,
+                .pixel_format = TextureDesc::PixelFormat::rgba32float,
+                .type = type,
+                .mem_flags = TextureDesc::MemFlags::read_only
+        };
+
+        texture_ = TextureHolder::Make(get_command_queue(), desc, buffer);
+
+        if (!texture_)
+          return Error(CommonError::NOT_SUPPORTED,
+                       error_string("Texture could not be created from the image"));
       }
-      else if (height==1) {
-        type = TextureDesc::Type::i1d;
-      }
+      catch (const std::exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
 
-      dehancer::TextureDesc desc = {
-              .width = width,
-              .height = height,
-              .depth = depth,
-              .pixel_format = TextureDesc::PixelFormat::rgba32float,
-              .type = type,
-              .mem_flags = TextureDesc::MemFlags::read_only
-      };
-
-      texture_ = TextureHolder::Make(get_command_queue(), desc, (void *) buffer);
       return Error(CommonError::OK);
     }
 

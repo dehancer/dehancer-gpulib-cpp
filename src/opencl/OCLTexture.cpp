@@ -70,7 +70,6 @@ namespace dehancer::opencl {
       unsigned char* buffer = nullptr;
 
       if (from_memory) {
-        new unsigned char [image_desc.image_width*image_desc.image_height*4*sizeof(float)];
         buffer = reinterpret_cast<unsigned char *>(from_memory);
         mem_flags |= CL_MEM_COPY_HOST_PTR;
       }
@@ -135,11 +134,11 @@ namespace dehancer::opencl {
     }
 
     TextureDesc::PixelFormat TextureHolder::get_pixel_format() const {
-      return TextureDesc::PixelFormat::rgba8uint;
+      return desc_.pixel_format;
     }
 
     TextureDesc::Type TextureHolder::get_type() const {
-      return TextureDesc::Type::i3d;
+      return desc_.type;
     }
 
     TextureHolder::~TextureHolder() {

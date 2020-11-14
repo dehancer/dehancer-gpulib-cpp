@@ -14,12 +14,10 @@ namespace dehancer {
         };
     }
 
-
     TextureInput::TextureInput(const void *command_queue, const StreamSpace &space, StreamSpace::Direction direction):
+    TextureIO(),
     impl_(std::make_shared<impl::TextureInput>(command_queue,space,direction))
-    {
-
-    }
+    {}
 
     Texture TextureInput::get_texture() {
       return impl_->get_texture();
@@ -29,38 +27,16 @@ namespace dehancer {
       return impl_->get_texture();
     }
 
-//    size_t TextureInput::get_width() const {
-//      return 0;
-//    }
-//
-//    size_t TextureInput::get_height() const {
-//      return 0;
-//    }
-//
-//    size_t TextureInput::get_depth() const {
-//      return 0;
-//    }
-//
-//    size_t TextureInput::get_channels() const {
-//      return 0;
-//    }
-//
-//    size_t TextureInput::get_length() const {
-//      return 0;
-//    }
-
     Error TextureInput::load_from_image(const std::vector<uint8_t> &buffer) {
       return impl_->load_from_image(buffer);
     }
 
-    Error TextureInput::load_from_data(const std::vector<float> &buffer, size_t width, size_t height, size_t depth,
-                                       size_t channels) {
-      return impl_->load_from_data(buffer,width,height,depth,channels);
+    Error TextureInput::load_from_data(const std::vector<float> &buffer, size_t width, size_t height, size_t depth) {
+      return impl_->load_from_data(buffer,width,height,depth);
     }
 
-    Error
-    TextureInput::load_from_data(const float *buffer, size_t width, size_t height, size_t depth, size_t channels) {
-      return impl_->load_from_data(buffer,width,height,depth,channels);
+    Error TextureInput::load_from_data(float *buffer, size_t width, size_t height, size_t depth) {
+      return impl_->load_from_data(buffer,width,height,depth);
     }
 
     std::istream &operator>>(std::istream &is, TextureInput &dt) {

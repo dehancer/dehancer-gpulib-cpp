@@ -47,10 +47,10 @@ namespace dehancer {
          * Make a new empty read/write texture in command_queue
          * @param command_queue - gpu command_queue or context
          * @param desc - texture description
-         * @param from_memory - from memory texture should bee created
+         * @param from_memory - from host memory that texture should be created
          * @return Texture object
          */
-        static Texture Make(const void *command_queue, const TextureDesc &desc, void *from_memory = nullptr);
+        static Texture Make(const void *command_queue, const TextureDesc &desc, float *from_memory = nullptr);
 
         Texture get_ptr() { return shared_from_this(); }
 

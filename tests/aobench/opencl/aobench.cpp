@@ -9,11 +9,9 @@
 #include "dehancer/gpu/Texture.h"
 #include "dehancer/gpu/Function.h"
 #include "dehancer/gpu/TextureInput.h"
-
-#include "Image.h"
+#include "dehancer/gpu/TextureOutput.h"
 
 #include <chrono>
-#include <opencv2/opencv.hpp>
 
 cl_command_queue make_command_queue(const std::shared_ptr<clHelper::Device>& device) {
   /* Create OpenCL context */
@@ -28,6 +26,11 @@ cl_command_queue make_command_queue(const std::shared_ptr<clHelper::Device>& dev
 
 
 int run_bench2(int num, const std::shared_ptr<clHelper::Device>& device) {
+
+  dehancer::TextureIO::Options::Type type = dehancer::TextureIO::Options::Type::png;
+  std::string ext = dehancer::TextureIO::extention_for(type);
+  float       compression = 0.0f;
+
   cl_uint width = 800, height = 600;
 
   auto command_queue = make_command_queue(device);
@@ -35,6 +38,8 @@ int run_bench2(int num, const std::shared_ptr<clHelper::Device>& device) {
   auto bench_kernel = dehancer::Function(command_queue, "ao_bench_kernel");
   auto ao_bench_text = bench_kernel.make_texture(width,height);
 
+  std::chrono::time_point<std::chrono::system_clock> clock_begin
+          = std::chrono::system_clock::now();
   /***
    * Test performance
    */
@@ -47,53 +52,6 @@ int run_bench2(int num, const std::shared_ptr<clHelper::Device>& device) {
       return ao_bench_text;
   });
 
-  Image image(width, height);
-
-  std::chrono::time_point<std::chrono::system_clock> clock_begin
-          = std::chrono::system_clock::now();
-
-  size_t originst[3];
-  size_t regionst[3];
-  size_t  rowPitch = 0;
-  size_t  slicePitch = 0;
-  originst[0] = 0; originst[1] = 0; originst[2] = 0;
-  regionst[0] = width; regionst[1] = height; regionst[2] = 1;
-
-//  cl_int ret = clEnqueueReadImage(
-//          command_queue,
-//          static_cast<cl_mem>(ao_bench_text->get_contents()),
-//          CL_TRUE,
-//          originst,
-//          regionst,
-//          rowPitch,
-//          slicePitch,
-//          image.pix,
-//          0,
-//          nullptr,
-//          nullptr );
-//
-//  if (ret != CL_SUCCESS) {
-//    throw std::runtime_error("Unable to create texture");
-//  }
-
-  auto cv_output_ = cv::Mat(height, width, CV_32FC4);
-
-  cl_int ret = clEnqueueReadImage(
-          command_queue,
-          static_cast<cl_mem>(ao_bench_text->get_contents()),
-          CL_TRUE,
-          originst,
-          regionst,
-          rowPitch,
-          slicePitch,
-          cv_output_.data,
-          0,
-          nullptr,
-          nullptr );
-
-  if (ret != CL_SUCCESS) {
-    throw std::runtime_error("Unable to read base texture");
-  }
 
   std::chrono::time_point<std::chrono::system_clock> clock_end
           = std::chrono::system_clock::now();
@@ -103,21 +61,16 @@ int run_bench2(int num, const std::shared_ptr<clHelper::Device>& device) {
   std::cout << "[aobench cl ("<<device->name<<")]:\t" << seconds.count() << "s "
             << ", for a " << width << "x" << height << " pixels" << std::endl;
 
-  //std::string out_file = "ao-cl-"; out_file.append(std::to_string(num)); out_file.append(".ppm");
-  //image.savePPM(out_file.c_str());
-
-  std::string ext = ".tif";
-  auto output_type = CV_16U;
-  auto output_color = cv::COLOR_RGBA2BGR;
-  auto scale = 65536.0f;
 
   std::string out_file_cv = "ao-cl-"; out_file_cv.append(std::to_string(num)); out_file_cv.append(ext);
 
-  cv_output_.convertTo(cv_output_, output_type, scale);
-  cv::cvtColor(cv_output_,cv_output_, output_color);
-
-  cv::imwrite(out_file_cv, cv_output_);
-
+  {
+    std::ofstream ao_bench_os(out_file_cv, std::ostream::binary | std::ostream::trunc);
+    ao_bench_os << dehancer::TextureOutput(command_queue, ao_bench_text, {
+            .type = type,
+            .compression = compression
+    });
+  }
 
   /***
    * Test blend and write output
@@ -140,30 +93,13 @@ int run_bench2(int num, const std::shared_ptr<clHelper::Device>& device) {
   });
 
   std::string out_file_result = "ao-cl-result-"; out_file_result.append(std::to_string(num)); out_file_result.append(ext);
-
-  auto cv_result = cv::Mat(height, width, CV_32FC4);
-
-  ret = clEnqueueReadImage(
-          command_queue,
-          static_cast<cl_mem>(result->get_contents()),
-          CL_TRUE,
-          originst,
-          regionst,
-          rowPitch,
-          slicePitch,
-          cv_result.data,
-          0,
-          nullptr,
-          nullptr );
-
-  if (ret != CL_SUCCESS) {
-    throw std::runtime_error("Unable to read output texture");
+  {
+    std::ofstream result_os(out_file_result, std::ostream::binary | std::ostream::trunc);
+    result_os << dehancer::TextureOutput(command_queue, result, {
+            .type = type,
+            .compression = compression
+    });
   }
-
-  cv_result.convertTo(cv_result, output_type, scale);
-  cv::cvtColor(cv_result, cv_result, output_color);
-
-  cv::imwrite(out_file_result, cv_result);
 
   return 0;
 }

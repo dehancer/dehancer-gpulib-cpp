@@ -24,14 +24,6 @@ namespace dehancer {
         Texture get_texture() override;
         [[nodiscard]] const Texture get_texture() const override;
 
-        //[[nodiscard]] const void*  get_contents() const override ;
-        //[[nodiscard]] void*  get_contents() override ;
-        //[[nodiscard]] size_t get_width() const override;
-        //[[nodiscard]] size_t get_height() const override;
-        //[[nodiscard]] size_t get_depth() const override;
-        //[[nodiscard]] size_t get_channels() const override;
-        //[[nodiscard]] size_t get_length() const override;
-
         Error load_from_image(const std::vector<uint8_t>& buffer);
 
         Error
@@ -39,16 +31,14 @@ namespace dehancer {
                 const std::vector<float> &buffer,
                 size_t width,
                 size_t height,
-                size_t depth= 1,
-                size_t channels= 4);
+                size_t depth= 1);
 
         Error
         load_from_data(
-                const float *buffer,
+                float *buffer,
                 size_t width,
                 size_t height,
-                size_t depth= 1,
-                size_t channels= 4);
+                size_t depth= 1);
 
         friend std::istream& operator>>(std::istream& is, TextureInput& dt);
 

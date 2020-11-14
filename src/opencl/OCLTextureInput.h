@@ -11,6 +11,7 @@
 #include "OCLContext.h"
 
 namespace dehancer::opencl {
+
     class TextureInput: public OCLContext {
 
     public:
@@ -19,8 +20,8 @@ namespace dehancer::opencl {
                               const StreamSpace &space = StreamSpace::create_identity(),
                               StreamSpace::Direction direction = StreamSpace::Direction::none);
 
-        Texture get_texture() { return texture_; };
-        [[nodiscard]] Texture get_texture() const { return texture_; };
+        Texture get_texture() { return texture_->get_ptr(); };
+        [[nodiscard]] Texture get_texture() const { return texture_->get_ptr(); };
 
         [[nodiscard]] size_t get_width() const;
         [[nodiscard]] size_t get_height() const;
@@ -35,16 +36,14 @@ namespace dehancer::opencl {
                 const std::vector<float> &buffer,
                 size_t width,
                 size_t height,
-                size_t depth= 1,
-                size_t channels= 4);
+                size_t depth = 1);
 
         Error
         load_from_data(
-                const float *buffer,
+                float *buffer,
                 size_t width,
                 size_t height,
-                size_t depth= 1,
-                size_t channels= 4);
+                size_t depth = 1);
 
         friend std::istream& operator>>(std::istream& is, TextureInput& dt);
 

@@ -2,7 +2,6 @@
 // Created by denn nevera on 10/11/2020.
 //
 
-//#include "dehancer/Function.h"
 #include "opencl/OCLFunction.h"
 #include "opencl/OCLCommand.h"
 
