@@ -67,16 +67,11 @@ namespace dehancer::opencl {
       mem_flags |= TextureDesc::MemFlags::read_only & desc.mem_flags ? CL_MEM_READ_ONLY : 0;
       mem_flags |= TextureDesc::MemFlags::write_only & desc.mem_flags ? CL_MEM_WRITE_ONLY : 0;
 
-      //if (from_memory)
-      //  mem_flags |=  CL_MEM_COPY_HOST_PTR;
-
-      //unsigned char *data = static_cast<unsigned char *>(from_memory);
-      //auto *buffer = reinterpret_cast<unsigned char *>(from_memory);
-      auto buffer = nullptr;
+      unsigned char* buffer = nullptr;
 
       if (from_memory) {
         new unsigned char [image_desc.image_width*image_desc.image_height*4*sizeof(float)];
-        memcpy(buffer,from_memory,image_desc.image_width*image_desc.image_height*4*sizeof(float));
+        buffer = reinterpret_cast<unsigned char *>(from_memory);
         mem_flags |= CL_MEM_COPY_HOST_PTR;
       }
 

@@ -339,7 +339,7 @@ __kernel void ao_bench_kernel(int nsubsamples, __write_only image2d_t destinatio
 
   ret *= (invSamples * invSamples);
 
-  float4 color = (float4)(ret,0,0,1);
+  float4 color = (float4)(ret,ret,ret,1);
 
   int2 gid = (int2)(x, y);
 
@@ -369,7 +369,7 @@ __kernel void blend_kernel(__read_only image2d_t source, __write_only image2d_t 
 
 
   float4 inColor = read_imagef(source, sampler, coords);
-  inColor.z = 0.5;
+  inColor.b = 0.5;
 
   write_imagef(destination, gid, inColor);
 

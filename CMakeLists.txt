@@ -68,6 +68,7 @@ configure_file(include/dehancer/gpulib_version.h.in ${CMAKE_BINARY_DIR}/generate
 # Packages
 #
 set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
+set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib64/pkgconfig)
 set(ENV{PKG_CONFIG_PATH} $ENV{SYSROOT}/usr/local/dehancer/lib/pkgconfig)
 find_package (PkgConfig REQUIRED)
 find_package (Threads REQUIRED)
@@ -75,8 +76,15 @@ find_package (PkgConfig REQUIRED)
 find_package (BLAS REQUIRED)
 find_package (LAPACK REQUIRED)
 find_package (OpenCL REQUIRED)
+find_package (PNG REQUIRED)
+#find_package (JPEG REQUIRED)
+find_package (TIFF REQUIRED)
 find_package (ZLIB REQUIRED)
 find_package (OpenCV REQUIRED )
+
+pkg_check_modules(libturbojpeg REQUIRED libturbojpeg)
+
+message("JPEG: ${libturbojpeg_LIBRARIES}")
 
 #
 # External projects
@@ -274,10 +282,14 @@ ExternalProject_Add(OpenColorIO
         -DCMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}
         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
         -DOCIO_BUILD_TESTS=OFF
-        -DOCIO_BUILD_GPU_TESTS=OF
+        -DOCIO_BUILD_GPU_TESTS=OFF
         -DBUILD_SHARED_LIBS=OFF
         -DOCIO_BUILD_APPS=OFF
         -DOCIO_BUILD_PYTHON=OFF
+        -DILMBASE_STATIC_LIBRARY=ON
+        -DPYSTRING_STATIC_LIBRARY=ON
+        -DYAMLCPP_STATIC_LIBRARY=ON
+        -DOCIO_INSTALL_EXT_PACKAGES=ALL
         )
 set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES}; OpenColorIO)
 set(COMMON_LIBRARIES  ${COMMON_LIBRARIES}; libOpenColorIO.a; libOpenColorIOapphelpers.a)
