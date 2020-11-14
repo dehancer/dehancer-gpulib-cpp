@@ -13,7 +13,7 @@
 
 #include <chrono>
 
-cl_command_queue make_command_queue(const std::shared_ptr<clHelper::Device>& device) {
+void* make_command_queue(const std::shared_ptr<clHelper::Device>& device) {
   /* Create OpenCL context */
   cl_int ret;
 
@@ -35,7 +35,7 @@ int run_bench2(int num, const std::shared_ptr<clHelper::Device>& device) {
 
   auto command_queue = make_command_queue(device);
 
-  auto bench_kernel = dehancer::Function(command_queue, "ao_bench_kernel");
+  auto bench_kernel = dehancer::Function(command_queue, "ao_bench_kernel", true);
   auto ao_bench_text = bench_kernel.make_texture(width,height);
 
   std::chrono::time_point<std::chrono::system_clock> clock_begin

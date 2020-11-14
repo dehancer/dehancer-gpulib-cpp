@@ -76,15 +76,14 @@ find_package (PkgConfig REQUIRED)
 find_package (BLAS REQUIRED)
 find_package (LAPACK REQUIRED)
 find_package (OpenCL REQUIRED)
-find_package (PNG REQUIRED)
+#find_package (PNG REQUIRED)
 #find_package (JPEG REQUIRED)
-find_package (TIFF REQUIRED)
+#find_package (TIFF REQUIRED)
 find_package (ZLIB REQUIRED)
 find_package (OpenCV REQUIRED )
 
-pkg_check_modules(libturbojpeg REQUIRED libturbojpeg)
-
-message("JPEG: ${libturbojpeg_LIBRARIES}")
+#pkg_check_modules(libturbojpeg REQUIRED libturbojpeg)
+#message("JPEG: ${libturbojpeg_LIBRARIES}")
 
 #
 # External projects

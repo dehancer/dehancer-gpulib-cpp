@@ -70,7 +70,6 @@ namespace dehancer::opencl {
         throw std::runtime_error("Unable to create OpenCL program from exampleKernel.cl");
       }
 
-
       /* Build Kernel Program */
       auto device_id = command_->get_device_id();
       last_error = clBuildProgram(program_, 1, &device_id, nullptr, nullptr, nullptr);
