@@ -3,7 +3,7 @@
 //
 
 #include "dehancer/gpu/TextureInput.h"
-#include "opencl/OCLTextureInput.h"
+#include "platforms/opencl/TextureInput.h"
 
 namespace dehancer {
 

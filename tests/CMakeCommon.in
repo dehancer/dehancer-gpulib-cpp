@@ -18,7 +18,11 @@ include_directories(
         ${CMAKE_BINARY_DIR}/external/include
 )
 
-add_executable(${TEST} ${TESTS_SOURCES} ${EMBEDDED_OPENCL_KERNELS})
+if (DEHANCER_GPU_METAL)
+    add_executable(${TEST} ${TESTS_SOURCES})
+elseif(DEHANCER_GPU_OPENCL)
+    add_executable(${TEST} ${TESTS_SOURCES} ${EMBEDDED_OPENCL_KERNELS})
+endif ()
 
 target_link_libraries(
         ${TEST}

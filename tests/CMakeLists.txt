@@ -1,2 +1,2 @@
 add_subdirectory(aobench)
-add_subdirectory(cimg)
+add_subdirectory(device)

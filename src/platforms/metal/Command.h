@@ -5,11 +5,11 @@
 #pragma once
 
 #include "dehancer/gpu/Command.h"
-#include "OCLContext.h"
+#include "Context.h"
 
-namespace dehancer::opencl {
+namespace dehancer::metal {
 
-    class Command: public OCLContext, public std::enable_shared_from_this<Command> {
+    class Command: public metal::Context, public std::enable_shared_from_this<Command> {
     public:
 
         explicit Command(const void *command_queue, bool wait_until_completed = dehancer::Command::WAIT_UNTIL_COMPLETED);

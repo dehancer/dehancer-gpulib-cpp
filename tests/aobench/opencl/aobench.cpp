@@ -104,7 +104,7 @@ int run_bench2(int num, const std::shared_ptr<clHelper::Device>& device) {
   return 0;
 }
 
-TEST(TEST, OpenCL) {
+TEST(TEST, AOBENCH_OpenCL) {
 
   std::cout << std::endl;
   std::cerr << std::endl;

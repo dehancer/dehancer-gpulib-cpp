@@ -3,11 +3,17 @@
 //
 
 #include "dehancer/gpu/Texture.h"
-#include "opencl/OCLTexture.h"
+#include "platforms/PlatformConfig.h"
+
+#if defined(DEHANCER_GPU_METAL)
+#include "platforms/metal/Texture.h"
+#elif defined(DEHANCER_GPU_OPENCL)
+#include "platforms/opencl/Texture.h"
+#endif
 
 namespace dehancer {
 
     Texture TextureHolder::Make(const void *command_queue, const TextureDesc &desc, float *from_memory) {
-      return std::make_shared<dehancer::opencl::TextureHolder>(command_queue,desc,from_memory);
+      return std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::TextureHolder>(command_queue,desc,from_memory);
     }
 }

@@ -5,11 +5,11 @@
 #pragma once
 
 #include "dehancer/gpu/Texture.h"
-#include "OCLContext.h"
+#include "Context.h"
 
-namespace dehancer::opencl {
+namespace dehancer::metal {
 
-    struct TextureHolder: public dehancer::TextureHolder, public OCLContext {
+    struct TextureHolder: public dehancer::TextureHolder, public Context {
         TextureHolder(const void *command_queue, const TextureDesc &desc, void *from_memory);
         ~TextureHolder() override ;
 
@@ -25,6 +25,5 @@ namespace dehancer::opencl {
 
     private:
         TextureDesc desc_;
-        cl_mem memobj_;
     };
 }

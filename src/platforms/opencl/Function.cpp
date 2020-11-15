@@ -2,8 +2,8 @@
 // Created by denn nevera on 10/11/2020.
 //
 
-#include "OCLFunction.h"
-#include "OCLCommandEncoder.h"
+#include "Function.h"
+#include "CommandEncoder.h"
 
 namespace dehancer::opencl {
 
@@ -91,7 +91,7 @@ namespace dehancer::opencl {
         throw std::runtime_error("Unable to create kernel for: " + kernel_name_);
       }
 
-      encoder_ = std::make_shared<opencl::OCLCommandEncoder>(kernel_);
+      encoder_ = std::make_shared<opencl::CommandEncoder>(kernel_);
     }
 
     Function::~Function() {

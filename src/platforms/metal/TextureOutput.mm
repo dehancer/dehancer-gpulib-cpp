@@ -2,15 +2,15 @@
 // Created by denn nevera on 14/11/2020.
 //
 
-#include "OCLTextureOutput.h"
 #include <opencv4/opencv2/opencv.hpp>
+#include "TextureOutput.h"
 
-namespace dehancer::opencl {
+namespace dehancer::metal {
 
     TextureOutput::TextureOutput(const void *command_queue,
                                  const dehancer::Texture& source,
                                  const dehancer::TextureIO::Options &options):
-            OCLContext(command_queue),
+            Context(command_queue),
             source_(source),
             options_(options)
     {
@@ -33,8 +33,8 @@ namespace dehancer::opencl {
 
       try {
         auto cv_result = cv::Mat(
-                source_->get_height(),
-                source_->get_width(),
+                static_cast<int>(source_->get_height()),
+                static_cast<int>(source_->get_width()),
                 CV_32FC4,
                 reinterpret_cast<uchar *>(to_memory.data())
                 );
@@ -50,7 +50,7 @@ namespace dehancer::opencl {
           case TextureIO::Options::Type::png:
             ext = ".png";
             params.push_back(cv::IMWRITE_PNG_COMPRESSION);
-            params.push_back(9.0f * options_.compression);
+            params.push_back(static_cast<int>(9.0f * options_.compression));
             output_type = CV_16U;
             output_color = cv::COLOR_RGBA2BGRA;
             scale = 65355.0f;
@@ -59,7 +59,7 @@ namespace dehancer::opencl {
           case TextureIO::Options::Type::jpeg:
             ext = ".jpg";
             params.push_back(cv::IMWRITE_JPEG_QUALITY);
-            params.push_back(100.0f - 100.0f * options_.compression);
+            params.push_back(static_cast<int>(100.0f - 100.0f * options_.compression));
             output_type = CV_8U;
             output_color = cv::COLOR_RGBA2BGR;
             scale = 255.0f;
@@ -118,24 +118,24 @@ namespace dehancer::opencl {
 
       buffer.resize( source_->get_length());
 
-      auto ret = clEnqueueReadImage(
-              get_command_queue(),
-              static_cast<cl_mem>(source_->get_contents()),
-              CL_TRUE,
-              originst,
-              regionst,
-              rowPitch,
-              slicePitch,
-              buffer.data(),
-              0,
-              nullptr,
-              nullptr );
+//      auto ret = clEnqueueReadImage(
+//              get_command_queue(),
+//              static_cast<cl_mem>(source_->get_contents()),
+//              CL_TRUE,
+//              originst,
+//              regionst,
+//              rowPitch,
+//              slicePitch,
+//              buffer.data(),
+//              0,
+//              nullptr,
+//              nullptr );
 
-      if (ret != CL_SUCCESS) {
+      //if (ret != CL_SUCCESS) {
         return Error(CommonError::EXCEPTION, "Texture could not be read");
-      }
+      //}
 
-      return Error(CommonError::OK);
+      //return Error(CommonError::OK);
     }
 
     TextureOutput::~TextureOutput() = default;

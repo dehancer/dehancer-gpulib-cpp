@@ -2,11 +2,11 @@
 // Created by denn nevera on 10/11/2020.
 //
 
-#include "OCLContext.h"
+#include "Context.h"
 
 namespace dehancer::opencl {
 
-    OCLContext::OCLContext(const void *command_queue):command_queue_(command_queue)
+    Context::Context(const void *command_queue): command_queue_(command_queue)
     {
       last_error_ = clGetCommandQueueInfo(get_command_queue(), CL_QUEUE_DEVICE, sizeof(cl_device_id), &device_id_,
                                           nullptr);
@@ -21,15 +21,15 @@ namespace dehancer::opencl {
       }
     }
 
-    cl_command_queue OCLContext::get_command_queue() const {
+    cl_command_queue Context::get_command_queue() const {
       return static_cast<cl_command_queue>((void *) command_queue_);
     }
 
-    cl_device_id OCLContext::get_device_id() const {
+    cl_device_id Context::get_device_id() const {
       return device_id_;
     }
 
-    cl_context OCLContext::get_context() const {
+    cl_context Context::get_context() const {
       return context_;
     }
 }

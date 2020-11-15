@@ -9,10 +9,10 @@
 
 namespace dehancer::opencl {
 
-    class OCLContext {
+    class Context {
 
     public:
-        OCLContext(const void *command_queue);
+        Context(const void *command_queue);
         [[nodiscard]] cl_command_queue get_command_queue() const;
         [[nodiscard]] cl_device_id get_device_id() const;
         [[nodiscard]] cl_context get_context() const;

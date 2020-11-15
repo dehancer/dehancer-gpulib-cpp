@@ -2,19 +2,30 @@
 // Created by denn nevera on 10/11/2020.
 //
 
-#include "opencl/OCLFunction.h"
-#include "opencl/OCLCommand.h"
+#include "platforms/PlatformConfig.h"
+#include "platforms/PlatformConfig.h"
+
+#if defined(DEHANCER_GPU_METAL)
+#include "platforms/metal/Function.h"
+#include "src/platforms/metal/Command.h"
+#elif defined(DEHANCER_GPU_OPENCL)
+#include "platforms/opencl/Function.h"
+#include "src/platforms/opencl/Command.h"
+#endif
+
 
 namespace dehancer {
 
     namespace impl {
-        class Function: public dehancer::opencl::Function {
+
+        class Function: public dehancer::DEHANCER_GPU_PLATFORM::Function {
         public:
-            using dehancer::opencl::Function::Function;
+            using dehancer::DEHANCER_GPU_PLATFORM::Function::Function;
         };
-        class Command: public dehancer::opencl::Command {
+
+        class Command: public dehancer::DEHANCER_GPU_PLATFORM::Command {
         public:
-            using dehancer::opencl::Command::Command;
+            using dehancer::DEHANCER_GPU_PLATFORM::Command::Command;
         };
     }
 

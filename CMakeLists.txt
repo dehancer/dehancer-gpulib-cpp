@@ -16,6 +16,52 @@ set(CMAKE_CXX_STANDARD 17)
 # Options
 #
 option(BUILD_TESTING "Enable creation of  tests." OFF)
+option(DEHANCER_GPU_METAL "Dehancer GPU Layer is Metal" OFF)
+option(DEHANCER_GPU_OPENCL "Dehancer GPU Layer is OpenCL" OFF)
+
+set (DEHANCER_GPU_settings 0)
+if (DEHANCER_GPU_METAL)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEHANCER_GPU_METAL=1")
+    math(EXPR DEHANCER_GPU_settings "${DEHANCER_GPU_settings} + 1")
+endif()
+
+if(DEHANCER_GPU_OPENCL)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEHANCER_GPU_OPENCL=1")
+    math(EXPR DEHANCER_GPU_settings "${DEHANCER_GPU_settings} + 1")
+endif()
+
+if((DEHANCER_GPU_settings GREATER 1) OR (DEHANCER_GPU_settings LESS_EQUAL 0))
+    message(FATAL_ERROR "GPU Layer should be set on DEHANCER_GPU_METAL or DEHANCER_GPU_OPENCL ${DEHANCER_GPU_settings}")
+endif ()
+
+if(UNIX AND NOT APPLE)
+    set(LINUX TRUE)
+endif()
+
+if(LINUX)
+    message(STATUS "Linux configuration...")
+    if (DEHANCER_GPU_METAL)
+        message(FATAL_ERROR "Linux GPU Layer does not suppor Metal SDK")
+    endif ()
+elseif(APPLE)
+    message(STATUS "Apple configuration...")
+    if (DEHANCER_GPU_METAL)
+        message(STATUS "Apple uses Metal...")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -fvisibility=hidden -Wno-unused-command-line-argument -F/Library/Frameworks ")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Metal")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework MetalKit")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework MetalPerformanceShaders")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework CoreImage")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework AppKit")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework ServiceManagement")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Foundation ")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Cocoa")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Security")
+        set_target_properties(${CURRENT_TARGET_NAME} PROPERTIES LINK_FLAGS "-Xlinker,-rpath,@loader_path/../Frameworks")
+    elseif(DEHANCER_GPU_OPENCL)
+        message(STATUS "Apple uses OpenCL...")
+    endif()
+endif()
 
 #
 # Global setttings
@@ -75,15 +121,11 @@ find_package (Threads REQUIRED)
 find_package (PkgConfig REQUIRED)
 find_package (BLAS REQUIRED)
 find_package (LAPACK REQUIRED)
-find_package (OpenCL REQUIRED)
-#find_package (PNG REQUIRED)
-#find_package (JPEG REQUIRED)
-#find_package (TIFF REQUIRED)
+if (DEHANCER_GPU_OPENCL)
+    find_package (OpenCL REQUIRED)
+endif ()
 find_package (ZLIB REQUIRED)
 find_package (OpenCV REQUIRED )
-
-#pkg_check_modules(libturbojpeg REQUIRED libturbojpeg)
-#message("JPEG: ${libturbojpeg_LIBRARIES}")
 
 #
 # External projects
@@ -105,20 +147,21 @@ if (NOT GTEST_FOUND)
     set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};googletest)
 endif()
 
-#
-# OpenCL
-#
-ExternalProject_Add(dehancer_opencl_helper
-        GIT_REPOSITORY https://github.com/dehancer/dehancer-opencl-helper
-        CMAKE_ARGS
-        -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-        -DCMAKE_OSX_DEPLOYMENT_TARGET=${DCMAKE_OSX_DEPLOYMENT_TARGET}
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-        )
-
-set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};dehancer_opencl_helper)
-set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};clHelperLib)
+if (DEHANCER_GPU_OPENCL)
+    #
+    # OpenCL
+    #
+    ExternalProject_Add(dehancer_opencl_helper
+            GIT_REPOSITORY https://github.com/dehancer/dehancer-opencl-helper
+            CMAKE_ARGS
+            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=${DCMAKE_OSX_DEPLOYMENT_TARGET}
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            )
+    set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};dehancer_opencl_helper;)
+    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};clHelperLib;${OpenCL_LIBRARIES};)
+endif ()
 
 #
 # Ed25519
@@ -249,7 +292,6 @@ if (dehancer_maths_cpp_FOUND)
             ${dehancer_maths_cpp_LIBRARY_DIRS}
     )
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${dehancer_maths_cpp_LIBRARIES})
-
 else()
 
     ExternalProject_Add(dehancer_maths_cpplib
@@ -309,13 +351,10 @@ include_directories(
         ./
 )
 
-#set(COMMON_LIBRARIES  ${COMMON_LIBRARIES}; libpystring.a; libyaml-cpp.a; libHalf-2_3_s.a)
-
 set(COMMON_LIBRARIES
         ${COMMON_LIBRARIES};
         ${BLAS_LIBRARIES};
         ${LAPACK_LIBRARIES};
-        ${OpenCL_LIBRARIES};
         ${OpenCV_LIBS};
         )
 

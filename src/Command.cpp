@@ -3,23 +3,29 @@
 //
 
 #include "dehancer/gpu/Command.h"
-#include "opencl/OCLCommand.h"
+#include "platforms/PlatformConfig.h"
+
+#if defined(DEHANCER_GPU_METAL)
+#include "src/platforms/metal/Command.h"
+#elif defined(DEHANCER_GPU_OPENCL)
+#include "src/platforms/opencl/Command.h"
+#endif
+
 
 namespace dehancer {
 
     bool Command::WAIT_UNTIL_COMPLETED = false;
 
     namespace impl {
-        class Command: public dehancer::opencl::Command {
+        class Command: public dehancer::DEHANCER_GPU_PLATFORM::Command {
         public:
-            using dehancer::opencl::Command::Command;
+            using dehancer::DEHANCER_GPU_PLATFORM::Command::Command;
         };
     }
 
     Command::Command(const void *command_queue, bool wait_until_completed):
     impl_(std::make_shared<impl::Command>(command_queue,wait_until_completed))
     {
-
     }
 
     Texture Command::make_texture(size_t width, size_t height, size_t depth) {

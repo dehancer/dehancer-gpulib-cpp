@@ -4,10 +4,12 @@
 
 #include "dehancer/gpu/GpuTypedefs.h"
 
-#ifdef __APPLE__
+#if defined(DEHANCER_GPU_METAL)
+
+#elif defined(DEHANCER_GPU_OPENCL)
 
 #else
 
-//#error "You must define Texture, CommandEncoder, GridSize"
+#error "You must define GPU Layer"
 
 #endif

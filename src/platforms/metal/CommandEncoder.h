@@ -1,0 +1,38 @@
+//
+// Created by denn nevera on 10/11/2020.
+//
+
+#pragma once
+
+#include "dehancer/gpu/Texture.h"
+#include "dehancer/gpu/Function.h"
+#include "Context.h"
+
+namespace dehancer::metal {
+
+    class CommandEncoder: public dehancer::CommandEncoder {
+
+    public:
+        explicit CommandEncoder(id<MTLComputeCommandEncoder> command_encoder): command_encoder_(command_encoder){}
+
+        void set(const Texture &texture, int index) override {
+          if (command_encoder_) {
+
+          }
+          else {
+            throw std::runtime_error("Unable to pass texture to null kernel ");
+          }
+        }
+
+        void set(const void *bytes, size_t bytes_length, int index) override {
+          if (command_encoder_){
+
+          }
+          else {
+            throw std::runtime_error("Unable to pass bytes to null kernel ");
+          }
+        }
+
+        id<MTLComputeCommandEncoder> command_encoder_ = nullptr;
+    };
+}

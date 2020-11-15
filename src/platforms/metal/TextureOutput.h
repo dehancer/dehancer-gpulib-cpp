@@ -8,11 +8,11 @@
 #include "dehancer/gpu/Texture.h"
 #include "dehancer/gpu/TextureIO.h"
 #include "dehancer/Common.h"
-#include "OCLContext.h"
+#include "Context.h"
 
-namespace dehancer::opencl {
+namespace dehancer::metal {
 
-    class TextureOutput: public OCLContext {
+    class TextureOutput: public Context {
     public:
         TextureOutput(const void *command_queue,
                       const Texture& source,

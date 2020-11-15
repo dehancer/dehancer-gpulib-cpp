@@ -6,7 +6,7 @@
 
 #include <dehancer/gpu/Texture.h>
 #include <dehancer/gpu/Function.h>
-#include "OCLCommand.h"
+#include "Command.h"
 
 namespace dehancer::opencl {
 

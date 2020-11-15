@@ -2,13 +2,13 @@
 // Created by denn nevera on 09/11/2020.
 //
 
-#include "OCLCommand.h"
+#include "Command.h"
 
 namespace dehancer::opencl {
 
     Command::Command(const void *command_queue, bool wait_until_completed):
-    OCLContext(command_queue),
-    wait_until_completed_(wait_until_completed)
+            Context(command_queue),
+            wait_until_completed_(wait_until_completed)
     {
     }
 

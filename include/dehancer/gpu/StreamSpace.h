@@ -120,7 +120,13 @@ namespace dehancer {
 #ifdef __METAL_VERSION__
         thread
 #endif
-        StreamSpace& operator=(constant StreamSpace&) = default;
+        StreamSpace& operator=(
+#ifdef __METAL_VERSION__
+                constant
+#else
+                const
+#endif
+        StreamSpace&) = default;
 
         /***
          * Create default space, does nothing

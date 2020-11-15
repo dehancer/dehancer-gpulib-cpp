@@ -3,7 +3,7 @@
 //
 
 #include "dehancer/gpu/TextureOutput.h"
-#include "opencl/OCLTextureOutput.h"
+#include "platforms/opencl/TextureOutput.h"
 
 namespace dehancer{
 

@@ -7,12 +7,20 @@ FILE(GLOB PUBLIC_INCLUDE_FILES
 file (GLOB COMMON_SRC ${COMMON_SRC}
         ../src/*.cpp
         ../src/*.c
-        )
-
-file (GLOB COMMON_IMPL_SRC ${COMMON_IMPL_SRC}
-        ../src/opencl/*.cpp
         ../src/ocio/*.cpp
         )
+
+if (DEHANCER_GPU_METAL)
+    file (GLOB COMMON_IMPL_SRC ${COMMON_IMPL_SRC}
+            ../src/platforms/metal/*.cpp
+            ../src/platforms/metal/*.mm
+            )
+elseif(DEHANCER_GPU_OPENCL)
+    file (GLOB COMMON_IMPL_SRC ${COMMON_IMPL_SRC}
+            ../src/platforms/opencl/*.cpp
+            )
+endif ()
+
 
 add_library(${PROJECT_NAME} ${COMMON_SRC} ${COMMON_IMPL_SRC})
 

@@ -8,11 +8,11 @@
 #include "dehancer/gpu/Texture.h"
 #include "dehancer/Common.h"
 
-#include "OCLContext.h"
+#include "Context.h"
 
-namespace dehancer::opencl {
+namespace dehancer::metal {
 
-    class TextureInput: public OCLContext {
+    class TextureInput: public Context {
 
     public:
 

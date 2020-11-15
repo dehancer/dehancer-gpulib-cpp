@@ -2,14 +2,14 @@
 // Created by denn nevera on 12/11/2020.
 //
 
-#include "OCLTextureInput.h"
 #include <opencv4/opencv2/opencv.hpp>
+#include "TextureInput.h"
 
-namespace dehancer::opencl {
+namespace dehancer::metal {
 
     TextureInput::TextureInput(const void *command_queue, const dehancer::StreamSpace &space,
                                dehancer::StreamSpace::Direction direction):
-            OCLContext(command_queue),
+            Context(command_queue),
             texture_(nullptr),
             space_(space),
             direction_(direction)
