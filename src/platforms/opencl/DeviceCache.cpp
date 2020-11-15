@@ -25,18 +25,18 @@ namespace dehancer::opencl {
     }
 
     gpu_device_cache::gpu_device_cache():
-            device_caches_()
+            device_caches_(),
+            devices_(clHelper::getAllDevices())
     {
-      auto devices = clHelper::getAllDevices();
-      for (auto d: devices){
+      for (auto d: devices_){
         device_caches_.push_back(std::make_shared<gpu_device_item>(d));
       }
     }
 
     std::vector<void *> gpu_device_cache::get_device_list() {
       std::vector<void *> list;
-      for(const auto& d: device_caches_){
-        list.push_back(d->device.get());
+      for(const auto& d: devices_){
+        list.push_back(d.get());
       }
       return list;
     }
@@ -70,9 +70,8 @@ namespace dehancer::opencl {
         }
       }
 
-      auto devices = clHelper::getAllDevices();
       std::shared_ptr<clHelper::Device> next_device = nullptr;
-      for (const auto& next: devices){
+      for (const auto& next: devices_){
         if(next->clDeviceID && device::get_id(next.get()) == id) {
           next_device = next; break;
         }

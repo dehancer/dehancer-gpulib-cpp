@@ -1,4 +1,4 @@
-set (TEST opencl-test)
+set (TEST opencl-aobench-test)
 
 include(${clHelper_DIR}/clHelper.cmake)
 

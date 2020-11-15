@@ -55,6 +55,7 @@ namespace dehancer::opencl {
 
     private:
         std::vector<std::shared_ptr<gpu_device_item>> device_caches_;
+        std::vector<std::shared_ptr<clHelper::Device>> devices_;
     };
 }
 
