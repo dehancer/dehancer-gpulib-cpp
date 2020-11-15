@@ -8,7 +8,7 @@
 
 namespace dehancer {
 
-    class TextureIO /*: public TextureHolder */{
+    class TextureIO {
     public:
 
         TextureIO() = default; //: TextureHolder() {}

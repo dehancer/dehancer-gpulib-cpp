@@ -28,20 +28,27 @@ namespace dehancer::opencl {
               ((texture->get_height() + localWorkSize[1] - 1) / localWorkSize[1]) * localWorkSize[1]
       };
 
-      cl_event    AlphaComposting12 = nullptr;
+      cl_int last_error = 0;
+      cl_event    waiting_event = nullptr;
 
-      auto last_error = clEnqueueNDRangeKernel(command_->get_command_queue(), kernel_, 2, nullptr,
-                                           globalWorkSize,
-                                           localWorkSize,
-                                           0,
-                                           nullptr, &AlphaComposting12);
+      if (command_->get_wait_completed())
+        waiting_event = clCreateUserEvent(command_->get_context(), &last_error);
+
+      last_error = clEnqueueNDRangeKernel(command_->get_command_queue(), kernel_, 2, nullptr,
+                                          globalWorkSize,
+                                          localWorkSize,
+                                          0,
+                                          nullptr,
+                                          &waiting_event);
 
       if (last_error != CL_SUCCESS) {
         throw std::runtime_error("Unable to enqueue kernel: " + kernel_name_);
       }
 
-      if (command_->get_wait_completed()) {
-        last_error = clWaitForEvents(1, &AlphaComposting12);
+      if (waiting_event && command_->get_wait_completed()) {
+        last_error = clWaitForEvents(1, &waiting_event);
+
+        clReleaseEvent(waiting_event);
 
         if (last_error != CL_SUCCESS) {
           throw std::runtime_error("Unable to enqueue kernel: " + kernel_name_);
