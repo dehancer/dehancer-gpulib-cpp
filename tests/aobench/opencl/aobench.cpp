@@ -102,8 +102,6 @@ TEST(TEST, AOBENCH_OpenCL) {
     auto devices = dehancer::DeviceCache::Instance().get_device_list();
     assert(!devices.empty());
 
-    void* device;
-
     int dev_num = 0;
     std::cout << "Info: " << std::endl;
     for (auto d: devices) {

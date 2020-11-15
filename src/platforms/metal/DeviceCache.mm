@@ -20,7 +20,7 @@
  */
 @interface MTLDeviceCache : NSObject
 {
-    NSMutableArray<DehancerMTLDeviceCacheItem_*>*    deviceCaches;
+  NSMutableArray<DehancerMTLDeviceCacheItem_*>*    deviceCaches;
 }
 
 + (MTLDeviceCache*)deviceCache;
@@ -57,108 +57,108 @@ static MTLDeviceCache*   gDeviceCache    = nil;
 
 - (instancetype)initWithDevice:(id<MTLDevice>)device;
 {
-    self = [super init];
-    
-    if (self != nil)
+  self = [super init];
+
+  if (self != nil)
+  {
+    _gpuDevice = static_cast<id <MTLDevice>>([device retain]);
+
+    _commandQueueCache = [[NSMutableArray alloc] initWithCapacity:kMaxCommandQueues];
+    for (NSUInteger i = 0; (_commandQueueCache != nil) && (i < kMaxCommandQueues); i++)
     {
-        _gpuDevice = static_cast<id <MTLDevice>>([device retain]);
-        
-        _commandQueueCache = [[NSMutableArray alloc] initWithCapacity:kMaxCommandQueues];
-        for (NSUInteger i = 0; (_commandQueueCache != nil) && (i < kMaxCommandQueues); i++)
-        {
-            NSMutableDictionary*   commandDict = [NSMutableDictionary dictionary];
-            commandDict[kKey_InUse] = @NO;
-            
-            id<MTLCommandQueue> commandQueue    = [_gpuDevice newCommandQueue];
-            commandDict[kKey_CommandQueue] = commandQueue;
-            
-            [_commandQueueCache addObject:commandDict];
-            [commandQueue release];
-        }
-        
-        if (_commandQueueCache != nil)
-        {
-            _commandQueueCacheLock = [[NSLock alloc] init];
-        }
-        
-        if ((_gpuDevice == nil) || (_commandQueueCache == nil) || (_commandQueueCacheLock == nil))
-        {
-            [self release];
-            self = nil;
-        }
+      NSMutableDictionary*   commandDict = [NSMutableDictionary dictionary];
+      commandDict[kKey_InUse] = @NO;
+
+      id<MTLCommandQueue> commandQueue    = [_gpuDevice newCommandQueue];
+      commandDict[kKey_CommandQueue] = commandQueue;
+
+      [_commandQueueCache addObject:commandDict];
+      [commandQueue release];
     }
-    
-    return self;
+
+    if (_commandQueueCache != nil)
+    {
+      _commandQueueCacheLock = [[NSLock alloc] init];
+    }
+
+    if ((_gpuDevice == nil) || (_commandQueueCache == nil) || (_commandQueueCacheLock == nil))
+    {
+      [self release];
+      self = nil;
+    }
+  }
+
+  return self;
 }
 
 - (void)dealloc
 {
-    [_gpuDevice release];
-    [_commandQueueCache release];
-    [_commandQueueCacheLock release];
+  [_gpuDevice release];
+  [_commandQueueCache release];
+  [_commandQueueCacheLock release];
 
-    [super dealloc];
+  [super dealloc];
 }
 
 - (id<MTLCommandQueue>)getNextFreeCommandQueue
 {
-    id<MTLCommandQueue> result  = nil;
-    
-    [_commandQueueCacheLock lock];
-    NSUInteger  index   = 0;
-    while ((result == nil) && (index < kMaxCommandQueues))
+  id<MTLCommandQueue> result  = nil;
+
+  [_commandQueueCacheLock lock];
+  NSUInteger  index   = 0;
+  while ((result == nil) && (index < kMaxCommandQueues))
+  {
+    NSMutableDictionary*    nextCommandQueue    = _commandQueueCache[index];
+    NSNumber*               inUse               = nextCommandQueue[kKey_InUse];
+    if (![inUse boolValue])
     {
-        NSMutableDictionary*    nextCommandQueue    = _commandQueueCache[index];
-        NSNumber*               inUse               = nextCommandQueue[kKey_InUse];
-        if (![inUse boolValue])
-        {
-            nextCommandQueue[kKey_InUse] = @YES;
-            result = nextCommandQueue[kKey_CommandQueue];
-        }
-        index++;
+      nextCommandQueue[kKey_InUse] = @YES;
+      result = nextCommandQueue[kKey_CommandQueue];
     }
-    [_commandQueueCacheLock unlock];
-    
-    return result;
+    index++;
+  }
+  [_commandQueueCacheLock unlock];
+
+  return result;
 }
 
 - (void)returnCommandQueue:(id<MTLCommandQueue>)commandQueue
 {
-    [_commandQueueCacheLock lock];
-    
-    BOOL        found   = false;
-    NSUInteger  index   = 0;
-    while ((!found) && (index < kMaxCommandQueues))
+  [_commandQueueCacheLock lock];
+
+  BOOL        found   = false;
+  NSUInteger  index   = 0;
+  while ((!found) && (index < kMaxCommandQueues))
+  {
+    NSMutableDictionary*    nextCommandQueuDict = _commandQueueCache[index];
+    id<MTLCommandQueue>     nextCommandQueue    = nextCommandQueuDict[kKey_CommandQueue];
+    if (nextCommandQueue == commandQueue)
     {
-        NSMutableDictionary*    nextCommandQueuDict = _commandQueueCache[index];
-        id<MTLCommandQueue>     nextCommandQueue    = nextCommandQueuDict[kKey_CommandQueue];
-        if (nextCommandQueue == commandQueue)
-        {
-            found = YES;
-            nextCommandQueuDict[kKey_InUse] = @NO;
-        }
-        index++;
+      found = YES;
+      nextCommandQueuDict[kKey_InUse] = @NO;
     }
-    
-    [_commandQueueCacheLock unlock];
+    index++;
+  }
+
+  [_commandQueueCacheLock unlock];
 }
 
 - (BOOL)containsCommandQueue:(id<MTLCommandQueue>)commandQueue
 {
-    BOOL        found   = NO;
-    NSUInteger  index   = 0;
-    while ((!found) && (index < kMaxCommandQueues))
+  BOOL        found   = NO;
+  NSUInteger  index   = 0;
+  while ((!found) && (index < kMaxCommandQueues))
+  {
+    NSMutableDictionary*    nextCommandQueuDict = _commandQueueCache[index];
+    id<MTLCommandQueue>     nextCommandQueue    = nextCommandQueuDict[kKey_CommandQueue];
+    if (nextCommandQueue == commandQueue)
     {
-        NSMutableDictionary*    nextCommandQueuDict = _commandQueueCache[index];
-        id<MTLCommandQueue>     nextCommandQueue    = nextCommandQueuDict[kKey_CommandQueue];
-        if (nextCommandQueue == commandQueue)
-        {
-            found = YES;
-        }
-        index++;
+      found = YES;
     }
-    
-    return found;
+    index++;
+  }
+
+  return found;
 }
 
 @end
@@ -167,26 +167,26 @@ static MTLDeviceCache*   gDeviceCache    = nil;
 
 + (MTLDeviceCache*)deviceCache;
 {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        gDeviceCache = [[MTLDeviceCache alloc] init];
-    });
-    
-    return gDeviceCache;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+      gDeviceCache = [[MTLDeviceCache alloc] init];
+  });
+
+  return gDeviceCache;
 }
 
 - (instancetype)init
 {
-    self = [super init];
-    
-    if (self != nil)
-    {
-        NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
+  self = [super init];
 
-        deviceCaches = [[NSMutableArray alloc] initWithCapacity:devices.count];
-        
-        for (id<MTLDevice> nextDevice in devices)
-        {
+  if (self != nil)
+  {
+    NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
+
+    deviceCaches = [[NSMutableArray alloc] initWithCapacity:devices.count];
+
+    for (id<MTLDevice> nextDevice in devices)
+    {
 //            dehancer::log::print(" **** MTLCopyAllDevices[%s]: id = %i size = %i, threads = %i",
 //                                 [nextDevice.name UTF8String],
 //                                 nextDevice.registryID,
@@ -194,140 +194,140 @@ static MTLDeviceCache*   gDeviceCache    = nil;
 //                                 nextDevice.maxThreadsPerThreadgroup
 //            );
 
-          DehancerMTLDeviceCacheItem_*  newCacheItem    = [[[DehancerMTLDeviceCacheItem_ alloc] initWithDevice:nextDevice]
-                                                      autorelease];
-            [deviceCaches addObject:newCacheItem];
-        }
-        
-        [devices release];
+      DehancerMTLDeviceCacheItem_*  newCacheItem    = [[[DehancerMTLDeviceCacheItem_ alloc] initWithDevice:nextDevice]
+              autorelease];
+      [deviceCaches addObject:newCacheItem];
     }
-    
-    return self;
+
+    [devices release];
+  }
+
+  return self;
 }
 
 - (void)dealloc
 {
-    [deviceCaches release];
-    
-    [super dealloc];
+  [deviceCaches release];
+
+  [super dealloc];
 }
 
 - (id<MTLDevice>)deviceWithRegistryID:(uint64_t)registryID
 {
-    for (DehancerMTLDeviceCacheItem_* nextCacheItem in deviceCaches)
+  for (DehancerMTLDeviceCacheItem_* nextCacheItem in deviceCaches)
+  {
+    if (nextCacheItem.gpuDevice.registryID == registryID)
     {
-        if (nextCacheItem.gpuDevice.registryID == registryID)
-        {
-            return nextCacheItem.gpuDevice;
-        }
+      return nextCacheItem.gpuDevice;
     }
-    
-    return nil;
+  }
+
+  return nil;
 }
 
 - (id<MTLDevice>)device
 {
-    auto def_device = MTLCreateSystemDefaultDevice();
+  auto def_device = MTLCreateSystemDefaultDevice();
 
-    for (DehancerMTLDeviceCacheItem_* nextCacheItem in deviceCaches) {
-        if (nextCacheItem.gpuDevice.registryID == def_device.registryID) {
-            return nextCacheItem.gpuDevice;
-        }
+  for (DehancerMTLDeviceCacheItem_* nextCacheItem in deviceCaches) {
+    if (nextCacheItem.gpuDevice.registryID == def_device.registryID) {
+      return nextCacheItem.gpuDevice;
     }
+  }
 
-    return nil;
+  return nil;
 }
 
 - (id<MTLCommandQueue>)commandQueueWithRegistryID:(uint64_t)registryID;
 {
-    for (DehancerMTLDeviceCacheItem_* nextCacheItem in deviceCaches)
+  for (DehancerMTLDeviceCacheItem_* nextCacheItem in deviceCaches)
+  {
+    if ((nextCacheItem.gpuDevice.registryID == registryID))
     {
-        if ((nextCacheItem.gpuDevice.registryID == registryID))
-        {
-            return [nextCacheItem getNextFreeCommandQueue];
-        }
+      return [nextCacheItem getNextFreeCommandQueue];
     }
-    
-    
-    // Didn't find one, so create one with the right settings
-    NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
-    id<MTLDevice>   device  = nil;
-    for (id<MTLDevice> nextDevice in devices)
+  }
+
+
+  // Didn't find one, so create one with the right settings
+  NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
+  id<MTLDevice>   device  = nil;
+  for (id<MTLDevice> nextDevice in devices)
+  {
+    if (nextDevice.registryID == registryID )
     {
-        if (nextDevice.registryID == registryID )
-        {
-            device = nextDevice;
-            break;
-        }
+      device = nextDevice;
+      break;
     }
-    
-    id<MTLCommandQueue>  result  = nil;
-    if (device != nil)
+  }
+
+  id<MTLCommandQueue>  result  = nil;
+  if (device != nil)
+  {
+    DehancerMTLDeviceCacheItem_*   newCacheItem    = [[[DehancerMTLDeviceCacheItem_ alloc] initWithDevice:device]
+            autorelease];
+    if (newCacheItem != nil)
     {
-      DehancerMTLDeviceCacheItem_*   newCacheItem    = [[[DehancerMTLDeviceCacheItem_ alloc] initWithDevice:device]
-                                                   autorelease];
-        if (newCacheItem != nil)
-        {
-            [deviceCaches addObject:newCacheItem];
-            result = [newCacheItem getNextFreeCommandQueue];
-        }
+      [deviceCaches addObject:newCacheItem];
+      result = [newCacheItem getNextFreeCommandQueue];
     }
-    [devices release];
-    
-    return result;
+  }
+  [devices release];
+
+  return result;
 }
 
 - (id<MTLCommandQueue>)commandQueue;
 {
-    auto def_device = MTLCreateSystemDefaultDevice();
+  auto def_device = MTLCreateSystemDefaultDevice();
 
-    for (DehancerMTLDeviceCacheItem_* nextCacheItem in deviceCaches)
+  for (DehancerMTLDeviceCacheItem_* nextCacheItem in deviceCaches)
+  {
+    if ((nextCacheItem.gpuDevice.registryID == def_device.registryID))
     {
-        if ((nextCacheItem.gpuDevice.registryID == def_device.registryID))
-        {
-            return [nextCacheItem getNextFreeCommandQueue];
-        }
+      return [nextCacheItem getNextFreeCommandQueue];
     }
+  }
 
 
-    // Didn't find one, so create one with the right settings
-    NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
-    id<MTLDevice>   device  = nil;
-    for (id<MTLDevice> nextDevice in devices)
+  // Didn't find one, so create one with the right settings
+  NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
+  id<MTLDevice>   device  = nil;
+  for (id<MTLDevice> nextDevice in devices)
+  {
+    if (nextDevice.registryID == def_device.registryID)
     {
-        if (nextDevice.registryID == def_device.registryID)
-        {
-            device = nextDevice;
-            break;
-        }
+      device = nextDevice;
+      break;
     }
+  }
 
-    id<MTLCommandQueue>  result  = nil;
-    if (device != nil)
+  id<MTLCommandQueue>  result  = nil;
+  if (device != nil)
+  {
+    DehancerMTLDeviceCacheItem_*   newCacheItem    = [[[DehancerMTLDeviceCacheItem_ alloc] initWithDevice:device]
+            autorelease];
+    if (newCacheItem != nil)
     {
-      DehancerMTLDeviceCacheItem_*   newCacheItem    = [[[DehancerMTLDeviceCacheItem_ alloc] initWithDevice:device]
-                autorelease];
-        if (newCacheItem != nil)
-        {
-            [deviceCaches addObject:newCacheItem];
-            result = [newCacheItem getNextFreeCommandQueue];
-        }
+      [deviceCaches addObject:newCacheItem];
+      result = [newCacheItem getNextFreeCommandQueue];
     }
-    [devices release];
+  }
+  [devices release];
 
-    return result;
+  return result;
 }
 
 - (void)returnCommandQueueToCache:(id<MTLCommandQueue>)commandQueue;
 {
-    for (DehancerMTLDeviceCacheItem_* nextCacheItem in deviceCaches)
+  for (DehancerMTLDeviceCacheItem_* nextCacheItem in deviceCaches)
+  {
+    if ([nextCacheItem containsCommandQueue:commandQueue])
     {
-        if ([nextCacheItem containsCommandQueue:commandQueue])
-        {
-            [nextCacheItem returnCommandQueue:commandQueue];
-            break;
-        }
+      [nextCacheItem returnCommandQueue:commandQueue];
+      break;
     }
+  }
 }
 
 @end
@@ -335,50 +335,54 @@ static MTLDeviceCache*   gDeviceCache    = nil;
 namespace dehancer::metal {
 
     namespace device {
-        std::string get_name(const void* id) {
-
-            return "unknown";
+        std::string get_name(const void* _id) {
+          id<MTLDevice> decice = reinterpret_cast<id<MTLDevice>>((__bridge id)_id);
+          if (decice)
+            return [decice.name UTF8String];
+          return "unknown";
         }
 
-        uint64_t    get_id(const void* id) {
-
-          return 0;
+        uint64_t    get_id(const void* _id) {
+          id<MTLDevice> decice = reinterpret_cast<id<MTLDevice>>((__bridge id)_id);
+          if (decice)
+            return decice.registryID;
+          return UINT64_MAX;
         }
     }
 
     gpu_device_cache::gpu_device_cache(): device_cache_([MTLDeviceCache deviceCache]) {}
 
     void*  gpu_device_cache::get_device(uint64_t reg_id) {
-        return [static_cast<MTLDeviceCache*>(device_cache_) deviceWithRegistryID:reg_id];
+      return [static_cast<MTLDeviceCache*>(device_cache_) deviceWithRegistryID:reg_id];
     }
 
     void*  gpu_device_cache::get_default_device() {
-        return [static_cast<MTLDeviceCache*>(device_cache_) device];
+      return [static_cast<MTLDeviceCache*>(device_cache_) device];
     }
 
     void* gpu_device_cache::get_command_queue(uint64_t reg_id) {
-        return [static_cast<MTLDeviceCache*>(device_cache_) commandQueueWithRegistryID:reg_id];
+      return [static_cast<MTLDeviceCache*>(device_cache_) commandQueueWithRegistryID:reg_id];
     }
 
     void* gpu_device_cache::get_default_command_queue() {
-        return [static_cast<MTLDeviceCache*>(device_cache_) commandQueue];
+      return [static_cast<MTLDeviceCache*>(device_cache_) commandQueue];
     }
-    
+
     void gpu_device_cache::return_command_queue(const void *q) {
-        [static_cast<MTLDeviceCache*>(device_cache_) returnCommandQueueToCache:static_cast<id<MTLCommandQueue>>(q)];
+      [static_cast<MTLDeviceCache*>(device_cache_) returnCommandQueueToCache:static_cast<id<MTLCommandQueue>>(q)];
     }
 
     std::vector<void *> gpu_device_cache::get_device_list() {
-      std::vector<void*> list;
-      NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
-      for (id<MTLDevice> device in devices)
-      {
-        //if ((nextCacheItem.gpuDevice.registryID == registryID))
-        //{
-          //return [nextCacheItem getNextFreeCommandQueue];
-        //}
-      }
-      [devices release];
+      static std::vector<void*> list;
+      static dispatch_once_t onceToken;
+      dispatch_once(&onceToken, ^{
+          NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
+          for (id<MTLDevice> device in devices)
+          {
+            list.push_back(static_cast<id <MTLDevice>>([[device retain] autorelease]));
+          }
+          [devices release];
+      });
       return list;
     }
 }
