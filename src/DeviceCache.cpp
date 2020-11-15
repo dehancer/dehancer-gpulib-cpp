@@ -26,16 +26,16 @@ namespace dehancer {
             impl_(std::make_shared<impl::gpu_device_cache>())
     {}
 
-    void *gpu_device_cache::get_device(const void* id) {
-      return impl_->get_device(id);
+    void *gpu_device_cache::get_device(uint64_t device) {
+      return impl_->get_device(device);
     }
 
     void *gpu_device_cache::get_default_device() {
       return impl_->get_default_device();
     }
 
-    void *gpu_device_cache::get_command_queue(const void* id) {
-      return impl_->get_command_queue(id);
+    void *gpu_device_cache::get_command_queue(uint64_t device) {
+      return impl_->get_command_queue(device);
     }
 
     void *gpu_device_cache::get_default_command_queue() {
@@ -44,5 +44,17 @@ namespace dehancer {
 
     void gpu_device_cache::return_command_queue(const void *q) {
       impl_->return_command_queue(q);
+    }
+
+    std::vector<void *> gpu_device_cache::get_device_list() {
+      return impl_->get_device_list();
+    }
+
+    uint64_t device::get_id(const void *device) {
+      return DEHANCER_GPU_PLATFORM::device::get_id(device);
+    }
+
+    std::string device::get_name(const void *device) {
+      return DEHANCER_GPU_PLATFORM::device::get_name(device);
     }
 }

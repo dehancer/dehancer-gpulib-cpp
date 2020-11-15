@@ -16,6 +16,11 @@ const size_t  kMaxCommandQueues  = 16;
 
 namespace dehancer::opencl {
 
+    namespace device {
+        [[nodiscard]] std::string get_name(const void* device);
+        [[nodiscard]] uint64_t    get_id(const void* device);
+    }
+
     struct gpu_command_queue_item {
         bool in_use = false;
         cl_command_queue command_queue = nullptr;
@@ -41,11 +46,12 @@ namespace dehancer::opencl {
     public:
         gpu_device_cache();
 
-        virtual void* get_device(const void* id) ;
-        virtual void* get_default_device() ;
-        virtual void* get_command_queue(const void* id) ;
-        virtual void* get_default_command_queue() ;
-        virtual void return_command_queue(const void *q)  ;
+       std::vector<void *> get_device_list();
+       void* get_device(uint64_t id) ;
+       void* get_default_device() ;
+       void* get_command_queue(uint64_t id) ;
+       void* get_default_command_queue() ;
+       void return_command_queue(const void *q)  ;
 
     private:
         std::vector<std::shared_ptr<gpu_device_item>> device_caches_;

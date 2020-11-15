@@ -2,38 +2,25 @@
 // Created by denn nevera on 09/11/2020.
 //
 
-#include "dehancer/opencl/buffer.h"
-#include "dehancer/opencl/embeddedProgram.h"
 #include "gtest/gtest.h"
 
 #include "dehancer/gpu/Texture.h"
 #include "dehancer/gpu/Function.h"
 #include "dehancer/gpu/TextureInput.h"
 #include "dehancer/gpu/TextureOutput.h"
+#include "dehancer/gpu/DeviceCache.h"
 
 #include <chrono>
 
-void* make_command_queue(const std::shared_ptr<clHelper::Device>& device) {
-  /* Create OpenCL context */
-  cl_int ret;
-
-  cl_device_id device_id = device->clDeviceID;
-  cl_context context = clCreateContext(nullptr, 1, &device_id, nullptr, nullptr, &ret);
-
-  /* Create Command Queue */
-  return clCreateCommandQueue(context, device_id, 0, &ret);
-}
-
-
-int run_bench2(int num, const std::shared_ptr<clHelper::Device>& device) {
+int run_bench2(int num, const void* device) {
 
   dehancer::TextureIO::Options::Type type = dehancer::TextureIO::Options::Type::png;
   std::string ext = dehancer::TextureIO::extention_for(type);
   float       compression = 0.0f;
 
-  cl_uint width = 800, height = 600;
+  size_t width = 800, height = 600;
 
-  auto command_queue = make_command_queue(device);
+  auto command_queue = dehancer::DeviceCache::Instance().get_command_queue(dehancer::device::get_id(device));
 
   auto bench_kernel = dehancer::Function(command_queue, "ao_bench_kernel", true);
   auto ao_bench_text = bench_kernel.make_texture(width,height);
@@ -58,7 +45,7 @@ int run_bench2(int num, const std::shared_ptr<clHelper::Device>& device) {
   std::chrono::duration<double> seconds = clock_end-clock_begin;
 
   // Report results and save image
-  std::cout << "[aobench cl ("<<device->name<<")]:\t" << seconds.count() << "s "
+  std::cout << "[aobench cl ("<<dehancer::device::get_name(device)<<")]:\t" << seconds.count() << "s "
             << ", for a " << width << "x" << height << " pixels" << std::endl;
 
 
@@ -101,6 +88,8 @@ int run_bench2(int num, const std::shared_ptr<clHelper::Device>& device) {
     });
   }
 
+  dehancer::DeviceCache::Instance().return_command_queue(command_queue);
+
   return 0;
 }
 
@@ -110,18 +99,16 @@ TEST(TEST, AOBENCH_OpenCL) {
   std::cerr << std::endl;
 
   try {
-    std::vector<std::shared_ptr<clHelper::Device>> devices
-            = clHelper::getAllDevices();
-
-    std::shared_ptr<clHelper::Device> device;
-
+    auto devices = dehancer::DeviceCache::Instance().get_device_list();
     assert(!devices.empty());
+
+    void* device;
 
     int dev_num = 0;
     std::cout << "Info: " << std::endl;
     for (auto d: devices) {
       std::cout << " #" << dev_num++ << std::endl;
-      d->print(" ", std::cout);
+      std::cout << "    Device '" << dehancer::device::get_name(d) << " ["<<dehancer::device::get_id(d)<<"]'"<< std::endl;
     }
 
     std::cout << "Bench: " << std::endl;

@@ -8,6 +8,22 @@
 
 namespace dehancer::opencl {
 
+    namespace device {
+        std::string get_name(const void* id) {
+          auto* device = reinterpret_cast<clHelper::Device *>((void *)id);
+          if (!device)
+            return "unknown";
+          return device->name;
+        }
+
+        uint64_t    get_id(const void* id) {
+          auto* device = reinterpret_cast<clHelper::Device *>((void *)id);
+          if (!device)
+            return UINT64_MAX;
+          return (uint64_t)(device->clDeviceID);
+        }
+    }
+
     gpu_device_cache::gpu_device_cache():
             device_caches_()
     {
@@ -17,9 +33,19 @@ namespace dehancer::opencl {
       }
     }
 
-    void *gpu_device_cache::get_device(const void* id) {
+    std::vector<void *> gpu_device_cache::get_device_list() {
+      std::vector<void *> list;
+      for(const auto& d: device_caches_){
+        list.push_back(d->device.get());
+      }
+      return list;
+    }
+
+    void *gpu_device_cache::get_device(uint64_t id) {
+
       for (const auto& item: device_caches_) {
-        if (item->device && item->device->clDeviceID && item->device->clDeviceID == id) {
+        auto device = item->device;
+        if (device && device->clDeviceID && device::get_id(device->clDeviceID) == id) {
           return item->device.get();
         }
       }
@@ -34,29 +60,28 @@ namespace dehancer::opencl {
       return nullptr;
     }
 
-    void *gpu_device_cache::get_command_queue(const void* id) {
-
-      if (!id) return nullptr;
+    void *gpu_device_cache::get_command_queue(uint64_t id) {
 
       for (const auto& item: device_caches_) {
-        if (item->device && item->device->clDeviceID && item->device->clDeviceID == id) {
+        auto device = item->device;
+        if (device && device->clDeviceID && device::get_id(device.get()) == id) {
           auto queue = item->get_next_free_command_queue();
           if (queue) return queue;
         }
       }
 
       auto devices = clHelper::getAllDevices();
-      std::shared_ptr<clHelper::Device> device = nullptr;
+      std::shared_ptr<clHelper::Device> next_device = nullptr;
       for (const auto& next: devices){
-        if(next->clDeviceID && next->clDeviceID == id) {
-          device = next; break;
+        if(next->clDeviceID && device::get_id(next.get()) == id) {
+          next_device = next; break;
         }
       }
 
       cl_command_queue q = nullptr;
 
-      if (device) {
-        auto item = std::make_shared<gpu_device_item>(device);
+      if (next_device) {
+        auto item = std::make_shared<gpu_device_item>(next_device);
         device_caches_.push_back(item);
         q = item->get_next_free_command_queue();
       }
@@ -68,7 +93,9 @@ namespace dehancer::opencl {
       void* pointer = get_default_device();
       if (!pointer) return nullptr;
       auto* device = reinterpret_cast<clHelper::Device *>(pointer);
-      return get_command_queue(device->clDeviceID);
+      if (device)
+        return get_command_queue(device::get_id(device));
+      return nullptr;
     }
 
     void gpu_device_cache::return_command_queue(const void *q) {
@@ -94,16 +121,7 @@ namespace dehancer::opencl {
 #ifdef __APPLE__
         auto q = clCreateCommandQueue(context, device_id, 0, &ret);
 #else
-        cl_queue_properties devQueueProps[] = {  CL_QUEUE_PROPERTIES,
-                                                 CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE
-                                                 |CL_QUEUE_ON_DEVICE
-                                                 //|CL_QUEUE_ON_DEVICE_DEFAULT // if we want to use only one queue per device
-                ,
-                                                 CL_QUEUE_SIZE,
-                                                 CL_DEVICE_QUEUE_ON_DEVICE_MAX_SIZE
-                ,
-                                                 0 };
-
+        cl_queue_properties devQueueProps[] = { 0 };
         auto q = clCreateCommandQueueWithProperties(context, device_id, devQueueProps, &ret);
 #endif
 
@@ -139,13 +157,11 @@ namespace dehancer::opencl {
     }
 
     gpu_device_item::~gpu_device_item() {
-      std::cerr << " ~gpu_device_item("<<context<<")" << std::endl;
       if (context)
         clReleaseContext(context);
     }
 
     gpu_command_queue_item::~gpu_command_queue_item() {
-      std::cerr << " ~gpu_command_queue_item("<<command_queue<<")" << std::endl;
       if (command_queue)
         clReleaseCommandQueue(command_queue);
     }

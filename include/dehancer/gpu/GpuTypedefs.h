@@ -14,8 +14,4 @@ typedef dehancer::math::float2x2 float2x2;
 typedef dehancer::math::float3x3 float3x3;
 typedef dehancer::math::float4x4 float4x4;
 
-//#if defined(DEHANCER_GPU_OPENCL)
-//#define constant const
-//#endif
-
 #endif //DEHANCER_GPULIB_CPP_GPUTYPEDEFS_H

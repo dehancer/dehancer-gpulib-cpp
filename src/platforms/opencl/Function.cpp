@@ -51,7 +51,7 @@ namespace dehancer::opencl {
         clReleaseEvent(waiting_event);
 
         if (last_error != CL_SUCCESS) {
-          throw std::runtime_error("Unable to enqueue kernel: " + kernel_name_);
+          throw std::runtime_error("Unable to waiting execution of kernel: " + kernel_name_);
         }
       }
     }

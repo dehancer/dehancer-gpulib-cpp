@@ -14,6 +14,11 @@
 
 namespace dehancer {
 
+    namespace device {
+        [[nodiscard]] std::string get_name(const void* device);
+        [[nodiscard]] uint64_t    get_id(const void* device);
+    }
+
     namespace impl {
         struct gpu_device_cache;
     }
@@ -22,11 +27,12 @@ namespace dehancer {
     public:
         gpu_device_cache();
 
-        virtual void* get_device(const void* id) ;
+        virtual std::vector<void *> get_device_list();
+        virtual void* get_device(uint64_t device_id) ;
         virtual void* get_default_device() ;
-        virtual void* get_command_queue(const void* id) ;
+        virtual void* get_command_queue(uint64_t device_id) ;
         virtual void* get_default_command_queue() ;
-        virtual void return_command_queue(const void *q)  ;
+        virtual void return_command_queue(const void *queue)  ;
 
         virtual ~gpu_device_cache() = default;
         
