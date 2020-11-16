@@ -5,12 +5,12 @@
 #include "TextureOutput.h"
 #include <opencv4/opencv2/opencv.hpp>
 
-namespace dehancer::opencl {
+namespace dehancer::impl {
 
     TextureOutput::TextureOutput(const void *command_queue,
                                  const dehancer::Texture& source,
                                  const dehancer::TextureIO::Options &options):
-            Context(command_queue),
+            Command(command_queue,true),
             source_(source),
             options_(options)
     {
@@ -100,42 +100,7 @@ namespace dehancer::opencl {
     }
 
     Error TextureOutput::write_to_data(std::vector<float> &buffer) const {
-
-      if (source_->get_type() != TextureDesc::Type::i2d) {
-        return Error(CommonError::NOT_SUPPORTED, "Texture output supports operations with i2d type only");
-      }
-
-      if (source_->get_pixel_format() != TextureDesc::PixelFormat::rgba32float) {
-        return Error(CommonError::NOT_SUPPORTED, "Texture output supports operations with rgba32float pixel format");
-      }
-
-      size_t originst[3];
-      size_t regionst[3];
-      size_t  rowPitch = 0;
-      size_t  slicePitch = 0;
-      originst[0] = 0; originst[1] = 0; originst[2] = 0;
-      regionst[0] = source_->get_width(); regionst[1] = source_->get_height(); regionst[2] = 1;
-
-      buffer.resize( source_->get_length());
-
-      auto ret = clEnqueueReadImage(
-              get_command_queue(),
-              static_cast<cl_mem>(source_->get_contents()),
-              CL_TRUE,
-              originst,
-              regionst,
-              rowPitch,
-              slicePitch,
-              buffer.data(),
-              0,
-              nullptr,
-              nullptr );
-
-      if (ret != CL_SUCCESS) {
-        return Error(CommonError::EXCEPTION, "Texture could not be read");
-      }
-
-      return Error(CommonError::OK);
+      return source_->get_contents(buffer);
     }
 
     TextureOutput::~TextureOutput() = default;

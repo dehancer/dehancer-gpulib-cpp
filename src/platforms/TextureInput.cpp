@@ -5,11 +5,12 @@
 #include "TextureInput.h"
 #include <opencv4/opencv2/opencv.hpp>
 
-namespace dehancer::opencl {
+namespace dehancer::impl {
 
-    TextureInput::TextureInput(const void *command_queue, const dehancer::StreamSpace &space,
+    TextureInput::TextureInput(const void *command_queue,
+                               const dehancer::StreamSpace &space,
                                dehancer::StreamSpace::Direction direction):
-            Context(command_queue),
+            Command(command_queue, true),
             texture_(nullptr),
             space_(space),
             direction_(direction)

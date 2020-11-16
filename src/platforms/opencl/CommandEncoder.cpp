@@ -10,7 +10,7 @@ namespace dehancer::opencl {
 
     void CommandEncoder::set(const Texture &texture, int index)  {
       if (kernel_) {
-        auto memobj = static_cast<cl_mem>(texture->get_contents());
+        auto memobj = static_cast<cl_mem>(texture->get_memory());
         auto ret = clSetKernelArg(kernel_, index, sizeof(cl_mem), (void *)&memobj);
         if (ret != CL_SUCCESS) throw std::runtime_error("Unable to pass to kernel the source texture buffer");
       }

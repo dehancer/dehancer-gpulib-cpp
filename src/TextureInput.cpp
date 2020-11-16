@@ -3,16 +3,16 @@
 //
 
 #include "dehancer/gpu/TextureInput.h"
-#include "platforms/opencl/TextureInput.h"
+#include "platforms/TextureInput.h"
 
 namespace dehancer {
 
-    namespace impl {
-        class TextureInput: public dehancer::opencl::TextureInput {
-        public:
-            using dehancer::opencl::TextureInput::TextureInput;
-        };
-    }
+//    namespace impl {
+//        class TextureInput: public dehancer::opencl::TextureInput {
+//        public:
+//            using dehancer::opencl::TextureInput::TextureInput;
+//        };
+//    }
 
     TextureInput::TextureInput(const void *command_queue, const StreamSpace &space, StreamSpace::Direction direction):
     TextureIO(),

@@ -86,11 +86,45 @@ namespace dehancer::opencl {
         throw std::runtime_error("Unable to create texture: " + std::to_string(last_error_));
     }
 
-    const void *TextureHolder::get_contents() const {
+    dehancer::Error TextureHolder::get_contents(std::vector<float> &buffer) const {
+
+      size_t originst[3];
+      size_t regionst[3];
+      size_t  rowPitch = 0;
+      size_t  slicePitch = 0;
+      originst[0] = 0; originst[1] = 0; originst[2] = 0;
+      regionst[0] = get_width();
+      regionst[1] = get_height();
+      regionst[2] = get_depth();
+
+      buffer.resize( get_length());
+
+      auto ret = clEnqueueReadImage(
+              get_command_queue(),
+              memobj_,
+              CL_TRUE,
+              originst,
+              regionst,
+              rowPitch,
+              slicePitch,
+              buffer.data(),
+              0,
+              nullptr,
+              nullptr );
+
+      if (ret != CL_SUCCESS) {
+        return Error(CommonError::EXCEPTION, "Texture could not be read");
+      }
+
+      return Error(CommonError::OK);
+
+    }
+
+    const void *TextureHolder::get_memory() const {
       return memobj_;
     }
 
-    void *TextureHolder::get_contents() {
+    void *TextureHolder::get_memory() {
       return memobj_;
     }
 
@@ -107,7 +141,7 @@ namespace dehancer::opencl {
     }
 
     size_t TextureHolder::get_channels() const {
-      return 4;
+      return desc_.channels;
     }
 
     size_t TextureHolder::get_length() const {
@@ -145,4 +179,5 @@ namespace dehancer::opencl {
       if(memobj_)
         clReleaseMemObject(memobj_);
     }
+
 }

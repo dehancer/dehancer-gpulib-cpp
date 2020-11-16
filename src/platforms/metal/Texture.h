@@ -6,6 +6,7 @@
 
 #include "dehancer/gpu/Texture.h"
 #include "Context.h"
+#import <Metal/Metal.h>
 
 namespace dehancer::metal {
 
@@ -25,5 +26,10 @@ namespace dehancer::metal {
 
     private:
         TextureDesc desc_;
+        id<MTLTexture> texture_;
+        mutable uint8_t* contents_;
+        mutable bool contents_is_coppied_;
+
+        uint8_t * check_and_remake_contents_() const;
     };
 }

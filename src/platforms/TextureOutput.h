@@ -4,15 +4,15 @@
 
 #pragma once
 
+#include "dehancer/Common.h"
 #include "dehancer/gpu/StreamSpace.h"
 #include "dehancer/gpu/Texture.h"
 #include "dehancer/gpu/TextureIO.h"
-#include "dehancer/Common.h"
-#include "Context.h"
+#include "dehancer/gpu/Command.h"
 
-namespace dehancer::opencl {
+namespace dehancer::impl {
 
-    class TextureOutput: public Context {
+    class TextureOutput: public dehancer::Command {
     public:
         TextureOutput(const void *command_queue,
                       const Texture& source,

@@ -13,8 +13,9 @@ namespace dehancer::opencl {
         TextureHolder(const void *command_queue, const TextureDesc &desc, void *from_memory);
         ~TextureHolder() override ;
 
-        [[nodiscard]] const void*  get_contents() const override;
-        [[nodiscard]] void*  get_contents() override;
+        [[nodiscard]] const void*  get_memory() const override;
+        [[nodiscard]] void*  get_memory() override;
+        dehancer::Error get_contents(std::vector<float>& buffer) const override;
         [[nodiscard]] size_t get_width() const override;
         [[nodiscard]] size_t get_height() const override;
         [[nodiscard]] size_t get_depth() const override;

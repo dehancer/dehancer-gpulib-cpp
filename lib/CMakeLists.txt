@@ -8,6 +8,7 @@ file (GLOB COMMON_SRC ${COMMON_SRC}
         ../src/*.cpp
         ../src/*.c
         ../src/ocio/*.cpp
+        ../src/platforms/*.cpp
         )
 
 if (DEHANCER_GPU_METAL)

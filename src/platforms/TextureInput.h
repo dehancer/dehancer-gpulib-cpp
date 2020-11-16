@@ -4,15 +4,14 @@
 
 #pragma once
 
+#include "dehancer/Common.h"
 #include "dehancer/gpu/StreamSpace.h"
 #include "dehancer/gpu/Texture.h"
-#include "dehancer/Common.h"
+#include "dehancer/gpu/Command.h"
 
-#include "Context.h"
+namespace dehancer::impl {
 
-namespace dehancer::opencl {
-
-    class TextureInput: public Context {
+    class TextureInput: public dehancer::Command {
 
     public:
 

@@ -3,16 +3,16 @@
 //
 
 #include "dehancer/gpu/TextureOutput.h"
-#include "platforms/opencl/TextureOutput.h"
+#include "platforms/TextureOutput.h"
 
 namespace dehancer{
 
-    namespace impl {
-        class TextureOutput: public dehancer::opencl::TextureOutput {
-        public:
-            using dehancer::opencl::TextureOutput::TextureOutput;
-        };
-    }
+//    namespace impl {
+//        class TextureOutput: public dehancer::opencl::TextureOutput {
+//        public:
+//            using dehancer::opencl::TextureOutput::TextureOutput;
+//        };
+//    }
 
     TextureOutput::TextureOutput(const void *command_queue,
                                  const Texture &source,

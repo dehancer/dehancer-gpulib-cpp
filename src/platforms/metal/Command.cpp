@@ -34,7 +34,9 @@ namespace dehancer::metal {
               .type = type,
               .mem_flags = TextureDesc::MemFlags::read_write
       };
-      void *q = reinterpret_cast<void*>(get_command_queue());
+
+      void *q = reinterpret_cast<void*>(this->get_command_queue());
+
       return TextureHolder::Make(q, desc, nullptr);
     }
 }

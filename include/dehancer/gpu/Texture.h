@@ -5,6 +5,7 @@
 #pragma once
 
 #include <memory>
+#include "dehancer/Common.h"
 
 namespace dehancer {
 
@@ -33,6 +34,7 @@ namespace dehancer {
         size_t width  = 0;
         size_t height = 0;
         size_t depth  = 1;
+        size_t channels = 4;
         PixelFormat pixel_format = PixelFormat::rgba32float;
         Type type = Type::i2d;
         MemFlags mem_flags = MemFlags::read_write;
@@ -56,8 +58,9 @@ namespace dehancer {
 
         virtual ~TextureHolder() = default;
 
-        [[nodiscard]] virtual const void*  get_contents() const = 0;
-        [[nodiscard]] virtual void*  get_contents() = 0;
+        [[nodiscard]] virtual const void*  get_memory() const = 0;
+        [[nodiscard]] virtual void*  get_memory() = 0;
+        virtual Error get_contents(std::vector<float>& buffer) const = 0;
         [[nodiscard]] virtual size_t get_width() const = 0;
         [[nodiscard]] virtual size_t get_height() const = 0;
         [[nodiscard]] virtual size_t get_depth() const = 0;
