@@ -40,6 +40,13 @@ if (COMMON_DEPENDECIES)
     )
 endif ()
 
+if(DEHANCER_GPU_METAL)
+    add_dependencies(
+            ${TEST}
+            TestKernels
+    )
+endif()
+
 add_test(test ${TEST})
 enable_testing()
 

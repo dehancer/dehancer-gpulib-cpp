@@ -7,7 +7,7 @@
 
 #include "../aobench.h"
 
-TEST(TEST, AOBENCH_OpenCL) {
+TEST(TEST, AOBENCH_Metal) {
 
   std::cout << std::endl;
   std::cerr << std::endl;
@@ -23,6 +23,7 @@ namespace dehancer::device {
       * @return metal lib path.
       */
     std::string get_lib_path() {
-      return METAL_KERNELS_LIBRARY;
+      //return METAL_KERNELS_LIBRARY;
+      return "./TestKernels.metallib";
     }
 }

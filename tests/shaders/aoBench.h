@@ -12,7 +12,6 @@ using namespace metal;
 #define thread
 #endif
 
-
 #define NAO_SAMPLES		8
 #define M_PI 3.1415926535f
 

@@ -74,13 +74,32 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -rdynamic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Dcimg_display=0 -Dcimg_use_jpeg=1 -Dcimg_use_tiff=1 -Dcimg_use_png=1")
+set(BUILD_SHARED_LIBS OFF)
+
+# determine, whether we want a static binary
+SET(STATIC_LINKING FALSE CACHE BOOL "Build a static binary?")
+
+# do we want static libraries?
+# When STATIC_LINKING is TRUE, than cmake looks for libraries ending
+# with .a. This is for linux only!
+#IF(STATIC_LINKING)
+SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+#set(CMAKE_FIND_LIBRARY_SUFFIXES .a)
+#ENDIF(STATIC_LINKING)
+
+# set -static, when STATIC_LINKING is TRUE and set LINK_SEARCH_END_STATIC
+# to remove the additional -bdynamic from the linker line.
+IF(STATIC_LINKING)
+    SET(CMAKE_EXE_LINKER_FLAGS "-static")
+    SET_TARGET_PROPERTIES(surface PROPERTIES
+            LINK_SEARCH_END_STATIC 1)
+ENDIF(STATIC_LINKING)
 
 if(PRINT_DEBUG)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DPRINT_DEBUG=1")
 endif()
 
 set(CMAKE_MACOSX_RPATH TRUE)
-set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
 
 # googletes, etc
 set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
@@ -128,7 +147,7 @@ find_package (LAPACK REQUIRED)
 if (DEHANCER_GPU_OPENCL)
     find_package (OpenCL REQUIRED)
 endif ()
-find_package (ZLIB REQUIRED)
+#find_package (ZLIB REQUIRED)
 find_package (OpenCV REQUIRED )
 
 #
@@ -361,7 +380,7 @@ set(COMMON_LIBRARIES
         ${LAPACK_LIBRARIES};
         ${OpenCV_LIBS};
         )
-
+message("COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
 add_subdirectory(lib)
 
 if(BUILD_TESTING)

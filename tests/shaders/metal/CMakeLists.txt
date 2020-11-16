@@ -1,6 +1,5 @@
  set(CURRENT_TARGET_NAME "TestKernels")
  set(CURRENT_TARGET_LIB ${CURRENT_TARGET_NAME}.metallib)
- set(CMAKE_INSTALL_PREFIX "/Library/OFX/Plugins")
 
  include_directories(
          ${CMAKE_SOURCE_DIR}/tests/shaders
@@ -37,3 +36,4 @@
  set_target_properties(${CURRENT_TARGET_NAME} PROPERTIES BUNDLE TRUE)
  set_target_properties(${CURRENT_TARGET_NAME} PROPERTIES PREFIX "")
  set_target_properties(${CURRENT_TARGET_NAME} PROPERTIES SUFFIX ".metallib")
+
