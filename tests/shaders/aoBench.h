@@ -5,6 +5,14 @@
 #ifndef CLHELPER_TOOLS_AOBENCH_H
 #define CLHELPER_TOOLS_AOBENCH_H
 
+#ifdef __METAL_VERSION__
+#include <metal_stdlib>
+using namespace metal;
+#else
+#define thread
+#endif
+
+
 #define NAO_SAMPLES		8
 #define M_PI 3.1415926535f
 

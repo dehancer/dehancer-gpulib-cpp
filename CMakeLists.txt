@@ -15,9 +15,9 @@ set(CMAKE_CXX_STANDARD 17)
 #
 # Options
 #
-option(BUILD_TESTING "Enable creation of  tests." OFF)
-option(DEHANCER_GPU_METAL "Dehancer GPU Layer is Metal" OFF)
-option(DEHANCER_GPU_OPENCL "Dehancer GPU Layer is OpenCL" OFF)
+option (BUILD_TESTING "Enable creation of  tests." OFF)
+option (DEHANCER_GPU_METAL "Dehancer GPU Layer is Metal" OFF)
+option (DEHANCER_GPU_OPENCL "Dehancer GPU Layer is OpenCL" OFF)
 
 set (DEHANCER_GPU_settings 0)
 if (DEHANCER_GPU_METAL)
@@ -74,6 +74,10 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -rdynamic")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Dcimg_display=0 -Dcimg_use_jpeg=1 -Dcimg_use_tiff=1 -Dcimg_use_png=1")
+
+if(PRINT_DEBUG)
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DPRINT_DEBUG=1")
+endif()
 
 set(CMAKE_MACOSX_RPATH TRUE)
 set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})

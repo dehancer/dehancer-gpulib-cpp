@@ -13,7 +13,7 @@ namespace dehancer::metal {
     public:
         explicit Context(const void *command_queue);
         [[nodiscard]] id<MTLCommandQueue> get_command_queue() const;
-        [[nodiscard]] id<MTLDevice> get_device_id() const;
+        [[nodiscard]] id<MTLDevice> get_device() const;
 
     private:
         const void* command_queue_;

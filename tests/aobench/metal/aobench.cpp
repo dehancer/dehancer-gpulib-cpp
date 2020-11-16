@@ -9,6 +9,9 @@
 #include "dehancer/gpu/TextureInput.h"
 #include "dehancer/gpu/TextureOutput.h"
 #include "dehancer/gpu/DeviceCache.h"
+#include "dehancer/gpu/Paths.h"
+
+#include "tests/paths_config.h"
 
 #include <chrono>
 
@@ -30,14 +33,24 @@ int run_bench2(int num, const void* device) {
   /***
    * Test performance
    */
-//  bench_kernel.execute([&ao_bench_text](dehancer::CommandEncoder& command_encoder){
-//      int numSubSamples = 4, count = 0;
-//
-//      command_encoder.set(&numSubSamples, sizeof(numSubSamples), count++);
-//      command_encoder.set(ao_bench_text, count++);
-//
-//      return ao_bench_text;
-//  });
+  bench_kernel.execute([&ao_bench_text](dehancer::CommandEncoder& command_encoder){
+      int numSubSamples = 4;
+
+      command_encoder.set(&numSubSamples, sizeof(numSubSamples), 0);
+      command_encoder.set(ao_bench_text, 0);
+
+      return ao_bench_text;
+  });
+
+
+  std::string out_file_result = "ao-cl-result-"; out_file_result.append(std::to_string(num)); out_file_result.append(ext);
+  {
+    std::ofstream result_os(out_file_result, std::ostream::binary | std::ostream::trunc);
+    result_os << dehancer::TextureOutput(command_queue, ao_bench_text, {
+            .type = type,
+            .compression = compression
+    });
+  }
 
   return 0;
 
@@ -46,6 +59,7 @@ int run_bench2(int num, const void* device) {
 TEST(TEST, AOBENCH_METAL) {
 
   std::cout << std::endl;
+  std::cout << "MTL paths: " << dehancer::device::get_lib_path() << std::endl;
   std::cerr << std::endl;
 
   try {
@@ -75,4 +89,15 @@ TEST(TEST, AOBENCH_METAL) {
   catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
   }
+}
+
+namespace dehancer::device {
+
+    /**
+      * MUST BE defined in certain plugin module
+      * @return metal lib path.
+      */
+    std::string get_lib_path() {
+      return METAL_KERNELS_LIBRARY;
+    }
 }

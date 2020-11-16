@@ -1,0 +1,7 @@
+//
+// Created by denn nevera on 16/11/2020.
+//
+
+#pragma once
+
+constexpr const char* METAL_KERNELS_LIBRARY="@METAL_KERNELS_LIBRARY@";

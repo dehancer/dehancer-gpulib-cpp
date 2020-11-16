@@ -4,6 +4,7 @@
 
 #include "Function.h"
 #include "CommandEncoder.h"
+#include "dehancer/gpu/Paths.h"
 
 namespace dehancer::opencl {
 
@@ -63,7 +64,7 @@ namespace dehancer::opencl {
             kernel_(nullptr),
             encoder_(nullptr)
     {
-      const std::string source = clHelper::getEmbeddedProgram("exampleKernel.cl");
+      const std::string source = clHelper::getEmbeddedProgram(dehancer::device::get_lib_path());
 
       const char *source_str = source.c_str();
       size_t source_size = source.size();

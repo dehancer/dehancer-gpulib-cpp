@@ -10,9 +10,7 @@ namespace dehancer::metal {
     TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc, void *from_memory) :
             Context(command_queue),
             desc_(desc),
-            texture_(nullptr),
-            contents_(nullptr),
-            contents_is_coppied_(false)
+            texture_(nullptr)
     {
 
       MTLTextureDescriptor *descriptor = [[MTLTextureDescriptor new] autorelease];
@@ -103,90 +101,64 @@ namespace dehancer::metal {
       }
     }
 
-    uint8_t * TextureHolder::check_and_remake_contents_() const {
+    dehancer::Error TextureHolder::get_contents(std::vector<float>& buffer) const {
 
-      if (contents_is_coppied_ && contents_) {
-        delete[] contents_;
-        contents_ = nullptr;
+      auto componentBytes = sizeof(Float32);
+
+      switch (desc_.pixel_format) {
+
+        case TextureDesc::PixelFormat::rgba32float:
+          componentBytes = sizeof(Float32);
+          break;
+
+        default:
+          return Error(CommonError::NOT_SUPPORTED, "Texture should be rgba32float");
       }
 
-      if (texture_.buffer) {
-        contents_ = static_cast<uint8_t *>(texture_.buffer.contents);
-        contents_is_coppied_ = false;
+      id<MTLCommandQueue> queue = get_command_queue();
+
+      id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+
+      id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
+      [blitEncoder synchronizeTexture:texture_ slice:0 level:0];
+      [blitEncoder endEncoding];
+
+      [commandBuffer commit];
+      [commandBuffer waitUntilCompleted];
+
+      MTLRegion region;
+
+      switch (desc_.type) {
+        case TextureDesc::Type::i1d:
+          region = MTLRegionMake1D(0, desc_.width);
+          break;
+        case TextureDesc::Type::i2d:
+          region = MTLRegionMake2D(0, 0, desc_.width, desc_.height);
+          break;
+        case TextureDesc::Type::i3d:
+          region = MTLRegionMake3D(0, 0, 0, desc_.width, desc_.height, desc_.depth);
+          break;
       }
 
-      if (!contents_) {
+      NSUInteger bytes_per_pixel = desc_.channels * componentBytes;
 
-        id<MTLCommandQueue> queue = get_command_queue();
+      buffer.resize(desc_.width*desc_.depth*desc_.height*desc_.channels);
 
-        id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+      [texture_ getBytes: buffer.data()
+             bytesPerRow: bytes_per_pixel * region.size.width
+              fromRegion: region
+             mipmapLevel: 0];
 
-        id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
-        [blitEncoder synchronizeTexture:texture_ slice:0 level:0];
-        [blitEncoder endEncoding];
+      return Error(CommonError::OK);
 
-        [commandBuffer commit];
-        [commandBuffer waitUntilCompleted];
-
-        contents_ = new uint8_t[get_length()];
-
-        auto componentBytes = sizeof(Float32);
-        MTLRegion region;
-
-        switch (desc_.type) {
-          case TextureDesc::Type::i1d:
-            region = MTLRegionMake1D(0, desc_.width);
-            break;
-          case TextureDesc::Type::i2d:
-            region = MTLRegionMake2D(0, 0, desc_.width, desc_.height);
-            break;
-          case TextureDesc::Type::i3d:
-            region = MTLRegionMake3D(0, 0, 0, desc_.width, desc_.height, desc_.depth);
-            break;
-        }
-
-        switch (desc_.pixel_format) {
-
-          case TextureDesc::PixelFormat::rgba32float:
-            componentBytes = sizeof(Float32);
-            break;
-
-          case TextureDesc::PixelFormat::rgba16float:
-            componentBytes = sizeof(Float32)/2;
-            break;
-
-          case TextureDesc::PixelFormat::rgba32uint:
-            componentBytes = sizeof(uint32_t);
-            break;
-
-          case TextureDesc::PixelFormat::rgba16uint:
-            componentBytes = sizeof(uint16_t);
-            break;
-
-          case TextureDesc::PixelFormat::rgba8uint:
-            componentBytes = sizeof(uint8_t);
-            break;
-        }
-
-        NSUInteger bytes_per_pixel = desc_.channels * componentBytes;
-
-        [texture_ getBytes: contents_
-              bytesPerRow: bytes_per_pixel * region.size.width
-               fromRegion: region
-              mipmapLevel: 0];
-
-        contents_is_coppied_ = true;
-      }
-
-      return contents_;
     }
 
-    const void* TextureHolder::get_contents() const {
-      return check_and_remake_contents_();
+    const void* TextureHolder::get_memory() const {
+      return texture_;
     }
 
-    void *TextureHolder::get_contents() {
-      return check_and_remake_contents_();
+    void *TextureHolder::get_memory() {
+      return texture_;
     }
 
     size_t TextureHolder::get_width() const {
@@ -239,7 +211,5 @@ namespace dehancer::metal {
     TextureHolder::~TextureHolder() {
       if (texture_)
         [texture_ release];
-      if (contents_is_coppied_ && contents_)
-        delete [] contents_;
     }
 }

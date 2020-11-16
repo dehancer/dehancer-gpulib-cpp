@@ -15,7 +15,7 @@ namespace dehancer::metal {
       return static_cast<id<MTLCommandQueue>>( (__bridge id) command_queue_);
     }
 
-    id<MTLDevice> Context::get_device_id() const {
+    id<MTLDevice> Context::get_device() const {
       return get_command_queue().device;
     }
 }

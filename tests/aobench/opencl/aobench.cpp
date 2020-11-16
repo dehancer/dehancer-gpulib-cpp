@@ -9,6 +9,7 @@
 #include "dehancer/gpu/TextureInput.h"
 #include "dehancer/gpu/TextureOutput.h"
 #include "dehancer/gpu/DeviceCache.h"
+#include "dehancer/gpu/Paths.h"
 
 #include <chrono>
 
@@ -125,4 +126,16 @@ TEST(TEST, AOBENCH_OpenCL) {
   catch (const std::exception &e) {
     std::cerr << "Error: " << e.what() << std::endl;
   }
+}
+
+namespace dehancer::device {
+
+    /**
+      * MUST BE defined in certain plugin module
+      * @return metal lib path.
+      */
+    std::string get_lib_path() {
+      static std::string path = "exampleKernel.cl";
+      return path;
+    }
 }

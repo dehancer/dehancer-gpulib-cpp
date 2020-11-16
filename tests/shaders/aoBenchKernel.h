@@ -70,10 +70,9 @@
 
 #include "aoBench.h"
 
-inline void rng_seed(struct RNGState *rng, int s)
+inline void rng_seed(thread struct RNGState *rng, int s)
 {
   const int a = 16807;
-  const int m = 2147483647;
   const int q = 127773;
   const int r = 2836;
 
@@ -89,10 +88,9 @@ inline void rng_seed(struct RNGState *rng, int s)
   rng->state = rng->table[0];
 }
 
-inline float rng_getInt(struct RNGState *rng)
+inline float rng_getInt(thread struct RNGState *rng)
 {
   const int a = 16807;
-  const int m = 2147483647;
   const int q = 127773;
   const int r = 2836;
   const int f = 1 + (2147483647 / TABLE_SIZE);
@@ -106,7 +104,7 @@ inline float rng_getInt(struct RNGState *rng)
   return rng->state;
 }
 
-inline float rng_getFloat(struct RNGState *rng)
+inline float rng_getFloat(thread struct RNGState *rng)
 {
   return rng_getInt(rng) / 2147483647.0f;
 }
@@ -166,7 +164,7 @@ inline struct vec3f normalize3f(struct vec3f v)
   return mul3ff(v,invLen);
 }
 
-inline void ray_plane_intersect(struct Isect *isect, struct Ray ray, struct Plane plane)
+inline void ray_plane_intersect(thread struct Isect *isect, struct Ray ray, struct Plane plane)
 {
   float d = -dot3f(plane.p, plane.n);
   float v =  dot3f(ray.dir, plane.n);
@@ -186,7 +184,7 @@ inline void ray_plane_intersect(struct Isect *isect, struct Ray ray, struct Plan
 }
 
 
-inline void ray_sphere_intersect(struct Isect *isect, struct Ray ray, struct Sphere sphere)
+inline void ray_sphere_intersect(thread struct Isect *isect, struct Ray ray, struct Sphere sphere)
 {
   struct vec3f rs = sub3f(ray.org,sphere.center);
 
@@ -229,10 +227,10 @@ inline void orthoBasis(struct vec3f basis[3], struct vec3f n)
 }
 
 
-float ambient_occlusion(struct Isect *isect, struct Plane plane, struct Sphere spheres[3],
-                        struct RNGState *rngstate) {
+float ambient_occlusion(thread struct Isect *isect, struct Plane plane, struct Sphere spheres[3],
+                        thread struct RNGState *rngstate) {
   float eps = 0.0001f;
-  struct vec3f p, n;
+  struct vec3f p;
   struct vec3f basis[3];
   float occlusion = 0.0f;
 
@@ -278,15 +276,7 @@ float ambient_occlusion(struct Isect *isect, struct Plane plane, struct Sphere s
   return occlusion;
 }
 
-
-/* Compute the image for the scanlines from [y0,y1), for an overall image
-   of width w and height h.
-*/
-__kernel void ao_bench_kernel(int nsubsamples, __write_only image2d_t destination )
-{
-
-  int w = get_image_width (destination);
-  int h = get_image_height (destination);
+inline float4 ao_bench(int nsubsamples, int x, int y, int w, int h) {
 
   struct Plane plane = { { 0.0f, -0.5f, 0.0f }, { 0.f, 1.f, 0.f } };
   struct Sphere spheres[3] = {
@@ -296,9 +286,6 @@ __kernel void ao_bench_kernel(int nsubsamples, __write_only image2d_t destinatio
   struct RNGState rngstate;
 
   float invSamples = 1.f / nsubsamples;
-
-  int x = get_global_id(0);
-  int y = get_global_id(1);
 
   int offset = 4 * (y * w + x);
 
@@ -339,40 +326,11 @@ __kernel void ao_bench_kernel(int nsubsamples, __write_only image2d_t destinatio
 
   ret *= (invSamples * invSamples);
 
-  float4 color = (float4)(ret,ret,ret,1);
-
-  int2 gid = (int2)(x, y);
-
-  write_imagef(destination, gid, color);
-
-}
-
-
-__constant sampler_t sampler = CLK_NORMALIZED_COORDS_TRUE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_LINEAR;
-
-__kernel void blend_kernel(__read_only image2d_t source, __write_only image2d_t destination) {
-
-  int2 gid = (int2)(get_global_id(0),
-                    get_global_id(1));
-
-  int2 imageSize = (int2)(get_image_width(destination),
-                          get_image_height(destination));
-
-  if (gid.x >= imageSize.x || gid.y >= imageSize.y)
-  {
-    return;
-  }
-
-  // Normalize coordinates
-  float2 coords = (float2)((float)gid.x / (imageSize.x - 1),
-                           (float)gid.y / (imageSize.y - 1));
-
-
-  float4 inColor = read_imagef(source, sampler, coords);
-  inColor.b = 0.5;
-
-  write_imagef(destination, gid, inColor);
-
+#ifdef __METAL_VERSION__
+  return  {ret,ret,ret,1};
+#else
+  return  (float4)(ret,ret,ret,1);
+#endif
 }
 
 #endif //DEHANCER_OPENCL_HELPER_AOBENCHKERNEL_H

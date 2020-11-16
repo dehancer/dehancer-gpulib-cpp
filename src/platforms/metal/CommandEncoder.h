@@ -15,23 +15,8 @@ namespace dehancer::metal {
     public:
         explicit CommandEncoder(id<MTLComputeCommandEncoder> command_encoder): command_encoder_(command_encoder){}
 
-        void set(const Texture &texture, int index) override {
-          if (command_encoder_) {
-
-          }
-          else {
-            throw std::runtime_error("Unable to pass texture to null kernel ");
-          }
-        }
-
-        void set(const void *bytes, size_t bytes_length, int index) override {
-          if (command_encoder_){
-
-          }
-          else {
-            throw std::runtime_error("Unable to pass bytes to null kernel ");
-          }
-        }
+        void set(const Texture &texture, int index) override;
+        void set(const void *bytes, size_t bytes_length, int index) override;
 
         id<MTLComputeCommandEncoder> command_encoder_ = nullptr;
     };
