@@ -9,6 +9,7 @@
 #pragma once
 
 #include "dehancer/gpu/GpuConfig.h"
+#include "dehancer/gpu/DeviceCache.h"
 #include "dehancer/Common.h"
 
 namespace dehancer::metal {
@@ -16,6 +17,7 @@ namespace dehancer::metal {
     namespace device {
         [[nodiscard]] std::string get_name(const void* device);
         [[nodiscard]] uint64_t    get_id(const void* device);
+        [[nodiscard]] dehancer::device::Type  get_type(const void* device);
     }
 
     struct gpu_device_cache {

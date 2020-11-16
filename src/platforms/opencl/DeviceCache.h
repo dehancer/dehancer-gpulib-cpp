@@ -7,6 +7,7 @@
 #include "dehancer/Common.h"
 #include "dehancer/opencl/buffer.h"
 #include "dehancer/opencl/embeddedProgram.h"
+#include "dehancer/gpu/DeviceCache.h"
 
 #include <mutex>
 #include <memory>
@@ -19,6 +20,7 @@ namespace dehancer::opencl {
     namespace device {
         [[nodiscard]] std::string get_name(const void* device);
         [[nodiscard]] uint64_t    get_id(const void* device);
+        [[nodiscard]] dehancer::device::Type get_type(const void* device);
     }
 
     struct gpu_command_queue_item {

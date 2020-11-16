@@ -39,11 +39,13 @@ if(UNIX AND NOT APPLE)
 endif()
 
 if(LINUX)
+    set(STATIC_LINKING OFF)
     message(STATUS "Linux configuration...")
     if (DEHANCER_GPU_METAL)
         message(FATAL_ERROR "Linux GPU Layer does not suppor Metal SDK")
     endif ()
 elseif(APPLE)
+    set(STATIC_LINKING ON)
     message(STATUS "Apple configuration...")
     if (DEHANCER_GPU_METAL)
         message(STATUS "Apple uses Metal...")
@@ -82,17 +84,15 @@ SET(STATIC_LINKING FALSE CACHE BOOL "Build a static binary?")
 # do we want static libraries?
 # When STATIC_LINKING is TRUE, than cmake looks for libraries ending
 # with .a. This is for linux only!
-#IF(STATIC_LINKING)
-SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
-#set(CMAKE_FIND_LIBRARY_SUFFIXES .a)
-#ENDIF(STATIC_LINKING)
+IF(STATIC_LINKING)
+    SET(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+ENDIF(STATIC_LINKING)
 
 # set -static, when STATIC_LINKING is TRUE and set LINK_SEARCH_END_STATIC
 # to remove the additional -bdynamic from the linker line.
 IF(STATIC_LINKING)
-    SET(CMAKE_EXE_LINKER_FLAGS "-static")
-    SET_TARGET_PROPERTIES(surface PROPERTIES
-            LINK_SEARCH_END_STATIC 1)
+    #SET(CMAKE_EXE_LINKER_FLAGS "-static")
+    #SET_TARGET_PROPERTIES(surface PROPERTIES LINK_SEARCH_END_STATIC 1)
 ENDIF(STATIC_LINKING)
 
 if(PRINT_DEBUG)

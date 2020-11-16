@@ -22,6 +22,28 @@ namespace dehancer::opencl {
             return UINT64_MAX;
           return (uint64_t)(device->clDeviceID);
         }
+
+        dehancer::device::Type get_type(const void* id){
+          auto* device = reinterpret_cast<clHelper::Device *>((void *)id);
+          if (!device)
+            return dehancer::device::Type::unknown;
+
+          cl_device_type device_type;
+
+          clGetDeviceInfo(device->clDeviceID,
+                          CL_DEVICE_TYPE,
+                          sizeof(device_type), &device_type,
+                          nullptr);
+
+          switch (device_type) {
+            case CL_DEVICE_TYPE_CPU:
+              return dehancer::device::Type::cpu;
+            case CL_DEVICE_TYPE_GPU:
+              return dehancer::device::Type::gpu;
+            default:
+              return dehancer::device::Type::unknown;
+          }
+        }
     }
 
     gpu_device_cache::gpu_device_cache():
@@ -169,4 +191,5 @@ namespace dehancer::opencl {
       in_use = in_use_;
       command_queue = command_queue_;
     }
+
 }

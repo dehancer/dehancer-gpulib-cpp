@@ -47,7 +47,24 @@ int run_bench2(int num, const void* device, std::string patform) {
   std::chrono::duration<double> seconds = clock_end-clock_begin;
 
   // Report results and save image
-  std::cout << "[aobench "<<patform<<" ("<<dehancer::device::get_name(device)<<")]:\t" << seconds.count() << "s "
+  auto device_type = dehancer::device::get_type(device);
+
+  std::string device_type_str;
+
+  switch (device_type) {
+    case dehancer::device::Type::cpu :
+      device_type_str = "CPU"; break;
+    case dehancer::device::Type::gpu :
+      device_type_str = "GPU"; break;
+    default:
+      device_type_str = "Unknown"; break;
+  }
+
+  std::cout << "[aobench "
+            <<patform<<"/"<<device_type_str
+            <<" ("
+            <<dehancer::device::get_name(device)
+            <<")]:\t" << seconds.count() << "s "
             << ", for a " << width << "x" << height << " pixels" << std::endl;
 
 
@@ -111,6 +128,9 @@ void test_bench(std::string platform) {
     // dev_num = 0;
 
     for (auto d: devices) {
+#if __APPLE__
+      if (dehancer::device::get_type(d) == dehancer::device::Type::cpu) continue;
+#endif
       if (run_bench2(dev_num++, d, platform)!=0) return;
     }
 

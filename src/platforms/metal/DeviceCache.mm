@@ -348,6 +348,10 @@ namespace dehancer::metal {
             return decice.registryID;
           return UINT64_MAX;
         }
+
+        dehancer::device::Type get_type(const void* id) {
+          return dehancer::device::Type::gpu;
+        }
     }
 
     gpu_device_cache::gpu_device_cache(): device_cache_([MTLDeviceCache deviceCache]) {}

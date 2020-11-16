@@ -57,4 +57,8 @@ namespace dehancer {
     std::string device::get_name(const void *device) {
       return DEHANCER_GPU_PLATFORM::device::get_name(device);
     }
+
+    dehancer::device::Type device::get_type(const void *device) {
+      return DEHANCER_GPU_PLATFORM::device::get_type(device);
+    }
 }

@@ -15,8 +15,16 @@
 namespace dehancer {
 
     namespace device {
+
+        enum class Type:int {
+            gpu = 0,
+            cpu,
+            unknown
+        };
+
         [[nodiscard]] std::string get_name(const void* device);
         [[nodiscard]] uint64_t    get_id(const void* device);
+        [[nodiscard]] Type        get_type(const void* device);
     }
 
     namespace impl {
