@@ -20,7 +20,7 @@ int run_bench2(int num, const void* device, std::string patform) {
   std::string ext = dehancer::TextureIO::extention_for(type);
   float       compression = 0.0f;
 
-  size_t width = 800, height = 600;
+  size_t width = 800*2, height = 600*2;
 
   auto command_queue = dehancer::DeviceCache::Instance().get_command_queue(dehancer::device::get_id(device));
 
@@ -33,10 +33,10 @@ int run_bench2(int num, const void* device, std::string patform) {
    * Test performance
    */
   bench_kernel.execute([&ao_bench_text](dehancer::CommandEncoder& command_encoder){
-      int numSubSamples = 4, count = 0;
+      int numSubSamples = 4;
 
-      command_encoder.set(ao_bench_text, count++);
-      command_encoder.set(&numSubSamples, sizeof(numSubSamples), count++);
+      command_encoder.set(&numSubSamples, sizeof(numSubSamples), 0);
+      command_encoder.set(ao_bench_text, 1);
 
       return ao_bench_text;
   });
@@ -101,14 +101,14 @@ void test_bench(std::string platform) {
     assert(!devices.empty());
 
     int dev_num = 0;
-    std::cout << "Info: " << platform << std::endl;
-    for (auto d: devices) {
-      std::cout << " #" << dev_num++ << std::endl;
-      std::cout << "    Device '" << dehancer::device::get_name(d) << " ["<<dehancer::device::get_id(d)<<"]'"<< std::endl;
-    }
+    std::cout << "Platform: " << platform << std::endl;
+    // for (auto d: devices) {
+    // std::cout << " #" << dev_num++ << std::endl;
+    // std::cout << "    Device '" << dehancer::device::get_name(d) << " ["<<dehancer::device::get_id(d)<<"]'"<< std::endl;
+    // }
 
-    std::cout << "Bench: " << std::endl;
-    dev_num = 0;
+    // std::cout << "Bench: " << std::endl;
+    // dev_num = 0;
 
     for (auto d: devices) {
       if (run_bench2(dev_num++, d, platform)!=0) return;

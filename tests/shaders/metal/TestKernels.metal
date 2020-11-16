@@ -8,8 +8,8 @@
 using namespace metal;
 
 kernel void ao_bench_kernel(
-        texture2d<float, access::write>   destination [[texture(0)]],
-        constant int&                   nsubsamples [[buffer (1)]],
+        constant int&                     nsubsamples [[buffer (0)]],
+        texture2d<float, access::write>   destination [[texture(1)]],
         uint2 gid [[thread_position_in_grid]]
 )
 {
