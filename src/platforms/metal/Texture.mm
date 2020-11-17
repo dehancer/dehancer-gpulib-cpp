@@ -7,7 +7,7 @@
 
 namespace dehancer::metal {
 
-    TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc, void *from_memory) :
+    TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory) :
             Context(command_queue),
             desc_(desc),
             texture_(nullptr)
@@ -80,7 +80,7 @@ namespace dehancer::metal {
       unsigned char* buffer = nullptr;
 
       if (from_memory) {
-        buffer = reinterpret_cast<unsigned char *>(from_memory);
+        buffer = reinterpret_cast<unsigned char *>((void *)from_memory);
       }
 
       texture_ = [get_command_queue().device newTextureWithDescriptor:descriptor];

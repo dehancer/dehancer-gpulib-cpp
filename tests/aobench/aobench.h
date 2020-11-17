@@ -6,13 +6,23 @@
 
 
 #include "dehancer/gpu/Texture.h"
-#include "dehancer/gpu/Function.h"
+#include "dehancer/gpu/Kernel.h"
 #include "dehancer/gpu/TextureInput.h"
 #include "dehancer/gpu/TextureOutput.h"
 #include "dehancer/gpu/DeviceCache.h"
 #include "dehancer/gpu/Paths.h"
 
 #include <chrono>
+
+namespace test {
+    using namespace dehancer;
+    class BlendKernel: public Kernel {
+    public:
+        BlendKernel(const void* command_queue, const Texture& s, const Texture& d):
+        dehancer::Kernel(command_queue,"blend_kernel", s, d){};
+    };
+
+}
 
 int run_bench2(int num, const void* device, std::string patform) {
 
@@ -81,30 +91,26 @@ int run_bench2(int num, const void* device, std::string patform) {
   /***
    * Test blend and write output
    */
-  auto blend_kernel = dehancer::Function(command_queue, "blend_kernel");
   auto input_text = dehancer::TextureInput(command_queue);
+  auto output_text = dehancer::TextureOutput(command_queue, width, height, nullptr, {
+          .type = type,
+          .compression = compression
+  });
 
   std::ifstream ifs(out_file_cv, std::ios::binary);
   ifs >> input_text;
-  auto source = input_text.get_texture();
-  auto result = blend_kernel.make_texture(width,height);
 
-  blend_kernel.execute([&source, &result](dehancer::CommandEncoder& command_encoder){
-      int count = 0;
+  auto blend_kernel = test::BlendKernel(
+          command_queue,
+          input_text.get_texture(),
+          output_text.get_texture());
 
-      command_encoder.set(source, count++);
-      command_encoder.set(result, count++);
-
-      return result;
-  });
+  blend_kernel.process();
 
   std::string out_file_result = "ao-"+patform+"-result-"; out_file_result.append(std::to_string(num)); out_file_result.append(ext);
   {
     std::ofstream result_os(out_file_result, std::ostream::binary | std::ostream::trunc);
-    result_os << dehancer::TextureOutput(command_queue, result, {
-            .type = type,
-            .compression = compression
-    });
+    result_os << output_text;
   }
 
   dehancer::DeviceCache::Instance().return_command_queue(command_queue);

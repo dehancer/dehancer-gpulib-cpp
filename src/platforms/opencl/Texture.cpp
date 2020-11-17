@@ -7,7 +7,7 @@
 
 namespace dehancer::opencl {
 
-    TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc, void *from_memory) :
+    TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory) :
             Context(command_queue),
             desc_(desc),
             memobj_(nullptr)
@@ -70,7 +70,7 @@ namespace dehancer::opencl {
       unsigned char* buffer = nullptr;
 
       if (from_memory) {
-        buffer = reinterpret_cast<unsigned char *>(from_memory);
+        buffer = reinterpret_cast<unsigned char *>((void *)from_memory);
         mem_flags |= CL_MEM_COPY_HOST_PTR;
       }
 

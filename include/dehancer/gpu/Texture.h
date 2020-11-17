@@ -98,7 +98,7 @@ namespace dehancer {
          * @param from_memory - from host memory that texture should be created
          * @return Texture object
          */
-        static Texture Make(const void *command_queue, const TextureDesc &desc, float *from_memory = nullptr);
+        static Texture Make(const void *command_queue, const TextureDesc &desc, const float *from_memory = nullptr);
 
         /***
          * Get a weak shared pointer to texture object.

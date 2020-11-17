@@ -47,4 +47,6 @@ namespace dehancer {
     void *Command::get_command_queue() {
       return impl_->get_command_queue();
     }
+
+    Command::~Command() = default;
 }

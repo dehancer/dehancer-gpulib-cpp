@@ -69,6 +69,8 @@ namespace dehancer {
          */
         void* get_command_queue();
 
+        virtual ~Command();
+
     protected:
         std::shared_ptr<impl::Command> impl_;
     };

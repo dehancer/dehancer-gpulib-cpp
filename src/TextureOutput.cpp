@@ -7,12 +7,6 @@
 
 namespace dehancer{
 
-//    namespace impl {
-//        class TextureOutput: public dehancer::opencl::TextureOutput {
-//        public:
-//            using dehancer::opencl::TextureOutput::TextureOutput;
-//        };
-//    }
 
     TextureOutput::TextureOutput(const void *command_queue,
                                  const Texture &source,
@@ -20,6 +14,16 @@ namespace dehancer{
             TextureIO(),
             impl_(std::make_shared<impl::TextureOutput>(command_queue,source,options))
     {
+    }
+
+    TextureOutput::TextureOutput(const void *command_queue,
+                                 size_t width,
+                                 size_t height,
+                                 const float *from_memory,
+                                 const TextureIO::Options &options):
+            TextureIO(),
+            impl_(std::make_shared<impl::TextureOutput>(command_queue,width,height,from_memory,options)) {
+
     }
 
     Texture TextureOutput::get_texture() {
