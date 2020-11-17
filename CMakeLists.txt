@@ -81,21 +81,6 @@ find_package (OpenCV REQUIRED )
 #
 include(ExternalProject)
 
-#set (DEHANCER_GPU_settings 0)
-#if (DEHANCER_GPU_METAL)
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEHANCER_GPU_METAL=1")
-#    #math(EXPR DEHANCER_GPU_settings "${DEHANCER_GPU_settings} + 1")
-#endif()
-
-#if(DEHANCER_GPU_OPENCL)
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEHANCER_GPU_OPENCL=1")
-#    #math(EXPR DEHANCER_GPU_settings "${DEHANCER_GPU_settings} + 1")
-#endif()
-
-#if((DEHANCER_GPU_settings GREATER 1) OR (DEHANCER_GPU_settings LESS_EQUAL 0))
-#    message(FATAL_ERROR "GPU Layer should be set on DEHANCER_GPU_METAL or DEHANCER_GPU_OPENCL ${DEHANCER_GPU_settings}")
-#endif ()
-
 if(UNIX AND NOT APPLE)
     set(LINUX TRUE)
 endif()

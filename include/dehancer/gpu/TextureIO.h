@@ -8,10 +8,13 @@
 
 namespace dehancer {
 
+    /***
+     * Texture Input/Output interface
+     */
     class TextureIO {
     public:
 
-        TextureIO() = default; //: TextureHolder() {}
+        TextureIO() = default;
 
         struct Options {
             enum Type {

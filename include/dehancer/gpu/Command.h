@@ -15,7 +15,8 @@ namespace dehancer {
     namespace impl { class Command; }
 
     /***
-     * GPU Command layer
+     * GPU Command layer. Command is the base item of computation.
+     * Any command object can be put into device command queue to execute.
      */
     class Command {
 
