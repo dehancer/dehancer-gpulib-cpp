@@ -78,7 +78,7 @@ option(OCIO_BUILD_DOCS "Specify whether to build documentation" OFF)
 option(OCIO_BUILD_TESTS "Specify whether to build unittests" OFF)
 option(OCIO_BUILD_GPU_TESTS "Specify whether to build gpu unittests" OFF)
 
-option(OCIO_BUILD_PYTHON "Specify whether to build python bindings" OF)
+option(OCIO_BUILD_PYTHON "Specify whether to build python bindings" OFF)
 option(OCIO_BUILD_JAVA "Specify whether to build java bindings" OFF)
 
 option(OCIO_WARNING_AS_ERROR "Set build error level for CI testing" OFF)
