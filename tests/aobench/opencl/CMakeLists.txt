@@ -1,4 +1,5 @@
 set (TEST opencl-aobench-test)
+set (DEHANCER_CURRENT_PLATFORM_OPENCL ON)
 
 include(${clHelper_DIR}/clHelper.cmake)
 

@@ -18,15 +18,17 @@ include_directories(
         ${CMAKE_BINARY_DIR}/external/include
 )
 
-if (DEHANCER_GPU_METAL)
+if (DEHANCER_CURRENT_PLATFORM_METAL)
+    set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_metal)
     add_executable(${TEST} ${TESTS_SOURCES})
-elseif(DEHANCER_GPU_OPENCL)
+elseif(DEHANCER_CURRENT_PLATFORM_OPENCL)
+    set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_opencl)
     add_executable(${TEST} ${TESTS_SOURCES} ${EMBEDDED_OPENCL_KERNELS})
 endif ()
 
 target_link_libraries(
         ${TEST}
-        ${PROJECT_LIB}
+        ${PROJECT_LIB_PLATFORM}
         clHelperLib
         ${COMMON_LIBRARIES}
         ${TEST_LIBRARIES}

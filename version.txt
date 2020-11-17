@@ -1,1 +1,1 @@
-dehancer_gpulib_cpp 0.0.1
+dehancer_gpulib 0.0.1

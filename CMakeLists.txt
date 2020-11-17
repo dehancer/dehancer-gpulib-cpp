@@ -3,36 +3,98 @@ cmake_minimum_required(VERSION 3.12)
 #
 # Project
 #
-set(PROJECT_LIB dehancer_gpulib_cpp)
+set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
 project(${PROJECT_LIB} VERSION 0.0.1)
-
-#
-# C++
-#
-set(CMAKE_CXX_STANDARD 17)
 
 #
 # Options
 #
 option (BUILD_TESTING "Enable creation of  tests." OFF)
-option (DEHANCER_GPU_METAL "Dehancer GPU Layer is Metal" OFF)
-option (DEHANCER_GPU_OPENCL "Dehancer GPU Layer is OpenCL" OFF)
+option (DEHANCER_GPU_METAL "Dehancer GPU Layer is Metal" ON)
+option (DEHANCER_GPU_OPENCL "Dehancer GPU Layer is OpenCL" ON)
 
-set (DEHANCER_GPU_settings 0)
-if (DEHANCER_GPU_METAL)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEHANCER_GPU_METAL=1")
-    math(EXPR DEHANCER_GPU_settings "${DEHANCER_GPU_settings} + 1")
-endif()
+#
+#
+# C++
+#
+set(CMAKE_CXX_STANDARD 17)
 
-if(DEHANCER_GPU_OPENCL)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEHANCER_GPU_OPENCL=1")
-    math(EXPR DEHANCER_GPU_settings "${DEHANCER_GPU_settings} + 1")
-endif()
+# googletes, etc
+set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
+set (EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
+set (EXTERNAL_INCLUDE_DIR ${EXTERNAL_INSTALL_LOCATION}/include)
+set (COMMON_DEPENDECIES ${CURRENT_METAL_TARGET_NAME})
+set (COMMON_LIBRARIES)
 
-if((DEHANCER_GPU_settings GREATER 1) OR (DEHANCER_GPU_settings LESS_EQUAL 0))
-    message(FATAL_ERROR "GPU Layer should be set on DEHANCER_GPU_METAL or DEHANCER_GPU_OPENCL ${DEHANCER_GPU_settings}")
+if (NOT CMAKE_INSTALL_LIBDIR)
+    set(CMAKE_INSTALL_LIBDIR lib)
 endif ()
+
+#
+# Programms
+#
+find_program(CCACHE_FOUND ccache)
+find_program(MAKE_EXE NAMES gmake nmake make)
+
+#
+# CCache settings
+#
+if(CCACHE_FOUND)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+endif(CCACHE_FOUND)
+
+#
+# Packages
+#
+set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
+set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib64/pkgconfig)
+set(ENV{PKG_CONFIG_PATH} $ENV{SYSROOT}/usr/local/dehancer/lib/pkgconfig)
+find_package (PkgConfig REQUIRED)
+find_package (Threads REQUIRED)
+find_package (PkgConfig REQUIRED)
+find_package (BLAS REQUIRED)
+find_package (LAPACK REQUIRED)
+if (DEHANCER_GPU_OPENCL)
+    find_package (OpenCL REQUIRED)
+    if (OpenCL_FOUND)
+        set(DEHANCER_GPU_OPENCL ON)
+    else()
+        set(DEHANCER_GPU_OPENCL OFF)
+        message("OpenCL is not found on this platform")
+    endif ()
+endif ()
+if (DEHANCER_GPU_METAL)
+    if (APPLE)
+        set(DEHANCER_GPU_METAL ON)
+    else()
+        set(DEHANCER_GPU_METAL OFF)
+        message("Metal is not found on this platform")
+    endif ()
+endif()
+find_package (ZLIB REQUIRED)
+find_package (OpenCV REQUIRED )
+
+#
+# External projects
+#
+include(ExternalProject)
+
+#set (DEHANCER_GPU_settings 0)
+#if (DEHANCER_GPU_METAL)
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEHANCER_GPU_METAL=1")
+#    #math(EXPR DEHANCER_GPU_settings "${DEHANCER_GPU_settings} + 1")
+#endif()
+
+#if(DEHANCER_GPU_OPENCL)
+#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEHANCER_GPU_OPENCL=1")
+#    #math(EXPR DEHANCER_GPU_settings "${DEHANCER_GPU_settings} + 1")
+#endif()
+
+#if((DEHANCER_GPU_settings GREATER 1) OR (DEHANCER_GPU_settings LESS_EQUAL 0))
+#    message(FATAL_ERROR "GPU Layer should be set on DEHANCER_GPU_METAL or DEHANCER_GPU_OPENCL ${DEHANCER_GPU_settings}")
+#endif ()
 
 if(UNIX AND NOT APPLE)
     set(LINUX TRUE)
@@ -101,59 +163,12 @@ endif()
 
 set(CMAKE_MACOSX_RPATH TRUE)
 
-# googletes, etc
-set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
-set (EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
-set (EXTERNAL_INCLUDE_DIR ${EXTERNAL_INSTALL_LOCATION}/include)
-set (COMMON_DEPENDECIES ${CURRENT_METAL_TARGET_NAME})
-set (COMMON_LIBRARIES)
-
-if (NOT CMAKE_INSTALL_LIBDIR)
-    set(CMAKE_INSTALL_LIBDIR lib)
-endif ()
-
-#
-# Programms
-#
-find_program(CCACHE_FOUND ccache)
-find_program(MAKE_EXE NAMES gmake nmake make)
-
-#
-# CCache settings
-#
-if(CCACHE_FOUND)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-endif(CCACHE_FOUND)
-
-
 #
 # Generators
 #
 file (WRITE "${VERSION_FILE}" "${PROJECT_NAME} ${PROJECT_VERSION}")
 configure_file(include/dehancer/gpulib_version.h.in ${CMAKE_BINARY_DIR}/generated/gpulib_version.h)
 
-#
-# Packages
-#
-set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
-set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib64/pkgconfig)
-set(ENV{PKG_CONFIG_PATH} $ENV{SYSROOT}/usr/local/dehancer/lib/pkgconfig)
-find_package (PkgConfig REQUIRED)
-find_package (Threads REQUIRED)
-find_package (PkgConfig REQUIRED)
-find_package (BLAS REQUIRED)
-find_package (LAPACK REQUIRED)
-if (DEHANCER_GPU_OPENCL)
-    find_package (OpenCL REQUIRED)
-endif ()
-#find_package (ZLIB REQUIRED)
-find_package (OpenCV REQUIRED )
-
-#
-# External projects
-#
-include(ExternalProject)
 
 #
 # Google TEST
