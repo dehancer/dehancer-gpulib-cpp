@@ -17,6 +17,6 @@ if(DEHANCER_GPU_OPENCL)
 endif ()
 
 install(DIRECTORY ${PUBLIC_INCLUDE_FILES}
-        DESTINATION include/dehancer
+        DESTINATION include
         FILES_MATCHING PATTERN "*.h"
         )
