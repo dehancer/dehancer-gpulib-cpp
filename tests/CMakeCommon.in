@@ -1,4 +1,4 @@
-set(TEST_LIBRARIES)
+set (TEST_LIBRARIES)
 set (CMAKE_CXX_STANDARD 17)
 
 if (GTEST_FOUND)
@@ -18,14 +18,21 @@ include_directories(
         ${CMAKE_BINARY_DIR}/external/include
 )
 
-add_executable(${TEST} ${TESTS_SOURCES} ${EMBEDDED_OPENCL_KERNELS})
+if (DEHANCER_CURRENT_PLATFORM_METAL)
+    set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_metal)
+    add_executable(${TEST} ${TESTS_SOURCES})
+elseif(DEHANCER_CURRENT_PLATFORM_OPENCL)
+    set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_opencl)
+    add_executable(${TEST} ${TESTS_SOURCES} ${EMBEDDED_OPENCL_KERNELS})
+endif ()
 
 target_link_libraries(
         ${TEST}
-        ${PROJECT_LIB}
-        ${TEST_LIBRARIES}
+        ${PROJECT_LIB_PLATFORM}
         clHelperLib
         ${COMMON_LIBRARIES}
+        ${TEST_LIBRARIES}
+        ${CMAKE_DL_LIBS}
 )
 
 if (COMMON_DEPENDECIES)
@@ -34,6 +41,13 @@ if (COMMON_DEPENDECIES)
             ${COMMON_DEPENDECIES}
     )
 endif ()
+
+if(DEHANCER_GPU_METAL)
+    add_dependencies(
+            ${TEST}
+            TestKernels
+    )
+endif()
 
 add_test(test ${TEST})
 enable_testing()

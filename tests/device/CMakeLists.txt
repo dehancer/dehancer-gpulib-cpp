@@ -1,0 +1,6 @@
+set (DEHANCER_CURRENT_PLATFORM_OPENCL ON)
+set (TEST device-cache-test)
+
+include(${clHelper_DIR}/clHelper.cmake)
+include_directories( ${CMAKE_SOURCE_DIR}/src/shaders/opencl/tests)
+include(${CMAKE_SOURCE_DIR}/tests/CMakeCommon.in)
