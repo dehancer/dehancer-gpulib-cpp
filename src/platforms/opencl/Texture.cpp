@@ -8,6 +8,7 @@
 namespace dehancer::opencl {
 
     TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory) :
+            dehancer::TextureHolder(),
             Context(command_queue),
             desc_(desc),
             memobj_(nullptr)

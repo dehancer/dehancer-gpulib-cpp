@@ -33,6 +33,7 @@ namespace dehancer {
       execute([this](CommandEncoder& command){
           command.set(this->get_source(),0);
           command.set(this->get_destination(), 1);
+          this->setup(command);
           return this->get_destination();
       });
     }

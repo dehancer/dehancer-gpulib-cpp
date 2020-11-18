@@ -22,9 +22,14 @@ __kernel void ao_bench_kernel(int nsubsamples, __write_only image2d_t destinatio
 }
 
 
+static __constant float3 kIMP_Y_YUV_factor = {0.2125, 0.7154, 0.0721};
 __constant sampler_t sampler = CLK_NORMALIZED_COORDS_TRUE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_LINEAR;
-
-__kernel void blend_kernel(__read_only image2d_t source, __write_only image2d_t destination) {
+__kernel void blend_kernel(
+        __read_only image2d_t source,
+        __write_only image2d_t destination,
+        __global float* color_map,
+        uint levels
+) {
 
   int2 gid = (int2)(get_global_id(0),
                     get_global_id(1));
@@ -43,8 +48,17 @@ __kernel void blend_kernel(__read_only image2d_t source, __write_only image2d_t 
 
 
   float4 inColor = read_imagef(source, sampler, coords);
-  inColor.b = 0.5;
 
-  write_imagef(destination, gid, inColor);
+  float luminance = dot(inColor.rgb, kIMP_Y_YUV_factor);
+  uint      index = clamp(uint(luminance*(float)(levels-1)),uint(0),uint(levels-1));
+  float4    color = {1.0, 0.0, 0.0, 1.0};
+
+  if (index<levels){
+    color.r = color_map[index*3];
+    color.g = color_map[index*3+1];
+    color.b = color_map[index*3+2];
+  }
+
+  write_imagef(destination, gid, color);
 
 }

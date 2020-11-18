@@ -22,12 +22,24 @@ namespace dehancer::opencl {
 
     void CommandEncoder::set(const void *bytes, size_t bytes_length, int index)  {
       if (kernel_){
-        auto ret = clSetKernelArg(kernel_, 0, bytes_length,  bytes);
+        auto ret = clSetKernelArg(kernel_, index, bytes_length,  bytes);
         if (ret != CL_SUCCESS)
           throw std::runtime_error("Unable to pass to kernel bytes at index: " + std::to_string(index));
       }
       else {
         throw std::runtime_error("Unable to pass bytes to null kernel ");
+      }
+    }
+
+    void CommandEncoder::set(const Memory &memory, int index) {
+      if (kernel_) {
+        auto memobj = static_cast<cl_mem>(memory->get_memory());
+        auto ret = clSetKernelArg(kernel_, index, sizeof(cl_mem), (void *)&memobj);
+        if (ret != CL_SUCCESS)
+          throw std::runtime_error("Unable to pass to kernel the memory object at index: " + std::to_string(index));
+      }
+      else {
+        throw std::runtime_error("Unable to pass memory to null kernel ");
       }
     }
 }

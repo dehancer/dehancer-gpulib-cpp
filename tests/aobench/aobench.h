@@ -4,7 +4,6 @@
 
 #pragma once
 
-
 #include "dehancer/gpu/Texture.h"
 #include "dehancer/gpu/Kernel.h"
 #include "dehancer/gpu/TextureInput.h"
@@ -15,20 +14,66 @@
 #include <chrono>
 
 namespace test {
+
+    std::vector<float3> false_color_map = {
+            {0.28,0.16,0.31}, // 0
+            {0.16,0.36,0.53}, // 1
+            {0.22,0.48,0.61}, // 2
+            {0.30,0.59,0.65}, // 3
+            {0.42,0.60,0.63}, // 4
+            {0.51,0.55,0.48}, // 5
+            {0.48,0.70,0.35}, // 6
+            {0.59,0.64,0.59}, // 7
+            {0.84,0.53,0.50}, // 8
+            {0.87,0.66,0.64}, // 9
+            {0.85,0.86,0.78}, // 10
+            {0.95,0.93,0.52}, // 11
+            {1.00,0.97,0.33}, // 12
+            {0.95,0.65,0.23}, // 13
+            {0.93,0.27,0.18}, // 14
+            {0.80,0.10,0.05}  // 15
+    };
+
+    std::vector<float> get_as_mem(std::vector<float3> map) {
+      std::vector<float> list;
+      for(auto v: map) {
+        for (auto p: v) {
+          list.push_back(p);
+        }
+      }
+      return list;
+    }
+
     using namespace dehancer;
     class BlendKernel: public Kernel {
     public:
         BlendKernel(const void* command_queue, const Texture& s, const Texture& d):
-        dehancer::Kernel(command_queue,"blend_kernel", s, d){};
-    };
+        dehancer::Kernel(command_queue,"blend_kernel", s, d),
+        color_map_(nullptr)
+        {
+          auto map_data = get_as_mem(false_color_map);
+          color_map_ = MemoryHolder::Make(get_command_queue(),
+                                          map_data.data(),
+                                          map_data.size()*sizeof(float));
+          levels_ = static_cast<uint>(false_color_map.size());
+        };
 
+        void setup(CommandEncoder &encode) override {
+          encode.set(color_map_,2);
+          encode.set(&levels_,sizeof(levels_),3);
+        }
+
+    private:
+        Memory color_map_;
+        uint   levels_;
+    };
 }
 
 int run_bench2(int num, const void* device, std::string patform) {
 
   dehancer::TextureIO::Options::Type type = dehancer::TextureIO::Options::Type::png;
   std::string ext = dehancer::TextureIO::extention_for(type);
-  float       compression = 0.0f;
+  float       compression = 0.3f;
 
   size_t width = 800*2, height = 600*2;
 

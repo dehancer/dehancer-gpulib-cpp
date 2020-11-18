@@ -26,6 +26,13 @@ namespace dehancer {
         virtual void set(const Texture& texture, int index) = 0;
 
         /***
+        * Bind memory object with kernel argument placed at defined index. @see Memory
+        * @param texture - texture object
+        * @param index - index place at kernel parameter list
+        */
+        virtual void set(const Memory& memory, int index) = 0;
+
+        /***
          * Bind raw bytes with kernel argument placed at defined index. @see Texture
          * @param bytes - host memory buffer
          * @param bytes_length - buffer length

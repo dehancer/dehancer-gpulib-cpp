@@ -9,6 +9,7 @@
 #include <functional>
 
 #include "Texture.h"
+#include "Memory.h"
 
 namespace dehancer {
 
