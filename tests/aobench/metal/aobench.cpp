@@ -23,7 +23,7 @@ namespace dehancer::device {
       * @return metal lib path.
       */
     std::string get_lib_path() {
-      //return METAL_KERNELS_LIBRARY;
-      return "./TestKernels.metallib";
+      return METAL_KERNELS_LIBRARY;
+      //return "./TestKernels.metallib";
     }
 }

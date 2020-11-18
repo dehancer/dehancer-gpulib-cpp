@@ -4,7 +4,7 @@
 
 #include "Memory.h"
 
-namespace dehancer::opencl {
+namespace dehancer::metal {
 
     MemoryHolder::MemoryHolder(const void *command_queue, const void* buffer, size_t length):
             dehancer::MemoryHolder(),
@@ -18,22 +18,12 @@ namespace dehancer::opencl {
         throw std::runtime_error("Device memory could not be allocated with size: " + std::to_string(length));
       }
 
-      cl_int ret = 0;
+      if (buffer)
+        memobj_ = [get_device() newBufferWithBytes: buffer length: length options:MTLResourceStorageModeManaged];
+      else
+        memobj_ = [get_device() newBufferWithLength:length options:MTLResourceStorageModeManaged];
 
-      cl_mem_flags flags =  CL_MEM_READ_WRITE;
-
-      if (buffer) flags|=CL_MEM_COPY_HOST_PTR;
-
-      void *data = reinterpret_cast<void*>((void*)buffer);
-
-      memobj_ = clCreateBuffer(
-              get_context(),
-              flags,
-              length,
-              data,
-              &ret);
-
-      if ( ret != CL_SUCCESS ) {
+      if ( !memobj_ ) {
         throw std::runtime_error("Device memory could not be allocated with size: " + std::to_string(length));
       }
       is_self_allocated_ = true;
@@ -50,34 +40,22 @@ namespace dehancer::opencl {
             length_(0),
             is_self_allocated_(false)
     {
-      memobj_ = reinterpret_cast<cl_mem>(device_memory);
+      memobj_ = reinterpret_cast<id<MTLBuffer> >((__bridge id)device_memory);
 
-      cl_mem_object_type object_type = 0;
-
-      cl_int  ret = clGetMemObjectInfo(memobj_,CL_MEM_TYPE,sizeof(object_type),&object_type, nullptr);
-      if (ret != CL_SUCCESS ) {
-        memobj_ = nullptr;
+      if (!memobj_) {
         throw std::runtime_error("Device memory could not bind with device handler object");
       }
-      if (object_type!=CL_MEM_OBJECT_BUFFER) {
-        memobj_ = nullptr;
-        throw std::runtime_error("Device memory is not a memory object");
-      }
 
-      ret = clGetMemObjectInfo(memobj_,CL_MEM_SIZE,sizeof(size_t),&length_,nullptr);
-      if (ret != CL_SUCCESS ) {
-        memobj_ = nullptr;
-        throw std::runtime_error("Device memory could not get memory size");
-      }
+      length_ = memobj_.length;
     }
 
     MemoryHolder::~MemoryHolder() {
       if (memobj_ && is_self_allocated_)
-        clReleaseMemObject(memobj_);
+        [memobj_ release];
     }
 
     size_t MemoryHolder::get_length() const {
-      return length_;
+      return  memobj_.length;;
     }
 
     const void *MemoryHolder::get_memory() const {
@@ -89,6 +67,10 @@ namespace dehancer::opencl {
     }
 
     Error MemoryHolder::get_contents(std::vector<uint8_t> &buffer) const {
-      return Error(CommonError::NOT_SUPPORTED);
+      if (memobj_.contents == nullptr)
+        return Error(CommonError::PERMISSIONS_ERROR, error_string("Device memory object is private"));
+      buffer.resize(get_length());
+      memcpy(buffer.data(), memobj_.contents, get_length());
+      return Error(CommonError::OK);
     }
 }

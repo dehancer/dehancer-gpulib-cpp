@@ -17,6 +17,7 @@ namespace dehancer::metal {
 
         void set(const Texture &texture, int index) override;
         void set(const void *bytes, size_t bytes_length, int index) override;
+        void set(const Memory& memory, int index) override;
 
         id<MTLComputeCommandEncoder> command_encoder_ = nullptr;
     };

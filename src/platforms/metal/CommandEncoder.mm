@@ -23,4 +23,14 @@ namespace dehancer::metal {
         throw std::runtime_error("Unable to pass bytes to null kernel");
       }
     }
+
+    void CommandEncoder::set(const Memory &memory, int index) {
+      if (command_encoder_) {
+        id<MTLBuffer> buffer = static_cast<id <MTLBuffer>>((__bridge id)memory->get_memory());
+        [command_encoder_ setBuffer:buffer offset:0 atIndex:static_cast<NSUInteger>(index)];
+      }
+      else {
+        throw std::runtime_error("Unable to pass buffer to null kernel");
+      }
+    }
 }

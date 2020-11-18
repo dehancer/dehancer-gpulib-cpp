@@ -60,5 +60,4 @@ __kernel void blend_kernel(
   }
 
   write_imagef(destination, gid, color);
-
 }
