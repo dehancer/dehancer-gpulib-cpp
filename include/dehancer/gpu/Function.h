@@ -46,7 +46,7 @@ namespace dehancer {
          * Create GPU function based on kernel sourcecode. @see OpenCL C Language or Metal Shading Language
          * @param command_queue - platform based queue handler
          * @param kernel_name - kernel name defined in platform specific sourcecode
-         * @param wait_until_completed - flag defines completion state.
+         * @param wait_until_completed - flag defines completion state
          *
          * @brief
          *  If wait_until_completed is set on true kernel should lock the current thread and wait when computation finish.
