@@ -45,6 +45,8 @@ namespace dehancer {
          */
         static Memory Make(const void* command_queue, void* device_memory);
 
+        static Memory Make(const void* command_queue, const void* device_memory);
+
         /***
         * Get a weak shared pointer to memory object.
         * @return

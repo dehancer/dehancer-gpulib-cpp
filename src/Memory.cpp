@@ -24,4 +24,8 @@ namespace dehancer {
     Memory MemoryHolder::Make(const void *command_queue, std::vector<uint8_t> buffer) {
       return std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::MemoryHolder>(command_queue, buffer);
     }
+
+    Memory MemoryHolder::Make(const void *command_queue, const void *device_memory) {
+      return MemoryHolder::Make(command_queue, (void *)device_memory);
+    }
 }
