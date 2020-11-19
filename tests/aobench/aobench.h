@@ -82,6 +82,16 @@ int run_bench2(int num, const void* device, std::string patform) {
   auto bench_kernel = dehancer::Function(command_queue, "ao_bench_kernel", true);
   auto ao_bench_text = bench_kernel.make_texture(width,height);
 
+  /**
+   * Debug info
+   */
+
+  std::cout << "[aobench kernel " << bench_kernel.get_name() << " args: " << std::endl;
+  for (auto& a: bench_kernel.get_arg_list()) {
+    std::cout << std::setw(20) << a.name << "["<<a.index<<"]: " << a.type_name << std::endl;
+  }
+
+
   std::chrono::time_point<std::chrono::system_clock> clock_begin
           = std::chrono::system_clock::now();
   /***

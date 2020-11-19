@@ -47,6 +47,12 @@ namespace dehancer {
      */
     class Function: public Command {
     public:
+        struct ArgInfo {
+            std::string name;
+            uint        index;
+            std::string type_name;
+        };
+
         typedef std::function<Texture (CommandEncoder& compute_encoder)> FunctionHandler;
 
         /***
@@ -78,6 +84,19 @@ namespace dehancer {
          *
          */
         void execute(const FunctionHandler& block);
+
+        /***
+         * To debug current Function properties you can get Function name
+         * @return function/kernel name
+         */
+        [[nodiscard]] const std::string& get_name() const;
+
+        /***
+         * Get Function info of argument list. ArgInfo is a structure describes arguments can be bound host and
+         * device context
+         * @return arg info list
+         */
+        [[nodiscard]] const std::vector<ArgInfo> & get_arg_list() const ;
 
     protected:
         std::shared_ptr<impl::Function> impl_;

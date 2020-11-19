@@ -9,19 +9,14 @@ namespace dehancer::metal {
 
     std::mutex Function::mutex_;
     Function::PipelineCache Function::pipelineCache_ = Function::PipelineCache();
-    inline static id<MTLComputePipelineState> make_pipeline(id<MTLDevice> device, const std::string& kernel_name);
+    inline static Function::PipelineState make_pipeline(id<MTLDevice> device, const std::string& kernel_name);
 
     void Function::execute(const dehancer::Function::FunctionHandler& block){
-
-      auto pipeline = get_pipeline();
-
-      if (!pipeline)
-        throw std::runtime_error(error_string("Kernel %s could not execute with nil pipeline", kernel_name_.c_str()));
 
       id<MTLCommandQueue> queue = command_->get_command_queue();
       id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];
       id<MTLComputeCommandEncoder> computeEncoder = [commandBuffer computeCommandEncoder];
-      [computeEncoder setComputePipelineState: pipeline];
+      [computeEncoder setComputePipelineState: pipelineState_.pipeline];
 
       auto encoder = CommandEncoder(computeEncoder);
 
@@ -51,10 +46,15 @@ namespace dehancer::metal {
 
     Function::Function(dehancer::metal::Command *command, const std::string& kernel_name):
             command_(command),
-            kernel_name_(kernel_name)
-    {}
+            kernel_name_(kernel_name),
+            pipelineState_{nullptr, {}}
+    {
+      set_current_pipeline();
+      if (!pipelineState_.pipeline)
+        throw std::runtime_error(error_string("Kernel %s could not execute with nil pipeline", kernel_name_.c_str()));
+    }
 
-    id<MTLComputePipelineState> Function::get_pipeline() const {
+    void Function::set_current_pipeline() const {
 
       std::unique_lock<std::mutex> lock(Function::mutex_);
 
@@ -65,7 +65,8 @@ namespace dehancer::metal {
 
       if (it == Function::pipelineCache_.end())
       {
-        if (!(pipelineState_  = make_pipeline(device, kernel_name_)))
+        pipelineState_  = make_pipeline(device, kernel_name_);
+        if (!pipelineState_.pipeline)
           throw std::runtime_error(error_string("Make new pipeline for kernel %s error", kernel_name_.c_str()));
         Function::pipelineCache_[queue][kernel_name_] = pipelineState_;
       }
@@ -75,7 +76,8 @@ namespace dehancer::metal {
         const auto kernel_pit = it->second.find(kernel_name_);
 
         if (kernel_pit == it->second.end()) {
-          if (!(pipelineState_  = make_pipeline(device, kernel_name_)))
+          pipelineState_  = make_pipeline(device, kernel_name_);
+          if (!pipelineState_.pipeline)
           {
             throw std::runtime_error(error_string("Make new pipeline for kernel %s error", kernel_name_.c_str()));
           }
@@ -85,8 +87,6 @@ namespace dehancer::metal {
           pipelineState_ = kernel_pit->second;
         }
       }
-
-      return pipelineState_;
     }
 
     MTLSize Function::get_threads_per_threadgroup(int w, int h, int d) {
@@ -98,9 +98,17 @@ namespace dehancer::metal {
       return MTLSizeMake( (NSUInteger)(w/tpg.width), (NSUInteger)(h == 1 ? 1 : h/tpg.height), (NSUInteger)(d == 1 ? 1 : d/tpg.depth));
     }
 
+    const std::string &Function::get_name() const {
+      return kernel_name_;
+    }
+
+    std::vector<dehancer::Function::ArgInfo>& Function::get_arg_info_list() const {
+      return pipelineState_.arg_list;
+    }
+
     Function::ComputeSize Function::get_compute_size(const id<MTLTexture> &texture) {
       if ((int)texture.depth==1) {
-        auto exeWidth = [pipelineState_ threadExecutionWidth];
+        auto exeWidth = [pipelineState_.pipeline threadExecutionWidth];
         auto threadGroupCount = MTLSizeMake(exeWidth, 1, 1);
         auto threadGroups     = MTLSizeMake((texture.width + exeWidth - 1)/exeWidth,
                                             texture.height, 1);
@@ -123,10 +131,9 @@ namespace dehancer::metal {
       }
     }
 
-    Function::~Function() {
-    }
+    Function::~Function() = default;
 
-    NS_RETURNS_RETAINED inline static id<MTLComputePipelineState> make_pipeline(id<MTLDevice> device, const std::string& kernel_name) {
+    inline static Function::PipelineState make_pipeline(id<MTLDevice> device, const std::string& kernel_name) {
 
       id<MTLComputePipelineState> pipelineState = nil;
       id<MTLLibrary>              metalLibrary;     // Metal library
@@ -135,6 +142,8 @@ namespace dehancer::metal {
       NSError* err;
 
       std::string libpath = device::get_lib_path();
+
+      Function::PipelineState state{nullptr, {}};
 
       if (libpath.empty()){
         if (!(metalLibrary    = [device newDefaultLibrary]))
@@ -169,7 +178,11 @@ namespace dehancer::metal {
       }
 
 
-      if (!(pipelineState  = [device newComputePipelineStateWithFunction:kernelFunction error:&err]))
+      MTLAutoreleasedComputePipelineReflection reflection;
+      if (!(pipelineState  = [device newComputePipelineStateWithFunction:kernelFunction
+                                                                 options:MTLPipelineOptionArgumentInfo
+                                                              reflection:&reflection
+                                                                   error:&err]))
       {
         [metalLibrary release];
         [kernelFunction release];
@@ -182,11 +195,21 @@ namespace dehancer::metal {
         );
       }
 
+      state.pipeline = pipelineState;
+      for(MTLArgument* a in reflection.arguments) {
+        dehancer::Function::ArgInfo info {
+          .name = [a.name UTF8String],
+          .index = static_cast<uint>(a.index),
+          .type_name = std::to_string([a type])
+        };
+        state.arg_list.push_back(info);
+      }
+
       //Release resources
       [metalLibrary release];
       [kernelFunction release];
 
-      return pipelineState;
+      return state;
     }
 
 }

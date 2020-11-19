@@ -2,6 +2,8 @@
 // Created by denn nevera on 10/11/2020.
 //
 
+#include <dehancer/gpu/Function.h>
+
 #include "platforms/PlatformConfig.h"
 #include "platforms/PlatformConfig.h"
 
@@ -37,5 +39,13 @@ namespace dehancer {
 
     void Function::execute(const Function::FunctionHandler &block) {
       impl_->execute(block);
+    }
+
+    const std::vector<dehancer::Function::ArgInfo> & Function::get_arg_list() const {
+      return impl_->get_arg_info_list();
+    }
+
+    const std::string& Function::get_name() const {
+      return impl_->get_name();
     }
 }
