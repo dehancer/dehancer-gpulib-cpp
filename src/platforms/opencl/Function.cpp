@@ -84,7 +84,20 @@ namespace dehancer::opencl {
       last_error = clBuildProgram(program_, 1, &device_id, "-cl-kernel-arg-info", nullptr, nullptr);
 
       if (last_error != CL_SUCCESS) {
-        throw std::runtime_error("Unable to build OpenCL program from exampleKernel.cl");
+
+        std::string log = "Unable to build OpenCL program from: " + kernel_name_;
+
+        if (last_error == CL_BUILD_PROGRAM_FAILURE) {
+          // Determine the size of the log
+          size_t log_size;
+          clGetProgramBuildInfo(program_, command_->get_device_id(), CL_PROGRAM_BUILD_LOG, 0, nullptr, &log_size);
+          //build_log_.resize(log_size);
+          log.resize(log_size);
+          // Get the log
+          clGetProgramBuildInfo(program_, command_->get_device_id(), CL_PROGRAM_BUILD_LOG, log_size, log.data(), NULL);
+        }
+
+        throw std::runtime_error("Unable to build OpenCL program from: " + kernel_name_ + ": \n" + log);
       }
 
       kernel_ = clCreateKernel(program_, kernel_name_.c_str(), &last_error);
