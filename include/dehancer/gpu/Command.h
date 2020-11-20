@@ -8,8 +8,8 @@
 #include <memory>
 #include <functional>
 
-#include "Texture.h"
-#include "Memory.h"
+#include "dehancer/gpu/Texture.h"
+#include "dehancer/gpu/Memory.h"
 
 namespace dehancer {
 

@@ -3,6 +3,7 @@
 //
 
 #pragma once
+
 #include "dehancer/Common.h"
 #include "dehancer/gpu/Texture.h"
 

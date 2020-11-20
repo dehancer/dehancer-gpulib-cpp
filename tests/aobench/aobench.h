@@ -4,16 +4,13 @@
 
 #pragma once
 
-#include "dehancer/gpu/Texture.h"
-#include "dehancer/gpu/Kernel.h"
-#include "dehancer/gpu/TextureInput.h"
-#include "dehancer/gpu/TextureOutput.h"
-#include "dehancer/gpu/DeviceCache.h"
-#include "dehancer/gpu/Paths.h"
+#include "dehancer/gpu/Lib.h"
 
 #include <chrono>
 
 namespace test {
+
+    using namespace dehancer;
 
     std::vector<float3> false_color_map = {
             {0.28,0.16,0.31}, // 0
@@ -49,7 +46,8 @@ namespace test {
     public:
         BlendKernel(const void* command_queue, const Texture& s, const Texture& d):
         dehancer::Kernel(command_queue,"blend_kernel", s, d),
-        color_map_(nullptr)
+        color_map_(nullptr),
+        opacity_{0.1,0.5,0.5}
         {
           auto map_data = get_as_mem(false_color_map);
           color_map_ = MemoryHolder::Make(get_command_queue(),
@@ -61,11 +59,13 @@ namespace test {
         void setup(CommandEncoder &encode) override {
           encode.set(color_map_,2);
           encode.set(&levels_,sizeof(levels_),3);
+          encode.set(opacity_,4);
         }
 
     private:
         Memory color_map_;
         uint   levels_;
+        float3 opacity_;
     };
 }
 

@@ -31,6 +31,7 @@ kernel void blend_kernel(
         texture2d<float, access::write>   destination [[texture(1)]],
         device float*                     color_map   [[buffer (2)]],
         constant uint&                    levels      [[buffer (3)]],
+        constant float3&                 opacity      [[buffer (4)]],
         uint2 gid [[thread_position_in_grid]]
 ) {
 
@@ -56,6 +57,8 @@ kernel void blend_kernel(
     color.g = color_map[index*3+1];
     color.b = color_map[index*3+2];
   }
+
+  color.rgb = mix(inColor.rgb,color.rgb,opacity);
 
   destination.write(color, gid);
 }

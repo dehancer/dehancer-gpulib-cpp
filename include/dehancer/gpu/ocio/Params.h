@@ -20,7 +20,7 @@ namespace dehancer {
 
 #else
 
-#include "dehancer/gpu/GpuConfig.h"
+#include "dehancer/gpu/DeviceConfig.h"
 #include "dehancer/math.hpp"
 #include <cfloat>
 

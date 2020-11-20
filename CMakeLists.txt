@@ -91,6 +91,8 @@ if(LINUX)
     if (DEHANCER_GPU_METAL)
         message(FATAL_ERROR "Linux GPU Layer does not suppor Metal SDK")
     endif ()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -W -Wall -Wextra -Wno-ignored-qualifiers -Wvariadic-macros -pthread -static-libgcc -static-libstdc++")
+    set(CMAKE_CXX_FLAGS "-fvisibility=hidden -Wno-pedantic")
 elseif(APPLE)
     set(STATIC_LINKING ON)
     message(STATUS "Apple configuration...")
@@ -122,7 +124,6 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -rdynamic")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Dcimg_display=0 -Dcimg_use_jpeg=1 -Dcimg_use_tiff=1 -Dcimg_use_png=1")
 set(BUILD_SHARED_LIBS OFF)
 
 # determine, whether we want a static binary
@@ -138,8 +139,8 @@ ENDIF(STATIC_LINKING)
 # set -static, when STATIC_LINKING is TRUE and set LINK_SEARCH_END_STATIC
 # to remove the additional -bdynamic from the linker line.
 IF(STATIC_LINKING)
-    #SET(CMAKE_EXE_LINKER_FLAGS "-static")
-    #SET_TARGET_PROPERTIES(surface PROPERTIES LINK_SEARCH_END_STATIC 1)
+    # SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+    # SET_TARGET_PROPERTIES(surface PROPERTIES LINK_SEARCH_END_STATIC 1)
 ENDIF(STATIC_LINKING)
 
 if(PRINT_DEBUG)
@@ -181,6 +182,7 @@ if (DEHANCER_GPU_OPENCL)
             -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DBUILD_TESTING=OFF
             )
     set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};dehancer_opencl_helper;)
     set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};clHelperLib;${OpenCL_LIBRARIES};)

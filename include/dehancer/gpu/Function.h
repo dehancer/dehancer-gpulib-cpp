@@ -4,42 +4,14 @@
 
 #pragma once
 
-#include "Command.h"
+#include "dehancer/gpu/Command.h"
+#include "dehancer/gpu/CommandEncoder.h"
 
 namespace dehancer {
 
     namespace impl {
         class Function;
     }
-
-    /***
-     * Command encoder offers methods to bind parameters that are objects
-     * of host system and placed in CPU memory and GPU kernel functions.
-     */
-    class CommandEncoder {
-    public:
-        /***
-         * Bind texture object with kernel argument placed at defined index. @see Texture
-         * @param texture - texture object
-         * @param index - index place at kernel parameter list
-         */
-        virtual void set(const Texture& texture, int index) = 0;
-
-        /***
-        * Bind memory object with kernel argument placed at defined index. @see Memory
-        * @param texture - texture object
-        * @param index - index place at kernel parameter list
-        */
-        virtual void set(const Memory& memory, int index) = 0;
-
-        /***
-         * Bind raw bytes with kernel argument placed at defined index. @see Texture
-         * @param bytes - host memory buffer
-         * @param bytes_length - buffer length
-         * @param index - index place at kernel parameter list
-         */
-        virtual void set(const void* bytes, size_t bytes_length, int index) = 0;
-    };
 
     /***
      * Function defined in kernel library that can be executed in device command queue.

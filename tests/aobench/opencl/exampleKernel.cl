@@ -28,7 +28,8 @@ __kernel void blend_kernel(
         __read_only image2d_t source,
         __write_only image2d_t destination,
         __global float* color_map,
-        uint levels
+        uint levels,
+        float3 opacity
 ) {
 
   int2 gid = (int2)(get_global_id(0),
@@ -50,14 +51,16 @@ __kernel void blend_kernel(
   float4 inColor = read_imagef(source, sampler, coords);
 
   float luminance = dot(inColor.rgb, kIMP_Y_YUV_factor);
-  uint      index = clamp(uint(luminance*(float)(levels-1)),uint(0),uint(levels-1));
-  float4    color = {1.0, 0.0, 0.0, 1.0};
+  int      index = clamp((int)(luminance*(float)(levels-1)),(int)(0),(int)(levels-1));
+  float4   color = {1.0, 0.0, 0.0, 1.0};
 
   if (index<levels){
     color.r = color_map[index*3];
     color.g = color_map[index*3+1];
     color.b = color_map[index*3+2];
   }
+
+  color.rgb = mix(inColor.rgb,color.rgb,opacity);
 
   write_imagef(destination, gid, color);
 }
