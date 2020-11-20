@@ -91,8 +91,8 @@ if(LINUX)
     if (DEHANCER_GPU_METAL)
         message(FATAL_ERROR "Linux GPU Layer does not suppor Metal SDK")
     endif ()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -W -Wall -Wextra -Wno-ignored-qualifiers -Wvariadic-macros -pthread -static-libgcc -static-libstdc++")
-    set(CMAKE_CXX_FLAGS "-fvisibility=hidden -Wno-pedantic")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -W -Wall -Wextra -Wno-ignored-qualifiers -Wvariadic-macros")
+    set(CMAKE_CXX_FLAGS "-fvisibility=hidden -Wno-pedantic -Wunused-function -Wunused-command-line-argument")
 elseif(APPLE)
     set(STATIC_LINKING ON)
     message(STATUS "Apple configuration...")
@@ -369,7 +369,6 @@ link_directories(
 include_directories(
         ${CMAKE_CURRENT_BINARY_DIR}/generated
         ${CMAKE_BINARY_DIR}/external/include
-        ${CMAKE_BINARY_DIR}/external/include/openfx
         ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/external/OpenColorIO/src/OpenColorIO
         ${OpenCV_INCLUDE_DIRS}
@@ -382,6 +381,7 @@ set(COMMON_LIBRARIES
         ${LAPACK_LIBRARIES};
         ${OpenCV_LIBS};
         )
+
 message("COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
 add_subdirectory(lib)
 
