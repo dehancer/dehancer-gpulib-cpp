@@ -15,6 +15,9 @@ namespace dehancer::opencl {
         Function(dehancer::opencl::Command* command, const std::string& kernel_name);
         void execute(const dehancer::Function::FunctionHandler& block);
 
+        [[nodiscard]] const std::string& get_name() const;
+        [[nodiscard]] const std::vector<dehancer::Function::ArgInfo>& get_arg_info_list() const ;
+
         ~Function();
 
     private:
@@ -23,6 +26,7 @@ namespace dehancer::opencl {
         cl_program program_;
         cl_kernel kernel_;
         std::shared_ptr<CommandEncoder> encoder_;
+        mutable std::vector<dehancer::Function::ArgInfo> arg_list_;
     };
 }
 

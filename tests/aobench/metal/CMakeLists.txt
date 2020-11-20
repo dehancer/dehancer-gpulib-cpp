@@ -10,6 +10,7 @@ include(${CMAKE_SOURCE_DIR}/tests/CMakeCommon.in)
 
 add_custom_command(
         TARGET ${TEST} POST_BUILD
+        DEPENDS TestKernels
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_BINARY_DIR}/tests/shaders/metal/TestKernels.metallib
         "$<TARGET_FILE_DIR:${TEST}>/"

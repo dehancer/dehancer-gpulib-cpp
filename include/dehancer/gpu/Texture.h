@@ -93,12 +93,12 @@ namespace dehancer {
     public:
         /***
          * Make a new empty read/write texture in command_queue
-         * @param command_queue - gpu command_queue or context
+         * @param command_queue - device command_queue or context
          * @param desc - texture description
          * @param from_memory - from host memory that texture should be created
          * @return Texture object
          */
-        static Texture Make(const void *command_queue, const TextureDesc &desc, float *from_memory = nullptr);
+        static Texture Make(const void *command_queue, const TextureDesc &desc, const float *from_memory = nullptr);
 
         /***
          * Get a weak shared pointer to texture object.
@@ -127,43 +127,43 @@ namespace dehancer {
         virtual Error get_contents(std::vector<float>& buffer) const = 0;
 
         /***
-         * Get texture width
+         * Get texture width.
          * @return width
          */
         [[nodiscard]] virtual size_t get_width() const = 0;
 
         /***
-         * Get texture height
+         * Get texture height.
          * @return height
          */
         [[nodiscard]] virtual size_t get_height() const = 0;
 
         /***
-        * Get texture depth
+        * Get texture depth.
         * @return depth
         */
         [[nodiscard]] virtual size_t get_depth() const = 0;
 
         /***
-        * Get texture number of channels
+        * Get texture number of channels.
         * @return channels
         */
         [[nodiscard]] virtual size_t get_channels() const = 0;
 
         /***
-         * Get texture size in bytes
+         * Get texture size in bytes.
          * @return number of bytes
          */
         [[nodiscard]] virtual size_t get_length() const = 0;
 
         /***
-         * Get texture pixel format
+         * Get texture pixel format.
          * @return
          */
         [[nodiscard]] virtual TextureDesc::PixelFormat get_pixel_format() const = 0;
 
         /***
-         * Get texture dimension type
+         * Get texture dimension type.
          * @return
          */
         [[nodiscard]] virtual TextureDesc::Type get_type() const = 0;

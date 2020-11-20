@@ -16,6 +16,26 @@ namespace dehancer::impl {
     {
     }
 
+    TextureOutput::TextureOutput(const void *command_queue,
+                                 size_t width,
+                                 size_t height,
+                                 const float* from_memory,
+                                 const dehancer::TextureIO::Options &options):
+            Command(command_queue,true),
+            source_(nullptr),
+            options_(options)
+    {
+      dehancer::TextureDesc desc = {
+              .width = width,
+              .height = height,
+              .depth = 1,
+              .pixel_format = TextureDesc::PixelFormat::rgba32float,
+              .type = TextureDesc::Type::i2d,
+              .mem_flags = TextureDesc::MemFlags::read_write
+      };
+      source_ = dehancer::TextureHolder::Make(command_queue, desc, from_memory);
+    }
+
     const Texture TextureOutput::get_texture() const {
       return source_->get_ptr();
     }
@@ -37,7 +57,7 @@ namespace dehancer::impl {
                 source_->get_width(),
                 CV_32FC4,
                 reinterpret_cast<uchar *>(to_memory.data())
-                );
+        );
 
         std::string ext = ".png";
         std::vector<int> params;
@@ -114,4 +134,6 @@ namespace dehancer::impl {
       os.write(reinterpret_cast<const char *>(buffer.data()), static_cast<size_t >(buffer.size()));
       return os;
     }
+
+
 }

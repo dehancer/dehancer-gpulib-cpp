@@ -14,9 +14,17 @@ namespace dehancer::impl {
 
     class TextureOutput: public dehancer::Command {
     public:
-        TextureOutput(const void *command_queue,
+        explicit TextureOutput(const void *command_queue,
                       const Texture& source,
                       const TextureIO::Options& options);
+
+        explicit TextureOutput(const void *command_queue,
+                      size_t width, size_t height,
+                      const float* from_memory,
+                      const TextureIO::Options& options = {
+                              .type =  TextureIO::Options::Type::png,
+                              .compression = 0.0f
+                      });
 
         Texture get_texture() ;
         [[nodiscard]] const Texture get_texture() const ;

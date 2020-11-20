@@ -6,10 +6,15 @@
 #define CLHELPER_TOOLS_AOBENCH_H
 
 #ifdef __METAL_VERSION__
+
 #include <metal_stdlib>
 using namespace metal;
-#else
+
+#elif CL_VERSION_1_2
+
+#pragma OPENCL EXTENSION cl_khr_3d_image_writes : enable
 #define thread
+
 #endif
 
 #define NAO_SAMPLES		8

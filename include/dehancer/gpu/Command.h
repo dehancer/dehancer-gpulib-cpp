@@ -8,7 +8,8 @@
 #include <memory>
 #include <functional>
 
-#include "Texture.h"
+#include "dehancer/gpu/Texture.h"
+#include "dehancer/gpu/Memory.h"
 
 namespace dehancer {
 
@@ -68,6 +69,8 @@ namespace dehancer {
          * @return pointer to hardware depended descriptor
          */
         void* get_command_queue();
+
+        virtual ~Command();
 
     protected:
         std::shared_ptr<impl::Command> impl_;

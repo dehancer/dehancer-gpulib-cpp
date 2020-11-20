@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "GpuConfig.h"
+#include "dehancer/gpu/DeviceConfig.h"
 #include "dehancer/Common.h"
 #include <memory>
 

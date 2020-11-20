@@ -4,7 +4,8 @@
 
 #pragma once
 
-#include "Command.h"
+#include "dehancer/gpu/Command.h"
+#include "dehancer/gpu/CommandEncoder.h"
 
 namespace dehancer {
 
@@ -13,40 +14,24 @@ namespace dehancer {
     }
 
     /***
-     * Command encoder offers methods to bind parameters that are objects
-     * of host system and placed in CPU memory and GPU kernel functions.
-     */
-    class CommandEncoder {
-    public:
-        /***
-         * Bind texture object with kernel argument placed at defined index. @see Texture
-         * @param texture - texture object
-         * @param index - index place at kernel parameter list
-         */
-        virtual void set(const Texture& texture, int index) = 0;
-
-        /***
-         * Bind raw bytes with kernel argument placed at defined index. @see Texture
-         * @param bytes - host memory buffer
-         * @param bytes_length - buffer length
-         * @param index - index place at kernel parameter list
-         */
-        virtual void set(const void* bytes, size_t bytes_length, int index) = 0;
-    };
-
-    /***
      * Function defined in kernel library that can be executed in device command queue.
      * Function has name and list of parameters can be encoded by CommadEncoder object.
      */
     class Function: public Command {
     public:
+        struct ArgInfo {
+            std::string name;
+            uint        index;
+            std::string type_name;
+        };
+
         typedef std::function<Texture (CommandEncoder& compute_encoder)> FunctionHandler;
 
         /***
          * Create GPU function based on kernel sourcecode. @see OpenCL C Language or Metal Shading Language
          * @param command_queue - platform based queue handler
          * @param kernel_name - kernel name defined in platform specific sourcecode
-         * @param wait_until_completed - flag defines completion state.
+         * @param wait_until_completed - flag defines completion state
          *
          * @brief
          *  If wait_until_completed is set on true kernel should lock the current thread and wait when computation finish.
@@ -71,6 +56,19 @@ namespace dehancer {
          *
          */
         void execute(const FunctionHandler& block);
+
+        /***
+         * To debug current Function properties you can get Function name
+         * @return function/kernel name
+         */
+        [[nodiscard]] const std::string& get_name() const;
+
+        /***
+         * Get Function info of argument list. ArgInfo is a structure describes arguments can be bound host and
+         * device context
+         * @return arg info list
+         */
+        [[nodiscard]] const std::vector<ArgInfo> & get_arg_list() const ;
 
     protected:
         std::shared_ptr<impl::Function> impl_;

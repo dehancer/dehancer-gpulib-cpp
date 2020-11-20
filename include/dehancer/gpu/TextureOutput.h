@@ -34,6 +34,14 @@ namespace dehancer {
                               .compression = 0.0f
                       });
 
+        TextureOutput(const void *command_queue,
+                      size_t width, size_t height,
+                      const float* from_memory = nullptr,
+                      const TextureIO::Options& options = {
+                              .type =  TextureIO::Options::Type::png,
+                              .compression = 0.0f
+                      });
+
         /***
          * Get texture object
          * @return texture

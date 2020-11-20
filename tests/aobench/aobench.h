@@ -4,21 +4,76 @@
 
 #pragma once
 
-
-#include "dehancer/gpu/Texture.h"
-#include "dehancer/gpu/Function.h"
-#include "dehancer/gpu/TextureInput.h"
-#include "dehancer/gpu/TextureOutput.h"
-#include "dehancer/gpu/DeviceCache.h"
-#include "dehancer/gpu/Paths.h"
+#include "dehancer/gpu/Lib.h"
 
 #include <chrono>
+
+namespace test {
+
+    using namespace dehancer;
+
+    std::vector<float3> false_color_map = {
+            {0.28,0.16,0.31}, // 0
+            {0.16,0.36,0.53}, // 1
+            {0.22,0.48,0.61}, // 2
+            {0.30,0.59,0.65}, // 3
+            {0.42,0.60,0.63}, // 4
+            {0.51,0.55,0.48}, // 5
+            {0.48,0.70,0.35}, // 6
+            {0.59,0.64,0.59}, // 7
+            {0.84,0.53,0.50}, // 8
+            {0.87,0.66,0.64}, // 9
+            {0.85,0.86,0.78}, // 10
+            {0.95,0.93,0.52}, // 11
+            {1.00,0.97,0.33}, // 12
+            {0.95,0.65,0.23}, // 13
+            {0.93,0.27,0.18}, // 14
+            {0.80,0.10,0.05}  // 15
+    };
+
+    std::vector<float> get_as_mem(std::vector<float3> map) {
+      std::vector<float> list;
+      for(auto v: map) {
+        for (auto p: v) {
+          list.push_back(p);
+        }
+      }
+      return list;
+    }
+
+    using namespace dehancer;
+    class BlendKernel: public Kernel {
+    public:
+        BlendKernel(const void* command_queue, const Texture& s, const Texture& d):
+        dehancer::Kernel(command_queue,"blend_kernel", s, d),
+        color_map_(nullptr),
+        opacity_{0.1,0.5,0.5}
+        {
+          auto map_data = get_as_mem(false_color_map);
+          color_map_ = MemoryHolder::Make(get_command_queue(),
+                                          map_data.data(),
+                                          map_data.size()*sizeof(float));
+          levels_ = static_cast<uint>(false_color_map.size());
+        };
+
+        void setup(CommandEncoder &encode) override {
+          encode.set(color_map_,2);
+          encode.set(&levels_,sizeof(levels_),3);
+          encode.set(opacity_,4);
+        }
+
+    private:
+        Memory color_map_;
+        uint   levels_;
+        float3 opacity_;
+    };
+}
 
 int run_bench2(int num, const void* device, std::string patform) {
 
   dehancer::TextureIO::Options::Type type = dehancer::TextureIO::Options::Type::png;
   std::string ext = dehancer::TextureIO::extention_for(type);
-  float       compression = 0.0f;
+  float       compression = 0.3f;
 
   size_t width = 800*2, height = 600*2;
 
@@ -26,6 +81,16 @@ int run_bench2(int num, const void* device, std::string patform) {
 
   auto bench_kernel = dehancer::Function(command_queue, "ao_bench_kernel", true);
   auto ao_bench_text = bench_kernel.make_texture(width,height);
+
+  /**
+   * Debug info
+   */
+
+  std::cout << "[aobench kernel " << bench_kernel.get_name() << " args: " << std::endl;
+  for (auto& a: bench_kernel.get_arg_list()) {
+    std::cout << std::setw(20) << a.name << "["<<a.index<<"]: " << a.type_name << std::endl;
+  }
+
 
   std::chrono::time_point<std::chrono::system_clock> clock_begin
           = std::chrono::system_clock::now();
@@ -81,30 +146,26 @@ int run_bench2(int num, const void* device, std::string patform) {
   /***
    * Test blend and write output
    */
-  auto blend_kernel = dehancer::Function(command_queue, "blend_kernel");
   auto input_text = dehancer::TextureInput(command_queue);
+  auto output_text = dehancer::TextureOutput(command_queue, width, height, nullptr, {
+          .type = type,
+          .compression = compression
+  });
 
   std::ifstream ifs(out_file_cv, std::ios::binary);
   ifs >> input_text;
-  auto source = input_text.get_texture();
-  auto result = blend_kernel.make_texture(width,height);
 
-  blend_kernel.execute([&source, &result](dehancer::CommandEncoder& command_encoder){
-      int count = 0;
+  auto blend_kernel = test::BlendKernel(
+          command_queue,
+          input_text.get_texture(),
+          output_text.get_texture());
 
-      command_encoder.set(source, count++);
-      command_encoder.set(result, count++);
-
-      return result;
-  });
+  blend_kernel.process();
 
   std::string out_file_result = "ao-"+patform+"-result-"; out_file_result.append(std::to_string(num)); out_file_result.append(ext);
   {
     std::ofstream result_os(out_file_result, std::ostream::binary | std::ostream::trunc);
-    result_os << dehancer::TextureOutput(command_queue, result, {
-            .type = type,
-            .compression = compression
-    });
+    result_os << output_text;
   }
 
   dehancer::DeviceCache::Instance().return_command_queue(command_queue);

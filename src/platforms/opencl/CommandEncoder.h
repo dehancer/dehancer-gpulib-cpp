@@ -16,6 +16,7 @@ namespace dehancer::opencl {
         explicit CommandEncoder(cl_kernel kernel);
         void set(const Texture &texture, int index) override;
         void set(const void *bytes, size_t bytes_length, int index) override;
+        void set(const Memory& memory, int index) override;
 
         cl_kernel kernel_ = nullptr;
     };

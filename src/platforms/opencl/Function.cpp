@@ -62,7 +62,8 @@ namespace dehancer::opencl {
             kernel_name_(kernel_name),
             program_(nullptr),
             kernel_(nullptr),
-            encoder_(nullptr)
+            encoder_(nullptr),
+            arg_list_({})
     {
       const std::string source = clHelper::getEmbeddedProgram(dehancer::device::get_lib_path());
 
@@ -80,10 +81,23 @@ namespace dehancer::opencl {
 
       /* Build Kernel Program */
       auto device_id = command_->get_device_id();
-      last_error = clBuildProgram(program_, 1, &device_id, nullptr, nullptr, nullptr);
+      last_error = clBuildProgram(program_, 1, &device_id, "-cl-kernel-arg-info", nullptr, nullptr);
 
       if (last_error != CL_SUCCESS) {
-        throw std::runtime_error("Unable to build OpenCL program from exampleKernel.cl");
+
+        std::string log = "Unable to build OpenCL program from: " + kernel_name_;
+
+        if (last_error == CL_BUILD_PROGRAM_FAILURE) {
+          // Determine the size of the log
+          size_t log_size;
+          clGetProgramBuildInfo(program_, command_->get_device_id(), CL_PROGRAM_BUILD_LOG, 0, nullptr, &log_size);
+          //build_log_.resize(log_size);
+          log.resize(log_size);
+          // Get the log
+          clGetProgramBuildInfo(program_, command_->get_device_id(), CL_PROGRAM_BUILD_LOG, log_size, log.data(), NULL);
+        }
+
+        throw std::runtime_error("Unable to build OpenCL program from: " + kernel_name_ + ": \n" + log);
       }
 
       kernel_ = clCreateKernel(program_, kernel_name_.c_str(), &last_error);
@@ -100,5 +114,56 @@ namespace dehancer::opencl {
         clReleaseKernel(kernel_);
       if (program_)
         clReleaseProgram(program_);
+    }
+
+    const std::vector<dehancer::Function::ArgInfo>& Function::get_arg_info_list() const {
+      if (arg_list_.empty()) {
+        cl_int arg_num = 0;
+        cl_int last_error = clGetKernelInfo (	kernel_,
+                                                 CL_KERNEL_NUM_ARGS,
+                                                 sizeof(cl_uint),
+                                                 &arg_num,
+                                                 nullptr
+        );
+        if (last_error != CL_SUCCESS) {
+          throw std::runtime_error("Unable to get kernel info for: " + kernel_name_);
+        }
+        for (int i = 0; i < arg_num; ++i) {
+          char name[256];
+          char type_name[256];
+          last_error = clGetKernelArgInfo(
+                  kernel_,
+                  i,
+                  CL_KERNEL_ARG_NAME,
+                  sizeof(name),
+                  name,
+                  nullptr);
+          if (last_error != CL_SUCCESS) {
+            throw std::runtime_error("Unable to get kernel arg info for: " + kernel_name_);
+          }
+          last_error = clGetKernelArgInfo(
+                  kernel_,
+                  i,
+                  CL_KERNEL_ARG_TYPE_NAME,
+                  sizeof(type_name),
+                  type_name,
+                  nullptr);
+          if (last_error != CL_SUCCESS) {
+            throw std::runtime_error("Unable to get kernel arg info for: " + kernel_name_);
+          }
+          dehancer::Function::ArgInfo info = {
+                  .name = name,
+                  .index = static_cast<uint>(i),
+                  .type_name = type_name
+          };
+
+          arg_list_.push_back(info);
+        }
+      }
+      return arg_list_;
+    }
+
+    const std::string &Function::get_name() const {
+      return kernel_name_;
     }
 }

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "dehancer/gpu/GpuConfig.h"
+#include "dehancer/gpu/DeviceConfig.h"
 #include "dehancer/gpu/ocio/LogParams.h"
 #include "dehancer/gpu/ocio/GamaParams.h"
 #include "dehancer/gpu/ocio/LutParams.h"

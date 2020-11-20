@@ -5,7 +5,7 @@
 #ifndef DEHANCER_GPULIB_CPP_PLATFORMCONFIG_H
 #define DEHANCER_GPULIB_CPP_PLATFORMCONFIG_H
 
-#include "dehancer/gpu/GpuConfig.h"
+#include "dehancer/gpu/DeviceConfig.h"
 
 #if defined(DEHANCER_GPU_METAL)
 #define DEHANCER_GPU_PLATFORM metal
