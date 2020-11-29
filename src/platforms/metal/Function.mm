@@ -22,21 +22,10 @@ namespace dehancer::metal {
 
       auto from_block = block(encoder);
 
-      //if (!from_block)
-        //throw std::runtime_error(error_string("Kernel %s execute block error", kernel_name_.c_str()));
-
-      //auto texture = static_cast<id <MTLTexture>>((__bridge id)from_block->get_memory());
-
       auto grid = get_compute_size(from_block);
 
       [computeEncoder dispatchThreadgroups:grid.threadGroups threadsPerThreadgroup: grid.threadsPerThreadgroup];
       [computeEncoder endEncoding];
-
-      if (command_->get_wait_completed()) {
-        //id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
-        //[blitEncoder synchronizeTexture:texture slice:0 level:0];
-        //[blitEncoder endEncoding];
-      }
 
       [commandBuffer commit];
 

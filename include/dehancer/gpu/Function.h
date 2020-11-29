@@ -38,7 +38,9 @@ namespace dehancer {
          *  Otherwise host code pass the next operation without locking the current thread.
          *  In this case execution result can be obtained asynchronously.
          */
-        Function(const void *command_queue, const std::string& kernel_name, bool wait_until_completed = WAIT_UNTIL_COMPLETED);
+        Function(const void *command_queue,
+                 const std::string& kernel_name,
+                 bool wait_until_completed = WAIT_UNTIL_COMPLETED);
 
         /***
          * Execute named kernel function in lambda block.

@@ -67,6 +67,8 @@ namespace dehancer {
          */
         virtual void set_destination(Texture& dest);
 
+        [[nodiscard]] virtual CommandEncoder::Size get_encoder_size() const;
+
         ~Kernel() override;
 
     private:

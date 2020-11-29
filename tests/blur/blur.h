@@ -5,82 +5,6 @@
 #pragma once
 #include "dehancer/gpu/Lib.h"
 #include <chrono>
-#include <vector>
-#include <set>
-#include <cmath>
-
-namespace dehancer::math {
-
-    using KernelLine = std::pair<std::vector<float>, std::vector<float>>;
-
-    void make_gaussian_kernel(KernelLine &kernel,
-                              float sigma,
-                              float accuracy,
-                              int maxRadius = 50) {
-      int kRadius = (int) std::ceil(sigma * std::sqrt(-2.0 * std::log(accuracy))) + 1.0;
-      if (maxRadius < 16) maxRadius = 16;         // too small maxRadius would result in inaccurate sum.
-      if (kRadius > maxRadius) kRadius = maxRadius;
-
-      kernel.first.resize(kRadius);
-      kernel.second.resize(kRadius);
-
-      for (int i=0; i<kRadius; i++)   // Gaussian function
-        kernel.first[i] = (float)(std::exp(-0.5*i*i/sigma/sigma));
-
-      if (kRadius < maxRadius && kRadius > 3) {   // edge correction
-        float sqrtSlope = FLT_MAX;
-        int r = kRadius;
-        while (r > kRadius/2) {
-          r--;
-          float a = std::sqrt(kernel.first[r])/(kRadius-r);
-          if (a < sqrtSlope)
-            sqrtSlope = a;
-          else
-            break;
-        }
-        for (int r1 = r+2; r1 < kRadius; r1++)
-          kernel.first[r1] = (float)((kRadius-r1)*(kRadius-r1)*sqrtSlope*sqrtSlope);
-      }
-
-      float sum = 0; // sum over all kernel elements for normalization
-      if (kRadius < maxRadius) {
-        sum = kernel.first[0];
-        for (int i=1; i<kRadius; i++)
-          sum += 2*kernel.first[i];
-      } else
-        sum = sigma * std::sqrt(2*M_PI);
-
-      float rsum = 0.5 + 0.5*kernel.first[0]/sum;
-      for (int i=0; i<kRadius; i++) {
-        float v = (kernel.first[i]/sum);
-        kernel.first[i] = (float)v;
-        rsum -= v;
-        kernel.second[i] = (float)rsum;
-      }
-      std::cerr << " ... kRadius = " << kRadius << std::endl;
-    }
-
-    ///
-    /// http://blog.ivank.net/fastest-gaussian-blur.html
-    ///
-    void make_gauss_boxes(std::vector<float>& boxes, float sigma, size_t box_number) {
-      float n = static_cast<float>(box_number);
-      float wIdeal = std::sqrt((12.0*sigma*sigma/n)+1);  // Ideal averaging filter width
-      int wl = std::floor(wIdeal);  if(wl%2==0) wl--;
-      int wu = wl+2;
-
-      float mIdeal = (12.0*sigma*sigma
-                      - n*static_cast<float>(wl*wl)
-                      - 4.0*n*static_cast<float>(wl)
-                      - 3.0*n)/(-4.0*static_cast<float>(wl) - 4.0);
-
-      int m = std::round(mIdeal);
-
-      // var sigmaActual = Math.sqrt( (m*wl*wl + (n-m)*wu*wu - n)/12 );
-      for(int i=0; i<box_number; i++)
-        boxes.push_back(static_cast<float>(i<m?wl:wu));
-    }
-}
 
 namespace dehancer {
 
@@ -176,7 +100,6 @@ namespace dehancer {
               int w = w_, h = h_;
               command.set(&w,sizeof(w),2);
               command.set(&h,sizeof(h),3);
-              command.set(&radius_,sizeof(radius_),4);
               return (CommandEncoder::Size){this->w_,this->h_,1};
           });
 
@@ -214,22 +137,13 @@ namespace dehancer {
     class GaussianBlur: public Kernel {
     public:
 
-        enum class Direction:int {
-            horizontal = 0,
-            vertical
-        };
-
         GaussianBlur(const void* command_queue,
                      const Texture& s,
                      const Texture& d,
                      int radius,
-                //Direction direction
                      bool wait_until_completed = WAIT_UNTIL_COMPLETED
         ):
                 dehancer::Kernel(command_queue,
-                        //direction == Direction::horizontal
-                        //? "box_blur_horizontal_kernel"
-                        //: "box_blur_vertical_kernel",
                                  "image_to_channels",
                                  s,
                                  d,
@@ -237,8 +151,7 @@ namespace dehancer {
                 radius_(radius),
                 w_(s->get_width()),
                 h_(s->get_height()),
-                size_(w_*h_*sizeof(float ))
-                ,
+                size_(w_*h_*sizeof(float )),
                 reds_(MemoryHolder::Make(get_command_queue(),size_)),
                 greens_(MemoryHolder::Make(get_command_queue(),size_)),
                 blues_(MemoryHolder::Make(get_command_queue(),size_)),
@@ -248,32 +161,21 @@ namespace dehancer {
                 blues_out_(MemoryHolder::Make(get_command_queue(),size_)),
                 alphas_out_(MemoryHolder::Make(get_command_queue(),size_)),
                 channels_2_texture_(command_queue,reds_out_,greens_,blues_,alphas_,d)
-                //,
-                //box_blur_horizontal_kernel_(new Function(command_queue, "box_blur_horizontal_kernel")),
-                //box_blur_vertical_kernel_(new Function(command_queue, "box_blur_vertical_kernel"))
         {
         }
 
-//        void setup(CommandEncoder &command) override {
-//          //encode.set(&radius_,sizeof(radius_),2);
-//          command.set(this->get_source(),0);
-//          command.set(this->reds_,1);
-//          command.set(this->greens_,2);
-//          command.set(this->blues_,3);
-//          command.set(this->alphas_,4);
-//        }
+        void setup(CommandEncoder &command) override {
+          command.set(this->get_source(),0);
+          command.set(this->reds_,1);
+          command.set(this->greens_,2);
+          command.set(this->blues_,3);
+          command.set(this->alphas_,4);
+        }
 
         void process() override {
 
           execute([this](CommandEncoder& command){
-              //this->setup(command);
-              command.set(this->get_source(),0);
-              //command.set(this->get_destination(),1);
-              //command.set(&radius_, sizeof(radius_), 2);
-              command.set(this->reds_,1);
-              command.set(this->greens_,2);
-              command.set(this->blues_,3);
-              command.set(this->alphas_,4);
+              this->setup(command);
               return CommandEncoder::Size::From(this->get_source());
           });
 
@@ -292,26 +194,6 @@ namespace dehancer {
           BoxBlur(get_command_queue(),blues_out_,blues_,w_,h_,(k_boxes[1]-1)/2).process();
           BoxBlur(get_command_queue(),blues_,blues_out_,w_,h_,(k_boxes[2]-1)/2).process();
 
-//          box_blur_horizontal_kernel_->execute([this](CommandEncoder& command){
-//              command.set(this->reds_,0);
-//              command.set(this->reds_out_,1);
-//              int w = this->w_, h = this->h_;
-//              command.set(&w,sizeof(w),2);
-//              command.set(&h,sizeof(h),3);
-//              command.set(&this->radius_,sizeof(this->radius_),4);
-//              return (CommandEncoder::Size){this->w_,this->h_,1};
-//          });
-//
-//          box_blur_vertical_kernel_->execute([this](CommandEncoder& command){
-//              command.set(this->reds_out_,0);
-//              command.set(this->reds_,1);
-//              int w = this->w_, h = this->h_;
-//              command.set(&w,sizeof(w),2);
-//              command.set(&h,sizeof(h),3);
-//              command.set(&this->radius_,sizeof(this->radius_),4);
-//              return (CommandEncoder::Size){this->w_,this->h_,1};
-//          });
-
           channels_2_texture_.process();
         }
 
@@ -329,8 +211,6 @@ namespace dehancer {
         Memory blues_out_;
         Memory alphas_out_;
         Channels2Texture channels_2_texture_;
-        //std::shared_ptr<Function> box_blur_horizontal_kernel_;
-        //std::shared_ptr<Function> box_blur_vertical_kernel_;
     };
 
 
@@ -338,32 +218,11 @@ namespace dehancer {
 
 int run_bench(int num, const void* device, std::string patform) {
 
-//  auto k_line = dehancer::math::KernelLine();
-//
-//  dehancer::math::make_gaussian_kernel(k_line, 20, 0.001, 16);
-//
-//  int i = 0;
-//  std::cerr << "precompiled kernel: " << std::endl;
-//  for (auto f: k_line.first) {
-//    std::cerr << " ... ... ["<<i<<"] = " << f << " / " << k_line.second[i] << std::endl;
-//    i ++;
-//  }
-//
-//  std::vector<float> k_boxes;
-//  dehancer::math::make_gauss_boxes(k_boxes,0.1,3);
-//
-//  i = 0;
-//  std::cerr << "blur boxes: " << std::endl;
-//  for (auto f: k_boxes) {
-//    std::cerr << " ... ... ["<<i<<"] = " << f  << std::endl;
-//    i ++;
-//  }
-
   dehancer::TextureIO::Options::Type type = dehancer::TextureIO::Options::Type::png;
   std::string ext = dehancer::TextureIO::extention_for(type);
   float compression = 0.3f;
 
-  size_t width = 1920, height = 1080 ;
+  size_t width = 1200, height = 600 ;
 
   auto command_queue = dehancer::DeviceCache::Instance().get_command_queue(dehancer::device::get_id(device));
 
@@ -407,34 +266,22 @@ int run_bench(int num, const void* device, std::string patform) {
           .compression = compression
   });
 
-//  auto output_text2 = dehancer::TextureOutput(command_queue, width, height, nullptr, {
-//          .type = type,
-//          .compression = compression
-//  });
-
-  auto box_blur_line_kernel = dehancer::GaussianBlur(command_queue,
-                                                     grid_text,
-                                                     output_text.get_texture(),
-                                                     20,
-                                                     true
+  auto blur_line_kernel = dehancer::GaussianBlur(command_queue,
+                                                 grid_text,
+                                                 output_text.get_texture(),
+                                                 20,
+                                                 false
   );
 
-//  auto box_blur_line_kernel2 = dehancer::GaussianBlur(command_queue,
-//                                                     output_text.get_texture(),
-//                                                     output_text2.get_texture(),
-//                                                     10
-//  );
-
   std::cout << "[convolve_line_kernel kernel " << grid_kernel.get_name() << " args: " << std::endl;
-  for (auto &a: box_blur_line_kernel.get_arg_list()) {
+  for (auto &a: blur_line_kernel.get_arg_list()) {
     std::cout << std::setw(20) << a.name << "[" << a.index << "]: " << a.type_name << std::endl;
   }
 
   std::chrono::time_point<std::chrono::system_clock> clock_begin
           = std::chrono::system_clock::now();
 
-  box_blur_line_kernel.process();
-  //box_blur_line_kernel2.process();
+  blur_line_kernel.process();
 
   std::chrono::time_point<std::chrono::system_clock> clock_end
           = std::chrono::system_clock::now();
@@ -462,7 +309,7 @@ int run_bench(int num, const void* device, std::string patform) {
             << ", for a " << width << "x" << height << " pixels" << std::endl;
 
 
-  std::string out_file_result = "convolve-line-"+patform+"-result-"; out_file_result.append(std::to_string(num)); out_file_result.append(ext);
+  std::string out_file_result = "blur-line-"+patform+"-result-"; out_file_result.append(std::to_string(num)); out_file_result.append(ext);
   {
     std::ofstream result_os(out_file_result, std::ostream::binary | std::ostream::trunc);
     result_os << output_text;
@@ -487,13 +334,11 @@ void test_bench(std::string platform) {
     dev_num = 0;
 
     for (auto d: devices) {
-//#if __APPLE__
-//      if (dehancer::device::get_type(d) == dehancer::device::Type::cpu) continue;
-//#endif
+#if __APPLE__
+      if (dehancer::device::get_type(d) == dehancer::device::Type::cpu) continue;
+#endif
       if (run_bench(dev_num++, d, platform)!=0) return;
     }
-
-    //if (run_bench(1, devices[1], platform)!=0) return;
 
   }
   catch (const std::runtime_error &e) {

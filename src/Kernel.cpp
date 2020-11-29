@@ -37,9 +37,10 @@ namespace dehancer {
           if (this->get_destination())
             command.set(this->get_destination(), count++);
           this->setup(command);
-          //return this->get_destination() ? this->get_destination() : this->get_source();
           auto t = this->get_destination() ? this->get_destination() : this->get_source();
-          return (CommandEncoder::Size){t->get_width(),t->get_height(),t->get_depth()};
+          if (t)
+            return (CommandEncoder::Size){t->get_width(),t->get_height(),t->get_depth()};
+          return get_encoder_size();
       });
     }
 
@@ -61,5 +62,9 @@ namespace dehancer {
 
     void Kernel::set_destination(Texture &dest) {
       impl_->destination_ = dest;
+    }
+
+    CommandEncoder::Size Kernel::get_encoder_size() const {
+      throw std::runtime_error("get_encoder_size must be defined for kernel: " + get_name());
     }
 }

@@ -8,6 +8,7 @@ include_directories(
 )
 
 OPENCL_INCLUDE_DIRECTORIES(
+        ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/tests/shaders
         .
 )
