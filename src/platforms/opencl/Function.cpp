@@ -8,25 +8,26 @@
 
 namespace dehancer::opencl {
 
+    std::mutex Function::mutex_;
+    std::unordered_map<cl_command_queue, cl_device_id> Function::device_id_map_;
+    std::unordered_map<cl_command_queue, Function::KernelMap> Function::kernel_map_;
+
     void Function::execute(const dehancer::Function::FunctionHandler &block) {
 
-      auto texture = block(*encoder_);
+      std::unique_lock<std::mutex> lock(Function::mutex_);
 
-      if (!texture) return;
+      auto texture_size = block(*encoder_);
 
       auto device_id = command_->get_device_id();
 
-      size_t localWorkSize[2] = {1,1};
+      size_t  lz;
+      clGetKernelWorkGroupInfo(kernel_, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(lz), &lz, nullptr);
 
-      clGetKernelWorkGroupInfo(kernel_,  device_id,
-                               CL_KERNEL_WORK_GROUP_SIZE, sizeof(localWorkSize), localWorkSize, nullptr);
+      size_t local_work_size[2] = {lz,1};
 
-      if (localWorkSize[0]>=texture->get_width()) localWorkSize[0] = texture->get_width();
-      if (localWorkSize[1]>=texture->get_height()) localWorkSize[1] = texture->get_height();
-
-      size_t globalWorkSize[2] = {
-              ((texture->get_width() + localWorkSize[0] - 1) / localWorkSize[0]) * localWorkSize[0],
-              ((texture->get_height() + localWorkSize[1] - 1) / localWorkSize[1]) * localWorkSize[1]
+      size_t global_work_size[2] = {
+              ((texture_size.width + local_work_size[0] - 1) / local_work_size[0]) * local_work_size[0],
+              texture_size.height
       };
 
       cl_int last_error = 0;
@@ -36,8 +37,8 @@ namespace dehancer::opencl {
         waiting_event = clCreateUserEvent(command_->get_context(), &last_error);
 
       last_error = clEnqueueNDRangeKernel(command_->get_command_queue(), kernel_, 2, nullptr,
-                                          globalWorkSize,
-                                          localWorkSize,
+                                          global_work_size,
+                                          local_work_size,
                                           0,
                                           nullptr,
                                           &waiting_event);
@@ -60,11 +61,26 @@ namespace dehancer::opencl {
     Function::Function(dehancer::opencl::Command *command, const std::string& kernel_name):
             command_(command),
             kernel_name_(kernel_name),
-            program_(nullptr),
+            //program_(nullptr),
             kernel_(nullptr),
             encoder_(nullptr),
             arg_list_({})
     {
+      std::unique_lock<std::mutex> lock(Function::mutex_);
+
+      if (kernel_map_.find(command_->get_command_queue()) != kernel_map_.end())
+      {
+        auto& km =  kernel_map_[command_->get_command_queue()];
+        if (km.find(kernel_name_) != km.end()) {
+          kernel_ = km[kernel_name_];
+          encoder_ = std::make_shared<opencl::CommandEncoder>(kernel_);
+          return;
+        }
+      }
+      else {
+        kernel_map_[command_->get_command_queue()] = {};
+      }
+
       const std::string source = clHelper::getEmbeddedProgram(dehancer::device::get_lib_path());
 
       const char *source_str = source.c_str();
@@ -72,7 +88,7 @@ namespace dehancer::opencl {
 
       cl_int  last_error;
 
-      program_ = clCreateProgramWithSource(command_->get_context(), 1, (const char **) &source_str,
+      cl_program program_ = clCreateProgramWithSource(command_->get_context(), 1, (const char **) &source_str,
                                            (const size_t *) &source_size, &last_error);
 
       if (last_error != CL_SUCCESS) {
@@ -86,6 +102,8 @@ namespace dehancer::opencl {
       if (last_error != CL_SUCCESS) {
 
         std::string log = "Unable to build OpenCL program from: " + kernel_name_;
+
+        clReleaseProgram(program_);
 
         if (last_error == CL_BUILD_PROGRAM_FAILURE) {
           // Determine the size of the log
@@ -102,19 +120,20 @@ namespace dehancer::opencl {
 
       kernel_ = clCreateKernel(program_, kernel_name_.c_str(), &last_error);
 
+      kernel_map_[command_->get_command_queue()][kernel_name_]=kernel_;
+
       if (last_error != CL_SUCCESS) {
+        clReleaseProgram(program_);
         throw std::runtime_error("Unable to create kernel for: " + kernel_name_);
       }
 
+      clReleaseProgram(program_);
+
       encoder_ = std::make_shared<opencl::CommandEncoder>(kernel_);
+
     }
 
-    Function::~Function() {
-      if (kernel_)
-        clReleaseKernel(kernel_);
-      if (program_)
-        clReleaseProgram(program_);
-    }
+    Function::~Function() = default;
 
     const std::vector<dehancer::Function::ArgInfo>& Function::get_arg_info_list() const {
       if (arg_list_.empty()) {

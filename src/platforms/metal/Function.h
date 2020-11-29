@@ -36,7 +36,7 @@ namespace dehancer::metal {
 
         MTLSize get_threads_per_threadgroup(int w, int h, int d);
         MTLSize get_thread_groups(int w, int h, int d);
-        ComputeSize get_compute_size(const id<MTLTexture> &texture);
+        ComputeSize get_compute_size(const CommandEncoder::Size size);
 
         ~Function();
 

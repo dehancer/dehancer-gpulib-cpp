@@ -32,6 +32,14 @@ namespace dehancer {
         /***
         * Allocate new MemoryHolder object on device
         * @param command_queue - device command_queue or context
+        * @param length - buffer length in bytes
+        * @return device memory object holder
+        */
+        static Memory Make(const void *command_queue, size_t length);
+
+        /***
+        * Allocate new MemoryHolder object on device
+        * @param command_queue - device command_queue or context
         * @param buffer - host memory bytes buffer
         * @return device memory object holder
         */

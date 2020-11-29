@@ -25,7 +25,7 @@ namespace dehancer {
             std::string type_name;
         };
 
-        typedef std::function<Texture (CommandEncoder& compute_encoder)> FunctionHandler;
+        typedef std::function<CommandEncoder::Size (CommandEncoder& compute_encoder)> FunctionHandler;
 
         /***
          * Create GPU function based on kernel sourcecode. @see OpenCL C Language or Metal Shading Language

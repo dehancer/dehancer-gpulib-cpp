@@ -22,20 +22,20 @@ namespace dehancer::metal {
 
       auto from_block = block(encoder);
 
-      if (!from_block)
-        throw std::runtime_error(error_string("Kernel %s execute block error", kernel_name_.c_str()));
+      //if (!from_block)
+        //throw std::runtime_error(error_string("Kernel %s execute block error", kernel_name_.c_str()));
 
-      auto texture = static_cast<id <MTLTexture>>((__bridge id)from_block->get_memory());
+      //auto texture = static_cast<id <MTLTexture>>((__bridge id)from_block->get_memory());
 
-      auto grid = get_compute_size(texture);
+      auto grid = get_compute_size(from_block);
 
       [computeEncoder dispatchThreadgroups:grid.threadGroups threadsPerThreadgroup: grid.threadsPerThreadgroup];
       [computeEncoder endEncoding];
 
       if (command_->get_wait_completed()) {
-        id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
-        [blitEncoder synchronizeTexture:texture slice:0 level:0];
-        [blitEncoder endEncoding];
+        //id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
+        //[blitEncoder synchronizeTexture:texture slice:0 level:0];
+        //[blitEncoder endEncoding];
       }
 
       [commandBuffer commit];
@@ -106,24 +106,24 @@ namespace dehancer::metal {
       return pipelineState_.arg_list;
     }
 
-    Function::ComputeSize Function::get_compute_size(const id<MTLTexture> &texture) {
-      if ((int)texture.depth==1) {
+    Function::ComputeSize Function::get_compute_size(const CommandEncoder::Size size) {
+      if ((int)size.depth==1) {
         auto exeWidth = [pipelineState_.pipeline threadExecutionWidth];
         auto threadGroupCount = MTLSizeMake(exeWidth, 1, 1);
-        auto threadGroups     = MTLSizeMake((texture.width + exeWidth - 1)/exeWidth,
-                                            texture.height, 1);
+        auto threadGroups     = MTLSizeMake((size.width + exeWidth - 1)/exeWidth,
+                                            size.height, 1);
         return  {
                 .threadsPerThreadgroup = threadGroupCount,
                 .threadGroups = threadGroups
         };
 
       } else {
-        auto threadsPerThreadgroup = get_threads_per_threadgroup((int)texture.width,
-                                                                 (int)texture.height,
-                                                                 (int)texture.depth) ;
-        auto threadgroups  = get_thread_groups((int)texture.width,
-                                               (int)texture.height,
-                                               (int)texture.depth);
+        auto threadsPerThreadgroup = get_threads_per_threadgroup((int)size.width,
+                                                                 (int)size.height,
+                                                                 (int)size.depth) ;
+        auto threadgroups  = get_thread_groups((int)size.width,
+                                               (int)size.height,
+                                               (int)size.depth);
         return  {
                 .threadsPerThreadgroup = threadsPerThreadgroup,
                 .threadGroups = threadgroups

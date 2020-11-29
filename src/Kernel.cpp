@@ -31,10 +31,15 @@ namespace dehancer {
 
     void Kernel::process() {
       execute([this](CommandEncoder& command){
-          command.set(this->get_source(),0);
-          command.set(this->get_destination(), 1);
+          int count = 0;
+          if (this->get_source())
+            command.set(this->get_source(),count++);
+          if (this->get_destination())
+            command.set(this->get_destination(), count++);
           this->setup(command);
-          return this->get_destination();
+          //return this->get_destination() ? this->get_destination() : this->get_source();
+          auto t = this->get_destination() ? this->get_destination() : this->get_source();
+          return (CommandEncoder::Size){t->get_width(),t->get_height(),t->get_depth()};
       });
     }
 

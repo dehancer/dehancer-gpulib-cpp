@@ -15,6 +15,18 @@ namespace dehancer {
     */
     class CommandEncoder {
     public:
+
+        struct Size {
+            size_t width;
+            size_t height;
+            size_t depth;
+
+            static inline Size From(const Texture& t) {
+              if (!t) return  {0,0,0};
+              return {t->get_width(), t->get_height(), t->get_depth()};
+            };
+        };
+
         /***
          * Bind texture object with kernel argument placed at defined index. @see Texture
          * @param texture - texture object
