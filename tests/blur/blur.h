@@ -17,8 +17,9 @@ namespace dehancer {
                 size_t w,
                 size_t h,
                 int radius,
-                bool wait_until_completed = WAIT_UNTIL_COMPLETED):
-                Function(command_queue, "box_blur_swap_kernel", wait_until_completed, ""),
+                bool wait_until_completed = WAIT_UNTIL_COMPLETED,
+                const std::string& library_path = ""):
+                Function(command_queue, "box_blur_swap_kernel", wait_until_completed, library_path),
                 channel_in_(channel_in),
                 channel_out_(channel_out),
                 w_(w),
@@ -79,7 +80,7 @@ namespace dehancer {
         GaussianBlur(const void* command_queue,
                      const Texture& s,
                      const Texture& d,
-                     int radius,
+                     std::array<int,4> radius,
                      bool wait_until_completed = WAIT_UNTIL_COMPLETED
         ):
                 ChannelsInput (command_queue, s, wait_until_completed),
@@ -88,21 +89,21 @@ namespace dehancer {
                 h_(s->get_height()),
                 channels_out_(ChannelsHolder::Make(command_queue,s->get_width(),s->get_height())),
                 channels_finalizer_(command_queue, d, channels_out_, wait_until_completed)
-        {}
+        {
+          for (int i = 0; i < radius_.size(); ++i) {
+            dehancer::math::make_gauss_boxes(radius_boxes_[i], radius_[i], box_number_);
+          }
+        }
 
         void process() override {
 
           ChannelsInput::process();
 
-          std::vector<float> k_boxes;
-          int box_number = 3;
-          dehancer::math::make_gauss_boxes(k_boxes,radius_,box_number);
-
           for (int i = 0; i < channels_out_->size(); ++i) {
             auto in = this->get_channels()->at(i);
             auto out = channels_out_->at(i);
-            for (int j = 0; j < box_number; ++j) {
-              auto r = (k_boxes[j]-1)/2;
+            for (int j = 0; j < box_number_; ++j) {
+              auto r = (radius_boxes_[i][j]-1)/2;
               BoxBlur(get_command_queue(),in,out,w_,h_,r).process();
               std::swap(in,out);
             }
@@ -112,7 +113,9 @@ namespace dehancer {
         }
 
     private:
-        int radius_;
+        int box_number_ = 3;
+        std::array<int,4> radius_;
+        std::array<std::vector<float>,4> radius_boxes_;
         size_t w_;
         size_t h_;
         Channels channels_out_;
@@ -175,7 +178,7 @@ int run_bench(int num, const void* device, std::string patform) {
   auto blur_line_kernel = dehancer::GaussianBlur(command_queue,
                                                  grid_text,
                                                  output_text.get_texture(),
-                                                 20,
+                                                 {20,1,1,1},
                                                  true
   );
 
