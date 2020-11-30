@@ -8,17 +8,17 @@
 
 namespace dehancer::opencl {
 
-    CommandEncoder::CommandEncoder(cl_kernel kernel): kernel_(kernel){}
+    CommandEncoder::CommandEncoder(cl_kernel kernel,dehancer::opencl::Function* function): kernel_(kernel), function_(function){}
 
     void CommandEncoder::set(const Texture &texture, int index)  {
       if (kernel_) {
         auto memobj = static_cast<cl_mem>(texture->get_memory());
         auto ret = clSetKernelArg(kernel_, index, sizeof(cl_mem), (void *)&memobj);
         if (ret != CL_SUCCESS)
-          throw std::runtime_error("Unable to pass to kernel the texture buffer at index: " + std::to_string(index));
+          throw std::runtime_error("Unable to pass to kernel "+function_->get_name()+" the texture buffer at index: " + std::to_string(index));
       }
       else {
-        throw std::runtime_error("Unable to pass texture to null kernel ");
+        throw std::runtime_error("Unable to pass texture to null kernel "+function_->get_name());
       }
     }
 
@@ -26,10 +26,10 @@ namespace dehancer::opencl {
       if (kernel_){
         auto ret = clSetKernelArg(kernel_, index, bytes_length,  bytes);
         if (ret != CL_SUCCESS)
-          throw std::runtime_error("Unable to pass to kernel bytes at index: " + std::to_string(index));
+          throw std::runtime_error("Unable to pass to kernel "+function_->get_name()+" bytes at index: " + std::to_string(index));
       }
       else {
-        throw std::runtime_error("Unable to pass bytes to null kernel ");
+        throw std::runtime_error("Unable to pass bytes to null kernel "+function_->get_name());
       }
     }
 
@@ -38,10 +38,10 @@ namespace dehancer::opencl {
         auto memobj = static_cast<cl_mem>(memory->get_memory());
         auto ret = clSetKernelArg(kernel_, index, sizeof(cl_mem), (void *)&memobj);
         if (ret != CL_SUCCESS)
-          throw std::runtime_error("Unable to pass to kernel the memory object at index: " + std::to_string(index));
+          throw std::runtime_error("Unable to pass to kernel "+function_->get_name()+" the memory object at index: " + std::to_string(index));
       }
       else {
-        throw std::runtime_error("Unable to pass memory to null kernel ");
+        throw std::runtime_error("Unable to pass memory to null kernel "+function_->get_name());
       }
     }
 }

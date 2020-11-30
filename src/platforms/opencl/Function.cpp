@@ -80,7 +80,7 @@ namespace dehancer::opencl {
         auto& km =  kernel_map_[command_->get_command_queue()];
         if (km.find(kernel_name_) != km.end()) {
           kernel_ = km[kernel_name_];
-          encoder_ = std::make_shared<opencl::CommandEncoder>(kernel_);
+          encoder_ = std::make_shared<opencl::CommandEncoder>(kernel_,this);
           return;
         }
       }
@@ -152,7 +152,7 @@ namespace dehancer::opencl {
         throw std::runtime_error("Unable to create kernel for: " + kernel_name_);
       }
 
-      encoder_ = std::make_shared<opencl::CommandEncoder>(kernel_);
+      encoder_ = std::make_shared<opencl::CommandEncoder>(kernel_, this);
 
     }
 

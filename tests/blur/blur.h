@@ -8,68 +8,6 @@
 
 namespace dehancer {
 
-    class ConvolveLineKernel: public Kernel {
-    public:
-        ConvolveLineKernel(const void* command_queue,
-                           const Texture& s,
-                           const Texture& d,
-                           const dehancer::math::KernelLine& kernel_line
-        ):
-                dehancer::Kernel(command_queue,"convolve_line_kernel", s, d),
-                kernel_line_(kernel_line)
-        {
-          mem_kernel_line_ = MemoryHolder::Make(get_command_queue(),
-                                                kernel_line_.first.data(),
-                                                kernel_line_.first.size()*sizeof(float));
-          mem_kernel_sum_ = MemoryHolder::Make(get_command_queue(),
-                                               kernel_line_.second.data(),
-                                               kernel_line_.second.size()*sizeof(float));
-        };
-
-        void setup(CommandEncoder &encode) override {
-          encode.set(&kernel_size_,sizeof(kernel_size_),2);
-          encode.set(mem_kernel_line_,3);
-          encode.set(mem_kernel_sum_,4);
-        }
-
-    private:
-        dehancer::math::KernelLine kernel_line_;
-        int    kernel_size_;
-        Memory mem_kernel_line_;
-        Memory mem_kernel_sum_;
-    };
-
-    class Channels2Texture: public Kernel {
-    public:
-        Channels2Texture(const void *command_queue,
-                         const Memory& reds,
-                         const Memory& greens,
-                         const Memory& blues,
-                         const Memory& alphas,
-                         const Texture& d,
-                         bool wait_until_completed=WAIT_UNTIL_COMPLETED):
-                Kernel(command_queue, "channels_to_image", nullptr, d, wait_until_completed),
-                reds_(reds),
-                greens_(greens),
-                blues_(blues),
-                alphas_(alphas)
-        {
-
-        }
-
-        void setup(CommandEncoder &encode) override {
-          encode.set(reds_,1);
-          encode.set(greens_,2);
-          encode.set(blues_,3);
-          encode.set(alphas_,4);
-        }
-
-    private:
-        Memory reds_;
-        Memory greens_;
-        Memory blues_;
-        Memory alphas_;
-    };
 
     class BoxBlur: public Function {
     public:
@@ -134,7 +72,8 @@ namespace dehancer {
         std::shared_ptr<Function> box_blur_vertical_kernel_;
     };
 
-    class GaussianBlur: public Kernel {
+
+    class GaussianBlur: public ChannelsInput {
     public:
 
         GaussianBlur(const void* command_queue,
@@ -143,74 +82,41 @@ namespace dehancer {
                      int radius,
                      bool wait_until_completed = WAIT_UNTIL_COMPLETED
         ):
-                dehancer::Kernel(command_queue,
-                                 "image_to_channels",
-                                 s,
-                                 d,
-                                 wait_until_completed),
+                ChannelsInput (command_queue, s, wait_until_completed),
                 radius_(radius),
                 w_(s->get_width()),
                 h_(s->get_height()),
-                size_(w_*h_*sizeof(float )),
-                reds_(MemoryHolder::Make(get_command_queue(),size_)),
-                greens_(MemoryHolder::Make(get_command_queue(),size_)),
-                blues_(MemoryHolder::Make(get_command_queue(),size_)),
-                alphas_(MemoryHolder::Make(get_command_queue(),size_)),
-                reds_out_(MemoryHolder::Make(get_command_queue(),size_)),
-                greens_out_(MemoryHolder::Make(get_command_queue(),size_)),
-                blues_out_(MemoryHolder::Make(get_command_queue(),size_)),
-                alphas_out_(MemoryHolder::Make(get_command_queue(),size_)),
-                channels_2_texture_(command_queue,reds_out_,greens_,blues_,alphas_,d)
-        {
-        }
-
-        void setup(CommandEncoder &command) override {
-          command.set(this->get_source(),0);
-          command.set(this->reds_,1);
-          command.set(this->greens_,2);
-          command.set(this->blues_,3);
-          command.set(this->alphas_,4);
-        }
+                channels_out_(ChannelsHolder::Make(command_queue,s->get_width(),s->get_height())),
+                channels_finalizer_(command_queue, d, channels_out_, wait_until_completed)
+        {}
 
         void process() override {
 
-          execute([this](CommandEncoder& command){
-              this->setup(command);
-              return CommandEncoder::Size::From(this->get_source());
-          });
+          ChannelsInput::process();
 
           std::vector<float> k_boxes;
-          dehancer::math::make_gauss_boxes(k_boxes,radius_,3);
+          int box_number = 3;
+          dehancer::math::make_gauss_boxes(k_boxes,radius_,box_number);
 
-          BoxBlur(get_command_queue(),reds_,reds_out_,w_,h_,(k_boxes[0]-1)/2).process();
-          BoxBlur(get_command_queue(),reds_out_,reds_,w_,h_,(k_boxes[1]-1)/2).process();
-          BoxBlur(get_command_queue(),reds_,reds_out_,w_,h_,(k_boxes[2]-1)/2).process();
+          for (int i = 0; i < channels_out_->size(); ++i) {
+            auto in = this->get_channels()->at(i);
+            auto out = channels_out_->at(i);
+            for (int j = 0; j < box_number; ++j) {
+              auto r = (k_boxes[j]-1)/2;
+              BoxBlur(get_command_queue(),in,out,w_,h_,r).process();
+              std::swap(in,out);
+            }
+          }
 
-          BoxBlur(get_command_queue(),greens_,greens_out_,w_,h_,(k_boxes[0]-1)/2).process();
-          BoxBlur(get_command_queue(),greens_out_,greens_,w_,h_,(k_boxes[1]-1)/2).process();
-          BoxBlur(get_command_queue(),greens_,greens_out_,w_,h_,(k_boxes[2]-1)/2).process();
-
-          BoxBlur(get_command_queue(),blues_,blues_out_,w_,h_,(k_boxes[0]-1)/2).process();
-          BoxBlur(get_command_queue(),blues_out_,blues_,w_,h_,(k_boxes[1]-1)/2).process();
-          BoxBlur(get_command_queue(),blues_,blues_out_,w_,h_,(k_boxes[2]-1)/2).process();
-
-          channels_2_texture_.process();
+          channels_finalizer_.process();
         }
 
     private:
         int radius_;
         size_t w_;
         size_t h_;
-        size_t size_;
-        Memory reds_;
-        Memory greens_;
-        Memory blues_;
-        Memory alphas_;
-        Memory reds_out_;
-        Memory greens_out_;
-        Memory blues_out_;
-        Memory alphas_out_;
-        Channels2Texture channels_2_texture_;
+        Channels channels_out_;
+        ChannelsOutput channels_finalizer_;
     };
 
 
