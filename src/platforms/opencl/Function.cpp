@@ -10,6 +10,7 @@ namespace dehancer::opencl {
 
     std::mutex Function::mutex_;
     std::unordered_map<cl_command_queue, Function::KernelMap> Function::kernel_map_;
+    std::unordered_map<cl_command_queue, Function::ProgamMap> Function::program_map_;
 
     void Function::execute(const dehancer::Function::FunctionHandler &block) {
 
@@ -25,6 +26,8 @@ namespace dehancer::opencl {
       clGetKernelWorkGroupInfo(kernel_, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), local_work_size, nullptr);
 
       local_work_size[1] = 1;
+
+      if (local_work_size[0]>=texture_size.width) local_work_size[0] = 1;
 
       size_t global_work_size[2] = {
               ((texture_size.width + local_work_size[0] - 1) / local_work_size[0]) * local_work_size[0],
@@ -59,9 +62,13 @@ namespace dehancer::opencl {
       }
     }
 
-    Function::Function(dehancer::opencl::Command *command, const std::string& kernel_name):
+    Function::Function(
+            dehancer::opencl::Command *command,
+            const std::string& kernel_name,
+            const std::string &library_path):
             command_(command),
             kernel_name_(kernel_name),
+            library_path_(library_path),
             kernel_(nullptr),
             encoder_(nullptr),
             arg_list_({})
@@ -81,41 +88,60 @@ namespace dehancer::opencl {
         kernel_map_[command_->get_command_queue()] = {};
       }
 
-      const std::string source = clHelper::getEmbeddedProgram(dehancer::device::get_lib_path());
+      cl_program program_ = nullptr;
 
-      const char *source_str = source.c_str();
-      size_t source_size = source.size();
+      auto p_path = library_path_.empty() ? dehancer::device::get_lib_path() : library_path;
 
-      cl_int  last_error;
-
-      cl_program program_ = clCreateProgramWithSource(command_->get_context(), 1, (const char **) &source_str,
-                                           (const size_t *) &source_size, &last_error);
-
-      if (last_error != CL_SUCCESS) {
-        throw std::runtime_error("Unable to create OpenCL program from exampleKernel.cl");
+      if (program_map_.find(command_->get_command_queue()) != program_map_.end())
+      {
+        auto& pm =  program_map_[command_->get_command_queue()];
+        if (pm.find(p_path) != pm.end()) {
+          program_ = pm[p_path];
+        }
+      }
+      else {
+        program_map_[command_->get_command_queue()] = {};
       }
 
-      /* Build Kernel Program */
-      auto device_id = command_->get_device_id();
-      last_error = clBuildProgram(program_, 1, &device_id, "-cl-kernel-arg-info", nullptr, nullptr);
+      cl_int last_error = 0;
 
-      if (last_error != CL_SUCCESS) {
+      if (program_ == nullptr) {
+        const std::string source = clHelper::getEmbeddedProgram(p_path);
 
-        std::string log = "Unable to build OpenCL program from: " + kernel_name_;
+         const char *source_str = source.c_str();
+        size_t source_size = source.size();
 
-        clReleaseProgram(program_);
 
-        if (last_error == CL_BUILD_PROGRAM_FAILURE) {
-          // Determine the size of the log
-          size_t log_size;
-          clGetProgramBuildInfo(program_, command_->get_device_id(), CL_PROGRAM_BUILD_LOG, 0, nullptr, &log_size);
-          //build_log_.resize(log_size);
-          log.resize(log_size);
-          // Get the log
-          clGetProgramBuildInfo(program_, command_->get_device_id(), CL_PROGRAM_BUILD_LOG, log_size, log.data(), NULL);
+        program_ = clCreateProgramWithSource(command_->get_context(), 1, (const char **) &source_str,
+                                                        (const size_t *) &source_size, &last_error);
+
+        if (last_error != CL_SUCCESS) {
+          throw std::runtime_error("Unable to create OpenCL program from exampleKernel.cl");
         }
 
-        throw std::runtime_error("Unable to build OpenCL program from: " + kernel_name_ + ": \n" + log);
+        /* Build Kernel Program */
+        auto device_id = command_->get_device_id();
+        last_error = clBuildProgram(program_, 1, &device_id, "-cl-kernel-arg-info", nullptr, nullptr);
+
+        if (last_error != CL_SUCCESS) {
+
+          std::string log = "Unable to build OpenCL program from: " + kernel_name_;
+
+          if (last_error == CL_BUILD_PROGRAM_FAILURE) {
+            // Determine the size of the log
+            size_t log_size;
+            clGetProgramBuildInfo(program_, command_->get_device_id(), CL_PROGRAM_BUILD_LOG, 0, nullptr, &log_size);
+            //build_log_.resize(log_size);
+            log.resize(log_size);
+            // Get the log
+            clGetProgramBuildInfo(program_, command_->get_device_id(), CL_PROGRAM_BUILD_LOG, log_size, log.data(),
+                                  NULL);
+          }
+
+          throw std::runtime_error("Unable to build OpenCL program from: " + kernel_name_ + ": \n" + log);
+        }
+
+        program_map_[command_->get_command_queue()][p_path] = program_ ;
       }
 
       kernel_ = clCreateKernel(program_, kernel_name_.c_str(), &last_error);
@@ -123,11 +149,8 @@ namespace dehancer::opencl {
       kernel_map_[command_->get_command_queue()][kernel_name_]=kernel_;
 
       if (last_error != CL_SUCCESS) {
-        clReleaseProgram(program_);
         throw std::runtime_error("Unable to create kernel for: " + kernel_name_);
       }
-
-      clReleaseProgram(program_);
 
       encoder_ = std::make_shared<opencl::CommandEncoder>(kernel_);
 

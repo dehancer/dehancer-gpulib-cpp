@@ -47,7 +47,7 @@ namespace dehancer::math {
         for (int i=1; i<kRadius; i++)
           sum += 2*kernel.first[i];
       } else
-        sum = sigma * std::sqrtf(2.0f*M_PI);
+        sum = sigma * sqrtf(2.0f*M_PI);
 
       float rsum = 0.5f + 0.5f*kernel.first[0]/sum;
       for (int i=0; i<kRadius; i++) {
@@ -63,7 +63,7 @@ namespace dehancer::math {
     ///
     static inline void make_gauss_boxes(std::vector<float>& boxes, float sigma, size_t box_number) {
       auto n = static_cast<float>(box_number);
-      float wIdeal = std::sqrt((12.0f*sigma*sigma/n)+1.0f);  // Ideal averaging filter width
+      float wIdeal = sqrtf((12.0f*sigma*sigma/n)+1.0f);  // Ideal averaging filter width
       int wl = std::floor(wIdeal);  if(wl%2==0) wl--;
       int wu = wl+2;
 

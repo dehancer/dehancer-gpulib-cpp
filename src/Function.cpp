@@ -31,9 +31,12 @@ namespace dehancer {
         };
     }
 
-    Function::Function(const void *command_queue, const std::string &kernel_name, bool wait_until_completed):
+    Function::Function(const void *command_queue,
+                       const std::string &kernel_name,
+                       bool wait_until_completed,
+                       const std::string &library_path) :
     Command(command_queue,wait_until_completed),
-    impl_(std::make_shared<impl::Function>(Command::impl_.get(), kernel_name))
+    impl_(std::make_shared<impl::Function>(Command::impl_.get(), kernel_name, library_path))
     {
     }
 

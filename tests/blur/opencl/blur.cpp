@@ -14,15 +14,3 @@ TEST(TEST, AOBENCH_OpenCL) {
   test_bench("opencl");
 
 }
-
-namespace dehancer::device {
-
-    /**
-      * MUST BE defined in certain plugin module
-      * @return metal lib path.
-      */
-    std::string get_lib_path() {
-      static std::string path = "blurKernel.cl";
-      return path;
-    }
-}

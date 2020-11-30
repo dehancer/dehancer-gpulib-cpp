@@ -1,8 +1,12 @@
-#include "aoBenchKernel.h"
+//
+// Created by denn nevera on 30/11/2020.
+//
 
-/* Compute the image for the scanlines from [y0,y1), for an overall image
-   of width w and height h.
-*/
+#include "dehancer/gpu/kernels/opencl/channel_utils.h"
+#include "dehancer/gpu/kernels/opencl/blur_kernels.h"
+#include "dehancer/gpu/kernels/opencl/common.h"
+
+#include "aoBenchKernel.h"
 
 __kernel void ao_bench_kernel(int nsubsamples, __write_only image2d_t destination )
 {
@@ -22,7 +26,6 @@ __kernel void ao_bench_kernel(int nsubsamples, __write_only image2d_t destinatio
 }
 
 
-static __constant float3 kIMP_Y_YUV_factor = {0.2125, 0.7154, 0.0721};
 __constant sampler_t sampler = CLK_NORMALIZED_COORDS_TRUE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_LINEAR;
 __kernel void blend_kernel(
         __read_only image2d_t source,

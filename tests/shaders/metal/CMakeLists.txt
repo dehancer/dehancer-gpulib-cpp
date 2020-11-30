@@ -1,4 +1,4 @@
- set(CURRENT_TARGET_NAME "TestKernels")
+ set(CURRENT_TARGET_NAME "${CURRENT_KERNEL_TARGET_NAME}_metal")
  set(CURRENT_TARGET_LIB ${CURRENT_TARGET_NAME}.metallib)
 
  include_directories(
@@ -11,14 +11,14 @@
          ${CMAKE_SOURCE_DIR}/tests/shaders/*.h
          )
 
- add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/TestKernels.air
-         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/TestKernels.metal ${DEPENDS_SOURCES}
+ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CURRENT_KERNEL_TARGET_NAME}.air
+         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.metal ${DEPENDS_SOURCES}
          COMMAND xcrun -v -sdk macosx metal
          ${METAL_FLAGS}
          -I ${CMAKE_CURRENT_SOURCE_DIR}
          -I ${CMAKE_SOURCE_DIR}/tests/shaders
-         -c ${CMAKE_CURRENT_SOURCE_DIR}/TestKernels.metal
-         -o ${CMAKE_CURRENT_BINARY_DIR}/TestKernels.air
+         -c ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.metal
+         -o ${CMAKE_CURRENT_BINARY_DIR}/${CURRENT_KERNEL_TARGET_NAME}.air
          VERBATIM
          WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
          )
@@ -26,7 +26,7 @@
  add_custom_target(
          ${CURRENT_TARGET_NAME}
          DEPENDS
-         ${CMAKE_CURRENT_BINARY_DIR}/TestKernels.air
+         ${CMAKE_CURRENT_BINARY_DIR}/${CURRENT_KERNEL_TARGET_NAME}.air
          COMMAND xcrun -sdk macosx metallib
          ${CMAKE_CURRENT_BINARY_DIR}/*.air
          -o ${CURRENT_TARGET_LIB}

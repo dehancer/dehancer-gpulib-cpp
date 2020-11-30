@@ -3,7 +3,7 @@
 //
 
 #include "gtest/gtest.h"
-#include "../aobench.h"
+#include "tests/aobench/aobench.h"
 
 TEST(TEST, AOBENCH_OpenCL) {
 
@@ -12,16 +12,4 @@ TEST(TEST, AOBENCH_OpenCL) {
 
   test_bench("opencl");
 
-}
-
-namespace dehancer::device {
-
-    /**
-      * MUST BE defined in certain plugin module
-      * @return metal lib path.
-      */
-    std::string get_lib_path() {
-      static std::string path = "exampleKernel.cl";
-      return path;
-    }
 }

@@ -9,7 +9,8 @@ namespace dehancer {
     namespace impl {
         struct Kernel {
 
-            Kernel(const Texture &source, const Texture &destination):
+            Kernel(const Texture &source,
+                   const Texture &destination):
                     source_(source),
                     destination_(destination)
             {}
@@ -23,8 +24,9 @@ namespace dehancer {
                    const std::string &kernel_name,
                    const Texture &source,
                    const Texture &destination,
-                   bool wait_until_completed ):
-            Function(command_queue,kernel_name,wait_until_completed),
+                   bool wait_until_completed,
+                   const std::string &library_path):
+            Function(command_queue, kernel_name, wait_until_completed, library_path),
             impl_(std::make_shared<impl::Kernel>(source,destination))
     {
     }

@@ -80,14 +80,14 @@ namespace dehancer {
                 size_t h,
                 int radius,
                 bool wait_until_completed = WAIT_UNTIL_COMPLETED):
-                Function(command_queue, "box_blur_swap_kernel", wait_until_completed),
+                Function(command_queue, "box_blur_swap_kernel", wait_until_completed, ""),
                 channel_in_(channel_in),
                 channel_out_(channel_out),
                 w_(w),
                 h_(h),
                 radius_(radius),
-                box_blur_horizontal_kernel_(new Function(command_queue, "box_blur_horizontal_kernel")),
-                box_blur_vertical_kernel_(new Function(command_queue, "box_blur_vertical_kernel"))
+                box_blur_horizontal_kernel_(new Function(command_queue, "box_blur_horizontal_kernel", "")),
+                box_blur_vertical_kernel_(new Function(command_queue, "box_blur_vertical_kernel", ""))
         {
 
         }
@@ -222,11 +222,11 @@ int run_bench(int num, const void* device, std::string patform) {
   std::string ext = dehancer::TextureIO::extention_for(type);
   float compression = 0.3f;
 
-  size_t width = 1200, height = 600 ;
+  size_t width = 800*2, height = 400*2 ;
 
   auto command_queue = dehancer::DeviceCache::Instance().get_command_queue(dehancer::device::get_id(device));
 
-  auto grid_kernel = dehancer::Function(command_queue, "grid_kernel", true);
+  auto grid_kernel = dehancer::Function(command_queue,"grid_kernel");
   auto grid_text = grid_kernel.make_texture(width, height);
 
   /**
@@ -270,7 +270,7 @@ int run_bench(int num, const void* device, std::string patform) {
                                                  grid_text,
                                                  output_text.get_texture(),
                                                  20,
-                                                 false
+                                                 true
   );
 
   std::cout << "[convolve_line_kernel kernel " << grid_kernel.get_name() << " args: " << std::endl;
@@ -301,7 +301,7 @@ int run_bench(int num, const void* device, std::string patform) {
       device_type_str = "Unknown"; break;
   }
 
-  std::cout << "[convolve-line "
+  std::cout << "[convolve-processing "
             <<patform<<"/"<<device_type_str
             <<" ("
             <<dehancer::device::get_name(device)
@@ -314,6 +314,17 @@ int run_bench(int num, const void* device, std::string patform) {
     std::ofstream result_os(out_file_result, std::ostream::binary | std::ostream::trunc);
     result_os << output_text;
   }
+
+  std::chrono::time_point<std::chrono::system_clock> clock_io_end
+          = std::chrono::system_clock::now();
+  seconds = clock_io_end-clock_end;
+
+  std::cout << "[convolve-output     "
+            <<patform<<"/"<<device_type_str
+            <<" ("
+            <<dehancer::device::get_name(device)
+            <<")]:\t" << seconds.count() << "s "
+            << ", for a " << width << "x" << height << " pixels" << std::endl;
 
   return 0;
 }

@@ -24,13 +24,16 @@ namespace dehancer {
          * @param source - source kernel texture
          * @param destination - destination texture
          * @param wait_until_completed - flag defines completion state
+         * @param library_path - explicit shaders library file path, resource name or source bundle
+         *                      (opencl source can by name of embeded value)
          */
         explicit Kernel(
                 const void *command_queue,
                 const std::string& kernel_name,
                 const Texture& source,
                 const Texture& destination,
-                bool wait_until_completed = WAIT_UNTIL_COMPLETED
+                bool wait_until_completed = WAIT_UNTIL_COMPLETED,
+                const std::string &library_path=""
         );
 
         /***

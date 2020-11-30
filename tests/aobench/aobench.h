@@ -75,11 +75,11 @@ int run_bench(int num, const void* device, std::string patform) {
   std::string ext = dehancer::TextureIO::extention_for(type);
   float       compression = 0.3f;
 
-  size_t width = 800*2, height = 600*2;
+  size_t width = 400, height = 300;
 
   auto command_queue = dehancer::DeviceCache::Instance().get_command_queue(dehancer::device::get_id(device));
 
-  auto bench_kernel = dehancer::Function(command_queue, "ao_bench_kernel", true);
+  auto bench_kernel = dehancer::Function(command_queue, "ao_bench_kernel", true, "");
   auto ao_bench_text = bench_kernel.make_texture(width,height);
 
   /**
@@ -105,7 +105,6 @@ int run_bench(int num, const void* device, std::string patform) {
 
       return dehancer::CommandEncoder::Size::From(ao_bench_text);
   });
-
 
   std::chrono::time_point<std::chrono::system_clock> clock_end
           = std::chrono::system_clock::now();

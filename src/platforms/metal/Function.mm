@@ -9,7 +9,12 @@ namespace dehancer::metal {
 
     std::mutex Function::mutex_;
     Function::PipelineCache Function::pipelineCache_ = Function::PipelineCache();
-    inline static Function::PipelineState make_pipeline(id<MTLDevice> device, const std::string& kernel_name);
+
+    inline static Function::PipelineState make_pipeline(
+            id<MTLDevice> device,
+            const std::string& kernel_name,
+            const std::string& library_path
+            );
 
     void Function::execute(const dehancer::Function::FunctionHandler& block){
 
@@ -33,9 +38,10 @@ namespace dehancer::metal {
         [commandBuffer waitUntilCompleted];
     }
 
-    Function::Function(dehancer::metal::Command *command, const std::string& kernel_name):
+    Function::Function(dehancer::metal::Command *command, const std::string& kernel_name,  const std::string &library_path):
             command_(command),
             kernel_name_(kernel_name),
+            library_path_(library_path),
             pipelineState_{nullptr, {}}
     {
       set_current_pipeline();
@@ -54,7 +60,7 @@ namespace dehancer::metal {
 
       if (it == Function::pipelineCache_.end())
       {
-        pipelineState_  = make_pipeline(device, kernel_name_);
+        pipelineState_  = make_pipeline(device, kernel_name_, library_path_);
         if (!pipelineState_.pipeline)
           throw std::runtime_error(error_string("Make new pipeline for kernel %s error", kernel_name_.c_str()));
         Function::pipelineCache_[queue][kernel_name_] = pipelineState_;
@@ -65,7 +71,7 @@ namespace dehancer::metal {
         const auto kernel_pit = it->second.find(kernel_name_);
 
         if (kernel_pit == it->second.end()) {
-          pipelineState_  = make_pipeline(device, kernel_name_);
+          pipelineState_  = make_pipeline(device, kernel_name_, library_path_);
           if (!pipelineState_.pipeline)
           {
             throw std::runtime_error(error_string("Make new pipeline for kernel %s error", kernel_name_.c_str()));
@@ -122,7 +128,11 @@ namespace dehancer::metal {
 
     Function::~Function() = default;
 
-    inline static Function::PipelineState make_pipeline(id<MTLDevice> device, const std::string& kernel_name) {
+    inline static Function::PipelineState make_pipeline(
+            id<MTLDevice> device,
+            const std::string& kernel_name,
+            const std::string& library_path
+            ) {
 
       id<MTLComputePipelineState> pipelineState = nil;
       id<MTLLibrary>              metalLibrary;     // Metal library
@@ -130,7 +140,7 @@ namespace dehancer::metal {
 
       NSError* err;
 
-      std::string libpath = device::get_lib_path();
+      std::string libpath = library_path.empty() ? device::get_lib_path() : library_path;
 
       Function::PipelineState state{nullptr, {}};
 

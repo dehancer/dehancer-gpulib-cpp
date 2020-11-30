@@ -5,6 +5,8 @@
 #ifndef DEHANCER_GPULIB_CHANNEL_UTILS_H
 #define DEHANCER_GPULIB_CHANNEL_UTILS_H
 
+#include "dehancer/gpu/kernels/opencl/common.h"
+
 __kernel void image_to_channels (
         __read_only image2d_t source,
         __global float* reds,
@@ -12,7 +14,6 @@ __kernel void image_to_channels (
         __global float* blues,
         __global float* alphas)
 {
-  sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
   int x = get_global_id(0);
   int y = get_global_id(1);
   int w = get_image_width(source);
@@ -23,7 +24,7 @@ __kernel void image_to_channels (
   if ((gid.x < w) && (gid.y < h)) {
     const int index = ((gid.y * w) + gid.x);
 
-    float4 color     = read_imagef(source, sampler, gid);
+    float4 color     = read_imagef(source, nearest_sampler, gid);
 
     reds[index] = color.r;
     greens[index] = color.g;
@@ -40,7 +41,6 @@ __kernel void channels_to_image (
         __global float* blues,
         __global float* alphas)
 {
-  sampler_t sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
   int x = get_global_id(0);
   int y = get_global_id(1);
   int w = get_image_width(destination);
