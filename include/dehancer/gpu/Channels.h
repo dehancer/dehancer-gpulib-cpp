@@ -50,7 +50,8 @@ namespace dehancer {
 
         explicit ChannelsInput(const void *command_queue,
                                const Texture& source,
-                               bool wait_until_completed = WAIT_UNTIL_COMPLETED
+                               bool wait_until_completed = WAIT_UNTIL_COMPLETED,
+                               const std::string& library_path = ""
         );
 
         [[nodiscard]] const Channels& get_channels() const { return channels_;}
@@ -67,7 +68,8 @@ namespace dehancer {
         explicit ChannelsOutput(const void *command_queue,
                                 const Texture& destination,
                                 const Channels& channels,
-                                bool wait_until_completed = WAIT_UNTIL_COMPLETED
+                                bool wait_until_completed = WAIT_UNTIL_COMPLETED,
+                                const std::string& library_path = ""
         );
 
         void setup(CommandEncoder &encode) override;

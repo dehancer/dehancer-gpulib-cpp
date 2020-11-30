@@ -7,6 +7,8 @@
 #include <vector>
 #include <set>
 #include <cmath>
+#include <limits>
+#include <float.h>
 
 namespace dehancer::math {
 

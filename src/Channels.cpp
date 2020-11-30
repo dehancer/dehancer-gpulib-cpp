@@ -45,12 +45,14 @@ namespace dehancer {
 
     ChannelsInput::ChannelsInput(const void *command_queue,
                                  const Texture &texture,
-                                 bool wait_until_completed):
+                                 bool wait_until_completed,
+                                 const std::string& library_path):
             Kernel(command_queue,
                    "image_to_channels",
                    texture,
                    nullptr,
-                   wait_until_completed),
+                   wait_until_completed,
+                   library_path),
             channels_(ChannelsHolder::Make(command_queue,texture->get_width(),texture->get_height()))
     {}
 
@@ -63,12 +65,14 @@ namespace dehancer {
     ChannelsOutput::ChannelsOutput(const void *command_queue,
                                    const Texture& destination,
                                    const Channels& channels,
-                                   bool wait_until_completed):
+                                   bool wait_until_completed,
+                                   const std::string& library_path):
             Kernel(command_queue,
                    "channels_to_image",
                    nullptr,
                    destination,
-                   wait_until_completed),
+                   wait_until_completed,
+                   library_path),
             channels_(channels)
     {}
 
