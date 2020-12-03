@@ -6,38 +6,52 @@
 
 namespace dehancer::math {
 
-    void make_gaussian_kernel(std::vector<float>& kernel, float sigma){
+    void make_gaussian_kernel(std::vector<float>& kernel, size_t size, float sigma){
 
-      int kernelDimension = (int)ceilf(6 * sigma);
-      if (kernelDimension % 2 == 0) kernelDimension++;
+      kernel.resize(size);
 
-      kernel.resize(kernelDimension*kernelDimension);
-
-      float acc = 0;
-      for (int j = 0; j<kernelDimension; j++)
-      {
-        int y = j - (kernelDimension / 2);
-        for (int i = 0; i<kernelDimension; i++)
-        {
-          int x = (int)((float)i - ((float)kernelDimension / 2.0f));
-
-          kernel[j*kernelDimension+i] =
-                  (
-                          1.0f / (2.f * (float)M_PI*powf(sigma, 2))
-                  )
-                  *
-                  expf(
-                          -((powf((float)x, 2.f) + powf((float )y, 2.f)) / (2.0f * powf(sigma, 2.f)))
-                  );
-
-          acc += kernel[j*i+i];
-        }
+      int mean = floor((float )size / 2);
+      float sum = 0; // For accumulating the kernel values
+      for (int x = 0; x < size; x++)  {
+        kernel[x] =  expf(-0.5f * powf((float )(x - mean) / sigma, 2.0));
+        // Accumulate the kernel values
+        sum += kernel[x];
       }
-      for (int j = 0; j<kernelDimension; j++)
-        for (int i = 0; i<kernelDimension; i++)
-        {
-          kernel[j*kernelDimension + i] = kernel[j*kernelDimension + i] / acc;
-        }
+
+// Normalize the kernel
+      for (int x = 0; x < size; x++)
+        kernel[x] /= sum;
+
+//      int kernelDimension = (int)ceilf(6 * sigma);
+//      if (kernelDimension % 2 == 0) kernelDimension++;
+//
+//      kernel.resize(kernelDimension*kernelDimension);
+//
+//      float acc = 0;
+//      for (int j = 0; j<kernelDimension; j++)
+//      {
+//        int y = j - (kernelDimension / 2);
+//        for (int i = 0; i<kernelDimension; i++)
+//        {
+//          int x = (int)((float)i - ((float)kernelDimension / 2.0f));
+//
+//          kernel[j*kernelDimension+i] =
+//                  (
+//                          1.0f / (2.f * (float)M_PI*powf(sigma, 2))
+//                  )
+//                  *
+//                  expf(
+//                          -((powf((float)x, 2.f) + powf((float )y, 2.f)) / (2.0f * powf(sigma, 2.f)))
+//                  );
+//
+//          acc += kernel[j*i+i];
+//        }
+//      }
+//      for (int j = 0; j<kernelDimension; j++)
+//        for (int i = 0; i<kernelDimension; i++)
+//        {
+//          kernel[j*kernelDimension + i] = kernel[j*kernelDimension + i] / acc;
+//        }
     }
 
 

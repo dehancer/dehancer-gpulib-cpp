@@ -7,6 +7,21 @@
 
 #include "dehancer/gpu/kernels/opencl/common.h"
 
+__kernel void swap_channels_kernel (__global float* scl,
+                                    __global float* tcl,
+                                    int w,
+                                    int h) {
+  int x = get_global_id(0);
+  int y = get_global_id(1);
+
+  int2 gid = (int2)(x, y);
+
+  if ((gid.x < w) && (gid.y < h)) {
+    const int index = ((gid.y * w) + gid.x);
+    tcl[index] = scl[index];
+  }
+}
+
 __kernel void image_to_channels (
         __read_only image2d_t source,
         __global float* reds,

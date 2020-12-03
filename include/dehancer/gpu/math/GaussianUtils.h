@@ -12,7 +12,7 @@
 
 namespace dehancer::math {
 
-    void make_gaussian_kernel(std::vector<float>& kernel, float sigma);
+    void make_gaussian_kernel(std::vector<float>& kernel, size_t size, float sigma);
 
     /**
      * Weights/Offsets

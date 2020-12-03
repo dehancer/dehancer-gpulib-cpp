@@ -6,6 +6,105 @@
 #include "dehancer/gpu/Lib.h"
 #include <chrono>
 
+namespace dehancer {
+
+    class ConvolveKernel: public ChannelsInput {
+    public:
+
+        ConvolveKernel(const void* command_queue,
+                       const Texture& s,
+                       const Texture& d,
+                       std::array<float,4> radius,
+                       bool wait_until_completed = WAIT_UNTIL_COMPLETED,
+                       const std::string& library_path = ""
+        ):
+                ChannelsInput (command_queue, s, wait_until_completed, library_path),
+                radius_(radius),
+                w_(s->get_width()),
+                h_(s->get_height()),
+                channels_out_(ChannelsHolder::Make(command_queue,s->get_width(),s->get_height())),
+                channels_finalizer_(command_queue, d, get_channels(), wait_until_completed)
+        {
+          for (int i = 0; i < radius_.size(); ++i) {
+            sizes_[i] = (int)ceil(radius_[i]/2.0f) * 6;
+            if (sizes_[i]%2==0) sizes_[i]+=1;
+            if (sizes_[i]<3) sizes_[i]=3;
+            std::vector<float> ww;
+            dehancer::math::make_gaussian_kernel(ww, sizes_[i], radius_[i]/2.0f);
+
+            if (ww.empty())
+              weights_[i] = nullptr;
+            else
+              weights_[i] =  dehancer::MemoryHolder::Make(get_command_queue(),
+                                                          ww.data(),
+                                                          ww.size()*sizeof(float ));
+          }
+        }
+
+        void process() override {
+
+          ChannelsInput::process();
+
+          auto horizontal_kernel = Function(get_command_queue(),
+                                            "convolve_horizontal_kernel",
+                                            get_wait_completed());
+
+          auto vertical_kernel = Function(get_command_queue(),
+                                          "convolve_vertical_kernel",
+                                          get_wait_completed());
+
+          for (int i = 0; i < get_channels()->size(); ++i) {
+
+            horizontal_kernel.execute([this,i](CommandEncoder &command) {
+                auto in = get_channels()->at(i);
+                auto out = channels_out_->at(i);
+
+                command.set(in, 0);
+                command.set(out, 1);
+
+                int w = w_, h = h_;
+                command.set(&w, sizeof(w), 2);
+                command.set(&h, sizeof(h), 3);
+
+                command.set(weights_.at(i),4);
+                command.set(&sizes_[i],sizeof(sizes_[i]),5);
+                return (CommandEncoder::Size){w_+sizes_[i]/2, h_,1};
+            });
+
+            vertical_kernel.execute([this,i](CommandEncoder &command) {
+                auto in = channels_out_->at(i);
+                auto out = get_channels()->at(i);
+
+                command.set(in, 0);
+                command.set(out, 1);
+
+                int w = w_, h = h_;
+                command.set(&w, sizeof(w), 2);
+                command.set(&h, sizeof(h), 3);
+
+                command.set(weights_.at(0),4);
+                command.set(&sizes_[0],sizeof(sizes_[0]),5);
+                return (CommandEncoder::Size){w_, h_+sizes_[i]/2,1};
+            });
+
+          }
+          channels_finalizer_.process();
+        }
+
+    private:
+        std::array<float,4> radius_;
+        std::array<dehancer::Memory,4> weights_;
+        std::array<int,4> sizes_;
+        size_t w_;
+        size_t h_;
+        Channels channels_out_;
+        ChannelsOutput channels_finalizer_;
+        std::shared_ptr<Function> horizontal_kernel_;
+        std::shared_ptr<Function> vertical_kernel_;
+    };
+}
+
+
 int run_bench(int num, const void* device, std::string patform) {
 
   dehancer::TextureIO::Options::Type type = dehancer::TextureIO::Options::Type::png;
@@ -56,11 +155,11 @@ int run_bench(int num, const void* device, std::string patform) {
           .compression = compression
   });
 
-  auto blur_line_kernel = dehancer::GaussianBlur(command_queue,
-                                                 grid_text,
-                                                 output_text.get_texture(),
-                                                 {20,20,20,0},
-                                                 true
+  auto blur_line_kernel = dehancer::ConvolveKernel(command_queue,
+                                                   grid_text,
+                                                   output_text.get_texture(),
+                                                   {1.5,1.5,1.5,1},
+                                                   true
   );
 
   std::cout << "[convolve_line_kernel kernel " << grid_kernel.get_name() << " args: " << std::endl;
@@ -124,11 +223,19 @@ void test_bench(std::string platform) {
 
     std::vector<float> g_kernel;
 
-    dehancer::math::make_gaussian_kernel(g_kernel, 20);
+    float radius = 0.5;
+    float sigma  = radius/2.0;
+    int size = (int)ceilf(6 * sigma);
+    if (size<=2) size = 3;
+    if (size % 2 == 0) size++;
+
+    dehancer::math::make_gaussian_kernel(g_kernel, size, sigma);
 
     for (int i = 0; i < g_kernel.size(); ++i) {
-      std::cout << " kernel weight["<<i<<"] = " << std::endl;
+      std::cout << " kernel weight["<<i<<"] = " << g_kernel[i] << std::endl;
     }
+
+    //return;
 
     auto devices = dehancer::DeviceCache::Instance().get_device_list();
     assert(!devices.empty());
@@ -137,7 +244,9 @@ void test_bench(std::string platform) {
     std::cout << "Platform: " << platform << std::endl;
     for (auto d: devices) {
       std::cout << " #" << dev_num++ << std::endl;
-      std::cout << "    Device '" << dehancer::device::get_name(d) << " ["<<dehancer::device::get_id(d)<<"]'"<< std::endl;
+      std::cout << "    Device '"
+                << dehancer::device::get_name(d)
+                << " ["<<dehancer::device::get_id(d)<<"]'"<< std::endl;
     }
 
     std::cout << "Bench: " << std::endl;

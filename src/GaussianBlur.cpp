@@ -17,7 +17,7 @@ namespace dehancer {
                          size_t h,
                          bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                          const std::string& library_path = ""):
-                    Function(command_queue, "box_blur_swap_kernel", wait_until_completed, library_path),
+                    Function(command_queue, "swap_channels_kernel", wait_until_completed, library_path),
                     channel_in_(channel_in),
                     channel_out_(channel_out),
                     w_(w),

@@ -9,6 +9,7 @@ static __constant float3 kIMP_Y_YUV_factor = {0.2125, 0.7154, 0.0721};
 
 __constant sampler_t linear_normalized_sampler = CLK_NORMALIZED_COORDS_TRUE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_LINEAR;
 __constant sampler_t nearest_sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
+//__constant sampler_t nearest__sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP | CLK_FILTER_NEAREST;
 
 static inline float4 sampledColor(
         __read_only image2d_t inTexture,

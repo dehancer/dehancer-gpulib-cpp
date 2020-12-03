@@ -5,20 +5,6 @@
 #ifndef DEHANCER_GPULIB_BLUR_KERNELS_H
 #define DEHANCER_GPULIB_BLUR_KERNELS_H
 
-__kernel void box_blur_swap_kernel (__global float* scl,
-                                    __global float* tcl,
-                                    int w,
-                                    int h) {
-  int x = get_global_id(0);
-  int y = get_global_id(1);
-
-  int2 gid = (int2)(x, y);
-
-  if ((gid.x < w) && (gid.y < h)) {
-    const int index = ((gid.y * w) + gid.x);
-    tcl[index] = scl[index];
-  }
-}
 
 __kernel void box_blur_horizontal_kernel (__global float* scl,
                                           __global float* tcl,
