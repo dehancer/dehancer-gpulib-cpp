@@ -59,7 +59,7 @@ int run_bench(int num, const void* device, std::string patform) {
   auto blur_line_kernel = dehancer::GaussianBlur(command_queue,
                                                  grid_text,
                                                  output_text.get_texture(),
-                                                 {0,20,0,0},
+                                                 {20,20,20,0},
                                                  true
   );
 
@@ -121,6 +121,15 @@ int run_bench(int num, const void* device, std::string patform) {
 
 void test_bench(std::string platform) {
   try {
+
+    std::vector<float> g_kernel;
+
+    dehancer::math::make_gaussian_kernel(g_kernel, 20);
+
+    for (int i = 0; i < g_kernel.size(); ++i) {
+      std::cout << " kernel weight["<<i<<"] = " << std::endl;
+    }
+
     auto devices = dehancer::DeviceCache::Instance().get_device_list();
     assert(!devices.empty());
 

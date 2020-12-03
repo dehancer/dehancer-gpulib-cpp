@@ -75,7 +75,7 @@ int run_bench(int num, const void* device, std::string patform) {
   std::string ext = dehancer::TextureIO::extention_for(type);
   float       compression = 0.3f;
 
-  size_t width = 400, height = 300;
+  size_t width = 400*4, height = 300*4;
 
   auto command_queue = dehancer::DeviceCache::Instance().get_command_queue(dehancer::device::get_id(device));
 

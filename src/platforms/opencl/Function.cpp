@@ -21,17 +21,18 @@ namespace dehancer::opencl {
       auto device_id = command_->get_device_id();
 
 
-      size_t local_work_size[2];
+      size_t local_work_size[2] = {16,16};
 
-      clGetKernelWorkGroupInfo(kernel_, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), local_work_size, nullptr);
+      //clGetKernelWorkGroupInfo(kernel_, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), local_work_size, nullptr);
 
-      local_work_size[1] = 1;
+      //local_work_size[1] = 1;
 
-      if (local_work_size[0]>=texture_size.width) local_work_size[0] = 1;
+      //if (local_work_size[0]>=texture_size.width) local_work_size[0] = 1;
 
       size_t global_work_size[2] = {
               ((texture_size.width + local_work_size[0] - 1) / local_work_size[0]) * local_work_size[0],
-              texture_size.height
+              //texture_size.height
+              ((texture_size.height + local_work_size[1] - 1) / local_work_size[1]) * local_work_size[1],
       };
 
       cl_int last_error = 0;
