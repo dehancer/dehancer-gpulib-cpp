@@ -18,6 +18,7 @@ namespace dehancer::opencl {
         void set(const Texture &texture, int index) override;
         void set(const void *bytes, size_t bytes_length, int index) override;
         void set(const Memory& memory, int index) override;
+        void set(const float3& p, int index) override ;
 
         dehancer::opencl::Function* function_ = nullptr;
         cl_kernel kernel_ = nullptr;

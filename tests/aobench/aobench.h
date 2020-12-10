@@ -159,6 +159,11 @@ int run_bench(int num, const void* device, std::string patform) {
           input_text.get_texture(),
           output_text.get_texture());
 
+  std::cout << "[blend kernel " << blend_kernel.get_name() << " args: " << std::endl;
+  for (auto& a: blend_kernel.get_arg_list()) {
+    std::cout << std::setw(20) << a.name << "["<<a.index<<"]: " << a.type_name << std::endl;
+  }
+
   blend_kernel.process();
 
   std::string out_file_result = "ao-"+patform+"-result-"; out_file_result.append(std::to_string(num)); out_file_result.append(ext);

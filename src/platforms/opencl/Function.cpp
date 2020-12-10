@@ -122,7 +122,7 @@ namespace dehancer::opencl {
 
         /* Build Kernel Program */
         auto device_id = command_->get_device_id();
-        last_error = clBuildProgram(program_, 1, &device_id, "-cl-kernel-arg-info", nullptr, nullptr);
+        last_error = clBuildProgram(program_, 1, &device_id, "-cl-std=CL1.2 -cl-kernel-arg-info", nullptr, nullptr);
 
         if (last_error != CL_SUCCESS) {
 

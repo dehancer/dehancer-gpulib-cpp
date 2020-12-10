@@ -44,4 +44,9 @@ namespace dehancer::opencl {
         throw std::runtime_error("Unable to pass memory to null kernel "+function_->get_name());
       }
     }
+
+    void CommandEncoder::set(const float3 &p, int index) {
+      cl_float3 buf = { p.x(), p.y(), p.z()};
+      set(&buf, sizeof(cl_float3), index);
+    }
 }
