@@ -41,10 +41,10 @@ __kernel void image_to_channels (
 
     float4 color     = read_imagef(source, nearest_sampler, gid);
 
-    reds[index] = color.r;
-    greens[index] = color.g;
-    blues[index] = color.b;
-    alphas[index] = color.rgba.a;
+    reds[index] = color.x;
+    greens[index] = color.y;
+    blues[index] = color.z;
+    alphas[index] = color.w;
   }
 
 }

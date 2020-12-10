@@ -11,7 +11,7 @@ __kernel void box_blur_horizontal_kernel (__global float* scl,
                                           int w,
                                           int h,
                                           int r) {
-  float iarr = 1.0 / (float)(r+r+1);
+  float iarr = 1.0f / (float)(r+r+1);
   int i = get_global_id(1);
   if (i>=h) return ;
   int ti = i*w, li = ti, ri = ti+r;
@@ -27,7 +27,7 @@ __kernel void box_blur_vertical_kernel (__global float* scl,
                                         int w,
                                         int h,
                                         int r) {
-  float iarr = 1.0 / (float)(r+r+1);
+  float iarr = 1.0f / (float)(r+r+1);
   int i = get_global_id(0);
   if (i>=w) return ;
   int ti = i, li = ti, ri = ti+r*(float)w;

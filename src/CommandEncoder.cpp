@@ -10,9 +10,9 @@ namespace dehancer {
       set(p.mem, p.size()*sizeof(float), index);
     }
 
-    void CommandEncoder::set(const float3 &p, int index) {
-      set(p.mem, p.size()*sizeof(float), index);
-    }
+//    void CommandEncoder::set(const float3 &p, int index) {
+//      //set(p.mem, p.size()*sizeof(float), index);
+//    }
 
     void CommandEncoder::set(const float4 &p, int index) {
       set(p.mem, p.size()*sizeof(float), index);

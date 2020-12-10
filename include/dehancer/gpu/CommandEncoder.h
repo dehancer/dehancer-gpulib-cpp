@@ -50,7 +50,7 @@ namespace dehancer {
         virtual void set(const void* bytes, size_t bytes_length, int index) = 0;
 
         virtual void set(const float2& p, int index);
-        virtual void set(const float3& p, int index);
+        virtual void set(const float3& p, int index) = 0;
         virtual void set(const float4& p, int index);
 
         virtual void set(const float2x2& m, int index);

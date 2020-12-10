@@ -53,17 +53,17 @@ __kernel void blend_kernel(
 
   float4 inColor = read_imagef(source, sampler, coords);
 
-  float luminance = dot(inColor.rgb, kIMP_Y_YUV_factor);
+  float luminance = dot(inColor.xyz, kIMP_Y_YUV_factor);
   int      index = clamp((int)(luminance*(float)(levels-1)),(int)(0),(int)(levels-1));
   float4   color = {1.0, 0.0, 0.0, 1.0};
 
   if (index<levels){
-    color.r = color_map[index*3];
-    color.g = color_map[index*3+1];
-    color.b = color_map[index*3+2];
+    color.x = color_map[index*3];
+    color.y = color_map[index*3+1];
+    color.z = color_map[index*3+2];
   }
 
-  color.rgb = mix(inColor.rgb,color.rgb,opacity);
+  color.xyz = mix(inColor.xyz,color.xyz,opacity);
 
   write_imagef(destination, gid, color);
 }
@@ -89,7 +89,7 @@ __kernel void convolve_horizontal_image_kernel(
       gidx.x += i;
       if (gidx.x<0) continue;
       if (gidx.x>=w) continue;
-      color += read_imagef(source, CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_MIRRORED_REPEAT | CLK_FILTER_NEAREST, gidx) * weights[i];
+      color += read_imagef(source, nearest_sampler, gidx) * weights[i];
     }
     write_imagef(destination, gid, color);
   }
