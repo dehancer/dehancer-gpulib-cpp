@@ -158,7 +158,7 @@ int run_bench(int num, const void* device, std::string patform) {
   auto blur_line_kernel = dehancer::ConvolveKernel(command_queue,
                                                    grid_text,
                                                    output_text.get_texture(),
-                                                   {1.5,1.5,1.5,1},
+                                                   {15,15,15,1},
                                                    true
   );
 
