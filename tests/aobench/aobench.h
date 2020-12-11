@@ -58,7 +58,7 @@ namespace test {
 
         void setup(CommandEncoder &encode) override {
           encode.set(color_map_,2);
-          encode.set(&levels_,sizeof(levels_),3);
+          encode.set(levels_,3);
           encode.set(opacity_,4);
         }
 
@@ -100,7 +100,7 @@ int run_bench(int num, const void* device, std::string patform) {
   bench_kernel.execute([&ao_bench_text](dehancer::CommandEncoder& command_encoder){
       int numSubSamples = 4;
 
-      command_encoder.set(&numSubSamples, sizeof(numSubSamples), 0);
+      command_encoder.set(numSubSamples, 0);
       command_encoder.set(ao_bench_text, 1);
 
       return dehancer::CommandEncoder::Size::From(ao_bench_text);
