@@ -45,8 +45,40 @@ namespace dehancer::opencl {
       }
     }
 
+    void opencl::CommandEncoder::set(const float4 &p, int index) {
+      cl_float4 buf = { p.x(), p.y(), p.z(), p.w()};
+      set(&buf, sizeof(buf), index);
+    }
+
     void CommandEncoder::set(const float3 &p, int index) {
       cl_float3 buf = { p.x(), p.y(), p.z()};
-      set(&buf, sizeof(cl_float3), index);
+      set(&buf, sizeof(buf), index);
     }
+
+    void CommandEncoder::set(float p, int index) {
+      cl_float buf = p;
+      set(&buf, sizeof(buf), index);
+    }
+
+    void CommandEncoder::set(const float2 &p, int index) {
+      cl_float2 buf = { p.x(), p.y()};
+      set(&buf, sizeof(buf), index);
+    }
+
+    void CommandEncoder::set(bool p, int index) {
+      cl_bool buf = p;
+      set(&buf, sizeof(buf), index);
+    }
+
+    void CommandEncoder::set(const float2x2& m, int index){
+      cl_float4 mat;
+      for (int i = 0; i < m.size(); ++i) mat.s[i]=m[i];
+      set(&mat, sizeof(mat), index);
+    };
+
+    void CommandEncoder::set(const float4x4& m, int index){
+      cl_float16 mat;
+      for (int i = 0; i < m.size(); ++i) mat.s[i]=m[i];
+      set(&mat, sizeof(mat), index);
+    };
 }
