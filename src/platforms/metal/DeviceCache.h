@@ -24,7 +24,7 @@ namespace dehancer::metal {
     public:
         gpu_device_cache();
 
-        std::vector<void *> get_device_list();
+        std::vector<void *> get_device_list(dehancer::device::TypeFilter filter);
         virtual void* get_device(uint64_t id) ;
         virtual void* get_default_device() ;
         virtual void* get_command_queue(uint64_t id) ;

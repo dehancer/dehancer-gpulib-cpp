@@ -19,11 +19,13 @@ namespace dehancer {
         /***
          * Type of cached acceleration device
          */
-        enum class Type:int {
-            gpu = 0,
-            cpu,
-            unknown
+        enum Type:int {
+            gpu = 1<<1,
+            cpu = 1<<2,
+            unknown = 1<<3
         };
+
+        typedef int TypeFilter;
 
         /***
          * Get a device name from handler
@@ -62,7 +64,7 @@ namespace dehancer {
          * Get platform specific list of device handlers
          * @return device list
          */
-        virtual std::vector<void *> get_device_list();
+        virtual std::vector<void *> get_device_list(device::TypeFilter filter = device::Type::gpu | device::Type::cpu);
 
         /***
          * Get a device by id

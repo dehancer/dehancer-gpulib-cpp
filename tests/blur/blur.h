@@ -237,7 +237,7 @@ void test_bench(std::string platform) {
 
     //return;
 
-    auto devices = dehancer::DeviceCache::Instance().get_device_list();
+    auto devices = dehancer::DeviceCache::Instance().get_device_list(dehancer::device::Type::cpu);
     assert(!devices.empty());
 
     int dev_num = 0;

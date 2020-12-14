@@ -376,7 +376,10 @@ namespace dehancer::metal {
       [static_cast<MTLDeviceCache*>(device_cache_) returnCommandQueueToCache:static_cast<id<MTLCommandQueue>>(q)];
     }
 
-    std::vector<void *> gpu_device_cache::get_device_list() {
+    ///
+    /// \param filter - has no effect for metal
+    /// \return
+    std::vector<void *> gpu_device_cache::get_device_list(dehancer::device::TypeFilter filter) {
       static std::vector<void*> list;
       static dispatch_once_t onceToken;
       dispatch_once(&onceToken, ^{

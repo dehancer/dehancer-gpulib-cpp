@@ -46,8 +46,8 @@ namespace dehancer {
       impl_->return_command_queue(q);
     }
 
-    std::vector<void *> gpu_device_cache::get_device_list() {
-      return impl_->get_device_list();
+    std::vector<void *> gpu_device_cache::get_device_list(int filter) {
+      return impl_->get_device_list(filter);
     }
 
     uint64_t device::get_id(const void *device) {
