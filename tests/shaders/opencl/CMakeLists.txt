@@ -5,6 +5,7 @@ INCLUDE(${clHelper_DIR}/clHelper.cmake)
 
 file (GLOB SOURCES ${SOURCES}
         ./main.cpp
+        ./Regestry.cpp
         )
 
 include_directories(

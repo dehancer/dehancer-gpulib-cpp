@@ -18,8 +18,7 @@ namespace dehancer::opencl {
 
       auto texture_size = block(*encoder_);
 
-      auto device_id = command_->get_device_id();
-
+      // auto device_id = command_->get_device_id();
 
       size_t local_work_size[2] = {16,16};
 
@@ -42,7 +41,9 @@ namespace dehancer::opencl {
       if (command_->get_wait_completed())
         waiting_event = clCreateUserEvent(command_->get_context(), &last_error);
 
-      last_error = clEnqueueNDRangeKernel(command_->get_command_queue(), kernel_, 2, nullptr,
+      last_error = clEnqueueNDRangeKernel(command_->get_command_queue(),
+                                          kernel_, 2,
+                                          nullptr,
                                           global_work_size,
                                           local_work_size,
                                           0,

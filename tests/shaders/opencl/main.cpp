@@ -20,13 +20,3 @@ int main() {
   return 0;
 }
 
-
-extern char TestKernels_cl[];
-extern int  TestKernels_cl_len;
-
-namespace dehancer::device {
-    extern std::string get_lib_path() {
-      auto p = TestKernels_cl;
-      return "TestKernels.cl";
-    }
-}
