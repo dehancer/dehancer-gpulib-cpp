@@ -23,10 +23,11 @@ namespace dehancer::opencl {
 
       size_t local_work_size[2] = {16,16};
 
+      ///
+      /// TODO: optimize workgroups automatically
+      ///
       //clGetKernelWorkGroupInfo(kernel_, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), local_work_size, nullptr);
-
       //local_work_size[1] = 1;
-
       //if (local_work_size[0]>=texture_size.width) local_work_size[0] = 1;
 
       size_t global_work_size[2] = {
@@ -92,12 +93,20 @@ namespace dehancer::opencl {
       cl_program program_ = nullptr;
 
       auto p_path = library_path_.empty() ? dehancer::device::get_lib_path() : library_path;
+      std::size_t p_path_hash = std::hash<std::string>{}(p_path);
+
+      std::string library_source_;
+      if (p_path.empty()) {
+        p_path_hash = dehancer::device::get_lib_source(library_source_);
+        if (library_source_.empty())
+          throw std::runtime_error("Could not find embedded opencl source code for '" + kernel_name + "'");
+      }
 
       if (program_map_.find(command_->get_command_queue()) != program_map_.end())
       {
         auto& pm =  program_map_[command_->get_command_queue()];
-        if (pm.find(p_path) != pm.end()) {
-          program_ = pm[p_path];
+        if (pm.find(p_path_hash) != pm.end()) {
+          program_ = pm[p_path_hash];
         }
       }
       else {
@@ -107,14 +116,22 @@ namespace dehancer::opencl {
       cl_int last_error = 0;
 
       if (program_ == nullptr) {
-        const std::string source = clHelper::getEmbeddedProgram(p_path);
-
-         const char *source_str = source.c_str();
+        std::string source;
+        const char *source_str;
         size_t source_size = source.size();
 
+        if (library_source_.empty()) {
+          source = clHelper::getEmbeddedProgram(p_path);
+          source_str = source.c_str();
+          source_size = source.size();
+        }
+        else {
+          source_str = library_source_.c_str();
+          source_size = library_source_.size();
+        }
 
         program_ = clCreateProgramWithSource(command_->get_context(), 1, (const char **) &source_str,
-                                                        (const size_t *) &source_size, &last_error);
+                                             (const size_t *) &source_size, &last_error);
 
         if (last_error != CL_SUCCESS) {
           throw std::runtime_error("Unable to create OpenCL program from exampleKernel.cl");
@@ -142,7 +159,7 @@ namespace dehancer::opencl {
           throw std::runtime_error("Unable to build OpenCL program from: " + kernel_name_ + ": \n" + log);
         }
 
-        program_map_[command_->get_command_queue()][p_path] = program_ ;
+        program_map_[command_->get_command_queue()][p_path_hash] = program_ ;
       }
 
       kernel_ = clCreateKernel(program_, kernel_name_.c_str(), &last_error);
