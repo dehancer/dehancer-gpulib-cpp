@@ -102,7 +102,13 @@ namespace dehancer::metal {
       }
     }
 
+
     dehancer::Error TextureHolder::get_contents(std::vector<float>& buffer) const {
+      buffer.resize( get_length());
+      return get_contents(buffer.data(), get_length());
+    }
+
+    dehancer::Error TextureHolder::get_contents(void *buffer, size_t length) const {
 
       auto componentBytes = sizeof(Float32);
 
@@ -114,6 +120,10 @@ namespace dehancer::metal {
 
         default:
           return Error(CommonError::NOT_SUPPORTED, "Texture should be rgba32float");
+      }
+
+      if (length< this->get_length()) {
+        return Error(CommonError::OUT_OF_RANGE, "Texture length greater then buffer length");
       }
 
       id<MTLCommandQueue> queue = get_command_queue();
@@ -143,9 +153,9 @@ namespace dehancer::metal {
 
       NSUInteger bytes_per_pixel = desc_.channels * componentBytes;
 
-      buffer.resize(desc_.width*desc_.depth*desc_.height*desc_.channels);
+      //buffer.resize(desc_.width*desc_.depth*desc_.height*desc_.channels);
 
-      [texture_ getBytes: buffer.data()
+      [texture_ getBytes: buffer
              bytesPerRow: bytes_per_pixel * region.size.width
               fromRegion: region
              mipmapLevel: 0];
@@ -213,4 +223,5 @@ namespace dehancer::metal {
       if (texture_)
         [texture_ release];
     }
+
 }

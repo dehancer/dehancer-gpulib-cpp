@@ -126,6 +126,8 @@ namespace dehancer {
          */
         virtual Error get_contents(std::vector<float>& buffer) const = 0;
 
+        virtual Error get_contents(void* buffer, size_t length) const = 0;
+
         /***
          * Get texture width.
          * @return width
