@@ -368,7 +368,7 @@ link_directories(
 )
 
 include_directories(
-        ${CMAKE_CURRENT_BINARY_DIR}/generated
+        ${CMAKE_BINARY_DIR}/generated
         ${CMAKE_BINARY_DIR}/external/include
         ${CMAKE_SOURCE_DIR}/include
         ${CMAKE_SOURCE_DIR}/external/OpenColorIO/src/OpenColorIO

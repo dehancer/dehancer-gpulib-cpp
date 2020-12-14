@@ -5,8 +5,8 @@
 #pragma once
 
 #include "dehancer/Common.h"
-#include "dehancer/opencl/buffer.h"
-#include "dehancer/opencl/embeddedProgram.h"
+#include "dehancer/opencl/common.h"
+#include "dehancer/opencl/device.h"
 #include "dehancer/gpu/DeviceCache.h"
 
 #include <mutex>
