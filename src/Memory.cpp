@@ -28,4 +28,8 @@ namespace dehancer {
     Memory MemoryHolder::Make(const void *command_queue, const void *device_memory) {
       return MemoryHolder::Make(command_queue, (void *)device_memory);
     }
+
+    Memory MemoryHolder::Make(const void *command_queue, size_t length) {
+      return MemoryHolder::Make(command_queue, nullptr, length);
+    }
 }

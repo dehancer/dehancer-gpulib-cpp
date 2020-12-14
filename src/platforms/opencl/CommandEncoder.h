@@ -6,6 +6,7 @@
 
 #include "dehancer/gpu/Texture.h"
 #include "dehancer/gpu/Function.h"
+#include "Function.h"
 #include "Context.h"
 
 namespace dehancer::opencl {
@@ -13,11 +14,22 @@ namespace dehancer::opencl {
     class CommandEncoder: public dehancer::CommandEncoder {
 
     public:
-        explicit CommandEncoder(cl_kernel kernel);
+        explicit CommandEncoder(cl_kernel kernel, dehancer::opencl::Function* function);
         void set(const Texture &texture, int index) override;
         void set(const void *bytes, size_t bytes_length, int index) override;
         void set(const Memory& memory, int index) override;
 
+        void set(bool p, int index) override;
+
+        void set(float p, int index) override;
+        void set(const float2& p, int index) override;
+        void set(const float3& p, int index) override;
+        void set(const float4& p, int index) override;
+
+        void set(const float2x2& m, int index) override;
+        void set(const float4x4& m, int index) override;
+
+        dehancer::opencl::Function* function_ = nullptr;
         cl_kernel kernel_ = nullptr;
     };
 }

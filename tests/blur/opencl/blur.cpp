@@ -1,9 +1,10 @@
 //
-// Created by denn nevera on 09/11/2020.
+// Created by denn nevera on 29/11/2020.
 //
 
+
 #include "gtest/gtest.h"
-#include "tests/aobench/aobench.h"
+#include "../blur.h"
 
 TEST(TEST, AOBENCH_OpenCL) {
 

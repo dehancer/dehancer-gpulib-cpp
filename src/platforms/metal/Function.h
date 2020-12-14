@@ -26,7 +26,7 @@ namespace dehancer::metal {
             std::vector<dehancer::Function::ArgInfo> arg_list;
         };
 
-        Function(dehancer::metal::Command* command, const std::string& kernel_name);
+        Function(dehancer::metal::Command* command, const std::string& kernel_name,  const std::string &library_path);
         void execute(const dehancer::Function::FunctionHandler& block);
 
         [[nodiscard]] const std::string& get_name() const;
@@ -36,13 +36,14 @@ namespace dehancer::metal {
 
         MTLSize get_threads_per_threadgroup(int w, int h, int d);
         MTLSize get_thread_groups(int w, int h, int d);
-        ComputeSize get_compute_size(const id<MTLTexture> &texture);
+        ComputeSize get_compute_size(const CommandEncoder::Size size);
 
         ~Function();
 
     private:
         dehancer::metal::Command* command_;
         std::string kernel_name_;
+        std::string library_path_;
 
         typedef std::unordered_map<std::string, PipelineState> PipelineKernel;
         typedef std::unordered_map<id<MTLCommandQueue>, PipelineKernel> PipelineCache;

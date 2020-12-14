@@ -19,11 +19,30 @@ include_directories(
 )
 
 if (DEHANCER_CURRENT_PLATFORM_METAL)
+
     set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_metal)
     add_executable(${TEST} ${TESTS_SOURCES})
+
 elseif(DEHANCER_CURRENT_PLATFORM_OPENCL)
+
+    file (GLOB DEPENDS_OPENCL_SOURCES ${DEPENDS_OPENCL_SOURCES}
+            ${CMAKE_SOURCE_DIR}/include/dehancer/gpu/kernels/opencl/*.h
+            )
+
     set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_opencl)
-    add_executable(${TEST} ${TESTS_SOURCES} ${EMBEDDED_OPENCL_KERNELS})
+
+    file (GLOB REGESTRY_SOURCES ${REGESTRY_SOURCES}
+            ${CMAKE_SOURCE_DIR}/tests/shaders/opencl/Regestry.cpp
+            )
+    message("OPENCL KERNELS: ${CURRENT_KERNEL_TARGET_NAME} ${REGESTRY_SOURCES}")
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES}; ${CURRENT_KERNEL_TARGET_NAME}_opencl)
+
+    add_executable(${TEST}
+            ${TESTS_SOURCES}
+            ${REGESTRY_SOURCES}
+            ${EMBEDDED_OPENCL_KERNELS}
+            ${DEPENDS_OPENCL_SOURCES}
+            )
 endif ()
 
 target_link_libraries(
@@ -45,7 +64,14 @@ endif ()
 if(DEHANCER_GPU_METAL)
     add_dependencies(
             ${TEST}
-            TestKernels
+            ${CURRENT_KERNEL_TARGET_NAME}_metal
+    )
+endif()
+
+if(DEHANCER_GPU_OPENCL)
+    add_dependencies(
+            ${TEST}
+            ${CURRENT_KERNEL_TARGET_NAME}_opencl
     )
 endif()
 

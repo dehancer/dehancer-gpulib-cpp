@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 #include "tests/paths_config.h"
 
-#include "../aobench.h"
+#include "tests/aobench/aobench.h"
 
 TEST(TEST, AOBENCH_Metal) {
 
@@ -24,6 +24,5 @@ namespace dehancer::device {
       */
     std::string get_lib_path() {
       return METAL_KERNELS_LIBRARY;
-      //return "./TestKernels.metallib";
     }
 }

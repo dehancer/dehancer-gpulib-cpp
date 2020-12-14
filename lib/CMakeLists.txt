@@ -7,6 +7,7 @@ file (GLOB COMMON_SRC ${COMMON_SRC}
         ${CMAKE_SOURCE_DIR}/src/*.c
         ${CMAKE_SOURCE_DIR}/src/ocio/*.cpp
         ${CMAKE_SOURCE_DIR}/src/platforms/*.cpp
+        ${CMAKE_SOURCE_DIR}/src/math/*.cpp
         )
 
 if (DEHANCER_GPU_METAL)

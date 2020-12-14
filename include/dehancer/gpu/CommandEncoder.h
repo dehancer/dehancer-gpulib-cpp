@@ -15,6 +15,18 @@ namespace dehancer {
     */
     class CommandEncoder {
     public:
+
+        struct Size {
+            size_t width;
+            size_t height;
+            size_t depth;
+
+            static inline Size From(const Texture& t) {
+              if (!t) return  {0,0,0};
+              return {t->get_width(), t->get_height(), t->get_depth()};
+            };
+        };
+
         /***
          * Bind texture object with kernel argument placed at defined index. @see Texture
          * @param texture - texture object
@@ -37,12 +49,20 @@ namespace dehancer {
          */
         virtual void set(const void* bytes, size_t bytes_length, int index) = 0;
 
+        virtual void set(bool p, int index);
+        virtual void set(char p, int index);
+        virtual void set(int8_t p, int index);
+        virtual void set(int16_t p, int index);
+        virtual void set(int32_t p, int index);
+        virtual void set(uint8_t p, int index);
+        virtual void set(uint16_t p, int index);
+        virtual void set(uint32_t p, int index);
+        virtual void set(float p, int index);
         virtual void set(const float2& p, int index);
         virtual void set(const float3& p, int index);
         virtual void set(const float4& p, int index);
 
         virtual void set(const float2x2& m, int index);
-        virtual void set(const float3x3& m, int index);
         virtual void set(const float4x4& m, int index);
     };
 }

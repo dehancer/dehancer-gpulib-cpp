@@ -227,7 +227,7 @@ inline void orthoBasis(struct vec3f basis[3], struct vec3f n)
 }
 
 
-float ambient_occlusion(thread struct Isect *isect, struct Plane plane, struct Sphere spheres[3],
+static inline float ambient_occlusion(thread struct Isect *isect, struct Plane plane, struct Sphere spheres[3],
                         thread struct RNGState *rngstate) {
   float eps = 0.0001f;
   struct vec3f p;

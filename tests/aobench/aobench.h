@@ -58,7 +58,7 @@ namespace test {
 
         void setup(CommandEncoder &encode) override {
           encode.set(color_map_,2);
-          encode.set(&levels_,sizeof(levels_),3);
+          encode.set(levels_,3);
           encode.set(opacity_,4);
         }
 
@@ -69,17 +69,17 @@ namespace test {
     };
 }
 
-int run_bench2(int num, const void* device, std::string patform) {
+int run_bench(int num, const void* device, std::string patform) {
 
   dehancer::TextureIO::Options::Type type = dehancer::TextureIO::Options::Type::png;
   std::string ext = dehancer::TextureIO::extention_for(type);
   float       compression = 0.3f;
 
-  size_t width = 800*2, height = 600*2;
+  size_t width = 400*4, height = 300*4;
 
   auto command_queue = dehancer::DeviceCache::Instance().get_command_queue(dehancer::device::get_id(device));
 
-  auto bench_kernel = dehancer::Function(command_queue, "ao_bench_kernel", true);
+  auto bench_kernel = dehancer::Function(command_queue, "ao_bench_kernel", true, "");
   auto ao_bench_text = bench_kernel.make_texture(width,height);
 
   /**
@@ -100,12 +100,11 @@ int run_bench2(int num, const void* device, std::string patform) {
   bench_kernel.execute([&ao_bench_text](dehancer::CommandEncoder& command_encoder){
       int numSubSamples = 4;
 
-      command_encoder.set(&numSubSamples, sizeof(numSubSamples), 0);
+      command_encoder.set(numSubSamples, 0);
       command_encoder.set(ao_bench_text, 1);
 
-      return ao_bench_text;
+      return dehancer::CommandEncoder::Size::From(ao_bench_text);
   });
-
 
   std::chrono::time_point<std::chrono::system_clock> clock_end
           = std::chrono::system_clock::now();
@@ -160,6 +159,11 @@ int run_bench2(int num, const void* device, std::string patform) {
           input_text.get_texture(),
           output_text.get_texture());
 
+  std::cout << "[blend kernel " << blend_kernel.get_name() << " args: " << std::endl;
+  for (auto& a: blend_kernel.get_arg_list()) {
+    std::cout << std::setw(20) << a.name << "["<<a.index<<"]: " << a.type_name << std::endl;
+  }
+
   blend_kernel.process();
 
   std::string out_file_result = "ao-"+patform+"-result-"; out_file_result.append(std::to_string(num)); out_file_result.append(ext);
@@ -180,19 +184,19 @@ void test_bench(std::string platform) {
 
     int dev_num = 0;
     std::cout << "Platform: " << platform << std::endl;
-    // for (auto d: devices) {
-    // std::cout << " #" << dev_num++ << std::endl;
-    // std::cout << "    Device '" << dehancer::device::get_name(d) << " ["<<dehancer::device::get_id(d)<<"]'"<< std::endl;
-    // }
+    for (auto d: devices) {
+      std::cout << " #" << dev_num++ << std::endl;
+      std::cout << "    Device '" << dehancer::device::get_name(d) << " ["<<dehancer::device::get_id(d)<<"]'"<< std::endl;
+    }
 
-    // std::cout << "Bench: " << std::endl;
-    // dev_num = 0;
+    std::cout << "Bench: " << std::endl;
+    dev_num = 0;
 
     for (auto d: devices) {
 #if __APPLE__
       if (dehancer::device::get_type(d) == dehancer::device::Type::cpu) continue;
 #endif
-      if (run_bench2(dev_num++, d, platform)!=0) return;
+      if (run_bench(dev_num++, d, platform)!=0) return;
     }
 
   }

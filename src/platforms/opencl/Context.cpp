@@ -8,8 +8,12 @@ namespace dehancer::opencl {
 
     Context::Context(const void *command_queue): command_queue_(command_queue)
     {
-      last_error_ = clGetCommandQueueInfo(get_command_queue(), CL_QUEUE_DEVICE, sizeof(cl_device_id), &device_id_,
+      last_error_ = clGetCommandQueueInfo(get_command_queue(),
+                                          CL_QUEUE_DEVICE,
+                                          sizeof(cl_device_id),
+                                          &device_id_,
                                           nullptr);
+
       if (last_error_ != CL_SUCCESS) {
         throw std::runtime_error("Unable to get OpenCL the device");
       }

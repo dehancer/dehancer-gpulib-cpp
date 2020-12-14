@@ -25,20 +25,25 @@ namespace dehancer {
             std::string type_name;
         };
 
-        typedef std::function<Texture (CommandEncoder& compute_encoder)> FunctionHandler;
+        typedef std::function<CommandEncoder::Size (CommandEncoder& compute_encoder)> FunctionHandler;
 
         /***
          * Create GPU function based on kernel sourcecode. @see OpenCL C Language or Metal Shading Language
          * @param command_queue - platform based queue handler
          * @param kernel_name - kernel name defined in platform specific sourcecode
          * @param wait_until_completed - flag defines completion state
+         * @param library_path - explicit shaders library file path, resource name or source bundle
+         *                      (opencl source can by name of embeded value)
          *
          * @brief
          *  If wait_until_completed is set on true kernel should lock the current thread and wait when computation finish.
          *  Otherwise host code pass the next operation without locking the current thread.
          *  In this case execution result can be obtained asynchronously.
          */
-        Function(const void *command_queue, const std::string& kernel_name, bool wait_until_completed = WAIT_UNTIL_COMPLETED);
+        Function(const void *command_queue,
+                 const std::string &kernel_name,
+                 bool wait_until_completed = WAIT_UNTIL_COMPLETED,
+                 const std::string &library_path="");
 
         /***
          * Execute named kernel function in lambda block.

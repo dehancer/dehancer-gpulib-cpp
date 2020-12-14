@@ -13,3 +13,7 @@
 #include "dehancer/gpu/TextureOutput.h"
 #include "dehancer/gpu/Paths.h"
 #include "dehancer/gpu/Log.h"
+#include "dehancer/gpu/Channels.h"
+#include "dehancer/gpu/operations/GaussianBlur.h"
+
+#include "dehancer/gpu/math/GaussianUtils.h"
