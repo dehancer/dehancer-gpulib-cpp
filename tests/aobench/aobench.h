@@ -183,9 +183,9 @@ void test_bench(std::string platform) {
     auto devices = dehancer::DeviceCache::Instance().get_device_list(
             dehancer::device::Type::gpu
             );
-#elif
+#else
     auto devices = dehancer::DeviceCache::Instance().get_device_list(
-            dehancer::device::Type::gpu||dehancer::device::Type::cpu
+            dehancer::device::Type::gpu
             );
 #endif
     assert(!devices.empty());
