@@ -14,6 +14,7 @@ project(${PROJECT_LIB} VERSION 0.0.1)
 option (BUILD_TESTING "Enable creation of  tests." OFF)
 option (DEHANCER_GPU_METAL "Dehancer GPU Layer is Metal" ON)
 option (DEHANCER_GPU_OPENCL "Dehancer GPU Layer is OpenCL" ON)
+option (DEHANCER_GPU_CUDA "Dehancer GPU Layer is CUDA" ON)
 
 #
 #
@@ -57,6 +58,15 @@ find_package (Threads REQUIRED)
 find_package (PkgConfig REQUIRED)
 find_package (BLAS REQUIRED)
 find_package (LAPACK REQUIRED)
+find_package (ZLIB REQUIRED)
+find_package (OpenCV REQUIRED)
+
+find_package(CUDA 9.0)
+
+
+#
+# GPU Platforms
+#
 if (DEHANCER_GPU_OPENCL)
     find_package (OpenCL REQUIRED)
     if (OpenCL_FOUND)
@@ -66,6 +76,7 @@ if (DEHANCER_GPU_OPENCL)
         message("OpenCL is not found on this platform")
     endif ()
 endif ()
+
 if (DEHANCER_GPU_METAL)
     if (APPLE)
         set(DEHANCER_GPU_METAL ON)
@@ -74,8 +85,23 @@ if (DEHANCER_GPU_METAL)
         message("Metal is not found on this platform")
     endif ()
 endif()
-find_package (ZLIB REQUIRED)
-find_package (OpenCV REQUIRED )
+
+
+if (DEHANCER_GPU_CUDA)
+    if (APPLE)
+        message(WARNING "Apple does not support CUDA...")
+        set(DEHANCER_GPU_CUDA OFF)
+    else()
+        if (CUDA_FOUND)
+            message(STATUS "Found CUDA ${CUDA_VERSION_STRING} at ${CUDA_TOOLKIT_ROOT_DIR}")
+            set(NVCC  ${CUDA_TOOLKIT_ROOT_DIR}/bin/nvcc)
+            set(NVCCFLAGS  "--compiler-options=-fPIC --cudart=static")
+        else()
+            message(WARNING "CUDA NOT FOUND")
+            set(DEHANCER_GPU_CUDA OFF)
+        endif ()
+    endif()
+endif ()
 
 #
 # External projects
@@ -375,6 +401,13 @@ link_directories(
         ${CMAKE_BINARY_DIR}/external/lib
 )
 
+if (DEHANCER_GPU_CUDA)
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};cuda;cudart_static)
+    link_directories(
+            ${CUDA_TOOLKIT_ROOT_DIR}/lib64
+    )
+endif ()
+
 include_directories(
         ${CMAKE_BINARY_DIR}/generated
         ${CMAKE_BINARY_DIR}/external/include
@@ -383,6 +416,12 @@ include_directories(
         ${OpenCV_INCLUDE_DIRS}
         ./
 )
+
+if (DEHANCER_GPU_CUDA)
+    include_directories(
+            ${CUDA_INCLUDE_DIRS}
+    )
+endif ()
 
 set(COMMON_LIBRARIES
         ${COMMON_LIBRARIES};
