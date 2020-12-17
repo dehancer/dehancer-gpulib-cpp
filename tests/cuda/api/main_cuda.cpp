@@ -3,15 +3,12 @@
 //
 
 #include "gtest/gtest.h"
-#include "dehancer/gpu/DeviceCache.h"
-#include <chrono>
+#include "dehancer/gpu/Lib.h"
+#include "tests/cuda/paths_config.h"
 
+#include <chrono>
 #include <cuda.h>
 #include <cuda_runtime.h>
-
-//static const char *_cudaGetErrorEnum(cudaError_t error) {
-//  return cudaGetErrorName(error);
-//}
 
 template <typename T>
 void check(T result, char const *const func, const char *const file,
@@ -74,16 +71,18 @@ TEST(TEST, DeviceCache_OpenCL) {
   CUdevice cuDevice;
   checkCudaErrors(cuDeviceGet(&cuDevice, maxDevice));
 
+  cudaSetDevice(maxDevice);
+
   // Create context
   CUcontext cuContext;
   (cuCtxCreate(&cuContext, 0, cuDevice));
 
-  cudaStream_t s0;
-  checkCudaErrors(cudaStreamCreate(&s0));
+  cudaStream_t stream_0;
+  checkCudaErrors(cudaStreamCreate(&stream_0));
 
   // Check stream
   CUcontext cuContext_0;
-  checkCudaErrors(cuStreamGetCtx(s0, &cuContext_0));
+  checkCudaErrors(cuStreamGetCtx(stream_0, &cuContext_0));
 
   checkCudaErrors(cuCtxPopCurrent(&cuContext));
 
@@ -100,6 +99,82 @@ TEST(TEST, DeviceCache_OpenCL) {
   print_device_info(cUdevice_0);
 
 
+  // Create module from binary file
+  CUmodule cuModule;
+  std::cout << "Module: " << dehancer::device::get_lib_path() << std::endl;
+  checkCudaErrors(cuModuleLoad(&cuModule, dehancer::device::get_lib_path().c_str()));
+
+  // Get function handle from module
+  CUfunction vecAdd;
+  checkCudaErrors(cuModuleGetFunction(&vecAdd, cuModule, "VecAdd"));
+
+
+  int N = 1024;
+  size_t size = N * sizeof(float);
+
+  // Allocate input vectors h_A and h_B in host memory
+  auto* h_A = (float*)malloc(size);
+  auto* h_B = (float*)malloc(size);
+
+  // Initialize input vectors
+  for (int i = 0; i < N; ++i) {
+    h_A[i] = i;
+    h_B[i] = i%2;
+  }
+
+  // Allocate vectors in device memory
+  CUdeviceptr d_A; cuMemAlloc(&d_A, size);
+
+  CUdeviceptr d_B; cuMemAlloc(&d_B, size);
+
+  CUdeviceptr d_C; cuMemAlloc(&d_C, size);
+
+  // Copy vectors from host memory to device memory
+  cuMemcpyHtoD(d_A, h_A, size);
+  cuMemcpyHtoD(d_B, h_B, size);
+
+  // Invoke kernel
+  int threadsPerBlock = 64;
+  int blocksPerGrid   = (N + threadsPerBlock - 1) / threadsPerBlock;
+
+  void* args[] = { &d_A, &d_B, &d_C, &N };
+
+  checkCudaErrors(cuLaunchKernel(
+          vecAdd,
+          blocksPerGrid, 1, 1,
+          threadsPerBlock, 1, 1,
+          0,
+          stream_0,
+          args,
+          nullptr)
+  );
+
+  cuMemcpyDtoH(h_A, d_C, size);
+
+  std::cout << "summ: " << std::endl;
+  for (int i = 0; i < N; ++i) {
+    std::cout << h_A[i] << " ";
+  }
+  std::cout << std::endl;
+
+  free(h_A);
+  free(h_B);
+
+  cuMemFree(d_A);
+  cuMemFree(d_B);
+  cuMemFree(d_C);
+
   checkCudaErrors(cuCtxDestroy(cuContext));
 
+}
+
+namespace dehancer::device {
+
+    /**
+      * MUST BE defined in certain plugin module
+      * @return metal lib path.
+      */
+    std::string get_lib_path() {
+      return CUDA_KERNELS_LIBRARY;// + std::string("++");
+    }
 }

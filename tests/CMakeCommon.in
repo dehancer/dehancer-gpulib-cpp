@@ -80,6 +80,13 @@ if(DEHANCER_GPU_OPENCL)
     )
 endif()
 
+if(DEHANCER_GPU_CUDA)
+    add_dependencies(
+            ${TEST}
+            ${CURRENT_KERNEL_TARGET_NAME}_cuda
+    )
+endif()
+
 add_test(test ${TEST})
 enable_testing()
 

@@ -94,8 +94,16 @@ if (DEHANCER_GPU_CUDA)
     else()
         if (CUDA_FOUND)
             message(STATUS "Found CUDA ${CUDA_VERSION_STRING} at ${CUDA_TOOLKIT_ROOT_DIR}")
-            set(NVCC  ${CUDA_TOOLKIT_ROOT_DIR}/bin/nvcc)
-            set(NVCCFLAGS  "--compiler-options=-fPIC --cudart=static")
+            set(CMAKE_CUDA_COMPILER ${CUDA_TOOLKIT_ROOT_DIR}/bin/nvcc)
+            set(CMAKE_CUDA_COMPILER_FLAGS  "")
+            #
+            # TODO: check gcc/clang version
+            #
+            # clang <=9.0 for cuda 10.1
+            #
+            set(CUDA_BIN_COMPILER g++) # supports only gcc for cuda toolkit 10.1
+            set(CUDA_LIBRARY_FLAGS  "--compiler-options=-fPIC --cudart=static")
+
         else()
             message(WARNING "CUDA NOT FOUND")
             set(DEHANCER_GPU_CUDA OFF)
