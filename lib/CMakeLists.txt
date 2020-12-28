@@ -13,8 +13,13 @@ file (GLOB COMMON_SRC ${COMMON_SRC}
 if (DEHANCER_GPU_METAL)
     add_subdirectory(metal)
 endif()
+
 if(DEHANCER_GPU_OPENCL)
     add_subdirectory(opencl)
+endif ()
+
+if(DEHANCER_GPU_CUDA)
+    add_subdirectory(cuda)
 endif ()
 
 install(DIRECTORY ${PUBLIC_INCLUDE_FILES}

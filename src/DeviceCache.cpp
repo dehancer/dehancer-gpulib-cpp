@@ -3,15 +3,18 @@
 //
 
 #include "dehancer/gpu/DeviceCache.h"
-
 #include "dehancer/gpu/Command.h"
 #include "platforms/PlatformConfig.h"
 
 #if defined(DEHANCER_GPU_METAL)
 #include "src/platforms/metal/DeviceCache.h"
+#elif defined(DEHANCER_GPU_CUDA)
+#include "src/platforms/cuda//DeviceCache.h"
 #elif defined(DEHANCER_GPU_OPENCL)
 #include "src/platforms/opencl/DeviceCache.h"
 #endif
+
+#ifdef DEHANCER_GPU_PLATFORM
 
 namespace dehancer {
 
@@ -62,3 +65,5 @@ namespace dehancer {
       return DEHANCER_GPU_PLATFORM::device::get_type(device);
     }
 }
+
+#endif

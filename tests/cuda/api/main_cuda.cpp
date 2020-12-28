@@ -71,7 +71,7 @@ TEST(TEST, DeviceCache_OpenCL) {
   CUdevice cuDevice;
   checkCudaErrors(cuDeviceGet(&cuDevice, maxDevice));
 
-  cudaSetDevice(maxDevice);
+  //cudaSetDevice(maxDevice);
 
   // Create context
   CUcontext cuContext;

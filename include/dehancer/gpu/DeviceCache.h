@@ -64,7 +64,14 @@ namespace dehancer {
          * Get platform specific list of device handlers
          * @return device list
          */
-        virtual std::vector<void *> get_device_list(device::TypeFilter filter = device::Type::gpu | device::Type::cpu);
+        virtual std::vector<void *> get_device_list() { return get_device_list(device::Type::gpu | device::Type::cpu);};
+
+        /***
+         * Get platform specific list of device handlers
+         * @param filter with specific hardware
+         * @return
+         */
+        virtual std::vector<void *> get_device_list(device::TypeFilter filter);
 
         /***
          * Get a device by id

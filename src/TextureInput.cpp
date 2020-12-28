@@ -7,13 +7,6 @@
 
 namespace dehancer {
 
-//    namespace impl {
-//        class TextureInput: public dehancer::opencl::TextureInput {
-//        public:
-//            using dehancer::opencl::TextureInput::TextureInput;
-//        };
-//    }
-
     TextureInput::TextureInput(const void *command_queue, const StreamSpace &space, StreamSpace::Direction direction):
     TextureIO(),
     impl_(std::make_shared<impl::TextureInput>(command_queue,space,direction))

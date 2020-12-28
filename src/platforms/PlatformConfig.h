@@ -9,6 +9,8 @@
 
 #if defined(DEHANCER_GPU_METAL)
 #define DEHANCER_GPU_PLATFORM metal
+#elif defined(DEHANCER_GPU_CUDA)
+//#define DEHANCER_GPU_PLATFORM cuda
 #elif defined(DEHANCER_GPU_OPENCL)
 #define DEHANCER_GPU_PLATFORM opencl
 #endif

@@ -16,6 +16,8 @@
 #endif
 
 
+#ifdef DEHANCER_GPU_PLATFORM
+
 namespace dehancer {
 
     namespace impl {
@@ -52,3 +54,5 @@ namespace dehancer {
       return impl_->get_name();
     }
 }
+
+#endif

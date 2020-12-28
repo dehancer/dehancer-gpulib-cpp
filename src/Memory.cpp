@@ -11,6 +11,8 @@
 #include "platforms/opencl/Memory.h"
 #endif
 
+#ifdef DEHANCER_GPU_PLATFORM
+
 namespace dehancer {
 
     Memory dehancer::MemoryHolder::Make(const void *command_queue, const void *buffer, size_t length) {
@@ -33,3 +35,5 @@ namespace dehancer {
       return MemoryHolder::Make(command_queue, nullptr, length);
     }
 }
+
+#endif

@@ -12,6 +12,8 @@
 #endif
 
 
+#ifdef DEHANCER_GPU_PLATFORM
+
 namespace dehancer {
 
     bool Command::WAIT_UNTIL_COMPLETED = false;
@@ -50,3 +52,5 @@ namespace dehancer {
 
     Command::~Command() = default;
 }
+
+#endif
