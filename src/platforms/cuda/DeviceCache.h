@@ -37,8 +37,8 @@ namespace dehancer::cuda {
 
     struct gpu_command_queue_item {
         bool in_use = false;
-        cudaStream_t command_queue = nullptr;
-        explicit gpu_command_queue_item(bool in_use, cudaStream_t command_queue);
+        CUstream command_queue = nullptr;
+        explicit gpu_command_queue_item(bool in_use, CUstream command_queue);
     };
 
     struct gpu_device_item {
@@ -46,8 +46,8 @@ namespace dehancer::cuda {
         explicit gpu_device_item(const CUdevice&  device);
         ~gpu_device_item();
 
-        cudaStream_t get_next_free_command_queue();
-        bool return_command_queue(cudaStream_t command_queue);
+        CUstream get_next_free_command_queue();
+        bool return_command_queue(CUstream command_queue);
 
         std::shared_ptr<device_helper> device = nullptr;
         CUcontext context = nullptr;
