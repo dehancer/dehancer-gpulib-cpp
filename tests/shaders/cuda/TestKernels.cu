@@ -34,7 +34,9 @@ extern "C" __global__ void kernel_grid_test_transform(
   float2 coords = (float2){(float)gid.x / (float)(w - 1),
                            (float)gid.y / (float)(h - 1)};
 
-  float4 color = tex2D<float4>(source.texture, coords.x*2, coords.y*2);
+  float4 color = source.read(coords * (float2){2.0f,2.0f});
+
+  color.z = 0;
 
   destination.write(color, gid);
 

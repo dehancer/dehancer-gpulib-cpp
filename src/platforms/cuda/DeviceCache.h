@@ -9,7 +9,7 @@
 
 #include "dehancer/Common.h"
 #include "dehancer/gpu/DeviceCache.h"
-#include "Utils.h"
+#include "dehancer/gpu/kernels/cuda/utils.h"
 
 #include <cuda.h>
 #include <cuda_runtime.h>

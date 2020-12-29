@@ -7,6 +7,7 @@
 
 #include <math.h>
 #include "dehancer/gpu/kernels/cuda/texture.h"
+#include "dehancer/gpu/kernels/cuda/cutil_math.h"
 
 static const float3 kIMP_Y_YUV_factor = {0.2125, 0.7154, 0.0721};
 

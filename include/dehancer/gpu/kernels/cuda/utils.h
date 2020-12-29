@@ -4,6 +4,8 @@
 
 #pragma once
 
+#ifndef CUDA_KERNEL
+
 #include <sstream>
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -22,3 +24,5 @@ namespace dehancer::cuda {
 }
 
 #define CHECK_CUDA(val) dehancer::cuda::check((val), #val, __FILE__, __LINE__)
+
+#endif
