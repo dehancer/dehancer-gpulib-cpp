@@ -41,7 +41,7 @@ __kernel void kernel_dehancer_pass(
   write_imagef(destination, gid, color);
 }
 
-__kernel void grid_kernel(int levels, __write_only image2d_t destination )
+__kernel void kernel_grid(int levels, __write_only image2d_t destination )
 {
 
   int w = get_image_width (destination);

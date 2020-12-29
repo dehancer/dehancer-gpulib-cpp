@@ -7,6 +7,7 @@
 #include "tests/cuda/paths_config.h"
 #include "dehancer/gpu/DeviceCache.h"
 #include "src/platforms/cuda/Utils.h"
+#include "dehancer/gpu/kernels/cuda/texture.h"
 
 #include <opencv2/opencv.hpp>
 
@@ -82,7 +83,7 @@ TEST(TEST, DeviceCache_OpenCL) {
 
   // Get function handle from module
   CUfunction kernel_surface_gen;
-  CHECK_CUDA(cuModuleGetFunction(&kernel_surface_gen, cuModule, "kernel_surface_gen"));
+  CHECK_CUDA(cuModuleGetFunction(&kernel_surface_gen, cuModule, "kernel_grid"));
 
 
   cudaArray* cuArray;
@@ -96,13 +97,15 @@ TEST(TEST, DeviceCache_OpenCL) {
                1
   );
 
-  //void* args[] = { &levels, &target, &width, &height};
+  dehancer::nvcc::texture2d<float4> target_text {
+    .surface = target,
+    .width = width,
+    .height = height
+  };
 
-  std::vector<void*> args; args.resize(4);
+  std::vector<void*> args; args.resize(2);
   args[0] = &levels;
-  args[1] = &target;
-  args[2] = &width;
-  args[3] = &height;
+  args[1] = &target_text;
 
   cudaEvent_t start, stop;
   CHECK_CUDA(cudaEventCreate(&start));
