@@ -18,8 +18,8 @@ static inline float4 sampledColor(
   int w = get_image_width (outTexture);
   int h = get_image_height (outTexture);
 
-  float2 coords = (float2)((float)gid.x / (w - 1),
-                           (float)gid.y / (h - 1));
+  float2 coords = (float2)((float)gid.x / (float)(w - 1),
+                           (float)gid.y / (float)(h - 1));
 
   float4 color = read_imagef(inTexture, linear_normalized_sampler, coords);
 

@@ -106,7 +106,7 @@ TEST(TEST, DeviceCache_OpenCL) {
 
   // Get function handle from module
   CUfunction vecAdd;
-  checkCudaErrors(cuModuleGetFunction(&vecAdd, cuModule, "VecAdd"));
+  checkCudaErrors(cuModuleGetFunction(&vecAdd, cuModule, "kernel_vec_add"));
 
 
   int N = 1024;

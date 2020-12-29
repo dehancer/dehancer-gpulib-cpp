@@ -19,7 +19,6 @@ namespace dehancer::cuda {
         throw std::runtime_error(ss.str());
       }
     }
-
-#define CHECK_CUDA(val) check((val), #val, __FILE__, __LINE__)
-
 }
+
+#define CHECK_CUDA(val) dehancer::cuda::check((val), #val, __FILE__, __LINE__)
