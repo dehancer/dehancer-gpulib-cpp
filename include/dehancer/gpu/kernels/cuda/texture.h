@@ -10,12 +10,13 @@ namespace dehancer {
 
         template<class T>
         struct texture2d {
+            cudaTextureObject_t texture;
             cudaSurfaceObject_t surface;
             size_t width;
             size_t height;
 
-            __device__ size_t get_width() const { return width;};
-            __device__ size_t get_height() const { return height;};
+            __device__ [[nodiscard]] size_t get_width() const { return width;};
+            __device__ [[nodiscard]] size_t get_height() const { return height;};
 
 #ifdef CUDA_KERNEL
             __device__
