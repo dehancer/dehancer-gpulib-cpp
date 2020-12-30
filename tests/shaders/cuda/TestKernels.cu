@@ -15,7 +15,8 @@ extern "C" __global__ void kernel_vec_add(float* A, float* B, float* C, int N)
 extern "C" __global__ void kernel_grid_test_transform(
         dehancer::nvcc::texture2d<float4> source,
         dehancer::nvcc::texture2d<float4> destination,
-        dehancer::nvcc::texture3d<float4> d3DLut
+        dehancer::nvcc::texture3d<float4> d3DLut,
+        dehancer::nvcc::texture1d<float4> d1DLut
 )
 {
 
@@ -38,6 +39,10 @@ extern "C" __global__ void kernel_grid_test_transform(
   float4 color = source.read(coords * (float2){2.0f,2.0f});
 
   float4 result = d3DLut.read((float3){color.x,color.y,color.z});
+
+  result.x = d1DLut.read(result.x).x;
+  result.y = d1DLut.read(result.y).y;
+  result.z = d1DLut.read(result.z).z;
 
   destination.write(result, gid);
 
@@ -70,6 +75,33 @@ extern "C" __global__  void kernel_make3DLut_transform(
 
   float3 denom = (float3){d3DLut.get_width()-1, d3DLut.get_height()-1, d3DLut.get_depth()-1};
   float3 c = compress((float3){gid.x, gid.y, gid.z}/denom, compression);
-  float4 input_color = (float4){c.x/2.f, c.y, 0.f, 1.f};
-  d3DLut.write(input_color, gid);
+
+  // transformation
+  float4 color = (float4){c.x/2.f, c.y, 0.f, 1.f};
+
+  d3DLut.write(color, gid);
+}
+
+///
+/// @brief Kernel optimized 1D LUT identity
+///
+extern "C" __global__  void kernel_make1DLut_transform(
+        dehancer::nvcc::texture1d<float4> d1DLut,
+        float2  compression)
+{
+  uint x = blockIdx.x * blockDim.x + threadIdx.x;
+
+  uint w = d1DLut.get_width();
+
+  if (x >= w) {
+    return ;
+  }
+
+  float3 denom = (float3){w-1, w-1, w-1};
+  float3 c = compress((float3){x, x, x}/denom, compression);
+
+  // linear transform with compression
+  float4 color = (float4){c.x, c.y, c.z, 1.f};
+
+  d1DLut.write(color, x);
 }

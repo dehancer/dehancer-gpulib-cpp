@@ -13,7 +13,8 @@ namespace dehancer {
         template<class T>
         struct texture2d {
 
-            __host__ [[nodiscard]] cudaArray* get_contents() const { return mem_; };
+            __host__ [[nodiscard]] const cudaArray* get_contents() const { return mem_; };
+            __host__ [[nodiscard]] cudaArray* get_contents() { return mem_; };
             __device__ [[nodiscard]] size_t get_width() const { return width_;};
             __device__ [[nodiscard]] size_t get_height() const { return height_;};
 

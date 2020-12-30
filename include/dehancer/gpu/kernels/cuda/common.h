@@ -5,6 +5,7 @@
 #pragma once
 
 #include <cmath>
+#include "dehancer/gpu/kernels/cuda/texture1d.h"
 #include "dehancer/gpu/kernels/cuda/texture2d.h"
 #include "dehancer/gpu/kernels/cuda/texture3d.h"
 #include "dehancer/gpu/kernels/cuda/cutil_math.h"

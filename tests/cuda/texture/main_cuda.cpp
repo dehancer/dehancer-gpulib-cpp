@@ -7,6 +7,7 @@
 #include "tests/cuda/paths_config.h"
 #include "dehancer/gpu/DeviceCache.h"
 #include "dehancer/gpu/kernels/cuda/utils.h"
+#include "dehancer/gpu/kernels/cuda/texture1d.h"
 #include "dehancer/gpu/kernels/cuda/texture2d.h"
 #include "dehancer/gpu/kernels/cuda/texture3d.h"
 
@@ -68,9 +69,15 @@ TEST(TEST, DeviceCache_OpenCL) {
   CUfunction kernel_make3DLut_transform;
   CHECK_CUDA(cuModuleGetFunction(&kernel_make3DLut_transform, cuModule, "kernel_make3DLut_transform"));
 
+  // Get function handle from module
+  CUfunction kernel_make1DLut_transform;
+  CHECK_CUDA(cuModuleGetFunction(&kernel_make1DLut_transform, cuModule, "kernel_make1DLut_transform"));
+
 
   // Generated texture
   dehancer::nvcc::texture3d<::float4> clut(64,64,64);
+  dehancer::nvcc::texture1d<::float4> clut_curve(256);
+
   dehancer::nvcc::texture2d<::float4> grid_target(width,height);
 
   dim3 dimBlockLut(8, 8, 8);
@@ -79,7 +86,7 @@ TEST(TEST, DeviceCache_OpenCL) {
                   (clut.get_depth() + dimBlockLut.z - 1) / dimBlockLut.z
   );
 
-  ::float2 compression_coeff = {0.2,0.5};
+  ::float2 compression_coeff = {1,0};
   std::vector<void*> lut_args = {  &clut, &compression_coeff };
 
   // Create identity LUT
@@ -90,6 +97,26 @@ TEST(TEST, DeviceCache_OpenCL) {
           0,
           static_cast<CUstream>(command_queue),
           lut_args.data(),
+          nullptr)
+  );
+
+  dim3 dimBlockCurve(16, 1, 1);
+  dim3 dimGridCurve((clut_curve.get_width()  + dimBlockCurve.x - 1) / dimBlockCurve.x,
+                  1,
+                  1
+  );
+
+  ::float2 compression_coeff_curve = {0.2,0.5};
+  std::vector<void*> curve_args = {  &clut_curve, &compression_coeff_curve };
+
+  // Create identity Curve
+  CHECK_CUDA(cuLaunchKernel(
+          kernel_make1DLut_transform,
+          dimGridCurve.x, dimGridCurve.y, dimGridCurve.z,
+          dimBlockCurve.x, dimBlockCurve.y, dimBlockCurve.z,
+          0,
+          static_cast<CUstream>(command_queue),
+          curve_args.data(),
           nullptr)
   );
 
@@ -128,7 +155,7 @@ TEST(TEST, DeviceCache_OpenCL) {
 
 
   // yet another way dto initialize args
-  std::vector<void*> output_args = {  &grid_target, &scaled_target, &clut};
+  std::vector<void*> output_args = {  &grid_target, &scaled_target, &clut, &clut_curve};
 
   dim3 dimGrid_scale((scaled_target.get_width()  + dimBlock.x - 1) / dimBlock.x,
                      (scaled_target.get_height() + dimBlock.y - 1) / dimBlock.y,
