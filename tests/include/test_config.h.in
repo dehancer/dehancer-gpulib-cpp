@@ -1,0 +1,11 @@
+//
+// Created by denn nevera on 16/11/2020.
+//
+
+#pragma once
+
+#include <vector>
+#include <string>
+
+constexpr const char* IMAGES_DIR="@IMAGES_DIR@";
+static const std::vector<std::string> IMAGE_FILES = {"lena0.jpg","lena1.jpg","lena2.png","lena3.jpg","lena4.jpg"};

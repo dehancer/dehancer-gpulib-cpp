@@ -8,5 +8,3 @@
 #include <string>
 
 constexpr const char* CUDA_KERNELS_LIBRARY="@CUDA_KERNELS_LIBRARY@";
-constexpr const char* CUDA_IMAGE_DIR="@CUDA_IMAGE_DIR@";
-static const std::vector<std::string> IMAGE_FILES = {"lena0.jpg","lena1.jpg","lena2.png","lena3.jpg","lena4.jpg"};

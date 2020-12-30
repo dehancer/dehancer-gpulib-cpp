@@ -4,15 +4,14 @@
 
 #include "gtest/gtest.h"
 #include "../io_texture.h"
-#include "tests/cuda/paths_config.h"
 
 
-TEST(TEST, CUDA_TEXTURE) {
+TEST(TEST, OPENCL_IO_TEXTURE) {
 
   std::cout << std::endl;
   std::cerr << std::endl;
 
-  test_bench("cuda");
+  test_bench("opencl");
 
 }
 
@@ -22,7 +21,5 @@ namespace dehancer::device {
       * MUST BE defined in certain plugin module
       * @return metal lib path.
       */
-    std::string get_lib_path() {
-      return CUDA_KERNELS_LIBRARY;// + std::string("++");
-    }
+
 }
