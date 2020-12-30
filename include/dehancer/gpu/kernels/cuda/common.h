@@ -2,11 +2,11 @@
 // Created by denn on 29.12.2020.
 //
 
-#ifndef DEHANCER_GPULIB_COMMON_H
-#define DEHANCER_GPULIB_COMMON_H
+#pragma once
 
 #include <cmath>
-#include "dehancer/gpu/kernels/cuda/texture.h"
+#include "dehancer/gpu/kernels/cuda/texture2d.h"
+#include "dehancer/gpu/kernels/cuda/texture3d.h"
 #include "dehancer/gpu/kernels/cuda/cutil_math.h"
 
 static const float3 kIMP_Y_YUV_factor = {0.2125, 0.7154, 0.0721};
@@ -50,5 +50,3 @@ extern "C" __global__ void kernel_grid(int levels,
   destination.write(color, gid);
 
 }
-
-#endif //DEHANCER_GPULIB_COMMON_H

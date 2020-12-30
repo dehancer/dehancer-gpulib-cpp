@@ -7,7 +7,8 @@
 #include "tests/cuda/paths_config.h"
 #include "dehancer/gpu/DeviceCache.h"
 #include "dehancer/gpu/kernels/cuda/utils.h"
-#include "dehancer/gpu/kernels/cuda/texture.h"
+#include "dehancer/gpu/kernels/cuda/texture2d.h"
+#include "dehancer/gpu/kernels/cuda/texture3d.h"
 
 #include <opencv2/opencv.hpp>
 
@@ -63,11 +64,35 @@ TEST(TEST, DeviceCache_OpenCL) {
   CUfunction kernel_grid_test_transform;
   CHECK_CUDA(cuModuleGetFunction(&kernel_grid_test_transform, cuModule, "kernel_grid_test_transform"));
 
+  // Get function handle from module
+  CUfunction kernel_make3DLut;
+  CHECK_CUDA(cuModuleGetFunction(&kernel_make3DLut, cuModule, "kernel_make3DLut"));
+
 
   // Generated texture
+  dehancer::nvcc::texture3d<::float4> clut(64,64,64);
   dehancer::nvcc::texture2d<::float4> grid_target(width,height);
 
-  // Invoke kernel
+  dim3 dimBlockLut(8, 8, 8);
+  dim3 dimGridLut((clut.get_width()  + dimBlockLut.x - 1) / dimBlockLut.x,
+                  (clut.get_height() + dimBlockLut.y - 1) / dimBlockLut.y,
+                  (clut.get_depth() + dimBlockLut.z - 1) / dimBlockLut.z
+  );
+
+  ::float2 compression_coeff = {1,0};
+  std::vector<void*> lut_args = {  &clut, &compression_coeff };
+
+  // Create identity LUT
+  CHECK_CUDA(cuLaunchKernel(
+          kernel_make3DLut,
+          dimGridLut.x, dimGridLut.y, dimGridLut.z,
+          dimBlockLut.x, dimBlockLut.y, dimBlockLut.z,
+          0,
+          static_cast<CUstream>(command_queue),
+          lut_args.data(),
+          nullptr)
+  );
+
   dim3 dimBlock(16, 16, 1);
   dim3 dimGrid((grid_target.get_width()  + dimBlock.x - 1) / dimBlock.x,
                (grid_target.get_height() + dimBlock.y - 1) / dimBlock.y,
@@ -88,6 +113,8 @@ TEST(TEST, DeviceCache_OpenCL) {
 
   //--- Record the start event ---
   CHECK_CUDA(cudaEventRecord(start, nullptr));
+
+  // Invoke kernels
 
   CHECK_CUDA(cuLaunchKernel(
           kernel_surface_gen,
@@ -128,8 +155,8 @@ TEST(TEST, DeviceCache_OpenCL) {
   CHECK_CUDA(cudaEventElapsedTime(&msecTotal, start, stop));
 
   cv::Mat cv_result = cudaArrayToImage<::float4>(scaled_target.get_contents(),
-                                                           scaled_target.get_width(), scaled_target.get_height(),
-                                                           static_cast<CUstream>(command_queue));
+                                                 scaled_target.get_width(), scaled_target.get_height(),
+                                                 static_cast<CUstream>(command_queue));
 
   auto output_type = CV_16U;
   auto output_color = cv::COLOR_RGBA2BGR;

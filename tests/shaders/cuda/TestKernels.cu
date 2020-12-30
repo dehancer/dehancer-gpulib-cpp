@@ -15,7 +15,7 @@ extern "C" __global__ void kernel_vec_add(float* A, float* B, float* C, int N)
 extern "C" __global__ void kernel_grid_test_transform(
         dehancer::nvcc::texture2d<float4> source,
         dehancer::nvcc::texture2d<float4> destination
-        )
+)
 {
 
   // Calculate surface coordinates
@@ -40,4 +40,35 @@ extern "C" __global__ void kernel_grid_test_transform(
 
   destination.write(color, gid);
 
+}
+
+inline __device__ float3 compress(float3 rgb, float2 compression) {
+  return  compression.x*rgb + compression.y;
+}
+
+///
+/// @brief Kernel optimized 3D LUT identity
+///
+extern "C" __global__  void kernel_make3DLut(
+        dehancer::nvcc::texture3d<float4> d3DLut,
+        float2  compression)
+{
+  uint x = blockIdx.x * blockDim.x + threadIdx.x;
+  uint y = blockIdx.y * blockDim.y + threadIdx.y;
+  uint z = blockIdx.z * blockDim.z + threadIdx.z;
+
+  uint w = d3DLut.get_width();
+  uint h = d3DLut.get_height();
+  uint d = d3DLut.get_depth();
+
+  if (x >= w || y >= h || z >= d) {
+    return ;
+  }
+
+  uint3 gid = {x,y,z};
+
+  float3 denom = (float3){d3DLut.get_width()-1, d3DLut.get_height()-1, d3DLut.get_depth()-1};
+  float3 c = compress((float3){gid.x, gid.y, gid.z}/denom, compression);
+  float4 input_color = (float4){c.x, c.y, c.z, 1.0f};
+  d3DLut.write(input_color, gid);
 }
