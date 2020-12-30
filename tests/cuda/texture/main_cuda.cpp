@@ -65,8 +65,8 @@ TEST(TEST, DeviceCache_OpenCL) {
   CHECK_CUDA(cuModuleGetFunction(&kernel_grid_test_transform, cuModule, "kernel_grid_test_transform"));
 
   // Get function handle from module
-  CUfunction kernel_make3DLut;
-  CHECK_CUDA(cuModuleGetFunction(&kernel_make3DLut, cuModule, "kernel_make3DLut"));
+  CUfunction kernel_make3DLut_transform;
+  CHECK_CUDA(cuModuleGetFunction(&kernel_make3DLut_transform, cuModule, "kernel_make3DLut_transform"));
 
 
   // Generated texture
@@ -79,12 +79,12 @@ TEST(TEST, DeviceCache_OpenCL) {
                   (clut.get_depth() + dimBlockLut.z - 1) / dimBlockLut.z
   );
 
-  ::float2 compression_coeff = {1,0};
+  ::float2 compression_coeff = {0.2,0.5};
   std::vector<void*> lut_args = {  &clut, &compression_coeff };
 
   // Create identity LUT
   CHECK_CUDA(cuLaunchKernel(
-          kernel_make3DLut,
+          kernel_make3DLut_transform,
           dimGridLut.x, dimGridLut.y, dimGridLut.z,
           dimBlockLut.x, dimBlockLut.y, dimBlockLut.z,
           0,
@@ -128,7 +128,7 @@ TEST(TEST, DeviceCache_OpenCL) {
 
 
   // yet another way dto initialize args
-  std::vector<void*> output_args = {  &grid_target, &scaled_target };
+  std::vector<void*> output_args = {  &grid_target, &scaled_target, &clut};
 
   dim3 dimGrid_scale((scaled_target.get_width()  + dimBlock.x - 1) / dimBlock.x,
                      (scaled_target.get_height() + dimBlock.y - 1) / dimBlock.y,
