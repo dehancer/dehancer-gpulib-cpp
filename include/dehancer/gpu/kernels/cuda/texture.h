@@ -19,6 +19,8 @@ namespace dehancer {
 
 #ifndef CUDA_KERNEL
             texture2d(size_t width,size_t height):
+                    texture_(0),
+                    surface_(0),
                     width_(width),
                     height_(height)
             {
@@ -36,7 +38,7 @@ namespace dehancer {
               resDesc.res.array.array = mem_;
 
               //--- Specify surface ---
-              CHECK_CUDA(cudaCreateSurfaceObject(&surface, &resDesc));
+              CHECK_CUDA(cudaCreateSurfaceObject(&surface_, &resDesc));
 
               // Specify texture object parameters
               cudaTextureDesc texDesc{};
@@ -48,31 +50,43 @@ namespace dehancer {
               texDesc.normalizedCoords = 1;
 
               // Create texture object
-              CHECK_CUDA(cudaCreateTextureObject(&texture, &resDesc, &texDesc, nullptr));
+              CHECK_CUDA(cudaCreateTextureObject(&texture_, &resDesc, &texDesc, nullptr));
+            }
+
+            ~texture2d() {
+              if (texture_)
+                cuTexObjectDestroy(texture_);
+              texture_ = 0;
+              if (surface_)
+                cuSurfObjectDestroy(surface_);
+              surface_ = 0;
+              if (mem_)
+                cudaFreeArray(mem_);
+              mem_ = nullptr;
             }
 
 #else
             template<class C>
             __device__
             T read(C coords) {
-              return tex2D<float4>(texture, coords.x, coords.y);
+              return tex2D<T>(texture_, coords.x, coords.y);
             };
 
             template<class C>
             __device__
             void write(T color, C coords) {
-              surf2Dwrite<T>(color, surface, coords.x * sizeof(T) , coords.y , cudaBoundaryModeClamp);
+              surf2Dwrite<T>(color, surface_, coords.x * sizeof(T) , coords.y , cudaBoundaryModeClamp);
             };
 #endif
 
         private:
-            cudaTextureObject_t texture{};
-            cudaSurfaceObject_t surface{};
-            size_t width_{};
-            size_t height_{};
+            cudaTextureObject_t texture_;
+            cudaSurfaceObject_t surface_;
+            size_t width_;
+            size_t height_;
 
 #ifndef CUDA_KERNEL
-            cudaArray* mem_{};
+            cudaArray* mem_ = nullptr;
 #endif
         };
     }

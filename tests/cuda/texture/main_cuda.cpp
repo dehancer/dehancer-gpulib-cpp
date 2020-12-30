@@ -15,10 +15,10 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
-template< typename memT, typename imgT >
+template< typename memT>
 cv::Mat cudaArrayToImage(cudaArray* iCuArray, size_t width, size_t height, CUstream stream)
 {
-  assert(sizeof(memT) >= sizeof (imgT));
+  assert(sizeof(memT) >= sizeof (::float4));
   assert(width > 0 && height > 0);
   assert(iCuArray != nullptr);
 
@@ -42,6 +42,7 @@ cv::Mat cudaArrayToImage(cudaArray* iCuArray, size_t width, size_t height, CUstr
 TEST(TEST, DeviceCache_OpenCL) {
 
   size_t width = 400*4, height = 300*4;
+  size_t scaled_width = width*1.5, scaled_height = height*1.5;
   size_t levels = 16;
 
   std::cout << std::endl;
@@ -62,15 +63,18 @@ TEST(TEST, DeviceCache_OpenCL) {
   CUfunction kernel_grid_test_transform;
   CHECK_CUDA(cuModuleGetFunction(&kernel_grid_test_transform, cuModule, "kernel_grid_test_transform"));
 
+
+  // Generated texture
+  dehancer::nvcc::texture2d<::float4> grid_target(width,height);
+
   // Invoke kernel
   dim3 dimBlock(16, 16, 1);
-  dim3 dimGrid((width  + dimBlock.x - 1) / dimBlock.x,
-               (height + dimBlock.y - 1) / dimBlock.y,
+  dim3 dimGrid((grid_target.get_width()  + dimBlock.x - 1) / dimBlock.x,
+               (grid_target.get_height() + dimBlock.y - 1) / dimBlock.y,
                1
   );
 
-  dehancer::nvcc::texture2d<float4> grid_target(width,height);
-
+  dehancer::nvcc::texture2d<::float4> scaled_target(scaled_width,scaled_height);
 
   std::vector<void*> grid_args; grid_args.resize(2);
   grid_args[0] = &levels;
@@ -96,15 +100,17 @@ TEST(TEST, DeviceCache_OpenCL) {
   );
 
 
-  dehancer::nvcc::texture2d<float4> output_target(width,height);
+  // yet another way dto initialize args
+  std::vector<void*> output_args = {  &grid_target, &scaled_target };
 
-  std::vector<void*> output_args; output_args.resize(2);
-  output_args[0] = &grid_target;
-  output_args[1] = &output_target;
+  dim3 dimGrid_scale((scaled_target.get_width()  + dimBlock.x - 1) / dimBlock.x,
+                     (scaled_target.get_height() + dimBlock.y - 1) / dimBlock.y,
+                     1
+  );
 
   CHECK_CUDA(cuLaunchKernel(
           kernel_grid_test_transform,
-          dimGrid.x, dimGrid.y, dimGrid.z,
+          dimGrid_scale.x, dimGrid_scale.y, dimGrid_scale.z,
           dimBlock.x, dimBlock.y, dimBlock.z,
           0,
           static_cast<CUstream>(command_queue),
@@ -121,8 +127,9 @@ TEST(TEST, DeviceCache_OpenCL) {
   float msecTotal = 0.0f;
   CHECK_CUDA(cudaEventElapsedTime(&msecTotal, start, stop));
 
-  cv::Mat cv_result = cudaArrayToImage<float4, float4>(output_target.get_contents(), width, height,
-                                                       static_cast<CUstream>(command_queue));
+  cv::Mat cv_result = cudaArrayToImage<::float4>(scaled_target.get_contents(),
+                                                           scaled_target.get_width(), scaled_target.get_height(),
+                                                           static_cast<CUstream>(command_queue));
 
   auto output_type = CV_16U;
   auto output_color = cv::COLOR_RGBA2BGR;
@@ -136,7 +143,7 @@ TEST(TEST, DeviceCache_OpenCL) {
   printf("Input Size  [%dx%d], ", cv_result.size[0], cv_result.size[1]);
   printf("GPU processing time : %.4f (ms)\n", msecTotal);
   printf("Pixel throughput    : %.3f Mpixels/sec\n",
-         ((float)(width * height*1000.f)/msecTotal)/1000000);
+         ((float)(scaled_target.get_width() * scaled_target.get_height()*1000.f)/msecTotal)/1000000);
   printf("------------------------------------------------------------------\n");
 
 

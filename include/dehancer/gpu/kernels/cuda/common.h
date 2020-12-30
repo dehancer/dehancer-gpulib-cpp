@@ -5,7 +5,7 @@
 #ifndef DEHANCER_GPULIB_COMMON_H
 #define DEHANCER_GPULIB_COMMON_H
 
-#include <math.h>
+#include <cmath>
 #include "dehancer/gpu/kernels/cuda/texture.h"
 #include "dehancer/gpu/kernels/cuda/cutil_math.h"
 
@@ -38,12 +38,12 @@ extern "C" __global__ void kernel_grid(int levels,
                            (float)gid.y / (float)(h - 1)};
 
   int num = levels*2;
-  int index_x = (int)(coords.x*(num));
-  int index_y = (int)(coords.y*(num));
+  int index_x = (int)(coords.x*(float)(num));
+  int index_y = (int)(coords.y*(float)(num));
 
   int index = clamp((index_y+index_x)%2,0,num);
 
-  float ret = (float)(index);
+  auto ret = (float)(index);
 
   float4 color = {ret*coords.x,ret*coords.y,ret,1.0} ;
 
