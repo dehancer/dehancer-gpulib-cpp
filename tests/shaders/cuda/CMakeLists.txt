@@ -1,7 +1,10 @@
+set(CMAKE_CXX_STANDARD 14)
+
 set(CURRENT_TARGET_NAME "${CURRENT_KERNEL_TARGET_NAME}_cuda")
 set(CURRENT_TARGET_LIB ${CURRENT_TARGET_NAME}.fatbin)
 
 set(CUDA_KERNELS_LIBRARY ${CMAKE_BINARY_DIR}/tests/shaders/cuda/${CURRENT_TARGET_LIB})
+set(CUDA_IMAGE_DIR ${CMAKE_SOURCE_DIR}/tests/images)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/paths_config.h.in ${CMAKE_BINARY_DIR}/generated/tests/cuda/paths_config.h)
 
 include_directories(
@@ -20,6 +23,7 @@ add_custom_target(
         DEPENDS ${DEPENDS_SOURCES}
         COMMAND ${CMAKE_CUDA_COMPILER}
         ${CMAKE_CUDA_COMPILER_FLAGS}
+        -std=c++14
         -ccbin ${CUDA_BIN_COMPILER} -m64 -gencode arch=compute_35,code=compute_35
         -o ${CURRENT_TARGET_LIB}
         -fatbin ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.cu

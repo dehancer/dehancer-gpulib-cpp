@@ -162,7 +162,7 @@ namespace dehancer::opencl {
       regionst[1] = get_height();
       regionst[2] = get_depth();
 
-      if (length< this->get_length()) {
+      if (length < this->get_length()) {
         return Error(CommonError::OUT_OF_RANGE, "Texture length greater then buffer length");
       }
 

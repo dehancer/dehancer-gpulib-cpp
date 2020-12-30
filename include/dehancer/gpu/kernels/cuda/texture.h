@@ -1,0 +1,23 @@
+//
+// Created by denn on 30.12.2020.
+//
+
+#pragma once
+
+#include <dehancer/gpu/kernels/cuda/utils.h>
+
+namespace dehancer {
+
+    namespace nvcc {
+
+        struct texture {
+            __host__ [[nodiscard]] virtual const cudaArray *get_contents() const = 0;
+            __host__ [[nodiscard]] virtual cudaArray *get_contents() = 0;
+            __device__ [[nodiscard]] virtual size_t get_width() const = 0;
+            __device__ [[nodiscard]] virtual size_t get_height() const = 0;
+            __device__ [[nodiscard]] virtual size_t get_depth() const = 0 ;
+        };
+
+    }
+
+}

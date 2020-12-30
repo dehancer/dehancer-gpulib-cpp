@@ -41,7 +41,7 @@ cv::Mat cudaArrayToImage(cudaArray* iCuArray, size_t width, size_t height, CUstr
   return image;
 }
 
-TEST(TEST, DeviceCache_OpenCL) {
+TEST(TEST, CUDA_TEXTURE_LOW_LAYER) {
 
   size_t width = 400*4, height = 300*4;
   size_t scaled_width = width*1.5, scaled_height = height*1.5;

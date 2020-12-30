@@ -4,21 +4,25 @@
 
 #pragma once
 
-#include <dehancer/gpu/kernels/cuda/utils.h>
+#include "dehancer/gpu/kernels/cuda/utils.h"
+#include "dehancer/gpu/kernels/cuda/texture.h"
 
 namespace dehancer {
 
     namespace nvcc {
 
         template<class T>
-        struct texture1d {
+        struct texture1d: public texture {
 
-            __host__ [[nodiscard]] const cudaArray* get_contents() const { return mem_; };
-            __host__ [[nodiscard]] cudaArray* get_contents() { return mem_; };
-            __device__ [[nodiscard]] size_t get_width() const { return width_;};
+            __host__ [[nodiscard]] const cudaArray* get_contents() const override { return mem_; };
+            __host__ [[nodiscard]] cudaArray* get_contents() override { return mem_; };
+            __device__ [[nodiscard]] size_t get_width() const override { return width_;};
+            __device__ [[nodiscard]] size_t get_height() const override { return 1;}
+            __device__ [[nodiscard]] size_t get_depth() const override { return 1;}
 
 #ifndef CUDA_KERNEL
             explicit texture1d(size_t width):
+                    texture(),
                     texture_(0),
                     surface_(0),
                     width_(width)
@@ -69,13 +73,13 @@ namespace dehancer {
             __device__
             T read(C coord) {
               return tex2D<T>(texture_, coord, 0);
-            };
+            }
 
             template<class C>
             __device__
             void write(T color, C coord) {
               surf2Dwrite<T>(color, surface_, coord * sizeof(T) , 0, cudaBoundaryModeClamp);
-            };
+            }
 #endif
 
         private:

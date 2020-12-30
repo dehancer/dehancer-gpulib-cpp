@@ -4,20 +4,21 @@
 
 #pragma once
 
-#include <dehancer/gpu/kernels/cuda/utils.h>
+#include "dehancer/gpu/kernels/cuda/utils.h"
+#include "dehancer/gpu/kernels/cuda/texture.h"
 
 namespace dehancer {
 
     namespace nvcc {
 
         template<class T>
-        struct texture3d {
+        struct texture3d: public texture {
 
-            __host__ [[nodiscard]] const cudaArray* get_contents() const { return mem_; };
-            __host__ [[nodiscard]] cudaArray* get_contents() { return mem_; };
-            __device__ [[nodiscard]] size_t get_width() const { return width_;};
-            __device__ [[nodiscard]] size_t get_height() const { return height_;};
-            __device__ [[nodiscard]] size_t get_depth() const { return depth_;};
+            __host__ [[nodiscard]] const cudaArray* get_contents() const override { return mem_; };
+            __host__ [[nodiscard]] cudaArray* get_contents() override { return mem_; };
+            __device__ [[nodiscard]] size_t get_width() const override { return width_;};
+            __device__ [[nodiscard]] size_t get_height() const override { return height_;};
+            __device__ [[nodiscard]] size_t get_depth() const override { return depth_;};
 
 #ifndef CUDA_KERNEL
             texture3d(size_t width, size_t height, size_t depth):
@@ -72,13 +73,13 @@ namespace dehancer {
             __device__
             T read(C coords) {
               return tex3D<T>(texture_, coords.x, coords.y, coords.z);
-            };
+            }
 
             template<class C>
             __device__
             void write(T color, C coords) {
               surf3Dwrite<T>(color, surface_, coords.x * sizeof(T) , coords.y,  coords.z , cudaBoundaryModeClamp);
-            };
+            }
 #endif
 
         private:

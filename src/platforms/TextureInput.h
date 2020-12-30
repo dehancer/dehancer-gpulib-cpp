@@ -46,7 +46,7 @@ namespace dehancer::impl {
 
         friend std::istream& operator>>(std::istream& is, TextureInput& dt);
 
-        ~TextureInput() ;
+        ~TextureInput() override ;
 
     private:
         Texture texture_;

@@ -7,6 +7,8 @@
 
 #if defined(DEHANCER_GPU_METAL)
 #include "platforms/metal/Texture.h"
+#elif defined(DEHANCER_GPU_CUDA)
+#include "src/platforms/cuda/Texture.h"
 #elif defined(DEHANCER_GPU_OPENCL)
 #include "platforms/opencl/Texture.h"
 #endif
