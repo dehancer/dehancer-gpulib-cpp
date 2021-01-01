@@ -12,6 +12,34 @@ extern "C" __global__ void kernel_vec_add(float* A, float* B, float* C, int N)
     C[i] = A[i] + B[i];
 }
 
+extern "C" __global__ void kernel_test_simple_transform(
+        dehancer::nvcc::texture2d<float4> source,
+        dehancer::nvcc::texture2d<float4> destination
+) {
+
+  // Calculate surface coordinates
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  int w = destination.get_width();
+  int h = destination.get_height();
+
+  if (x >= w || y >= h) {
+    return;
+  }
+
+  uint2 gid = (uint2) {x, y};
+
+  float2 coords = (float2){(float)gid.x / (float)(w - 1),
+                           (float)gid.y / (float)(h - 1)};
+
+  float4 color = source.read(coords);
+
+  color.x = 0;
+
+  destination.write(color, gid);
+}
+
 extern "C" __global__ void kernel_grid_test_transform(
         dehancer::nvcc::texture2d<float4> source,
         dehancer::nvcc::texture2d<float4> destination,
@@ -38,13 +66,13 @@ extern "C" __global__ void kernel_grid_test_transform(
 
   float4 color = source.read(coords * (float2){2.0f,2.0f});
 
-  float4 result = d3DLut.read((float3){color.x,color.y,color.z});
+  color = d3DLut.read((float3){color.x,color.y,color.z});
 
-  result.x = d1DLut.read(result.x).x;
-  result.y = d1DLut.read(result.y).y;
-  result.z = d1DLut.read(result.z).z;
+  color.x = d1DLut.read(color.x).x;
+  color.y = d1DLut.read(color.y).y;
+  color.z = d1DLut.read(color.z).z;
 
-  destination.write(result, gid);
+  destination.write(color, gid);
 
 }
 

@@ -45,7 +45,7 @@ namespace dehancer::opencl {
       }
     }
 
-    void opencl::CommandEncoder::set(const float4 &p, int index) {
+    void CommandEncoder::set(const float4 &p, int index) {
       cl_float4 buf = { p.x(), p.y(), p.z(), p.w()};
       set(&buf, sizeof(buf), index);
     }

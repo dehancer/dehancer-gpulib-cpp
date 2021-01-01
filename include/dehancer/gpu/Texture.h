@@ -9,6 +9,13 @@
 
 namespace dehancer {
 
+    struct TextureHolder;
+
+    /***
+     * Texture pointer object
+     */
+    using Texture = std::shared_ptr<TextureHolder>;
+
     /***
      * Texture description
      */
@@ -77,14 +84,9 @@ namespace dehancer {
          * Texture memory flags options
          */
         MemFlags mem_flags = MemFlags::read_write;
+
+        Texture make(const void *command_queue, const float *from_memory = nullptr);
     };
-
-    struct TextureHolder;
-
-    /***
-     * Texture pointer object
-     */
-    using Texture = std::shared_ptr<TextureHolder>;
 
     /***
      * Texture object holder. U must use only Texture pointer object.

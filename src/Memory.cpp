@@ -7,6 +7,8 @@
 
 #if defined(DEHANCER_GPU_METAL)
 #include "platforms/metal/Memory.h"
+#elif defined(DEHANCER_GPU_CUDA)
+#include "platforms/cuda/Memory.h"
 #elif defined(DEHANCER_GPU_OPENCL)
 #include "platforms/opencl/Memory.h"
 #endif

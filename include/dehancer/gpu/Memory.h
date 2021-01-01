@@ -59,7 +59,7 @@ namespace dehancer {
         * Get a weak shared pointer to memory object.
         * @return
         */
-        Memory get_ptr() { return shared_from_this(); }
+          Memory get_ptr() { return shared_from_this(); }
 
 
         /***
@@ -91,4 +91,6 @@ namespace dehancer {
     protected:
         MemoryHolder() = default;
     };
+
+    //using Memory::Make = MemoryHolder::Make;
 }

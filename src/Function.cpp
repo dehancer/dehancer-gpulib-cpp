@@ -10,6 +10,9 @@
 #if defined(DEHANCER_GPU_METAL)
 #include "platforms/metal/Function.h"
 #include "src/platforms/metal/Command.h"
+#elif defined(DEHANCER_GPU_CUDA)
+#include "platforms/cuda/Function.h"
+#include "src/platforms/cuda/Command.h"
 #elif defined(DEHANCER_GPU_OPENCL)
 #include "platforms/opencl/Function.h"
 #include "src/platforms/opencl/Command.h"

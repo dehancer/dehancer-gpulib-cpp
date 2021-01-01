@@ -105,7 +105,7 @@ namespace dehancer {
 }
 
 
-int run_bench(int num, const void* device, std::string patform) {
+int run_on_device(int num, const void* device, std::string patform) {
 
   dehancer::TextureIO::Options::Type type = dehancer::TextureIO::Options::Type::png;
   std::string ext = dehancer::TextureIO::extention_for(type);
@@ -218,7 +218,7 @@ int run_bench(int num, const void* device, std::string patform) {
   return 0;
 }
 
-void test_bench(std::string platform) {
+void run(std::string platform) {
   try {
 
     std::vector<float> g_kernel;
@@ -256,7 +256,7 @@ void test_bench(std::string platform) {
 #if __APPLE__
       if (dehancer::device::get_type(d) == dehancer::device::Type::cpu) continue;
 #endif
-      if (run_bench(dev_num++, d, platform)!=0) return;
+      if (run_on_device(dev_num++, d, platform) != 0) return;
     }
 
   }
