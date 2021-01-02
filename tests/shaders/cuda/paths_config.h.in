@@ -8,3 +8,4 @@
 #include <string>
 
 constexpr const char* CUDA_KERNELS_LIBRARY="@CUDA_KERNELS_LIBRARY@";
+constexpr const char* CUDA_KERNELS_LIBRARY2="@CUDA_KERNELS_LIBRARY2@";

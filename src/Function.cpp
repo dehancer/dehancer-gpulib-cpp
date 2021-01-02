@@ -56,6 +56,7 @@ namespace dehancer {
     const std::string& Function::get_name() const {
       return impl_->get_name();
     }
+
 }
 
 #endif

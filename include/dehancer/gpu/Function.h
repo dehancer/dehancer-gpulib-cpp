@@ -19,6 +19,7 @@ namespace dehancer {
      */
     class Function: public Command {
     public:
+
         struct ArgInfo {
             std::string name;
             uint        index;
@@ -33,7 +34,7 @@ namespace dehancer {
          * @param kernel_name - kernel name defined in platform specific sourcecode
          * @param wait_until_completed - flag defines completion state
          * @param library_path - explicit shaders library file path, resource name or source bundle
-         *                      (opencl source can by name of embeded value)
+         *                      (opencl source can by name of embedded value)
          *
          * @brief
          *  If wait_until_completed is set on true kernel should lock the current thread and wait when computation finish.
@@ -43,7 +44,7 @@ namespace dehancer {
         Function(const void *command_queue,
                  const std::string &kernel_name,
                  bool wait_until_completed = WAIT_UNTIL_COMPLETED,
-                 const std::string &library_path="");
+                 const std::string &library_path = "");
 
         /***
          * Execute named kernel function in lambda block.

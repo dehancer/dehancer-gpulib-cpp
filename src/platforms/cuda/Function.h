@@ -31,6 +31,8 @@ namespace dehancer::cuda {
         std::string library_path_;
         CUfunction kernel_;
         mutable std::vector<dehancer::Function::ArgInfo> arg_list_;
+        CUcontext function_context_, current_context_;
+        size_t max_device_threads_;
 
         typedef std::unordered_map<std::string, CUfunction> KernelMap;
         typedef std::unordered_map<std::size_t, CUmodule> ProgamMap;
@@ -38,7 +40,6 @@ namespace dehancer::cuda {
         static std::unordered_map<CUstream, KernelMap> kernel_map_;
         static std::unordered_map<CUstream, ProgamMap> module_map_;
         static std::mutex mutex_;
-
     };
 }
 

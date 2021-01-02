@@ -23,38 +23,6 @@ namespace dehancer::cuda {
 
       auto texture_size = block(*encoder);
 
-      ///
-      /// TODO: optimize workgroups automatically
-      ///
-
-      // int block_size;      // The launch configurator returned block size
-      // int min_grid_size = std::max(texture_size.width,texture_size.height);   // The minimum grid size needed to achieve the maximum occupancy for a full device launch
-      // int grid_size;       // The actual grid size needed, based on input size
-      // cudaOccupancyMaxPotentialBlockSize(&min_grid_size, &block_size, kernel_, 0, min_grid_size);
-
-      //cudaFuncAttributes attr{};
-      //CHECK_CUDA(cudaFuncGetAttributes (&attr, kernel_));
-
-      //std::cout << " Function attr: maxThreadsPerBlock: " << attr.maxThreadsPerBlock << std::endl;
-
-      // Check stream
-      CUcontext cuContext_0, current_context;
-
-      CHECK_CUDA(cuCtxGetCurrent(&current_context));
-
-      CHECK_CUDA(cuStreamGetCtx(command_->get_command_queue(), &cuContext_0));
-
-      CHECK_CUDA(cuCtxPopCurrent(&current_context));
-
-      CHECK_CUDA(cuCtxPushCurrent(cuContext_0));
-
-      CUdevice cUdevice_0 = -1;
-      CHECK_CUDA(cuCtxGetDevice(&cUdevice_0));
-
-      cudaDeviceProp props{};
-
-      cudaGetDeviceProperties(&props, cUdevice_0);
-
       float pow_coef = 3 ;
 
       if (texture_size.depth==1) {
@@ -65,10 +33,8 @@ namespace dehancer::cuda {
         pow_coef = 1;
       }
 
-      auto size = (int)((pow(props.maxThreadsPerBlock,1/pow_coef) - 1)/2);
+      auto size = (int)((pow(max_device_threads_,1/pow_coef) - 1)/2);
       size |= size >> 1; size |= size >> 2; size |= size >> 4; size |= size >> 8; size |= size >> 16; size += 1;
-
-      std::cout << " Function attr: maxThreadsPerBlock: " << props.maxThreadsPerBlock << " blocks: " << size << std::endl;
 
       dim3 block_size(size, size, size);
 
@@ -84,10 +50,20 @@ namespace dehancer::cuda {
       if (texture_size.height < block_size.y) block_size.y = texture_size.height;
       if (texture_size.depth < block_size.z) block_size.z = texture_size.depth;
 
-        dim3 grid_size((texture_size.width  + block_size.x - 1) / block_size.x,
-                      (texture_size.height + block_size.y - 1) / block_size.y,
-                      (texture_size.depth + block_size.z - 1) / block_size.z
+      dim3 grid_size((texture_size.width  + block_size.x - 1) / block_size.x,
+                     (texture_size.height + block_size.y - 1) / block_size.y,
+                     (texture_size.depth + block_size.z - 1) / block_size.z
       );
+
+#ifdef PRINT_DEBUG
+      std::cout << " Function "<<kernel_name_<<"  max threads: "
+                << max_device_threads_
+                << " blocks: "
+                << block_size.x << "x" << block_size.y << "x" << block_size.z
+                << " grid: "
+                << grid_size.x << "x" << grid_size.y << "x" << grid_size.z
+                << std::endl;
+#endif
 
       cudaEvent_t start, stop;
       if (command_->get_wait_completed()) {
@@ -120,9 +96,32 @@ namespace dehancer::cuda {
             kernel_name_(kernel_name),
             library_path_(library_path),
             kernel_(nullptr),
-            arg_list_({})
+            arg_list_({}),
+            function_context_(nullptr),
+            current_context_(nullptr),
+            max_device_threads_(8)
     {
       std::unique_lock<std::mutex> lock(Function::mutex_);
+
+      CHECK_CUDA(cuCtxGetCurrent(&current_context_));
+
+      CHECK_CUDA(cuStreamGetCtx(command_->get_command_queue(), &function_context_));
+
+      if (function_context_ != current_context_) {
+
+        CHECK_CUDA(cuCtxPopCurrent(&current_context_));
+
+        CHECK_CUDA(cuCtxPushCurrent(function_context_));
+
+        CUdevice cUdevice_0 = -1;
+        CHECK_CUDA(cuCtxGetDevice(&cUdevice_0));
+
+        cudaDeviceProp props{};
+
+        cudaGetDeviceProperties(&props, cUdevice_0);
+
+        max_device_threads_ = props.maxThreadsPerBlock;
+      }
 
       if (kernel_map_.find(command_->get_command_queue()) != kernel_map_.end())
       {
@@ -141,11 +140,8 @@ namespace dehancer::cuda {
       auto p_path = library_path_.empty() ? dehancer::device::get_lib_path() : library_path;
       std::size_t p_path_hash = std::hash<std::string>{}(p_path);
 
-      std::string library_source_;
       if (p_path.empty()) {
-        p_path_hash = dehancer::device::get_lib_source(library_source_);
-        if (library_source_.empty())
-          throw std::runtime_error("Could not find embedded cuda source code for '" + kernel_name + "'");
+          throw std::runtime_error("Could not find path to CUDA module for '" + kernel_name + "'");
       }
 
       if (module_map_.find(command_->get_command_queue()) != module_map_.end())
@@ -160,41 +156,22 @@ namespace dehancer::cuda {
       }
 
       if (module == nullptr) {
-        std::string source;
-        const char *source_str;
-        size_t source_size = source.size();
-
-        if (!library_source_.empty()) {
-          //source = clHelper::getEmbeddedProgram(p_path);
-          //source_str = source.c_str();
-          //source_size = source.size();
-          assert(0);
-        }
-        else {
-          //source_str = library_source_.c_str();
-          //source_size = library_source_.size();
-        }
-
-
-        std::cout << "Module: " << dehancer::device::get_lib_path() << std::endl;
         CHECK_CUDA(cuModuleLoad(&module, p_path.c_str()));
-
         module_map_[command_->get_command_queue()][p_path_hash] = module ;
       }
 
       // Get function handle from module
       CHECK_CUDA(cuModuleGetFunction(&kernel_, module, kernel_name_.c_str()));
 
-      //kernel_ = clCreateKernel(program_, kernel_name_.c_str(), &last_error);
-
       kernel_map_[command_->get_command_queue()][kernel_name_]=kernel_;
-
-//      if (last_error != CL_SUCCESS) {
-//        throw std::runtime_error("Unable to create kernel for: " + kernel_name_);
-//      }
     }
 
-    Function::~Function() = default;
+    Function::~Function() {
+      if (function_context_ != current_context_) {
+        CHECK_CUDA(cuCtxPopCurrent(&function_context_));
+        CHECK_CUDA(cuCtxPushCurrent( current_context_ ));
+      }
+    }
 
     const std::vector<dehancer::Function::ArgInfo>& Function::get_arg_info_list() const {
       if (arg_list_.empty()) {

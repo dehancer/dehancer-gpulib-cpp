@@ -7,6 +7,8 @@
 #include "../../include/run_images.h"
 #include "tests/cuda/paths_config.h"
 
+#define TEXTIFY(A) (#A)
+
 
 TEST(TEST, CUDA_FUNCTUON) {
 

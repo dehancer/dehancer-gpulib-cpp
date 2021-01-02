@@ -8,7 +8,6 @@
 #include "dehancer/gpu/Lib.h"
 #include "tests/test_config.h"
 
-
 auto function_test =  [] (int dev_num,
                           const void* command_queue,
                           const std::string& platform,
