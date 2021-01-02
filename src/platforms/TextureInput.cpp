@@ -114,7 +114,7 @@ namespace dehancer::impl {
                 .depth = depth,
                 .pixel_format = TextureDesc::PixelFormat::rgba32float,
                 .type = type,
-                .mem_flags = TextureDesc::MemFlags::read_only
+                .mem_flags = TextureDesc::MemFlags::read_write
         };
 
         texture_ = TextureHolder::Make(get_command_queue(), desc, buffer);

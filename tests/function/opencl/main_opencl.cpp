@@ -1,0 +1,17 @@
+//
+// Created by denn nevera on 15/11/2020.
+//
+
+#include "gtest/gtest.h"
+#include "../function.h"
+#include "../../include/run_images.h"
+#include "tests/cuda/paths_config.h"
+
+TEST(TEST, CUDA_FUNCTUON) {
+
+  std::cout << std::endl;
+  std::cerr << std::endl;
+
+  run_images("opencl", function_test);
+
+}

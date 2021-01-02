@@ -20,7 +20,7 @@ namespace dehancer::opencl {
 
       // auto device_id = command_->get_device_id();
 
-      size_t local_work_size[2] = {16,16};
+      size_t local_work_size[3] = {16,16,16};
 
       ///
       /// TODO: optimize workgroups automatically
@@ -29,11 +29,35 @@ namespace dehancer::opencl {
       //local_work_size[1] = 1;
       //if (local_work_size[0]>=texture_size.width) local_work_size[0] = 1;
 
-      size_t global_work_size[2] = {
+      if (texture_size.depth==1) {
+        local_work_size[2] = 1;
+      }
+      else {
+        local_work_size[0] = local_work_size[1] = local_work_size[2] = 8;
+      }
+
+      if (texture_size.height==1) {
+        local_work_size[1] = 1;
+      }
+
+      if (texture_size.width < local_work_size[0]) local_work_size[0] = texture_size.width;
+      if (texture_size.height < local_work_size[1]) local_work_size[1] = texture_size.height;
+      if (texture_size.depth < local_work_size[2]) local_work_size[2] = texture_size.depth;
+
+      size_t global_work_size[3] = {
               ((texture_size.width + local_work_size[0] - 1) / local_work_size[0]) * local_work_size[0],
-              //texture_size.height
               ((texture_size.height + local_work_size[1] - 1) / local_work_size[1]) * local_work_size[1],
+              ((texture_size.depth + local_work_size[2] - 1) / local_work_size[2]) * local_work_size[2]
       };
+
+#ifdef PRINT_DEBUG
+      std::cout << " Function "<<kernel_name_
+                << " blocks: "
+                << local_work_size[0] << "x" << local_work_size[1] << "x" << local_work_size[2]
+                << " grid: "
+                << global_work_size[0] << "x" << global_work_size[1] << "x" << global_work_size[2]
+                << std::endl;
+#endif
 
       cl_int last_error = 0;
       cl_event    waiting_event = nullptr;
@@ -42,7 +66,7 @@ namespace dehancer::opencl {
         waiting_event = clCreateUserEvent(command_->get_context(), &last_error);
 
       last_error = clEnqueueNDRangeKernel(command_->get_command_queue(),
-                                          kernel_, 2,
+                                          kernel_, 3,
                                           nullptr,
                                           global_work_size,
                                           local_work_size,
@@ -51,7 +75,7 @@ namespace dehancer::opencl {
                                           &waiting_event);
 
       if (last_error != CL_SUCCESS) {
-        throw std::runtime_error("Unable to enqueue kernel: " + kernel_name_);
+        throw std::runtime_error("Unable to enqueue kernel: " + kernel_name_ + " error code: " + std::to_string(last_error));
       }
 
       if (waiting_event && command_->get_wait_completed()) {
@@ -60,7 +84,7 @@ namespace dehancer::opencl {
         clReleaseEvent(waiting_event);
 
         if (last_error != CL_SUCCESS) {
-          throw std::runtime_error("Unable to waiting execution of kernel: " + kernel_name_);
+          throw std::runtime_error("Unable to waiting execution of kernel: " + kernel_name_ + " error code: " + std::to_string(last_error));
         }
       }
     }

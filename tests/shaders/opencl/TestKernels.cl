@@ -7,6 +7,9 @@
 #include "dehancer/gpu/kernels/opencl/common.h"
 
 #include "aoBenchKernel.h"
+__constant sampler_t sampler = CLK_NORMALIZED_COORDS_TRUE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_LINEAR;
+
+#pragma OPENCL EXTENSION cl_khr_3d_image_writes : enable
 
 __kernel void kernel_vec_add(__global float* A, __global float* B, __global float* C, int N)
 {
@@ -20,6 +23,124 @@ __kernel void kernel_vec_dev(__global float* C, int N)
   int i =  get_global_id(0);
   if (i < N)
     C[i] /= 3.0f;
+}
+
+__kernel void kernel_test_simple_transform(
+        __read_only image2d_t source,
+        __write_only image2d_t destination
+) {
+
+  // Calculate surface coordinates
+  int x = get_global_id(0);
+  int y = get_global_id(1);
+
+  int w = get_image_width(destination);
+  int h = get_image_height(destination);
+
+  if (x >= w || y >= h) {
+    return;
+  }
+
+  int2 gid = (int2) {x, y};
+
+  float2 coords = (float2){(float)gid.x / (float)(w - 1),
+                           (float)gid.y / (float)(h - 1)};
+
+  float4 color = read_imagef(source, sampler, coords);
+
+  color.x = 0;
+
+  write_imagef(destination, gid, color);
+}
+
+inline  float3 compress(float3 rgb, float2 compression) {
+return  compression.x*rgb + compression.y;
+}
+
+__kernel  void kernel_make3DLut_transform(
+        __write_only image3d_t d3DLut,
+        float2  compression
+        )
+{
+  //float2  compression;
+  int x = get_global_id(0);
+  int y = get_global_id(1);
+  int z = get_global_id(2);
+
+  int w = get_image_width(d3DLut);
+  int h = get_image_height(d3DLut);
+  int d = get_image_depth(d3DLut);
+
+  if (x >= w || y >= h || z >= d) {
+    return ;
+  }
+
+  int4 gid = {x,y,z,0};
+
+  float3 denom = (float3){w-1, h-1, d-1};
+  float3 c = compress((float3){gid.x, gid.y, gid.z}/denom, compression);
+
+  // transformation
+  float4 color = (float4){c.x/2.f, c.y, 0.f, 1.f};
+
+  write_imagef(d3DLut, gid, color);
+}
+
+__kernel void kernel_make1DLut_transform(
+        __write_only image1d_t d1DLut,
+        float2  compression)
+{
+  uint x = get_global_id(0);
+
+  uint w = get_image_width(d1DLut);
+
+  if (x >= w) {
+    return ;
+  }
+
+  float3 denom = (float3){w-1, w-1, w-1};
+  float3 c = compress((float3){x, x, x}/denom, compression);
+
+  // linear transform with compression
+  float4 color = (float4){c.x, c.y, c.z, 1.f};
+
+  write_imagef(d1DLut, x, color);
+}
+
+__kernel void kernel_grid_test_transform(
+        __read_only image2d_t source,
+        __write_only image2d_t destination,
+        __read_only image3d_t d3DLut,
+        __read_only image1d_t d1DLut
+)
+{
+
+  // Calculate surface coordinates
+  int x = get_global_id(0);
+  int y = get_global_id(1);
+
+  int w = get_image_width(destination);
+  int h = get_image_height(destination);
+
+  if (x >= w || y >= h) {
+    return ;
+  }
+
+  int2 gid = (int2){x, y};
+
+  float2 coords = (float2){(float)gid.x / (float)(w - 1),
+                           (float)gid.y / (float)(h - 1)};
+
+  float4 color = sampledColor(source, destination, gid);
+
+  color = read_imagef(d3DLut, sampler, color);
+
+  color.x = read_imagef(d1DLut, sampler, color.x).x;
+  color.y = read_imagef(d1DLut, sampler, color.y).y;
+  color.z = read_imagef(d1DLut, sampler, color.z).z;
+
+  write_imagef(destination, gid, color);
+
 }
 
 __kernel void ao_bench_kernel(int nsubsamples, __write_only image2d_t destination )
@@ -40,7 +161,6 @@ __kernel void ao_bench_kernel(int nsubsamples, __write_only image2d_t destinatio
 }
 
 
-__constant sampler_t sampler = CLK_NORMALIZED_COORDS_TRUE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_LINEAR;
 __kernel void blend_kernel(
         __read_only image2d_t source,
         __write_only image2d_t destination,

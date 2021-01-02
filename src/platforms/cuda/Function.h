@@ -18,6 +18,7 @@ namespace dehancer::cuda {
                  );
         void execute(const dehancer::Function::FunctionHandler& block);
 
+        dehancer::cuda::Command* get_command() { return command_;}
         [[nodiscard]] const std::string& get_name() const;
         [[nodiscard]] const std::vector<dehancer::Function::ArgInfo>& get_arg_info_list() const ;
 

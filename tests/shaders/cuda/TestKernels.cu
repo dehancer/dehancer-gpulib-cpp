@@ -3,6 +3,7 @@
 //
 
 #include "dehancer/gpu/kernels/cuda/common.h"
+#include "dehancer/gpu/kernels/cuda/cuda_matrix.h"
 
 
 extern "C" __global__ void kernel_vec_add(float* A, float* B, float* C, int N)
@@ -71,7 +72,7 @@ extern "C" __global__ void kernel_grid_test_transform(
   float2 coords = (float2){(float)gid.x / (float)(w - 1),
                            (float)gid.y / (float)(h - 1)};
 
-  float4 color = source.read(coords * (float2){2.0f,2.0f});
+  float4 color = source.read(coords); // * (float2){2.0f,2.0f})
 
   color = d3DLut.read((float3){color.x,color.y,color.z});
 
