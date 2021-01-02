@@ -3,7 +3,6 @@
 //
 
 #pragma once
-#define DEHANCER_GPU_PLATFORM cuda
 
 #include "dehancer/gpu/Memory.h"
 #include "Context.h"
@@ -18,13 +17,16 @@ namespace dehancer::cuda {
 
         size_t get_length() const override;
         [[nodiscard]] const void*  get_memory() const override;
-
         [[nodiscard]] void*  get_memory() override;
 
+        const void * get_pointer() const override;
+        void * get_pointer() override;
+
         Error get_contents(std::vector<uint8_t>& buffer) const override;
+        Error get_contents(void *buffer, size_t length) const override;
 
     private:
-        //cl_mem memobj_;
+        CUdeviceptr memobj_;
         size_t length_;
         bool is_self_allocated_;
     };

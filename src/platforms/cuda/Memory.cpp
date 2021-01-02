@@ -3,17 +3,28 @@
 //
 
 #include "Memory.h"
+#include "dehancer/gpu/kernels/cuda/utils.h"
 
 namespace dehancer::cuda {
 
     MemoryHolder::MemoryHolder(const void *command_queue, const void* buffer, size_t length):
             dehancer::MemoryHolder(),
             Context(command_queue),
-            //memobj_(nullptr),
+            memobj_(0),
             length_(length),
             is_self_allocated_(false)
     {
+
+      if (length == 0) {
+        throw std::runtime_error("Device memory could not be allocated with size: " + std::to_string(length));
+      }
       is_self_allocated_ = true;
+
+      CHECK_CUDA(cudaMalloc((void**)&memobj_, length_));
+      if (buffer) {
+        auto *p = static_cast<uint8_t*>((void*)buffer);
+        CHECK_CUDA(cudaMemcpyAsync((void*)memobj_, p, length, cudaMemcpyHostToDevice, get_command_queue()));
+      }
     }
 
     MemoryHolder::MemoryHolder(const void *command_queue, std::vector<uint8_t> buffer):
@@ -23,13 +34,18 @@ namespace dehancer::cuda {
     MemoryHolder::MemoryHolder(const void *command_queue, void *device_memory):
             dehancer::MemoryHolder(),
             Context(command_queue),
-            //memobj_(nullptr),
+            memobj_(0),
             length_(0),
             is_self_allocated_(false)
     {
+      memobj_ = reinterpret_cast<CUdeviceptr>(device_memory);
+      CUdeviceptr pbase;
+      CHECK_CUDA(cuMemGetAddressRange (&pbase, &length_, memobj_ ));
     }
 
     MemoryHolder::~MemoryHolder() {
+      if (is_self_allocated_ && memobj_)
+        cudaFree((void *)memobj_);
     }
 
     size_t MemoryHolder::get_length() const {
@@ -37,14 +53,43 @@ namespace dehancer::cuda {
     }
 
     const void *MemoryHolder::get_memory() const {
-      return nullptr;
+      return reinterpret_cast<const void *>(memobj_);
     }
 
     void *MemoryHolder::get_memory() {
+      return reinterpret_cast<void *>(memobj_);
+    }
+
+    const void *MemoryHolder::get_pointer() const {
+      if (memobj_)
+        return &memobj_;
       return nullptr;
     }
 
+    void *MemoryHolder::get_pointer() {
+      if (memobj_)
+        return &memobj_;
+      return nullptr;
+    }
     Error MemoryHolder::get_contents(std::vector<uint8_t> &buffer) const {
-      return Error(CommonError::NOT_SUPPORTED);
+      buffer.resize( get_length());
+      return get_contents(buffer.data(), get_length());
+    }
+
+    Error MemoryHolder::get_contents(void *buffer, size_t length) const {
+      if (!memobj_)
+        return Error(CommonError::OUT_OF_RANGE, "Memory object is null");
+
+      if (length<get_length())
+        return Error(CommonError::OUT_OF_RANGE, "Buffer length not enough to copy memory object");
+
+      try {
+        CHECK_CUDA(cudaMemcpyAsync(buffer, (const void *)memobj_, get_length(), cudaMemcpyDeviceToHost, get_command_queue()));
+      }
+      catch (const std::runtime_error &e) {
+        return Error(CommonError::EXCEPTION, e.what());
+      }
+
+      return Error(CommonError::OK);
     }
 }

@@ -16,6 +16,17 @@ namespace dehancer {
      */
     using Memory = std::shared_ptr<MemoryHolder>;
 
+    struct MemoryDesc {
+        enum MemType : uint32_t {
+            host,
+            device
+        };
+
+        size_t length{};
+        MemType type = MemType::host;
+        Memory make(const void *command_queue, const void* from_memory = nullptr);
+    };
+
     /***
      * Device memory object holder
      */
@@ -73,11 +84,20 @@ namespace dehancer {
         * @return device memory handler
         */
         [[nodiscard]] virtual const void*  get_memory() const = 0;
+
         /***
         * Get platform specific handler of object placed in device memory.
         * @return device memory handler
         */
         [[nodiscard]] virtual void*  get_memory() = 0;
+
+
+        /***
+         * Get memory object pointer
+         * @return device memory object pointer
+         */
+        [[nodiscard]] virtual const void*  get_pointer() const = 0;
+        [[nodiscard]] virtual void*  get_pointer() = 0;
 
         /***
          * Copy contents of memory object to host memory buffer as as a sequential array of bytes.
@@ -85,6 +105,7 @@ namespace dehancer {
          * @return expected Error object descriptor or Error::OK
          */
         virtual Error get_contents(std::vector<uint8_t>& buffer) const = 0;
+        virtual Error get_contents(void *buffer, size_t length) const = 0;
 
         virtual ~MemoryHolder() = default;
 

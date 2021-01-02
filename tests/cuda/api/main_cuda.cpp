@@ -118,20 +118,26 @@ TEST(TEST, DeviceCache_OpenCL) {
 
   // Initialize input vectors
   for (int i = 0; i < N; ++i) {
-    h_A[i] = i;
+    h_A[i] = i/2;
     h_B[i] = i%2;
   }
 
   // Allocate vectors in device memory
-  CUdeviceptr d_A; cuMemAlloc(&d_A, size);
+  //CUdeviceptr d_A; //cuMemAlloc(&d_A, size);
+  uint8_t* d_A;
+  checkCudaErrors(cudaMalloc(&d_A, size));
 
   CUdeviceptr d_B; cuMemAlloc(&d_B, size);
 
-  CUdeviceptr d_C; cuMemAlloc(&d_C, size);
+  //CUdeviceptr d_C; cuMemAlloc(&d_C, size);
+  float* d_C;
+  checkCudaErrors(cudaMalloc(&d_C, size));
 
   // Copy vectors from host memory to device memory
-  cuMemcpyHtoD(d_A, h_A, size);
-  cuMemcpyHtoD(d_B, h_B, size);
+  //cuMemcpyHtoDAsync(d_A, h_A, size, stream_0);
+  checkCudaErrors(cudaMemcpyAsync(d_A, h_A, size, cudaMemcpyHostToDevice, stream_0));
+
+  cuMemcpyHtoDAsync(d_B, h_B, size, stream_0);
 
   // Invoke kernel
   int threadsPerBlock = 64;
@@ -149,7 +155,9 @@ TEST(TEST, DeviceCache_OpenCL) {
           nullptr)
   );
 
-  cuMemcpyDtoH(h_A, d_C, size);
+  //cuMemcpyDtoHAsync(h_A, d_C, size, stream_0);
+  memset(h_A,0,size);
+  checkCudaErrors(cudaMemcpyAsync(h_A, d_C, size, cudaMemcpyDeviceToHost, stream_0));
 
   std::cout << "summ: " << std::endl;
   for (int i = 0; i < N; ++i) {
@@ -160,9 +168,9 @@ TEST(TEST, DeviceCache_OpenCL) {
   free(h_A);
   free(h_B);
 
-  cuMemFree(d_A);
+  cudaFree(d_A);
   cuMemFree(d_B);
-  cuMemFree(d_C);
+  cudaFree(d_C);
 
   checkCudaErrors(cuCtxDestroy(cuContext));
 

@@ -3,16 +3,17 @@
 //
 
 #include "gtest/gtest.h"
-#include "../function.h"
+#include "../memory_test.h"
 #include "../../include/run_images.h"
 #include "tests/cuda/paths_config.h"
+
 
 TEST(TEST, CUDA_FUNCTUON) {
 
   std::cout << std::endl;
   std::cerr << std::endl;
 
-  run_images("cuda", function_test);
+  run_on_devices("cuda", memory_test);
 
 }
 

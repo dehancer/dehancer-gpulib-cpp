@@ -30,21 +30,14 @@ namespace dehancer::cuda {
     }
 
     void CommandEncoder::set(const Memory &memory, int index) {
-
-    }
-
-    void CommandEncoder::set(const float4 &p, int index) {
       resize_at_index(index);
-      auto a = std::make_shared<::float4>((::float4){p.x(),p.y(),p.z(),p.w()}); args_container_.emplace_back(a);
-      args_.at(index) = a.get();
-    }
-
-    void CommandEncoder::set(const float3 &p, int index) {
-
+      args_.at(index) = memory->get_pointer();
     }
 
     void CommandEncoder::set(float p, int index) {
-
+      resize_at_index(index);
+      auto a = std::make_shared<decltype(p)>(p); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
     }
 
     void CommandEncoder::set(const float2 &p, int index) {
@@ -54,15 +47,32 @@ namespace dehancer::cuda {
     }
 
     void CommandEncoder::set(bool p, int index) {
-
+      resize_at_index(index);
+      auto a = std::make_shared<decltype(p)>(p); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
     }
 
+    void CommandEncoder::set(int p, int index) {
+      resize_at_index(index);
+      auto a = std::make_shared<decltype(p)>(p); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
+    }
+
+    void CommandEncoder::set(const float3 &p, int index) {
+      resize_at_index(index);
+      auto a = std::make_shared<::float3>((::float3){p.x(),p.y(),p.z()}); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
+    }
+
+    void CommandEncoder::set(const float4 &p, int index) {
+      resize_at_index(index);
+      auto a = std::make_shared<::float4>((::float4){p.x(),p.y(),p.z(),p.w()}); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
+    }
 
     void CommandEncoder::set(const float2x2& m, int index){
-
     };
 
     void CommandEncoder::set(const float4x4& m, int index){
-
     };
 }

@@ -3,7 +3,6 @@
 //
 
 #pragma once
-#define DEHANCER_GPU_PLATFORM cuda
 
 #include <dehancer/gpu/Texture.h>
 #include <dehancer/gpu/Function.h>

@@ -21,6 +21,7 @@ namespace dehancer::cuda {
         void set(const Memory& memory, int index) override;
 
         void set(bool p, int index) override;
+        void set(int p, int index) override;
 
         void set(float p, int index) override;
         void set(const float2& p, int index) override;

@@ -12,6 +12,13 @@ extern "C" __global__ void kernel_vec_add(float* A, float* B, float* C, int N)
     C[i] = A[i] + B[i];
 }
 
+extern "C" __global__ void kernel_vec_dev(float* C, int N)
+{
+  int i = blockDim.x * blockIdx.x + threadIdx.x;
+  if (i < N)
+    C[i] /= 3.0f;
+}
+
 extern "C" __global__ void kernel_test_simple_transform(
         dehancer::nvcc::texture2d<float4> source,
         dehancer::nvcc::texture2d<float4> destination

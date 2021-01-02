@@ -4,8 +4,6 @@
 
 #pragma once
 
-#define DEHANCER_GPU_PLATFORM cuda
-
 #include "dehancer/gpu/Command.h"
 #include "Context.h"
 

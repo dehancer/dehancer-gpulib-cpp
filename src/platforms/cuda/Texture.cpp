@@ -99,12 +99,17 @@ namespace dehancer::cuda {
           break;
       }
 
-      CHECK_CUDA(cudaMemcpy2DFromArrayAsync(buffer,
-                                            mem_->get_width() * pitch,
-                                            mem_->get_contents(),
-                                            0, 0, mem_->get_width() * pitch,  mem_->get_height(),
-                                            cudaMemcpyDeviceToHost,
-                                            get_command_queue()));
+      try {
+        CHECK_CUDA(cudaMemcpy2DFromArrayAsync(buffer,
+                                              mem_->get_width() * pitch,
+                                              mem_->get_contents(),
+                                              0, 0, mem_->get_width() * pitch, mem_->get_height(),
+                                              cudaMemcpyDeviceToHost,
+                                              get_command_queue()));
+      }
+      catch (const std::runtime_error &e) {
+        return Error(CommonError::EXCEPTION, e.what());
+      }
 
       return Error(CommonError::OK);
     }
