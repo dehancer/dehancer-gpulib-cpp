@@ -8,6 +8,20 @@
 
 #include "aoBenchKernel.h"
 
+__kernel void kernel_vec_add(__global float* A, __global float* B, __global float* C, int N)
+{
+  int i =  get_global_id(0);
+  if (i < N)
+    C[i] = A[i] + B[i];
+}
+
+__kernel void kernel_vec_dev(__global float* C, int N)
+{
+  int i =  get_global_id(0);
+  if (i < N)
+    C[i] /= 3.0f;
+}
+
 __kernel void ao_bench_kernel(int nsubsamples, __write_only image2d_t destination )
 {
 
