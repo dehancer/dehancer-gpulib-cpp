@@ -11,6 +11,18 @@
 __constant sampler_t linear_normalized_sampler = CLK_NORMALIZED_COORDS_TRUE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_LINEAR;
 __constant sampler_t nearest_sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
 
+#define  get_kernel_tid1d(tid) { \
+  tid = (int)get_global_id(0);\
+}
+
+#define  get_kernel_tid2d(tid) { \
+  tid = (int2){get_global_id(0), get_global_id(1)};\
+}
+
+#define  get_kernel_tid3d(tid) { \
+  tid = (int3){get_global_id(0), get_global_id(1), get_global_id(2)};  \
+}
+
 #define get_kernel_texel1d(destination, tex) { \
   tex.gid =  (int)get_global_id(0); \
   tex.size = (int)get_image_width(destination); \
@@ -116,7 +128,6 @@ static inline void __attribute__((overloadable)) write_image(__write_only image3
   write_imagef(destination, (int4){gid.x,gid.y,gid.z,0}, color);
 }
 
-
 static inline float4 sampled_color(
         __read_only image2d_t source,
         __write_only image2d_t destination,
@@ -128,6 +139,10 @@ static inline float4 sampled_color(
   float2 coords = get_texel_coords(tex);
 
   return read_image(source, coords);
+}
+
+static inline  float3 compress(float3 rgb, float2 compression) {
+  return  compression.x*rgb + compression.y;
 }
 
 

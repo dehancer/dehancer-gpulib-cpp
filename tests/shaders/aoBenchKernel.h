@@ -69,8 +69,10 @@
 
 
 #include "aoBench.h"
+#include "dehancer/gpu/kernels/types.h"
+#include "dehancer/gpu/kernels/constants.h"
 
-inline void rng_seed(thread struct RNGState *rng, int s)
+inline __DEHANCER_DEVICE_FUNC__ void rng_seed(__DEHANCER_THREAD_ARG__ struct RNGState *rng, int s)
 {
   const int a = 16807;
   const int q = 127773;
@@ -88,7 +90,7 @@ inline void rng_seed(thread struct RNGState *rng, int s)
   rng->state = rng->table[0];
 }
 
-inline float rng_getInt(thread struct RNGState *rng)
+inline __DEHANCER_DEVICE_FUNC__ float rng_getInt(__DEHANCER_THREAD_ARG__ struct RNGState *rng)
 {
   const int a = 16807;
   const int q = 127773;
@@ -104,16 +106,16 @@ inline float rng_getInt(thread struct RNGState *rng)
   return rng->state;
 }
 
-inline float rng_getFloat(thread struct RNGState *rng)
+inline __DEHANCER_DEVICE_FUNC__ float rng_getFloat(__DEHANCER_THREAD_ARG__ struct RNGState *rng)
 {
   return rng_getInt(rng) / 2147483647.0f;
 }
 
-inline float dot3f(struct vec3f a, struct vec3f b) {
+inline __DEHANCER_DEVICE_FUNC__ float dot3f(struct vec3f a, struct vec3f b) {
   return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
-inline struct vec3f cross3f(struct vec3f v0, struct vec3f v1) {
+inline __DEHANCER_DEVICE_FUNC__ struct vec3f cross3f(struct vec3f v0, struct vec3f v1) {
   struct vec3f ret;
   ret.x = v0.y * v1.z - v0.z * v1.y;
   ret.y = v0.z * v1.x - v0.x * v1.z;
@@ -121,7 +123,7 @@ inline struct vec3f cross3f(struct vec3f v0, struct vec3f v1) {
   return ret;
 }
 
-inline struct vec3f mul3ff(struct vec3f v, float f)
+inline __DEHANCER_DEVICE_FUNC__ struct vec3f mul3ff(struct vec3f v, float f)
 {
   struct vec3f ret;
   ret.x = v.x * f;
@@ -130,7 +132,7 @@ inline struct vec3f mul3ff(struct vec3f v, float f)
   return ret;
 }
 
-inline struct vec3f add3f (struct vec3f a, struct vec3f b)
+inline __DEHANCER_DEVICE_FUNC__ struct vec3f add3f (struct vec3f a, struct vec3f b)
 {
   struct vec3f ret;
   ret.x = a.x+b.x;
@@ -139,7 +141,7 @@ inline struct vec3f add3f (struct vec3f a, struct vec3f b)
   return ret;
 }
 
-inline struct vec3f sub3f (struct vec3f a, struct vec3f b)
+inline __DEHANCER_DEVICE_FUNC__ struct vec3f sub3f (struct vec3f a, struct vec3f b)
 {
   struct vec3f ret;
   ret.x = a.x-b.x;
@@ -148,7 +150,7 @@ inline struct vec3f sub3f (struct vec3f a, struct vec3f b)
   return ret;
 }
 
-inline struct vec3f madd3ff(struct vec3f a, float f, struct vec3f b)
+inline __DEHANCER_DEVICE_FUNC__ struct vec3f madd3ff(struct vec3f a, float f, struct vec3f b)
 {
   struct vec3f ret;
   ret.x = a.x + f * b.x;
@@ -157,14 +159,14 @@ inline struct vec3f madd3ff(struct vec3f a, float f, struct vec3f b)
   return ret;
 }
 
-inline struct vec3f normalize3f(struct vec3f v)
+inline __DEHANCER_DEVICE_FUNC__ struct vec3f normalize3f(struct vec3f v)
 {
   float len2 = dot3f(v, v);
   float invLen = rsqrt(len2);
   return mul3ff(v,invLen);
 }
 
-inline void ray_plane_intersect(thread struct Isect *isect, struct Ray ray, struct Plane plane)
+inline __DEHANCER_DEVICE_FUNC__ void ray_plane_intersect(__DEHANCER_THREAD_ARG__ struct Isect *isect, struct Ray ray, struct Plane plane)
 {
   float d = -dot3f(plane.p, plane.n);
   float v =  dot3f(ray.dir, plane.n);
@@ -184,7 +186,7 @@ inline void ray_plane_intersect(thread struct Isect *isect, struct Ray ray, stru
 }
 
 
-inline void ray_sphere_intersect(thread struct Isect *isect, struct Ray ray, struct Sphere sphere)
+inline __DEHANCER_DEVICE_FUNC__ void ray_sphere_intersect(__DEHANCER_THREAD_ARG__ struct Isect *isect, struct Ray ray, struct Sphere sphere)
 {
   struct vec3f rs = sub3f(ray.org,sphere.center);
 
@@ -205,7 +207,7 @@ inline void ray_sphere_intersect(thread struct Isect *isect, struct Ray ray, str
 }
 
 
-inline void orthoBasis(struct vec3f basis[3], struct vec3f n)
+inline __DEHANCER_DEVICE_FUNC__ void orthoBasis(struct vec3f basis[3], struct vec3f n)
 {
   basis[2] = n;
   basis[1].x = 0.0f;
@@ -227,8 +229,9 @@ inline void orthoBasis(struct vec3f basis[3], struct vec3f n)
 }
 
 
-static inline float ambient_occlusion(thread struct Isect *isect, struct Plane plane, struct Sphere spheres[3],
-                        thread struct RNGState *rngstate) {
+static __DEHANCER_DEVICE_FUNC__ inline float ambient_occlusion(__DEHANCER_THREAD_ARG__ struct Isect *isect,
+                                      struct Plane plane, struct Sphere spheres[3],
+                                      __DEHANCER_THREAD_ARG__ struct RNGState *rngstate) {
   float eps = 0.0001f;
   struct vec3f p;
   struct vec3f basis[3];
@@ -276,7 +279,7 @@ static inline float ambient_occlusion(thread struct Isect *isect, struct Plane p
   return occlusion;
 }
 
-inline float4 ao_bench(int nsubsamples, int x, int y, int w, int h) {
+inline __DEHANCER_DEVICE_FUNC__ float4 ao_bench(int nsubsamples, int x, int y, int w, int h) {
 
   struct Plane plane = { { 0.0f, -0.5f, 0.0f }, { 0.f, 1.f, 0.f } };
   struct Sphere spheres[3] = {
@@ -329,7 +332,7 @@ inline float4 ao_bench(int nsubsamples, int x, int y, int w, int h) {
 #ifdef __METAL_VERSION__
   return  {ret,ret,ret,1};
 #else
-  return  (float4)(ret,ret,ret,1);
+  return  (float4){ret,ret,ret,1};
 #endif
 }
 

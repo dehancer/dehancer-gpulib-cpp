@@ -33,6 +33,7 @@ add_custom_target(
         -o ${CURRENT_TARGET_LIB}
         -fatbin ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.cu
         -I${CMAKE_SOURCE_DIR}/include
+        -I${CMAKE_SOURCE_DIR}/tests/shaders
         -DCUDA_KERNEL=1
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
@@ -47,6 +48,7 @@ add_custom_target(
         -o ${CURRENT_TARGET_LIB2}
         -fatbin ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}2.cu
         -I${CMAKE_SOURCE_DIR}/include
+        -I${CMAKE_SOURCE_DIR}/tests/shaders
         -DCUDA_KERNEL=1
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )

@@ -5,6 +5,11 @@
 #ifndef CLHELPER_TOOLS_AOBENCH_H
 #define CLHELPER_TOOLS_AOBENCH_H
 
+//#include "dehancer/gpu/kernels/opencl/opencl.h"
+
+#include "dehancer/gpu/kernels/types.h"
+#include "dehancer/gpu/kernels/constants.h"
+
 #ifdef __METAL_VERSION__
 
 #include <metal_stdlib>

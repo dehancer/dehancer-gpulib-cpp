@@ -1375,3 +1375,8 @@ inline __device__ __host__ float4 smoothstep(float4 a, float4 b, float4 x) {
   float4 y = clamp((x - a) / (b - a), 0.0f, 1.0f);
   return (y * y * (make_float4(3.0f) - (make_float4(2.0f) * y)));
 }
+
+template<class T>
+__device__ __host__ T mix(T x, T y, T a) {
+  return x + (y - x) * a;
+}

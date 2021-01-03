@@ -12,6 +12,21 @@
 #include "dehancer/gpu/kernels/constants.h"
 #include "dehancer/gpu/kernels/types.h"
 
+inline __device__ __host__ void get_kernel_tid1d(int& tid) {
+  tid = blockIdx.x * blockDim.x + threadIdx.x;
+}
+
+inline __device__ __host__ void get_kernel_tid2d(int2& tid) {
+  tid.x = blockIdx.x * blockDim.x + threadIdx.x;
+  tid.y = blockIdx.y * blockDim.y + threadIdx.y;
+}
+
+inline __device__ __host__ void get_kernel_tid3d(int3& tid) {
+  tid.x = blockIdx.x * blockDim.x + threadIdx.x;
+  tid.y = blockIdx.y * blockDim.y + threadIdx.y;
+  tid.z = blockIdx.z * blockDim.z + threadIdx.z;
+}
+
 inline __device__ __host__ void get_kernel_texel1d(__read_only image1d_t destination, Texel1d& tex) {
   tex.gid = blockIdx.x * blockDim.x + threadIdx.x;
   tex.size = destination.get_width();
@@ -142,5 +157,9 @@ inline __device__ __host__ float4 sampled_color(
   float2 coords = get_texel_coords(tex);
 
   return read_image(source, coords);
+}
+
+inline __device__ __host__  float3 compress(float3 rgb, float2 compression) {
+  return  compression.x*rgb + compression.y;
 }
 
