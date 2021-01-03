@@ -50,6 +50,8 @@ add_custom_target(
         -I${CMAKE_SOURCE_DIR}/include
         -I${CMAKE_SOURCE_DIR}/tests/shaders
         -DCUDA_KERNEL=1
+        #-O2 --use_fast_math
+
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 

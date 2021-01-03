@@ -51,7 +51,7 @@ namespace dehancer::opencl {
       };
 
 #ifdef PRINT_DEBUG
-      std::cout << " Function "<<kernel_name_
+      std::cout << "Function "<<kernel_name_
                 << " blocks: "
                 << local_work_size[0] << "x" << local_work_size[1] << "x" << local_work_size[2]
                 << " grid: "

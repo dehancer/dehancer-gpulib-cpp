@@ -40,6 +40,7 @@ namespace dehancer::cuda {
 
       if (texture_size.depth==1) {
         block_size.z = 1;
+        block_size.x *=2;
       }
 
       if (texture_size.height==1) {
@@ -56,7 +57,7 @@ namespace dehancer::cuda {
       );
 
 #ifdef PRINT_DEBUG
-      std::cout << " Function "<<kernel_name_<<"  max threads: "
+      std::cout << "Function "<<kernel_name_<<"  max threads: "
                 << max_device_threads_
                 << " blocks: "
                 << block_size.x << "x" << block_size.y << "x" << block_size.z
@@ -112,16 +113,16 @@ namespace dehancer::cuda {
         CHECK_CUDA(cuCtxPopCurrent(&current_context_));
 
         CHECK_CUDA(cuCtxPushCurrent(function_context_));
-
-        CUdevice cUdevice_0 = -1;
-        CHECK_CUDA(cuCtxGetDevice(&cUdevice_0));
-
-        cudaDeviceProp props{};
-
-        cudaGetDeviceProperties(&props, cUdevice_0);
-
-        max_device_threads_ = props.maxThreadsPerBlock;
       }
+
+      CUdevice cUdevice_0 = -1;
+      CHECK_CUDA(cuCtxGetDevice(&cUdevice_0));
+
+      cudaDeviceProp props{};
+
+      cudaGetDeviceProperties(&props, cUdevice_0);
+
+      max_device_threads_ = props.maxThreadsPerBlock;
 
       if (kernel_map_.find(command_->get_command_queue()) != kernel_map_.end())
       {
@@ -141,7 +142,7 @@ namespace dehancer::cuda {
       std::size_t p_path_hash = std::hash<std::string>{}(p_path);
 
       if (p_path.empty()) {
-          throw std::runtime_error("Could not find path to CUDA module for '" + kernel_name + "'");
+        throw std::runtime_error("Could not find path to CUDA module for '" + kernel_name + "'");
       }
 
       if (module_map_.find(command_->get_command_queue()) != module_map_.end())
