@@ -170,7 +170,7 @@ namespace dehancer::opencl {
 
           std::string log = "Unable to build OpenCL program from: " + kernel_name_;
 
-          if (last_error == CL_BUILD_PROGRAM_FAILURE) {
+          if (last_error < 0) {
             // Determine the size of the log
             size_t log_size;
             clGetProgramBuildInfo(program_, command_->get_device_id(), CL_PROGRAM_BUILD_LOG, 0, nullptr, &log_size);

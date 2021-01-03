@@ -6,9 +6,8 @@
 
 #include <iostream>
 #include <algorithm>
-//////////////////////////////
-// float2x2
-//////////////////////////////
+
+#include "dehancer/gpu/kernels/cuda/cmath.h"
 
 #if defined(__CUDA_ARCH__)
 #define __CONDITIONAL_UNROLL__ #pragma unroll

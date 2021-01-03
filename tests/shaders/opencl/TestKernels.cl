@@ -2,9 +2,7 @@
 // Created by denn nevera on 30/11/2020.
 //
 
-#include "dehancer/gpu/kernels/opencl/channel_utils.h"
-#include "dehancer/gpu/kernels/opencl/blur_kernels.h"
-#include "dehancer/gpu/kernels/opencl/common.h"
+#include "dehancer/gpu/kernels/opencl/opencl.h"
 
 #include "aoBenchKernel.h"
 __constant sampler_t sampler = CLK_NORMALIZED_COORDS_TRUE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_LINEAR;
@@ -29,28 +27,18 @@ __kernel void kernel_test_simple_transform(
         __read_only image2d_t source,
         __write_only image2d_t destination
 ) {
-
   // Calculate surface coordinates
-  int x = get_global_id(0);
-  int y = get_global_id(1);
+  Texel2d tex; get_kernel_texel2d(destination,tex);
 
-  int w = get_image_width(destination);
-  int h = get_image_height(destination);
+  if (!get_texel_boundary(tex)) return;
 
-  if (x >= w || y >= h) {
-    return;
-  }
+  float2 coords = get_texel_coords(tex);
 
-  int2 gid = (int2) {x, y};
-
-  float2 coords = (float2){(float)gid.x / (float)(w - 1),
-                           (float)gid.y / (float)(h - 1)};
-
-  float4 color = read_imagef(source, sampler, coords);
+  float4 color = sampled_color(source, destination, tex.gid);
 
   color.x = 0;
 
-  write_imagef(destination, gid, color);
+  write_image(destination, color, tex.gid);
 }
 
 inline  float3 compress(float3 rgb, float2 compression) {
@@ -75,7 +63,7 @@ __kernel  void kernel_make3DLut_transform(
     return ;
   }
 
-  int4 gid = {x,y,z,0};
+  int3 gid = {x,y,z};
 
   float3 denom = (float3){w-1, h-1, d-1};
   float3 c = compress((float3){gid.x, gid.y, gid.z}/denom, compression);
@@ -83,7 +71,7 @@ __kernel  void kernel_make3DLut_transform(
   // transformation
   float4 color = (float4){c.x/2.f, c.y, 0.f, 1.f};
 
-  write_imagef(d3DLut, gid, color);
+  write_image(d3DLut, color, gid);
 }
 
 __kernel void kernel_make1DLut_transform(
@@ -104,14 +92,15 @@ __kernel void kernel_make1DLut_transform(
   // linear transform with compression
   float4 color = (float4){c.x, c.y, c.z, 1.f};
 
-  write_imagef(d1DLut, x, color);
+  write_image(d1DLut, color, x);
 }
 
 __kernel void kernel_grid_test_transform(
         __read_only image2d_t source,
         __write_only image2d_t destination,
         __read_only image3d_t d3DLut,
-        __read_only image1d_t d1DLut)
+        __read_only image1d_t d1DLut
+        )
 {
   // Calculate surface coordinates
   Texel2d tex; get_kernel_texel2d(destination,tex);
@@ -120,33 +109,27 @@ __kernel void kernel_grid_test_transform(
 
   float2 coords = get_texel_coords(tex);
 
-  float4 color = sampledColor(source, destination, tex.gid);
+  float4 color = sampled_color(source, destination, tex.gid);
 
-  color = read_imagef(d3DLut, sampler, color);
+  //color = read_imagef(d3DLut, sampler, color);
 
   color.x = read_imagef(d1DLut, sampler, color.x).x;
   color.y = read_imagef(d1DLut, sampler, color.y).y;
   color.z = read_imagef(d1DLut, sampler, color.z).z;
 
-  write_imagef(destination, tex.gid, color);
-
+  write_image(destination, color, tex.gid);
 }
 
 __kernel void ao_bench_kernel(int nsubsamples, __write_only image2d_t destination )
 {
 
-  int w = get_image_width (destination);
-  int h = get_image_height (destination);
+  Texel2d tex; get_kernel_texel2d(destination,tex);
 
-  int x = get_global_id(0);
-  int y = get_global_id(1);
+  if (!get_texel_boundary(tex)) return;
 
-  int2 gid = (int2)(x, y);
+  float4 color = ao_bench(nsubsamples, tex.gid.x, tex.gid.y, tex.size.x, tex.size.y);
 
-  float4 color = ao_bench(nsubsamples, x, y, w, h);
-
-  write_imagef(destination, gid, color);
-
+  write_image(destination, color, tex.gid);
 }
 
 
@@ -157,24 +140,13 @@ __kernel void blend_kernel(
         uint levels,
         float3 opacity
 ) {
+  Texel2d tex; get_kernel_texel2d(destination,tex);
 
-  int2 gid = (int2)(get_global_id(0),
-                    get_global_id(1));
+  if (!get_texel_boundary(tex)) return;
 
-  int2 imageSize = (int2)(get_image_width(destination),
-                          get_image_height(destination));
+  float2 coords = get_texel_coords(tex);
 
-  if (gid.x >= imageSize.x || gid.y >= imageSize.y)
-  {
-    return;
-  }
-
-  // Normalize coordinates
-  float2 coords = (float2)((float)gid.x / (imageSize.x - 1),
-                           (float)gid.y / (imageSize.y - 1));
-
-
-  float4 inColor = read_imagef(source, sampler, coords);
+  float4 inColor = read_image(source, coords);
 
   float luminance = dot(inColor.xyz, kIMP_Y_YUV_factor);
   int      index = clamp((int)(luminance*(float)(levels-1)),(int)(0),(int)(levels-1));
@@ -188,7 +160,7 @@ __kernel void blend_kernel(
 
   color.xyz = mix(inColor.xyz,color.xyz,opacity);
 
-  write_imagef(destination, gid, color);
+  write_image(destination, color, tex.gid);
 }
 
 __kernel void convolve_horizontal_image_kernel(

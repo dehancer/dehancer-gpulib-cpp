@@ -3,7 +3,7 @@
 //
 
 #include "Memory.h"
-#include "dehancer/gpu/kernels/cuda/utils.h"
+#include "utils.h"
 
 namespace dehancer::cuda {
 

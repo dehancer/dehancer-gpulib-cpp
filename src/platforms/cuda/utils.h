@@ -8,7 +8,8 @@
 
 #include <sstream>
 
-#include "dehancer/gpu/kernels/cuda/cuda.h"
+#include <cuda.h>
+#include <cuda_runtime.h>
 
 namespace dehancer::cuda {
     template<typename T>

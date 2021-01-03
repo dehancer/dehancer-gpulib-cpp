@@ -5,7 +5,7 @@
 #include "Function.h"
 #include "CommandEncoder.h"
 #include "dehancer/gpu/Paths.h"
-#include "dehancer/gpu/kernels/cuda/utils.h"
+#include "utils.h"
 
 #include <cuda_runtime.h>
 

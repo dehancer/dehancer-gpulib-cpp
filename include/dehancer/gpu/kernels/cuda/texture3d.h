@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "dehancer/gpu/kernels/cuda/utils.h"
 #include "dehancer/gpu/kernels/cuda/texture.h"
 
 namespace dehancer {

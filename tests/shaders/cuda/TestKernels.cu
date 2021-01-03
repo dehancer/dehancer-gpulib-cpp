@@ -2,9 +2,7 @@
 // Created by denn nevera on 16/11/2020.
 //
 
-#include "dehancer/gpu/kernels/cuda/common.h"
-#include "dehancer/gpu/kernels/cuda/cuda_matrix.h"
-
+#include "dehancer/gpu/kernels/cuda/cuda.h"
 
 extern "C" __global__ void kernel_vec_add(float* A, float* B, float* C, int N)
 {

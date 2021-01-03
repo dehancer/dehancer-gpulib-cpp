@@ -6,7 +6,7 @@
 
 #include "dehancer/Common.h"
 #include "dehancer/gpu/DeviceCache.h"
-#include "dehancer/gpu/kernels/cuda/utils.h"
+#include "utils.h"
 
 #include <mutex>
 #include <memory>

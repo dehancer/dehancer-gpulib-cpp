@@ -6,7 +6,7 @@
 #include "dehancer/gpu/Lib.h"
 #include "tests/cuda/paths_config.h"
 #include "dehancer/gpu/DeviceCache.h"
-#include "dehancer/gpu/kernels/cuda/utils.h"
+#include "src/platforms/cuda/utils.h"
 #include "dehancer/gpu/kernels/cuda/texture1d.h"
 #include "dehancer/gpu/kernels/cuda/texture2d.h"
 #include "dehancer/gpu/kernels/cuda/texture3d.h"

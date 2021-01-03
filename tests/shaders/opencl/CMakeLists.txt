@@ -26,6 +26,7 @@ add_library(${CURRENT_TARGET_NAME}  ${EMBEDDED_OPENCL_KERNELS})
 
 file (GLOB DEPENDS_OPENCL_SOURCES ${DEPENDS_OPENCL_SOURCES}
         ${CMAKE_SOURCE_DIR}/include/dehancer/gpu/kernels/opencl/*.h
+        ${CMAKE_SOURCE_DIR}/include/dehancer/gpu/kernels/*.h
         )
 
 add_executable(${CURRENT_TARGET_SYNTAX_CHECKER} ${SOURCES} ${DEPENDS_OPENCL_SOURCES})
