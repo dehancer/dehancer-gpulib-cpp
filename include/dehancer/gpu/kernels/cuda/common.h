@@ -12,6 +12,32 @@
 
 static const float3 kIMP_Y_YUV_factor = {0.2125, 0.7154, 0.0721};
 
+typedef struct {
+    int2 gid;
+    int2 size;
+} Texel2d;
+
+inline __device__ __host__ void get_kernel_texel2d(dehancer::nvcc::texture2d<float4> destination, Texel2d& tex) {
+
+  tex.gid.x = blockIdx.x * blockDim.x + threadIdx.x;
+  tex.gid.y = blockIdx.y * blockDim.y + threadIdx.y;
+
+  tex.size.x = destination.get_width();
+  tex.size.y = destination.get_height();
+}
+
+inline __device__ __host__  bool get_texel_boundary(Texel2d tex) {
+  if (tex.gid.x >= tex.size.x || tex.gid.y >= tex.size.y) {
+    return false;
+  }
+  return true;
+}
+
+inline __device__ __host__  float2 get_texel_coords(Texel2d tex) {
+  return (float2){(float)tex.gid.x / (float)(tex.size.x - 1),
+                  (float)tex.gid.y / (float)(tex.size.y - 1)};
+}
+
 template<class T>
 __device__ const T& clamp(const T& v, const T& lo, const T& hi )
 {

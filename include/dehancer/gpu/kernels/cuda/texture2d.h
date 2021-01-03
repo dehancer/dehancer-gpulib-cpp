@@ -14,8 +14,10 @@ namespace dehancer {
         template<class T>
         struct texture2d: public texture {
 
+#ifndef CUDA_KERNEL
             __host__ [[nodiscard]] const cudaArray* get_contents() const override { return mem_; };
             __host__ [[nodiscard]] cudaArray* get_contents() override { return mem_; };
+#endif
             __device__ [[nodiscard]] size_t get_width() const override { return width_;};
             __device__ [[nodiscard]] size_t get_height() const override { return height_;};
             __device__ [[nodiscard]] size_t get_depth() const override { return 1;};

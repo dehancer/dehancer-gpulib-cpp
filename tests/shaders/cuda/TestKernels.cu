@@ -48,31 +48,21 @@ extern "C" __global__ void kernel_test_simple_transform(
   destination.write(color, gid);
 }
 
+
 extern "C" __global__ void kernel_grid_test_transform(
         dehancer::nvcc::texture2d<float4> source,
         dehancer::nvcc::texture2d<float4> destination,
         dehancer::nvcc::texture3d<float4> d3DLut,
-        dehancer::nvcc::texture1d<float4> d1DLut
-)
+        dehancer::nvcc::texture1d<float4> d1DLut)
 {
-
   // Calculate surface coordinates
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
+  Texel2d tex;  get_kernel_texel2d(destination,tex);
 
-  int w = destination.get_width();
-  int h = destination.get_height();
+  if (!get_texel_boundary(tex)) return;
 
-  if (x >= w || y >= h) {
-    return ;
-  }
+  float2 coords = get_texel_coords(tex);
 
-  uint2 gid = (uint2){x, y};
-
-  float2 coords = (float2){(float)gid.x / (float)(w - 1),
-                           (float)gid.y / (float)(h - 1)};
-
-  float4 color = source.read(coords); // * (float2){2.0f,2.0f})
+  float4 color = source.read(coords);
 
   color = d3DLut.read((float3){color.x,color.y,color.z});
 
@@ -80,7 +70,7 @@ extern "C" __global__ void kernel_grid_test_transform(
   color.y = d1DLut.read(color.y).y;
   color.z = d1DLut.read(color.z).z;
 
-  destination.write(color, gid);
+  destination.write(color, tex.gid);
 
 }
 

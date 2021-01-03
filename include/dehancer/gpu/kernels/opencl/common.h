@@ -10,6 +10,29 @@ static __constant float3 kIMP_Y_YUV_factor = {0.2125, 0.7154, 0.0721};
 __constant sampler_t linear_normalized_sampler = CLK_NORMALIZED_COORDS_TRUE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_LINEAR;
 __constant sampler_t nearest_sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
 
+typedef struct  {
+    int2 gid;
+    int2 size;
+} Texel2d;
+
+#define get_kernel_texel2d(destination, tex) { \
+  tex.gid =  (int2){get_global_id(0), get_global_id(1)}; \
+  tex.size = (int2){get_image_width(destination), get_image_height(destination)}; \
+}
+
+static inline  bool get_texel_boundary(Texel2d tex) {
+  if (tex.gid.x >= tex.size.x || tex.gid.y >= tex.size.y) {
+    return false;
+  }
+  return true;
+}
+
+static inline  float2 get_texel_coords(Texel2d tex) {
+  return (float2){(float)tex.gid.x / (float)(tex.size.x - 1),
+                  (float)tex.gid.y / (float)(tex.size.y - 1)};
+}
+
+
 static inline float4 sampledColor(
         __read_only image2d_t inTexture,
         __write_only image2d_t outTexture,

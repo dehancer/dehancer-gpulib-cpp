@@ -111,27 +111,16 @@ __kernel void kernel_grid_test_transform(
         __read_only image2d_t source,
         __write_only image2d_t destination,
         __read_only image3d_t d3DLut,
-        __read_only image1d_t d1DLut
-)
+        __read_only image1d_t d1DLut)
 {
-
   // Calculate surface coordinates
-  int x = get_global_id(0);
-  int y = get_global_id(1);
+  Texel2d tex; get_kernel_texel2d(destination,tex);
 
-  int w = get_image_width(destination);
-  int h = get_image_height(destination);
+  if (!get_texel_boundary(tex)) return;
 
-  if (x >= w || y >= h) {
-    return ;
-  }
+  float2 coords = get_texel_coords(tex);
 
-  int2 gid = (int2){x, y};
-
-  float2 coords = (float2){(float)gid.x / (float)(w - 1),
-                           (float)gid.y / (float)(h - 1)};
-
-  float4 color = sampledColor(source, destination, gid);
+  float4 color = sampledColor(source, destination, tex.gid);
 
   color = read_imagef(d3DLut, sampler, color);
 
@@ -139,7 +128,7 @@ __kernel void kernel_grid_test_transform(
   color.y = read_imagef(d1DLut, sampler, color.y).y;
   color.z = read_imagef(d1DLut, sampler, color.z).z;
 
-  write_imagef(destination, gid, color);
+  write_imagef(destination, tex.gid, color);
 
 }
 
