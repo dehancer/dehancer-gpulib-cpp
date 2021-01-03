@@ -5,7 +5,6 @@
 #ifndef DEHANCER_GPULIB_OPENCL_H
 #define DEHANCER_GPULIB_OPENCL_H
 
-
 #include "dehancer/gpu/kernels/constants.h"
 #include "dehancer/gpu/kernels/types.h"
 #include "dehancer/gpu/kernels/opencl/common.h"

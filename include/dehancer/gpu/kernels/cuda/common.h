@@ -8,18 +8,37 @@
 #include "dehancer/gpu/kernels/cuda/texture1d.h"
 #include "dehancer/gpu/kernels/cuda/texture2d.h"
 #include "dehancer/gpu/kernels/cuda/texture3d.h"
-//#include "dehancer/gpu/kernels/cuda/cmath.h"
 #include "dehancer/gpu/kernels/cuda/cmatrix.h"
 #include "dehancer/gpu/kernels/constants.h"
 #include "dehancer/gpu/kernels/types.h"
 
-inline __device__ __host__ void get_kernel_texel2d(dehancer::nvcc::texture2d<float4> destination, Texel2d& tex) {
+inline __device__ __host__ void get_kernel_texel1d(__read_only image1d_t destination, Texel1d& tex) {
+  tex.gid = blockIdx.x * blockDim.x + threadIdx.x;
+  tex.size = destination.get_width();
+}
+
+inline __device__ __host__ void get_kernel_texel2d(__read_only image2d_t destination, Texel2d& tex) {
 
   tex.gid.x = blockIdx.x * blockDim.x + threadIdx.x;
   tex.gid.y = blockIdx.y * blockDim.y + threadIdx.y;
 
   tex.size.x = destination.get_width();
   tex.size.y = destination.get_height();
+}
+
+inline __device__ __host__ void get_kernel_texel3d(dehancer::nvcc::texture3d<float4> destination, Texel3d& tex) {
+
+  tex.gid.x = blockIdx.x * blockDim.x + threadIdx.x;
+  tex.gid.y = blockIdx.y * blockDim.y + threadIdx.y;
+  tex.gid.z = blockIdx.z * blockDim.z + threadIdx.z;
+
+  tex.size.x = destination.get_width();
+  tex.size.y = destination.get_height();
+  tex.size.z = destination.get_depth();
+}
+
+inline __device__ __host__  bool get_texel_boundary(Texel1d tex) {
+  return tex.gid < tex.size;
 }
 
 inline __device__ __host__  bool get_texel_boundary(Texel2d tex) {
@@ -29,14 +48,99 @@ inline __device__ __host__  bool get_texel_boundary(Texel2d tex) {
   return true;
 }
 
+inline __device__ __host__  bool get_texel_boundary(Texel3d tex) {
+  if (tex.gid.x >= tex.size.x || tex.gid.y >= tex.size.y || tex.gid.z >= tex.size.z) {
+    return false;
+  }
+  return true;
+}
+
+inline __device__ __host__  float get_texel_coords(Texel1d tex) {
+  return (float)tex.gid / (float)(tex.size - 1);
+}
+
 inline __device__ __host__  float2 get_texel_coords(Texel2d tex) {
   return (float2){(float)tex.gid.x / (float)(tex.size.x - 1),
                   (float)tex.gid.y / (float)(tex.size.y - 1)};
+}
+
+inline __device__ __host__  float3 get_texel_coords(Texel3d tex) {
+  return (float3){
+          (float)tex.gid.x / (float)(tex.size.x - 1),
+          (float)tex.gid.y / (float)(tex.size.y - 1),
+          (float)tex.gid.z / (float)(tex.size.z - 1)
+  };
 }
 
 template<class T>
 __device__ const T& clamp(const T& v, const T& lo, const T& hi )
 {
   return (v < lo) ? lo : (hi < v) ? hi : v;
+}
+
+// 1D
+inline __device__ float4 __attribute__((overloadable)) read_image(__read_only image1d_t source, int gid) {
+  return source.read(gid);
+}
+
+inline __device__ float4 __attribute__((overloadable)) read_image(__read_only image1d_t source, float coords) {
+  return source.read(coords);
+}
+
+inline __device__ float4 __attribute__((overloadable)) read_image(__read_only image1d_t source, float4 coords) {
+  float4 color = coords;
+  color.x = source.read(color.x).x;
+  color.y = source.read(color.y).y;
+  color.z = source.read(color.z).z;
+  return color;
+}
+
+inline __device__ void __attribute__((overloadable)) write_image(__write_only image1d_t destination, float4 color, int gid) {
+  //write_imagef(destination, gid, color);
+  destination.write(color, gid);
+}
+
+
+// 2D
+inline __device__ __host__ float4 __attribute__((overloadable)) read_image(__read_only image2d_t source, int2 gid) {
+  return source.read(gid);
+}
+
+inline __device__ float4 __attribute__((overloadable)) read_image(__read_only image2d_t source, float2 coords) {
+  return source.read(coords);
+}
+
+inline __device__ __host__ void __attribute__((overloadable)) write_image(__write_only image2d_t destination, float4 color, int2 gid) {
+  destination.write(color, gid);
+}
+
+// 3D
+inline __device__ __host__ float4 __attribute__((overloadable)) read_image(__read_only image3d_t source, int3 gid) {
+  return source.read(gid);
+}
+
+inline __device__ __host__ float4 __attribute__((overloadable)) read_image(__read_only image3d_t source, float3 coords) {
+  return source.read(coords);
+}
+
+inline __device__ __host__ float4 __attribute__((overloadable)) read_image(__read_only image3d_t source, float4 coords) {
+  return source.read((float3){coords.x,coords.y,coords.z});
+}
+
+inline __device__ __host__ void __attribute__((overloadable)) write_image(__write_only image3d_t destination, float4 color, int3 gid) {
+  destination.write(color, gid);
+}
+
+inline __device__ __host__ float4 sampled_color(
+        __read_only image2d_t source,
+        __write_only image2d_t destination,
+        int2 gid
+){
+
+  Texel2d tex; get_kernel_texel2d(destination,tex);
+
+  float2 coords = get_texel_coords(tex);
+
+  return read_image(source, coords);
 }
 

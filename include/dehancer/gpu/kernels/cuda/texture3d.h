@@ -78,6 +78,12 @@ namespace dehancer {
 
             template<class C>
             __device__
+            T read(C coords) const {
+              return tex3D<T>(texture_, coords.x, coords.y, coords.z);
+            }
+
+            template<class C>
+            __device__
             void write(T color, C coords) {
               surf3Dwrite<T>(color, surface_, coords.x * sizeof(T) , coords.y,  coords.z , cudaBoundaryModeClamp);
             }
@@ -96,3 +102,5 @@ namespace dehancer {
         };
     }
 }
+
+typedef dehancer::nvcc::texture3d<float4> image3d_t;

@@ -4,7 +4,6 @@
 
 #pragma once
 
-//#include "src/platforms/cuda/utils.h"
 #include "dehancer/gpu/kernels/cuda/texture.h"
 
 namespace dehancer {
@@ -77,6 +76,12 @@ namespace dehancer {
               return tex2D<T>(texture_, coord, 0);
             }
 
+              template<class C>
+            __device__
+            T read(C coord) const {
+              return tex2D<T>(texture_, coord, 0);
+            }
+
             template<class C>
             __device__
             void write(T color, C coord) {
@@ -95,3 +100,5 @@ namespace dehancer {
         };
     }
 }
+
+typedef dehancer::nvcc::texture1d<float4> image1d_t;

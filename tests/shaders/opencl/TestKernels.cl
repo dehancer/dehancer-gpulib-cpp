@@ -42,7 +42,7 @@ __kernel void kernel_test_simple_transform(
 }
 
 inline  float3 compress(float3 rgb, float2 compression) {
-return  compression.x*rgb + compression.y;
+  return  compression.x*rgb + compression.y;
 }
 
 __kernel  void kernel_make3DLut_transform(
@@ -50,43 +50,32 @@ __kernel  void kernel_make3DLut_transform(
         float2  compression
         )
 {
-  //float2  compression;
-  int x = get_global_id(0);
-  int y = get_global_id(1);
-  int z = get_global_id(2);
 
-  int w = get_image_width(d3DLut);
-  int h = get_image_height(d3DLut);
-  int d = get_image_depth(d3DLut);
+  Texel3d tex; get_kernel_texel3d(d3DLut,tex);
 
-  if (x >= w || y >= h || z >= d) {
-    return ;
-  }
+  if (!get_texel_boundary(tex)) return;
 
-  int3 gid = {x,y,z};
-
-  float3 denom = (float3){w-1, h-1, d-1};
-  float3 c = compress((float3){gid.x, gid.y, gid.z}/denom, compression);
+  float3 c = compress(get_texel_coords(tex), compression);
 
   // transformation
   float4 color = (float4){c.x/2.f, c.y, 0.f, 1.f};
 
-  write_image(d3DLut, color, gid);
+  write_image(d3DLut, color, tex.gid);
 }
 
 __kernel void kernel_make1DLut_transform(
-        __write_only image1d_t d1DLut,
+        __write_only image1d_t d1DLut ,
         float2  compression)
 {
-  uint x = get_global_id(0);
 
-  uint w = get_image_width(d1DLut);
+  Texel1d tex; get_kernel_texel1d(d1DLut,tex);
 
-  if (x >= w) {
-    return ;
-  }
+  if (!get_texel_boundary(tex)) return;
 
-  float3 denom = (float3){w-1, w-1, w-1};
+  float3 denom = (float3){tex.size, tex.size, tex.size};
+
+  float x = tex.gid;
+
   float3 c = compress((float3){x, x, x}/denom, compression);
 
   // linear transform with compression
@@ -111,11 +100,9 @@ __kernel void kernel_grid_test_transform(
 
   float4 color = sampled_color(source, destination, tex.gid);
 
-  //color = read_imagef(d3DLut, sampler, color);
+  color = read_image(d3DLut, color);
 
-  color.x = read_imagef(d1DLut, sampler, color.x).x;
-  color.y = read_imagef(d1DLut, sampler, color.y).y;
-  color.z = read_imagef(d1DLut, sampler, color.z).z;
+  color = read_image(d1DLut, color);
 
   write_image(destination, color, tex.gid);
 }

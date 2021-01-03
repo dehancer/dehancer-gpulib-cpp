@@ -19,57 +19,44 @@ extern "C" __global__ void kernel_vec_dev(float* C, int N)
 }
 
 extern "C" __global__ void kernel_test_simple_transform(
-        dehancer::nvcc::texture2d<float4> source,
-        dehancer::nvcc::texture2d<float4> destination
+        __read_only image2d_t source,
+        __write_only image2d_t destination
 ) {
-
   // Calculate surface coordinates
-  int x = blockIdx.x * blockDim.x + threadIdx.x;
-  int y = blockIdx.y * blockDim.y + threadIdx.y;
-
-  int w = destination.get_width();
-  int h = destination.get_height();
-
-  if (x >= w || y >= h) {
-    return;
-  }
-
-  uint2 gid = (uint2) {x, y};
-
-  float2 coords = (float2){(float)gid.x / (float)(w - 1),
-                           (float)gid.y / (float)(h - 1)};
-
-  float4 color = source.read(coords);
-
-  color.x = 0;
-
-  destination.write(color, gid);
-}
-
-
-extern "C" __global__ void kernel_grid_test_transform(
-        dehancer::nvcc::texture2d<float4> source,
-        dehancer::nvcc::texture2d<float4> destination,
-        dehancer::nvcc::texture3d<float4> d3DLut,
-        dehancer::nvcc::texture1d<float4> d1DLut)
-{
-  // Calculate surface coordinates
-  Texel2d tex;  get_kernel_texel2d(destination,tex);
+  Texel2d tex; get_kernel_texel2d(destination,tex);
 
   if (!get_texel_boundary(tex)) return;
 
   float2 coords = get_texel_coords(tex);
 
-  float4 color = source.read(coords);
+  float4 color = sampled_color(source, destination, tex.gid);
 
-  color = d3DLut.read((float3){color.x,color.y,color.z});
+  color.x = 0;
 
-  color.x = d1DLut.read(color.x).x;
-  color.y = d1DLut.read(color.y).y;
-  color.z = d1DLut.read(color.z).z;
+  write_image(destination, color, tex.gid);
+}
 
-  destination.write(color, tex.gid);
+extern "C" __global__ void kernel_grid_test_transform(
+        __read_only image2d_t source,
+        __write_only image2d_t destination,
+        __read_only image3d_t d3DLut,
+        __read_only image1d_t d1DLut
+)
+{
+  // Calculate surface coordinates
+  Texel2d tex; get_kernel_texel2d(destination,tex);
 
+  if (!get_texel_boundary(tex)) return;
+
+  float2 coords = get_texel_coords(tex);
+
+  float4 color = sampled_color(source, destination, tex.gid);
+
+  color = read_image(d3DLut, color);
+
+  color = read_image(d1DLut, color);
+
+  write_image(destination, color, tex.gid);
 }
 
 inline __device__ float3 compress(float3 rgb, float2 compression) {
@@ -79,53 +66,44 @@ inline __device__ float3 compress(float3 rgb, float2 compression) {
 ///
 /// @brief Kernel optimized 3D LUT identity
 ///
-extern "C" __global__  void kernel_make3DLut_transform(
-        dehancer::nvcc::texture3d<float4> d3DLut,
-        float2  compression)
+extern "C" __global__ void kernel_make3DLut_transform(
+        __write_only image3d_t d3DLut,
+        float2  compression
+)
 {
-  uint x = blockIdx.x * blockDim.x + threadIdx.x;
-  uint y = blockIdx.y * blockDim.y + threadIdx.y;
-  uint z = blockIdx.z * blockDim.z + threadIdx.z;
 
-  uint w = d3DLut.get_width();
-  uint h = d3DLut.get_height();
-  uint d = d3DLut.get_depth();
+  Texel3d tex; get_kernel_texel3d(d3DLut,tex);
 
-  if (x >= w || y >= h || z >= d) {
-    return ;
-  }
+  if (!get_texel_boundary(tex)) return;
 
-  uint3 gid = {x,y,z};
-
-  float3 denom = (float3){d3DLut.get_width()-1, d3DLut.get_height()-1, d3DLut.get_depth()-1};
-  float3 c = compress((float3){gid.x, gid.y, gid.z}/denom, compression);
+  float3 c = compress(get_texel_coords(tex), compression);
 
   // transformation
   float4 color = (float4){c.x/2.f, c.y, 0.f, 1.f};
 
-  d3DLut.write(color, gid);
+  write_image(d3DLut, color, tex.gid);
 }
 
 ///
 /// @brief Kernel optimized 1D LUT identity
 ///
-extern "C" __global__  void kernel_make1DLut_transform(
-        dehancer::nvcc::texture1d<float4> d1DLut,
+extern "C" __global__ void kernel_make1DLut_transform(
+        __write_only image1d_t d1DLut [[ texture(0) ]],
         float2  compression)
 {
-  uint x = blockIdx.x * blockDim.x + threadIdx.x;
 
-  uint w = d1DLut.get_width();
+  Texel1d tex; get_kernel_texel1d(d1DLut,tex);
 
-  if (x >= w) {
-    return ;
-  }
+  if (!get_texel_boundary(tex)) return;
 
-  float3 denom = (float3){w-1, w-1, w-1};
+  float3 denom = (float3){tex.size, tex.size, tex.size};
+
+  float x = tex.gid;
+
   float3 c = compress((float3){x, x, x}/denom, compression);
 
   // linear transform with compression
   float4 color = (float4){c.x, c.y, c.z, 1.f};
 
-  d1DLut.write(color, x);
+  write_image(d1DLut, color, x);
 }

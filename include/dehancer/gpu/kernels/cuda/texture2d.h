@@ -78,6 +78,12 @@ namespace dehancer {
 
             template<class C>
             __device__
+            T read(C coords) const {
+              return tex2D<T>(texture_, coords.x, coords.y);
+            }
+
+            template<class C>
+            __device__
             void write(T color, C coords) {
               surf2Dwrite<T>(color, surface_, coords.x * sizeof(T) , coords.y , cudaBoundaryModeClamp);
             }
@@ -95,3 +101,4 @@ namespace dehancer {
         };
     }
 }
+typedef dehancer::nvcc::texture2d<float4> image2d_t;
