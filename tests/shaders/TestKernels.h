@@ -2,8 +2,10 @@
 // Created by denn on 03.01.2021.
 //
 
-#ifndef DEHANCER_GPULIB_TESTKERNELS_H
-#define DEHANCER_GPULIB_TESTKERNELS_H
+#ifndef DEHANCER_GPULIB_TESTKERNELS_CPP
+#define DEHANCER_GPULIB_TESTKERNELS_CPP
+
+//@formatter:off
 
 #pragma OPENCL EXTENSION cl_khr_3d_image_writes : enable
 
@@ -155,4 +157,60 @@ __DEHANCER_KERNEL__ void blend_kernel(
     write_image(destination, color, tex.gid);
 }
 
-#endif //DEHANCER_GPULIB_TESTKERNELS_H
+__DEHANCER_KERNEL__ void convolve_horizontal_kernel (
+        __DEHANCER_DEVICE_ARG__     float*       scl BIND_BUFFER(0),
+        __DEHANCER_DEVICE_ARG__     float*       tcl BIND_BUFFER(1),
+        __DEHANCER_CONST_ARG__    __int_ref        w BIND_BUFFER(2),
+        __DEHANCER_CONST_ARG__    __int_ref        h BIND_BUFFER(3),
+        __DEHANCER_DEVICE_ARG__       float* weights BIND_BUFFER(4),
+        __DEHANCER_CONST_ARG__    __int_ref     size BIND_BUFFER(5)
+) {
+  
+    int2 tid; get_kernel_tid2d(tid);
+    
+    float val = 0;
+    
+    if ((tid.x < w) && (tid.y < h)) {
+        const int index = ((tid.y * w) + tid.x);
+        for (int i = -size/2; i < size/2; ++i) {
+            int jx =  tid.x+i;
+            if (jx<0) jx -= i;
+            if (jx>=w) jx -= i;
+            const int j = ((tid.y * w) + jx);
+            val += scl[j] * weights[i+size/2];
+        }
+        tcl[index] = val;
+        //tcl[index] = 1;
+    }
+}
+
+__DEHANCER_KERNEL__ void convolve_vertical_kernel (
+        __DEHANCER_DEVICE_ARG__     float*       scl BIND_BUFFER(0),
+        __DEHANCER_DEVICE_ARG__     float*       tcl BIND_BUFFER(1),
+        __DEHANCER_CONST_ARG__    __int_ref        w BIND_BUFFER(2),
+        __DEHANCER_CONST_ARG__    __int_ref        h BIND_BUFFER(3),
+        __DEHANCER_DEVICE_ARG__      float*  weights BIND_BUFFER(4),
+        __DEHANCER_CONST_ARG__    __int_ref     size BIND_BUFFER(5)
+) {
+
+    int2 tid; get_kernel_tid2d(tid);
+    
+    float val = 0;
+    
+    if ((tid.x < w) && (tid.y < h)) {
+      const int index = ((tid.y * w) + tid.x);
+      for (int i = -size/2; i < size/2; ++i) {
+        int jy =  tid.y+i;
+        if (jy<0) jy -= i;
+        if (jy>=h) jy -= i;
+          const int j = ((jy * w) + tid.x);
+          val += scl[j] * weights[i+size/2];
+        }
+        tcl[index] = val;
+        //tcl[index] = 1;
+      }
+}
+
+//@formatter:on
+
+#endif //DEHANCER_GPULIB_TESTKERNELS_CPP

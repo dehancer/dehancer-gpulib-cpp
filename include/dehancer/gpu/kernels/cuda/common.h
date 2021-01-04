@@ -95,7 +95,9 @@ __device__ const T& clamp(const T& v, const T& lo, const T& hi )
 
 // 1D
 inline __device__ float4 __attribute__((overloadable)) read_image(__read_only image1d_t source, int gid) {
-  return source.read(gid);
+  float size   = (float)source.get_width();
+  float coords = (float)gid;
+  return source.read(coords/size);
 }
 
 inline __device__ float4 __attribute__((overloadable)) read_image(__read_only image1d_t source, float coords) {
@@ -111,14 +113,15 @@ inline __device__ float4 __attribute__((overloadable)) read_image(__read_only im
 }
 
 inline __device__ void __attribute__((overloadable)) write_image(__write_only image1d_t destination, float4 color, int gid) {
-  //write_imagef(destination, gid, color);
   destination.write(color, gid);
 }
 
 
 // 2D
 inline __device__ __host__ float4 __attribute__((overloadable)) read_image(__read_only image2d_t source, int2 gid) {
-  return source.read(gid);
+  float2 size   = (float2){(float)source.get_width(),(float)source.get_height()};
+  float2 coords = (float2){(float)gid.x,(float)gid.y};
+  return source.read(coords/size);
 }
 
 inline __device__ float4 __attribute__((overloadable)) read_image(__read_only image2d_t source, float2 coords) {
@@ -131,7 +134,9 @@ inline __device__ __host__ void __attribute__((overloadable)) write_image(__writ
 
 // 3D
 inline __device__ __host__ float4 __attribute__((overloadable)) read_image(__read_only image3d_t source, int3 gid) {
-  return source.read(gid);
+  float3 size   = (float3){(float)source.get_width(),(float)source.get_height(),(float)source.get_depth()};
+  float3 coords = (float3){(float)gid.x,(float)gid.y,(float)gid.z};
+  return source.read(coords/size);
 }
 
 inline __device__ __host__ float4 __attribute__((overloadable)) read_image(__read_only image3d_t source, float3 coords) {

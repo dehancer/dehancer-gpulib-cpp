@@ -157,12 +157,22 @@ namespace dehancer::cuda {
       }
 
       if (module == nullptr) {
-        CHECK_CUDA(cuModuleLoad(&module, p_path.c_str()));
+        try {
+          CHECK_CUDA(cuModuleLoad(&module, p_path.c_str()));
+        }
+        catch (const std::runtime_error &e) {
+          throw std::runtime_error(e.what() + std::string(" module: ") + p_path);
+        }
         module_map_[command_->get_command_queue()][p_path_hash] = module ;
       }
 
       // Get function handle from module
-      CHECK_CUDA(cuModuleGetFunction(&kernel_, module, kernel_name_.c_str()));
+      try {
+        CHECK_CUDA(cuModuleGetFunction(&kernel_, module, kernel_name_.c_str()));
+      }
+      catch (const std::runtime_error &e) {
+        throw std::runtime_error(e.what() + std::string(" kernel: ") + kernel_name_);
+      }
 
       kernel_map_[command_->get_command_queue()][kernel_name_]=kernel_;
     }

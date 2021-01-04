@@ -8,4 +8,5 @@
 #include "dehancer/gpu/kernels/types.h"
 #include "dehancer/gpu/kernels/cuda/cmath.h"
 #include "dehancer/gpu/kernels/cuda/cmatrix.h"
+#include "dehancer/gpu/kernels/cuda/channel_utils.h"
 #include "dehancer/gpu/kernels/cuda/std_kernels.h"

@@ -64,7 +64,7 @@ namespace test {
 
     private:
         Memory color_map_;
-        uint   levels_;
+        int    levels_;
         float3 opacity_;
     };
 }
