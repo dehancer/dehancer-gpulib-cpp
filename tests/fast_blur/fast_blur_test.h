@@ -58,23 +58,6 @@ int make_fast_blur_convolve(float radius, std::vector<float>& weights, std::vect
     offsets.push_back( i*2.0f + oneSideInputs[i*2+1] / weights[i] );
   }
   
-//  std::string indent = "    ";
-//
-//  std::string shaderCode;
-//  std::string eol = "\n";
-//
-//  shaderCode += indent + stringFormatA( "const int stepCount = %d;", numSamples ) + eol;
-//  shaderCode += indent + "float gWeights[stepCount];" + eol;
-//  for( int i = 0; i < numSamples; i++ )
-//    shaderCode += indent + stringFormatA( " gWeights[%d] = %.5f;", i, weights[i] ) + eol;
-//  shaderCode += indent + eol;
-//  shaderCode += indent + "float gOffsets[stepCount];"+eol;
-//  for( int i = 0; i < numSamples; i++ )
-//    shaderCode += indent + stringFormatA( " gOffsets[%d] = %.5f;", i, offsets[i] ) + eol;
-//  shaderCode += indent + eol;
-//
-//  std::cout << shaderCode << std::endl;
-  
   return numSamples;
 }
 
@@ -91,8 +74,8 @@ auto fast_blur_test =  [] (int dev_num,
     });
     
     auto tmp = dehancer::TextureDesc{
-      .width = destination.get_texture()->get_width(),
-      .height = destination.get_texture()->get_height()
+            .width = destination.get_texture()->get_width(),
+            .height = destination.get_texture()->get_height()
     }.make(command_queue);
     
     auto kernel_convolve = dehancer::Function(command_queue, "kernel_fast_convolve", true);
@@ -140,7 +123,7 @@ auto fast_blur_test =  [] (int dev_num,
     
     {
       
-      std::string out_file_cv = "texture-io-";
+      std::string out_file_cv = "fast-blur-io-";
       out_file_cv.append(platform);
       out_file_cv.append("-["); out_file_cv.append(std::to_string(dev_num)); out_file_cv.append("]");
       out_file_cv.append(test::ext);
@@ -157,11 +140,66 @@ auto fast_blur_test =  [] (int dev_num,
     }
     
     std::cout << "[convolve-processing "
-              <<platform<<"/"<<"-"
+              <<platform<<"/"<<"fast-blur"
               <<" ("
               <<"-"
               <<")]:\t" << seconds.count() << "s "
               << ", for a " << texture->get_width() << "x" << texture->get_height() << " pixels" << std::endl;
     
+    return 0;
+};
+
+
+auto gaussian_boxed_blur_test =  [] (int dev_num,
+                                     const void* command_queue,
+                                     const dehancer::Texture& texture,
+                                     const std::string& platform) {
+    
+    std::cout << "Test fast blur on platform: " << platform << std::endl;
+    
+    auto destination = dehancer::TextureOutput(command_queue, texture, {
+            .type =  dehancer::TextureOutput::Options::Type::png,
+            .compression = 0.3f
+    });
+    
+    auto kernel = dehancer::GaussianBlur(command_queue, texture, destination.get_texture(),
+                                         {
+                                                 TEST_RADIUS,TEST_RADIUS,TEST_RADIUS,TEST_RADIUS
+                                         }, true);
+    
+    std::chrono::time_point<std::chrono::system_clock> clock_begin
+            = std::chrono::system_clock::now();
+    
+    kernel.process();
+    
+    std::chrono::time_point<std::chrono::system_clock> clock_end
+            = std::chrono::system_clock::now();
+    std::chrono::duration<double> seconds = clock_end-clock_begin;
+    
+    {
+      
+      std::string out_file_cv = "gaussian-boxed-blur-io-";
+      out_file_cv.append(platform);
+      out_file_cv.append("-["); out_file_cv.append(std::to_string(dev_num)); out_file_cv.append("]");
+      out_file_cv.append(test::ext);
+      
+      std::ofstream os(out_file_cv, std::ostream::binary | std::ostream::trunc);
+      if (os.is_open()) {
+        os << destination << std::flush;
+        
+        std::cout << "Save to: " << out_file_cv << std::endl;
+        
+      } else {
+        std::cerr << "File: " << out_file_cv << " could not been opened..." << std::endl;
+      }
+    }
+    
+    std::cout << "[convolve-processing "
+              <<platform<<"/"<<"gaussian-boxed-blur"
+              <<" ("
+              <<"-"
+              <<")]:\t" << seconds.count() << "s "
+              << ", for a " << texture->get_width() << "x" << texture->get_height() << " pixels" << std::endl;
+  
     return 0;
 };

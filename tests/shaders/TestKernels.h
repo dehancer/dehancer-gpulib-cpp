@@ -180,6 +180,7 @@ __DEHANCER_KERNEL__ void convolve_horizontal_kernel (
       if (jx<0) jx -= i;
       if (jx>=w) jx -= i;
       const int j = ((tid.y * w) + jx);
+      if (j>=w*h || j<0) continue;
       val += scl[j] * weights[i+size/2];
     }
     tcl[index] = val;
@@ -196,32 +197,33 @@ __DEHANCER_KERNEL__ void convolve_vertical_kernel (
 ) {
   
   int2 tid; get_kernel_tid2d(tid);
-  
+
   float val = 0;
-  
+
   if ((tid.x < w) && (tid.y < h)) {
     const int index = ((tid.y * w) + tid.x);
-    
+
     #pragma unroll
-    
+
     for (int i = -size/2; i < size/2; ++i) {
       int jy =  tid.y+i;
-      if (jy<0) jy += i;
-      //if (jy>=h) jy -= i;
+      if (jy<=0) jy += i;
       const int j = ((jy * w) + tid.x);
+      if (j>=w*h || j<0) continue;
       val += scl[j] * weights[i+size/2];
     }
+
     tcl[index] = val;
   }
 }
 
 __DEHANCER_KERNEL__ void kernel_fast_convolve(
-        __read_only     image2d_t              source BIND_TEXTURE(0),
-        __write_only    image2d_t         destination BIND_TEXTURE(1),
-        __DEHANCER_DEVICE_ARG__ float*        weights BIND_BUFFER(2),
-        __DEHANCER_DEVICE_ARG__ float*        offsets BIND_BUFFER(3),
-        __DEHANCER_CONST_ARG__ __int_ref    stepCount BIND_BUFFER(4),
-        __DEHANCER_CONST_ARG__ __float2_ref direction BIND_BUFFER(5)
+                  __read_only     image2d_t       source BIND_TEXTURE(0),
+                 __write_only     image2d_t  destination BIND_TEXTURE(1),
+        __DEHANCER_DEVICE_ARG__       float*     weights BIND_BUFFER(2),
+        __DEHANCER_DEVICE_ARG__       float*     offsets BIND_BUFFER(3),
+        __DEHANCER_CONST_ARG__    __int_ref    stepCount BIND_BUFFER(4),
+        __DEHANCER_CONST_ARG__ __float2_ref    direction BIND_BUFFER(5)
 ) {
   Texel2d tex; get_kernel_texel2d(destination, tex);
   

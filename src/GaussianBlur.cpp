@@ -106,7 +106,7 @@ namespace dehancer {
             channels_finalizer_(command_queue, d, channels_out_, wait_until_completed)
     {
       for (int i = 0; i < radius_.size(); ++i) {
-        dehancer::math::make_gaussian_boxes(radius_boxes_[i], radius_[i], box_number_);
+        dehancer::math::make_gaussian_boxes(radius_boxes_[i], radius_[i]/2, box_number_);
       }
     }
 

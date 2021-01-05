@@ -48,8 +48,7 @@ namespace dehancer {
           ChannelsInput::process();
           
           auto horizontal_kernel = Function(get_command_queue(),
-                                            "convolve_horizontal_kernel",
-                                            get_wait_completed());
+                                            "convolve_horizontal_kernel");
           
           auto vertical_kernel = Function(get_command_queue(),
                                           "convolve_vertical_kernel",
@@ -73,7 +72,8 @@ namespace dehancer {
                   command.set(weights_.at(i), 4);
                   command.set(sizes_[i], 5);
                   
-                  return (CommandEncoder::Size) {w_ + sizes_[i] / 2, h_, 1};
+                  //return (CommandEncoder::Size) {w_ + sizes_[i] / 2, h_, 1};
+                  return (CommandEncoder::Size) {w_, h_, 1};
               });
               
               vertical_kernel.execute([this, i](CommandEncoder &command) {
@@ -90,7 +90,8 @@ namespace dehancer {
                   command.set(weights_.at(0), 4);
                   command.set(sizes_[0], 5);
                   
-                  return (CommandEncoder::Size) {w_, h_ + sizes_[i] / 2, 1};
+                  //return (CommandEncoder::Size) {w_, h_ + sizes_[i] / 2, 1};
+                  return (CommandEncoder::Size) {w_, h_, 1};
               });
             }
           }
