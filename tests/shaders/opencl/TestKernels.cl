@@ -2,8 +2,6 @@
 // Created by denn nevera on 30/11/2020.
 //
 
-#include "dehancer/gpu/kernels/opencl/opencl.h"
-#include "aoBenchKernel.h"
 #include "TestKernels.h"
 
 

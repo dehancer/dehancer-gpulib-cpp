@@ -161,7 +161,7 @@ int run_on_device(int num, const void* device, std::string patform) {
   auto blur_line_kernel = dehancer::ConvolveKernel(command_queue,
                                                    grid_text,
                                                    output_text.get_texture(),
-                                                   {15,15,15,1},
+                                                   {50,50,50,0},
                                                    true
   );
   

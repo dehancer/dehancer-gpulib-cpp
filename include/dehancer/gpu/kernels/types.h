@@ -41,6 +41,15 @@
 #define __float2_ref float2
 #define __float3_ref float3
 #define __float4_ref float4
+
+#else
+
+/**
+ * Dummy auto indentation for CLion
+ */
+#define BIND_TEXTURE(N)
+#define BIND_BUFFER(N)
+
 #endif
 
 typedef struct  {

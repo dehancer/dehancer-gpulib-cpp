@@ -9,10 +9,10 @@
 
 
 TEST(TEST, CUDA_FUNCTUON) {
-
+  
   std::cout << std::endl;
   std::cerr << std::endl;
-
+  
   run_on_devices("opencl", memory_test);
-
+  
 }
