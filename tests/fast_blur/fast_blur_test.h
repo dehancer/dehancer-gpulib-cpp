@@ -8,6 +8,8 @@
 #include "dehancer/gpu/Lib.h"
 #include "tests/test_config.h"
 
+#define TEST_RADIUS 90
+
 inline std::string stringFormatA( const char * fmt, ... )
 {
   int nSize = 0;
@@ -20,7 +22,7 @@ inline std::string stringFormatA( const char * fmt, ... )
 
 int make_fast_blur_convolve(float radius, std::vector<float>& weights, std::vector<float>& offsets) {
   
-  auto size = (int)ceil(radius) * 4 - 1;
+  auto size = (int)ceil(radius/2+1) * 4 - 1;
   if (size%2==0) size+=1;
   if (size<3) size=3;
   
@@ -56,22 +58,22 @@ int make_fast_blur_convolve(float radius, std::vector<float>& weights, std::vect
     offsets.push_back( i*2.0f + oneSideInputs[i*2+1] / weights[i] );
   }
   
-  std::string indent = "    ";
-  
-  std::string shaderCode;
-  std::string eol = "\n";
-  
-  shaderCode += indent + stringFormatA( "const int stepCount = %d;", numSamples ) + eol;
-  shaderCode += indent + "float gWeights[stepCount];" + eol;
-  for( int i = 0; i < numSamples; i++ )
-    shaderCode += indent + stringFormatA( " gWeights[%d] = %.5f;", i, weights[i] ) + eol;
-  shaderCode += indent + eol;
-  shaderCode += indent + "float gOffsets[stepCount];"+eol;
-  for( int i = 0; i < numSamples; i++ )
-    shaderCode += indent + stringFormatA( " gOffsets[%d] = %.5f;", i, offsets[i] ) + eol;
-  shaderCode += indent + eol;
-  
-  std::cout << shaderCode << std::endl;
+//  std::string indent = "    ";
+//
+//  std::string shaderCode;
+//  std::string eol = "\n";
+//
+//  shaderCode += indent + stringFormatA( "const int stepCount = %d;", numSamples ) + eol;
+//  shaderCode += indent + "float gWeights[stepCount];" + eol;
+//  for( int i = 0; i < numSamples; i++ )
+//    shaderCode += indent + stringFormatA( " gWeights[%d] = %.5f;", i, weights[i] ) + eol;
+//  shaderCode += indent + eol;
+//  shaderCode += indent + "float gOffsets[stepCount];"+eol;
+//  for( int i = 0; i < numSamples; i++ )
+//    shaderCode += indent + stringFormatA( " gOffsets[%d] = %.5f;", i, offsets[i] ) + eol;
+//  shaderCode += indent + eol;
+//
+//  std::cout << shaderCode << std::endl;
   
   return numSamples;
 }
@@ -97,7 +99,7 @@ auto fast_blur_test =  [] (int dev_num,
     
     std::vector<float> host_weights, host_offsets;
     
-    auto stepCount = make_fast_blur_convolve(20, host_weights, host_offsets);
+    auto stepCount = make_fast_blur_convolve(TEST_RADIUS, host_weights, host_offsets);
     
     auto weights = dehancer::MemoryDesc {
             .length = host_weights.size() * sizeof(float)

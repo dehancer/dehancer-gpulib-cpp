@@ -206,8 +206,8 @@ __DEHANCER_KERNEL__ void convolve_vertical_kernel (
     
     for (int i = -size/2; i < size/2; ++i) {
       int jy =  tid.y+i;
-      if (jy<0) jy -= i;
-      if (jy>=h) jy -= i;
+      if (jy<0) jy += i;
+      //if (jy>=h) jy -= i;
       const int j = ((jy * w) + tid.x);
       val += scl[j] * weights[i+size/2];
     }
@@ -230,10 +230,18 @@ __DEHANCER_KERNEL__ void kernel_fast_convolve(
   float2 coords = get_texel_coords(tex);
   float4 result = {0,0,0,0};
   float2 pixel_size = {direction.x/(float)tex.size.x,direction.y/(float)tex.size.y};
+  
+  #pragma unroll
+  
   for (int i = 0; i < stepCount ; ++i) {
     float2 coords_offset = offsets[i] * pixel_size;
-    float4 color = read_image(source, coords + coords_offset);
-    color += read_image(source, coords - coords_offset);
+   
+    float2 xy = coords + coords_offset;
+    float4 color = read_image(source, xy);
+   
+    xy = coords - coords_offset;
+    color += read_image(source, xy);
+   
     result += weights[i] * color;
   }
   

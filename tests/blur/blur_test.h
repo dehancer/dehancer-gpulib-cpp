@@ -6,6 +6,8 @@
 #include "dehancer/gpu/Lib.h"
 #include <chrono>
 
+#define TEST_RADIUS 90
+
 namespace dehancer {
     
     class ConvolveKernel: public ChannelsInput {
@@ -161,7 +163,7 @@ int run_on_device(int num, const void* device, std::string patform) {
   auto blur_line_kernel = dehancer::ConvolveKernel(command_queue,
                                                    grid_text,
                                                    output_text.get_texture(),
-                                                   {50,50,50,0},
+                                                   {TEST_RADIUS,TEST_RADIUS,TEST_RADIUS,0},
                                                    true
   );
   
