@@ -97,7 +97,7 @@ __DEHANCER_KERNEL__ void kernel_make1DLut_transform(
   
   float3 denom = (float3){tex.size, tex.size, tex.size};
   
-  float x = tex.gid;
+  float x = (float)tex.gid;
   
   float3 c = compress((float3){x, x, x}/denom, compression);
   
@@ -140,7 +140,7 @@ __DEHANCER_KERNEL__ void blend_kernel(
   float3        c = (float3){inColor.x,inColor.y,inColor.z};
   float luminance = dot(c, kIMP_Y_YUV_factor);
   int       index = clamp((int)(luminance*(float)(levels-1)),(int)(0),(int)(levels-1));
-  float4    color = {1.0, 0.0, 0.0, 1.0};
+  float4    color = {1.0f, 0.0f, 0.0f, 1.0f};
   
   if (index<levels){
     color.x = color_map[index*3];
@@ -172,6 +172,9 @@ __DEHANCER_KERNEL__ void convolve_horizontal_kernel (
   
   if ((tid.x < w) && (tid.y < h)) {
     const int index = ((tid.y * w) + tid.x);
+    
+    #pragma unroll
+    
     for (int i = -size/2; i < size/2; ++i) {
       int jx =  tid.x+i;
       if (jx<0) jx -= i;
@@ -198,6 +201,9 @@ __DEHANCER_KERNEL__ void convolve_vertical_kernel (
   
   if ((tid.x < w) && (tid.y < h)) {
     const int index = ((tid.y * w) + tid.x);
+    
+    #pragma unroll
+    
     for (int i = -size/2; i < size/2; ++i) {
       int jy =  tid.y+i;
       if (jy<0) jy -= i;
@@ -209,6 +215,30 @@ __DEHANCER_KERNEL__ void convolve_vertical_kernel (
   }
 }
 
-//@formatter:on
+__DEHANCER_KERNEL__ void kernel_fast_convolve(
+        __read_only     image2d_t              source BIND_TEXTURE(0),
+        __write_only    image2d_t         destination BIND_TEXTURE(1),
+        __DEHANCER_DEVICE_ARG__ float*        weights BIND_BUFFER(2),
+        __DEHANCER_DEVICE_ARG__ float*        offsets BIND_BUFFER(3),
+        __DEHANCER_CONST_ARG__ __int_ref    stepCount BIND_BUFFER(4),
+        __DEHANCER_CONST_ARG__ __float2_ref direction BIND_BUFFER(5)
+) {
+  Texel2d tex; get_kernel_texel2d(destination, tex);
+  
+  if (!get_texel_boundary(tex)) return;
+  
+  float2 coords = get_texel_coords(tex);
+  float4 result = {0,0,0,0};
+  float2 pixel_size = {direction.x/(float)tex.size.x,direction.y/(float)tex.size.y};
+  for (int i = 0; i < stepCount ; ++i) {
+    float2 coords_offset = offsets[i] * pixel_size;
+    float4 color = read_image(source, coords + coords_offset);
+    color += read_image(source, coords - coords_offset);
+    result += weights[i] * color;
+  }
+  
+  write_image(destination, result, tex.gid);
+  
+}
 
 #endif //DEHANCER_GPULIB_TEST_KERNELS_CPP

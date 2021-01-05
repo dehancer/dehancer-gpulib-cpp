@@ -26,7 +26,7 @@ namespace dehancer {
                 channels_finalizer_(command_queue, d, get_channels(), wait_until_completed)
         {
           for (int i = 0; i < radius_.size(); ++i) {
-            sizes_[i] = (int)ceil(radius_[i]/2.0f) * 6;
+            sizes_[i] = (int)ceil(radius_[i]) * 4 - 1;
             if (sizes_[i]%2==0) sizes_[i]+=1;
             if (sizes_[i]<3) sizes_[i]=3;
             std::vector<float> ww;

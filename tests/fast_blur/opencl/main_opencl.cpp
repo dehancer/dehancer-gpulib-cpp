@@ -3,15 +3,16 @@
 //
 
 #include "gtest/gtest.h"
-#include "../function.h"
+#include "../fast_blur_test.h"
 #include "../../include/run_test.h"
 #include "tests/cuda/paths_config.h"
+
 
 TEST(TEST, CUDA_FUNCTUON) {
 
   std::cout << std::endl;
   std::cerr << std::endl;
-
-  run_images("opencl", function_test);
+  
+  run_on_grid_image("opencl", fast_blur_test);
 
 }

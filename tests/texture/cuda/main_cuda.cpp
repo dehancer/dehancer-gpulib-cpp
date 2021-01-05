@@ -4,7 +4,7 @@
 
 #include "gtest/gtest.h"
 #include "../io_texture.h"
-#include "../../include/run_images.h"
+#include "../../include/run_test.h"
 #include "tests/cuda/paths_config.h"
 
 

@@ -47,8 +47,26 @@
 /**
  * Dummy auto indentation for CLion
  */
+
+#define __constant const
+#define __constant const
+#define __read_only const
+#define __write_only
+#define __read_write
+
 #define BIND_TEXTURE(N)
 #define BIND_BUFFER(N)
+
+#define __DEHANCER_KERNEL__
+#define __DEHANCER_DEVICE_FUNC__
+#define __DEHANCER_DEVICE_ARG__
+#define __DEHANCER_THREAD_ARG__
+#define __DEHANCER_CONST_ARG__
+#define __int_ref int
+#define __float_ref  float
+#define __float2_ref float2
+#define __float3_ref float3
+#define __float4_ref float4
 
 #endif
 
