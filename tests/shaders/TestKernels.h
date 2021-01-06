@@ -168,13 +168,17 @@ __DEHANCER_KERNEL__ void convolve_horizontal_kernel (
   
   int2 tid; get_kernel_tid2d(tid);
   
-  float val = 0;
-  
   if ((tid.x < w) && (tid.y < h)) {
+    
+    float val = 0;
     const int index = ((tid.y * w) + tid.x);
     
-    #pragma unroll
+    if (size==0) {
+      tcl[index] = scl[index];
+      return;
+    }
     
+    #pragma unroll
     for (int i = -size/2; i < size/2; ++i) {
       int jx =  tid.x+i;
       if (jx<0) jx -= i;
@@ -183,6 +187,7 @@ __DEHANCER_KERNEL__ void convolve_horizontal_kernel (
       if (j>=w*h || j<0) continue;
       val += scl[j] * weights[i+size/2];
     }
+    
     tcl[index] = val;
   }
 }
@@ -197,29 +202,34 @@ __DEHANCER_KERNEL__ void convolve_vertical_kernel (
 ) {
   
   int2 tid; get_kernel_tid2d(tid);
-
-  float val = 0;
-
+  
   if ((tid.x < w) && (tid.y < h)) {
+    
+    float val = 0;
     const int index = ((tid.y * w) + tid.x);
-
+    
+    if (size==0) {
+      tcl[index] = scl[index];
+      return;
+    }
+    
     #pragma unroll
-
     for (int i = -size/2; i < size/2; ++i) {
       int jy =  tid.y+i;
-      if (jy<=0) jy += i;
+      if (jy<=0) jy -= i + size/2;
+      if (jy>=h) jy -= i - size/2;
       const int j = ((jy * w) + tid.x);
       if (j>=w*h || j<0) continue;
       val += scl[j] * weights[i+size/2];
     }
-
+    
     tcl[index] = val;
   }
 }
 
 __DEHANCER_KERNEL__ void kernel_fast_convolve(
-                  __read_only     image2d_t       source BIND_TEXTURE(0),
-                 __write_only     image2d_t  destination BIND_TEXTURE(1),
+        __read_only     image2d_t       source BIND_TEXTURE(0),
+        __write_only     image2d_t  destination BIND_TEXTURE(1),
         __DEHANCER_DEVICE_ARG__       float*     weights BIND_BUFFER(2),
         __DEHANCER_DEVICE_ARG__       float*     offsets BIND_BUFFER(3),
         __DEHANCER_CONST_ARG__    __int_ref    stepCount BIND_BUFFER(4),
@@ -230,21 +240,30 @@ __DEHANCER_KERNEL__ void kernel_fast_convolve(
   if (!get_texel_boundary(tex)) return;
   
   float2 coords = get_texel_coords(tex);
+  
+  float4 base = read_image(source, coords);
+  
   float4 result = {0,0,0,0};
   float2 pixel_size = {direction.x/(float)tex.size.x,direction.y/(float)tex.size.y};
   
   #pragma unroll
-  
-  for (int i = 0; i < stepCount ; ++i) {
-    float2 coords_offset = offsets[i] * pixel_size;
-   
-    float2 xy = coords + coords_offset;
-    float4 color = read_image(source, xy);
-   
-    xy = coords - coords_offset;
-    color += read_image(source, xy);
-   
-    result += weights[i] * color;
+  for (int j = 0; j < 4; ++j) {
+    
+    result = (float4){0,0,0,0};
+    
+    #pragma unroll
+    for (int i = 0; i < stepCount ; ++i) {
+      float2 coords_offset = offsets[i] * pixel_size;
+      
+      float2 xy = coords + coords_offset;
+      float4 color = read_image(source, xy);
+      
+      xy = coords - coords_offset;
+      color += read_image(source, xy);
+      
+      result += weights[i] * color;
+    }
+    
   }
   
   write_image(destination, result, tex.gid);

@@ -8,7 +8,8 @@
 #include "dehancer/gpu/Lib.h"
 #include "tests/test_config.h"
 
-#define TEST_RADIUS 90
+#define TEST_RADIUS 20
+#define TEST_RADIUS_BOXED 1
 
 inline std::string stringFormatA( const char * fmt, ... )
 {
@@ -60,6 +61,7 @@ int make_fast_blur_convolve(float radius, std::vector<float>& weights, std::vect
   
   return numSamples;
 }
+
 
 auto fast_blur_test =  [] (int dev_num,
                            const void* command_queue,
@@ -164,7 +166,7 @@ auto gaussian_boxed_blur_test =  [] (int dev_num,
     
     auto kernel = dehancer::GaussianBlur(command_queue, texture, destination.get_texture(),
                                          {
-                                                 TEST_RADIUS,TEST_RADIUS,TEST_RADIUS,TEST_RADIUS
+                                                 TEST_RADIUS_BOXED,TEST_RADIUS_BOXED,TEST_RADIUS_BOXED,TEST_RADIUS_BOXED
                                          }, true);
     
     std::chrono::time_point<std::chrono::system_clock> clock_begin
