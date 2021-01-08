@@ -6,9 +6,11 @@
 #include "dehancer/gpu/Lib.h"
 #include <chrono>
 #include <vector>
+#include "tests/test_config.h"
 
-const float TEST_RADIUS[] = {20,20,20,0};
-const int TEST_BOX_RADIUS[] = {20,20,20,0};
+const float TEST_RADIUS[] = {3.8,3.8,3.8,0};
+const int TEST_BOX_RADIUS[] = {4,4,4,0};
+const float TEST_RESOLURION[] = {3.8,3.8,3.8,0};
 
 namespace dehancer {
     
@@ -31,7 +33,7 @@ namespace dehancer {
                     const Texture& s,
                     const Texture& d,
                     const KernelFunction& row,
-                    const KernelFunction col,
+                    const KernelFunction& col,
                     bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                     const std::string& library_path = ""
         ):
@@ -47,22 +49,25 @@ namespace dehancer {
           for (int i = 0; i < 4; ++i) {
             std::vector<float> buf;
             
-            row_func_(i,buf);
-            row_sizes_[i] = buf.size();
+            row_func_(i,buf); row_sizes_[i] = buf.size();
             
             if (buf.empty())
-              row_weights_[i] = nullptr;
+              row_weights_[i] = nullptr; //dehancer::MemoryHolder::Make(get_command_queue(),
+              //                   buf.data(),
+              //                 1*sizeof(float ));
             else
               row_weights_[i] =  dehancer::MemoryHolder::Make(get_command_queue(),
                                                               buf.data(),
                                                               buf.size()*sizeof(float ));
             
             buf.clear();
-            col_func_(i,buf);
-            col_sizes_[i] = buf.size();
+            
+            col_func_(i,buf); col_sizes_[i] = buf.size();
             
             if (buf.empty())
-              col_weights_[i] = nullptr;
+              col_weights_[i] = nullptr;// dehancer::MemoryHolder::Make(get_command_queue(),
+              //                      buf.data(),
+              //                     1*sizeof(float ));
             else
               col_weights_[i] =  dehancer::MemoryHolder::Make(get_command_queue(),
                                                               buf.data(),
@@ -140,6 +145,47 @@ namespace dehancer {
     };
 }
 
+void downscale_kernel (int length_, std::vector<float>& kernel) {
+  float step = length_;
+  int length = ceil(step);
+  int mid = length*3/2;
+  kernel.resize(3*length);
+  for (int i=0; i<=length/2; i++) {
+    double x = i/(double)step;
+    float v = (float)((0.75-x*x)/length);
+    kernel[mid-i] = v;
+    kernel[mid+i] = v;
+  }
+  for (int i=length/2+1; i<(length*3+1)/2; i++) {
+    double x = i/(double)step;
+    float v = (float)((0.125 + 0.5*(x-1)*(x-2))/length);
+    kernel[mid-i] = v;
+    kernel[mid+i] = v;
+  }
+}
+
+void magic_resampler(float length_, std::vector<float>& kernel) {
+  int size = ceil(3/2*length_);
+  int half_size = ceil((float)size/2.0f+1)+1;
+  
+  if(half_size%2==0) half_size+=1;
+  float sum = 0;
+  for (int i = -half_size; i <= half_size; ++i) {
+    float x = (float )i;
+    if      ( x <= -3.0f/2.0f*length_ ) x = 0;
+    else if ( x >  -3.0f/2.0f*length_ && x <= -1.0f/2.0f*length_ ) x = 1.0f/2.0f*pow(x+3.0/2.0*length_,2.0f);
+    else if ( x >  -1.0/2.0*length_   && x <   1.0f/2.0f*length_ ) x = 3.0f/4.0f*length_-x*x;
+    else if ( x >=  1.0/2.0*length_   && x <   3.0f/2.0f*length_ ) x = 1.0f/2.0f*pow(x-3.0/2.0*length_,2.0f);
+    else if ( x >= -3.0f/2.0f*length_ ) x = 0;
+    kernel.push_back(x);
+    sum += x;
+  }
+  
+  for (auto& v: kernel) {
+    v/=sum;
+  }
+}
+
 
 int run_on_device(int num, const void* device, std::string patform) {
   
@@ -186,31 +232,48 @@ int run_on_device(int num, const void* device, std::string patform) {
   }
   
   
-  auto output_text = dehancer::TextureOutput(command_queue, width, height, nullptr, {
-          .type = type,
-          .compression = compression
-  });
   
   auto kernel_blur = [](int index, std::vector<float>& data) {
       data.clear();
+      
       auto radius = TEST_RADIUS[index];
+      
       if (radius==0) return ;
-      auto size = (int)ceil(radius/2+1) * 4 - 1;
+      
+      float sigma = radius/2.0f;
+      int kRadius = (int)ceil(sigma*sqrt(-2.0f*log(0.0001)))+1;
+      
+      auto size = kRadius;// (int)ceil(radius/2+1) * 4 - 1;
       if (size%2==0) size+=1;
       if (size<3) size=3;
       dehancer::math::make_gaussian_kernel(data, size, radius/2.0f);
-      std::cout<<" channel: " << index << std::endl;
+//      std::cout<<" channel: " << index << ",  size: " << data.size() << std::endl;
+//      for (int i = 0; i < data.size(); ++i) {
+//        std::cout << "weights["<<i<<"]" << data[i] << std::endl;
+//      }
+      std::cout<<std::endl;
+  };
+  
+  
+  auto kernel_magic_resolution = [](int index, std::vector<float>& data) {
+      data.clear();
+      if (index==3) return ;
+      float r = TEST_RESOLURION[index];
+      if (r==0) return;
+      magic_resampler(r,data);
+      std::cout<<" resolution channel: " << index << "size: " << data.size() << std::endl;
       for (int i = 0; i < data.size(); ++i) {
         std::cout << "weights["<<i<<"]" << data[i] << std::endl;
       }
-      std::cout<<std::endl;
   };
   
   auto kernel_box_blur = [](int index, std::vector<float>& data) {
       data.clear();
       if (index==3) return ;
-      for (int i = 0; i < TEST_BOX_RADIUS[index]; ++i) {
-        data.push_back(1.0f/(float)(TEST_BOX_RADIUS[index]));
+      int radius = TEST_BOX_RADIUS[index];
+      if (radius <= 1 ) return;
+      for (int i = 0; i < radius; ++i) {
+        data.push_back(1.0f/(float)radius);
       }
   };
   
@@ -226,78 +289,105 @@ int run_on_device(int num, const void* device, std::string patform) {
                   .name = "blur"
           },
           {
+                  .row = kernel_magic_resolution,
+                  .col = kernel_magic_resolution,
+                  .name = "resolution"
+          },
+          {
                   .row = kernel_box_blur,
                   .col = kernel_box_blur,
                   .name = "box-blur"
           }
   };
   
+  auto lena_text = dehancer::TextureInput(command_queue);
+  std::string lena_file = IMAGES_DIR; lena_file +="/"; lena_file+= IMAGE_FILES[4];
+  
+  std::ifstream ifs(lena_file, std::ios::binary);
+  ifs >> lena_text;
+  
+  std::vector<dehancer::Texture> inputs = {grid_text,lena_text.get_texture()};
+  
   for (auto kf: kernels) {
-    auto blur_line_kernel = dehancer::UnaryKernel(command_queue,
-                                                  grid_text,
-                                                  output_text.get_texture(),
-                                                  kf.row,
-                                                  kf.col,
-                                                  true
-    );
-  
-    std::cout << "[convolve_line_kernel kernel " << grid_kernel.get_name() << " args: " << std::endl;
-    for (auto &a: blur_line_kernel.get_arg_list()) {
-      std::cout << std::setw(20) << a.name << "[" << a.index << "]: " << a.type_name << std::endl;
+    int text_num = 0;
+    
+    for (auto text: inputs) {
+      
+      auto output_text = dehancer::TextureOutput(command_queue, text->get_width(), text->get_height(), nullptr, {
+              .type = type,
+              .compression = compression
+      });
+      
+      auto blur_line_kernel = dehancer::UnaryKernel(command_queue,
+                                                    text,
+                                                    output_text.get_texture(),
+                                                    kf.row,
+                                                    kf.col,
+                                                    true
+      );
+      
+      
+      std::cout << "[convolve_line_kernel kernel " << grid_kernel.get_name() << " args: " << std::endl;
+      for (auto &a: blur_line_kernel.get_arg_list()) {
+        std::cout << std::setw(20) << a.name << "[" << a.index << "]: " << a.type_name << std::endl;
+      }
+      
+      std::chrono::time_point<std::chrono::system_clock> clock_begin
+              = std::chrono::system_clock::now();
+      
+      blur_line_kernel.process();
+      
+      std::chrono::time_point<std::chrono::system_clock> clock_end
+              = std::chrono::system_clock::now();
+      std::chrono::duration<double> seconds = clock_end - clock_begin;
+      
+      // Report results and save image
+      auto device_type = dehancer::device::get_type(device);
+      
+      std::string device_type_str;
+      
+      switch (device_type) {
+        case dehancer::device::Type::cpu :
+          device_type_str = "CPU";
+          break;
+        case dehancer::device::Type::gpu :
+          device_type_str = "GPU";
+          break;
+        default:
+          device_type_str = "Unknown";
+          break;
+      }
+      
+      std::cout << "[convolve-" << kf.name << "-processing "
+                << patform << "/" << device_type_str
+                << " ("
+                << dehancer::device::get_name(device)
+                << ")]:\t" << seconds.count() << "s "
+                << ", for a " << width << "x" << height << " pixels" << std::endl;
+      
+      
+      std::string out_file_result = kf.name + "-line-" + patform + "-result-";
+      out_file_result.append(std::to_string(text_num));
+      out_file_result.append("-");
+      out_file_result.append(std::to_string(num));
+      out_file_result.append(ext);
+      {
+        std::ofstream result_os(out_file_result, std::ostream::binary | std::ostream::trunc);
+        result_os << output_text;
+      }
+      
+      std::chrono::time_point<std::chrono::system_clock> clock_io_end
+              = std::chrono::system_clock::now();
+      seconds = clock_io_end - clock_end;
+      
+      std::cout << "[convolve-" << kf.name << "-output-"<<text_num<<"-     "
+                << patform << "/" << device_type_str
+                << " ("
+                << dehancer::device::get_name(device)
+                << ")]:\t" << seconds.count() << "s "
+                << ", for a " << width << "x" << height << " pixels" << std::endl;
+      text_num++;
     }
-  
-    std::chrono::time_point<std::chrono::system_clock> clock_begin
-            = std::chrono::system_clock::now();
-  
-    blur_line_kernel.process();
-  
-    std::chrono::time_point<std::chrono::system_clock> clock_end
-            = std::chrono::system_clock::now();
-    std::chrono::duration<double> seconds = clock_end - clock_begin;
-  
-    // Report results and save image
-    auto device_type = dehancer::device::get_type(device);
-  
-    std::string device_type_str;
-  
-    switch (device_type) {
-      case dehancer::device::Type::cpu :
-        device_type_str = "CPU";
-        break;
-      case dehancer::device::Type::gpu :
-        device_type_str = "GPU";
-        break;
-      default:
-        device_type_str = "Unknown";
-        break;
-    }
-  
-    std::cout << "[convolve-"<<kf.name<<"-processing "
-              << patform << "/" << device_type_str
-              << " ("
-              << dehancer::device::get_name(device)
-              << ")]:\t" << seconds.count() << "s "
-              << ", for a " << width << "x" << height << " pixels" << std::endl;
-  
-  
-    std::string out_file_result = kf.name+"-line-" + patform + "-result-";
-    out_file_result.append(std::to_string(num));
-    out_file_result.append(ext);
-    {
-      std::ofstream result_os(out_file_result, std::ostream::binary | std::ostream::trunc);
-      result_os << output_text;
-    }
-  
-    std::chrono::time_point<std::chrono::system_clock> clock_io_end
-            = std::chrono::system_clock::now();
-    seconds = clock_io_end - clock_end;
-  
-    std::cout << "[convolve-"<<kf.name<<"-output     "
-              << patform << "/" << device_type_str
-              << " ("
-              << dehancer::device::get_name(device)
-              << ")]:\t" << seconds.count() << "s "
-              << ", for a " << width << "x" << height << " pixels" << std::endl;
   }
   
   return 0;

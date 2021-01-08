@@ -6,8 +6,19 @@
 
 #include "dehancer/gpu/kernels/cuda/common.h"
 
+extern "C" __global__ void  kernel_dehancer_pass(
+        __read_only image2d_t  source,
+        __write_only image2d_t destination
+){
+  Texel2d tex; get_kernel_texel2d(destination,tex);
+  
+  float4  color = sampled_color(source, destination, tex.gid);
+  
+  write_image(destination, color, tex.gid);
+}
+
 extern "C" __global__ void kernel_grid(int levels,
-                                       dehancer::nvcc::texture2d<float4> destination)
+                                       __write_only image2d_t destination)
 {
 
   // Calculate surface coordinates
