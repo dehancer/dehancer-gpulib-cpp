@@ -1,2 +1,3 @@
 add_subdirectory(convolve)
-add_subdirectory(fast_blur)
+add_subdirectory(gaussian_blur)
+add_subdirectory(fast_blur_experimental)
