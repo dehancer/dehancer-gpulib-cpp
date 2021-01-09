@@ -112,11 +112,11 @@ namespace dehancer::math {
       float sum = 0;
       for (int i = -half_size; i <= half_size; ++i) {
         auto x = (float )i;
-        if      ( x <= -3.0f/2.0f*length ) x = 0;
-        else if ( x >  -3.0f/2.0f*length && x <= -1.0f/2.0f*length ) x = 1.0f/2.0f*pow(x+3.0/2.0*length,2.0f);
-        else if ( x >  -1.0/2.0*length   && x <   1.0f/2.0f*length ) x = 3.0f/4.0f*length-x*x;
-        else if ( x >=  1.0/2.0*length   && x <   3.0f/2.0f*length ) x = 1.0f/2.0f*pow(x-3.0/2.0*length,2.0f);
-        else if ( x >= -3.0f/2.0f*length ) x = 0;
+        if      ( x <  -3.0f/2.0f*length ) x = 0;
+        else if ( x >= -3.0f/2.0f*length && x <  -1.0f/2.0f*length ) x = 1.0f/2.0f*pow(x+3.0/2.0*length,2.0f);
+        else if ( x >= -1.0/2.0*length   && x <=  1.0f/2.0f*length ) x = 3.0f/4.0f*length-x*x;
+        else if ( x >   1.0/2.0*length   && x <=  3.0f/2.0f*length ) x = 1.0f/2.0f*pow(x-3.0/2.0*length,2.0f);
+        else if ( x >  -3.0f/2.0f*length ) x = 0;
         kernel.push_back(x);
         sum += x;
       }
