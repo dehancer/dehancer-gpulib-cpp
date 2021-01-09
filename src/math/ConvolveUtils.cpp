@@ -2,7 +2,7 @@
 // Created by denn nevera on 03/12/2020.
 //
 
-#include "dehancer/gpu/math/GaussianUtils.h"
+#include "dehancer/gpu/math/ConvolveUtils.h"
 
 namespace dehancer::math {
 
@@ -18,43 +18,16 @@ namespace dehancer::math {
         sum += kernel[x];
       }
 
-// Normalize the kernel
       for (int x = 0; x < size; x++)
         kernel[x] /= sum;
-
-//      int kernelDimension = (int)ceilf(6 * sigma);
-//      if (kernelDimension % 2 == 0) kernelDimension++;
-//
-//      kernel.resize(kernelDimension*kernelDimension);
-//
-//      float acc = 0;
-//      for (int j = 0; j<kernelDimension; j++)
-//      {
-//        int y = j - (kernelDimension / 2);
-//        for (int i = 0; i<kernelDimension; i++)
-//        {
-//          int x = (int)((float)i - ((float)kernelDimension / 2.0f));
-//
-//          kernel[j*kernelDimension+i] =
-//                  (
-//                          1.0f / (2.f * (float)M_PI*powf(sigma, 2))
-//                  )
-//                  *
-//                  expf(
-//                          -((powf((float)x, 2.f) + powf((float )y, 2.f)) / (2.0f * powf(sigma, 2.f)))
-//                  );
-//
-//          acc += kernel[j*i+i];
-//        }
-//      }
-//      for (int j = 0; j<kernelDimension; j++)
-//        for (int i = 0; i<kernelDimension; i++)
-//        {
-//          kernel[j*kernelDimension + i] = kernel[j*kernelDimension + i] / acc;
-//        }
     }
-
-
+    
+    
+    /**
+    * Weights/Offsets
+    */
+    using KernelLine = std::pair<std::vector<float>, std::vector<float>>;
+    
     void make_gaussian_kernel(KernelLine &kernel,
                               float sigma,
                               float accuracy,
@@ -100,8 +73,17 @@ namespace dehancer::math {
         kernel.second[i] = (float) rsum;
       }
     }
-
-
+    
+    
+    ///
+    /// http://blog.ivank.net/fastest-gaussian-blur.html
+    ///
+    /***
+     * Make optimized integral gaussian boxes
+     * @param boxes
+     * @param sigma
+     * @param box_number
+     */
     void make_gaussian_boxes(std::vector<float> &boxes, float sigma, size_t box_number) {
       auto n = static_cast<float>(box_number);
       float coeff = 12.0f;
@@ -121,4 +103,27 @@ namespace dehancer::math {
       for (int i = 0; i < box_number; i++)
         boxes.push_back(static_cast<float>(i < m ? wl : wu));
     }
+    
+    void magic_resampler(float length, std::vector<float>& kernel) {
+      int size = std::ceil(3.0f/2.0f*length);
+      int half_size = (int)std::ceil((float)size/2.0f);
+      
+      if(half_size%2==0) half_size+=1;
+      float sum = 0;
+      for (int i = -half_size; i <= half_size; ++i) {
+        auto x = (float )i;
+        if      ( x <= -3.0f/2.0f*length ) x = 0;
+        else if ( x >  -3.0f/2.0f*length && x <= -1.0f/2.0f*length ) x = 1.0f/2.0f*pow(x+3.0/2.0*length,2.0f);
+        else if ( x >  -1.0/2.0*length   && x <   1.0f/2.0f*length ) x = 3.0f/4.0f*length-x*x;
+        else if ( x >=  1.0/2.0*length   && x <   3.0f/2.0f*length ) x = 1.0f/2.0f*pow(x-3.0/2.0*length,2.0f);
+        else if ( x >= -3.0f/2.0f*length ) x = 0;
+        kernel.push_back(x);
+        sum += x;
+      }
+      
+      for (auto& v: kernel) {
+        v/=sum;
+      }
+    }
+  
 }

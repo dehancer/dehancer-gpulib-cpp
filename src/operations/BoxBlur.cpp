@@ -5,7 +5,7 @@
 #include "dehancer/gpu/operations/BoxBlur.h"
 
 #include <cmath>
-#include "dehancer/gpu/math/GaussianUtils.h"
+#include "dehancer/gpu/math/ConvolveUtils.h"
 
 namespace dehancer {
     
@@ -13,7 +13,7 @@ namespace dehancer {
         std::array<size_t, 4> radius_array;
     };
     
-    auto kernel_blur = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
+    auto kernel_box_blur = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
         
         data.clear();
         
@@ -21,7 +21,6 @@ namespace dehancer {
         
         auto radius = options.radius_array.at(index);
     
-        data.clear();
         if (radius <= 1 ) return;
         for (int i = 0; i < radius; ++i) {
           data.push_back(1.0f/(float)radius);
@@ -36,8 +35,8 @@ namespace dehancer {
                                 bool wait_until_completed,
                                 const std::string &library_path):
             UnaryKernel(command_queue,s,d,{
-                                .row = kernel_blur,
-                                .col = kernel_blur,
+                                .row = kernel_box_blur,
+                                .col = kernel_box_blur,
                                 .user_data = (BoxBlurOptions){radius},
                                 .address_mode = address_mode
                         },

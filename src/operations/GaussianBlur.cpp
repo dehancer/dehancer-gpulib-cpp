@@ -5,7 +5,7 @@
 #include "dehancer/gpu/operations/GaussianBlur.h"
 
 #include <cmath>
-#include "dehancer/gpu/math/GaussianUtils.h"
+#include "dehancer/gpu/math/ConvolveUtils.h"
 
 namespace dehancer {
     
