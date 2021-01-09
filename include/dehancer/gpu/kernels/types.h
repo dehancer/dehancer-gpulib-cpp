@@ -26,6 +26,27 @@
 #define __float3_ref float3
 #define __float4_ref float4
 
+typedef struct  {
+    int gid;
+    int size;
+} Texel1d;
+
+typedef struct  {
+    int2 gid;
+    int2 size;
+} Texel2d;
+
+typedef struct  {
+    int3 gid;
+    int3 size;
+} Texel3d;
+
+typedef enum:int {
+    ADDRESS_CLAMP,
+    ADDRESS_BORDER,
+    ADDRESS_WRAP
+} EdgeAddress;
+
 #elif defined(CL_VERSION_1_2)
 
 #define BIND_TEXTURE(N)
@@ -41,6 +62,27 @@
 #define __float2_ref float2
 #define __float3_ref float3
 #define __float4_ref float4
+
+typedef struct  {
+    int gid;
+    int size;
+} Texel1d;
+
+typedef struct  {
+    int2 gid;
+    int2 size;
+} Texel2d;
+
+typedef struct  {
+    int3 gid;
+    int3 size;
+} Texel3d;
+
+typedef enum {
+    ADDRESS_CLAMP,
+    ADDRESS_BORDER,
+    ADDRESS_WRAP
+} EdgeAddress;
 
 #else
 
@@ -68,21 +110,13 @@
 #define __float3_ref float3
 #define __float4_ref float4
 
+typedef enum:int {
+    ADDRESS_CLAMP,
+    ADDRESS_BORDER,
+    ADDRESS_WRAP
+} EdgeAddress;
+
 #endif
 
-typedef struct  {
-    int gid;
-    int size;
-} Texel1d;
-
-typedef struct  {
-    int2 gid;
-    int2 size;
-} Texel2d;
-
-typedef struct  {
-    int3 gid;
-    int3 size;
-} Texel3d;
 
 #endif //DEHANCER_GPULIB_TYPES_H

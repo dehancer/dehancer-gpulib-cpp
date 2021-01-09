@@ -4,7 +4,7 @@
 
 
 #include "gtest/gtest.h"
-#include "../blur_test.h"
+#include "../convolve_test.h"
 
 TEST(TEST, AOBENCH_OpenCL) {
 

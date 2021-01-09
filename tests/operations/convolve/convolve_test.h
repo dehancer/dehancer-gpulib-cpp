@@ -6,144 +6,13 @@
 #include "dehancer/gpu/Lib.h"
 #include <chrono>
 #include <vector>
+#include <any>
+
 #include "tests/test_config.h"
 
-const float TEST_RADIUS[] = {3.8,3.8,3.8,0};
+const float TEST_RADIUS[] = {90,90,90,0};
 const int TEST_BOX_RADIUS[] = {4,4,4,0};
 const float TEST_RESOLURION[] = {3.8,3.8,3.8,0};
-
-namespace dehancer {
-    
-    class UnaryKernel: public ChannelsInput {
-    public:
-        
-        /**
-         * Separable Row/Column function must be defined.
-         * For example:
-         *  box = 1/9 * [1 1 1 ...]' x [1 1 1 ...] is: 9x9 kernel weights matrix
-         *                             1/9  ... 1/9
-         *                             1/9  ... 1/9
-         *                             ...      ...
-         *                             1/9 ...  1/9
-         */
-        
-        using KernelFunction = std::function<void (int channel_index, std::vector<float>& line)>;
-        
-        UnaryKernel(const void* command_queue,
-                    const Texture& s,
-                    const Texture& d,
-                    const KernelFunction& row,
-                    const KernelFunction& col,
-                    bool wait_until_completed = WAIT_UNTIL_COMPLETED,
-                    const std::string& library_path = ""
-        ):
-                ChannelsInput (command_queue, s, wait_until_completed, library_path),
-                row_func_(row),
-                col_func_(col),
-                w_(s->get_width()),
-                h_(s->get_height()),
-                channels_out_(ChannelsHolder::Make(command_queue,s->get_width(),s->get_height())),
-                channels_finalizer_(command_queue, d, get_channels(), wait_until_completed)
-        {
-          
-          for (int i = 0; i < 4; ++i) {
-            std::vector<float> buf;
-            
-            row_func_(i,buf); row_sizes_[i] = buf.size();
-            
-            if (buf.empty())
-              row_weights_[i] = nullptr; //dehancer::MemoryHolder::Make(get_command_queue(),
-              //                   buf.data(),
-              //                 1*sizeof(float ));
-            else
-              row_weights_[i] =  dehancer::MemoryHolder::Make(get_command_queue(),
-                                                              buf.data(),
-                                                              buf.size()*sizeof(float ));
-            
-            buf.clear();
-            
-            col_func_(i,buf); col_sizes_[i] = buf.size();
-            
-            if (buf.empty())
-              col_weights_[i] = nullptr;// dehancer::MemoryHolder::Make(get_command_queue(),
-              //                      buf.data(),
-              //                     1*sizeof(float ));
-            else
-              col_weights_[i] =  dehancer::MemoryHolder::Make(get_command_queue(),
-                                                              buf.data(),
-                                                              buf.size()*sizeof(float ));
-          }
-        }
-        
-        void process() override {
-          
-          ChannelsInput::process();
-          
-          auto horizontal_kernel = Function(get_command_queue(),
-                                            "convolve_horizontal_kernel");
-          
-          auto vertical_kernel = Function(get_command_queue(),
-                                          "convolve_vertical_kernel",
-                                          get_wait_completed());
-          
-          for (int i = 0; i < get_channels()->size(); ++i) {
-            
-            if (row_weights_[i]) {
-              
-              horizontal_kernel.execute([this, i] (CommandEncoder &command) {
-                  auto in = get_channels()->at(i);
-                  auto out = channels_out_->at(i);
-                  
-                  command.set(in, 0);
-                  command.set(out, 1);
-                  
-                  int w = w_, h = h_;
-                  command.set(w, 2);
-                  command.set(h, 3);
-                  
-                  command.set(row_weights_.at(i), 4);
-                  command.set(row_sizes_[i], 5);
-                  
-                  return (CommandEncoder::Size) {w_, h_, 1};
-              });
-            }
-            
-            if (col_weights_[i]) {
-              vertical_kernel.execute([this, i](CommandEncoder &command) {
-                  auto in = channels_out_->at(i);
-                  auto out = get_channels()->at(i);
-                  
-                  command.set(in, 0);
-                  command.set(out, 1);
-                  
-                  int w = w_, h = h_;
-                  command.set(w, 2);
-                  command.set(h, 3);
-                  
-                  command.set(col_weights_.at(0), 4);
-                  command.set(col_sizes_[0], 5);
-                  
-                  return (CommandEncoder::Size) {w_, h_, 1};
-              });
-            }
-          }
-          
-          channels_finalizer_.process();
-        }
-    
-    private:
-        KernelFunction row_func_;
-        KernelFunction col_func_;
-        std::array<dehancer::Memory,4> row_weights_;
-        std::array<int,4> row_sizes_;
-        std::array<dehancer::Memory,4> col_weights_;
-        std::array<int,4> col_sizes_;
-        size_t w_;
-        size_t h_;
-        Channels channels_out_;
-        ChannelsOutput channels_finalizer_;
-    };
-}
 
 void downscale_kernel (int length_, std::vector<float>& kernel) {
   float step = length_;
@@ -233,7 +102,7 @@ int run_on_device(int num, const void* device, std::string patform) {
   
   
   
-  auto kernel_blur = [](int index, std::vector<float>& data) {
+  auto kernel_blur = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
       data.clear();
       
       auto radius = TEST_RADIUS[index];
@@ -247,27 +116,18 @@ int run_on_device(int num, const void* device, std::string patform) {
       if (size%2==0) size+=1;
       if (size<3) size=3;
       dehancer::math::make_gaussian_kernel(data, size, radius/2.0f);
-//      std::cout<<" channel: " << index << ",  size: " << data.size() << std::endl;
-//      for (int i = 0; i < data.size(); ++i) {
-//        std::cout << "weights["<<i<<"]" << data[i] << std::endl;
-//      }
-      std::cout<<std::endl;
   };
   
   
-  auto kernel_magic_resolution = [](int index, std::vector<float>& data) {
+  auto kernel_magic_resolution = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
       data.clear();
       if (index==3) return ;
       float r = TEST_RESOLURION[index];
       if (r==0) return;
       magic_resampler(r,data);
-      std::cout<<" resolution channel: " << index << "size: " << data.size() << std::endl;
-      for (int i = 0; i < data.size(); ++i) {
-        std::cout << "weights["<<i<<"]" << data[i] << std::endl;
-      }
   };
   
-  auto kernel_box_blur = [](int index, std::vector<float>& data) {
+  auto kernel_box_blur = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
       data.clear();
       if (index==3) return ;
       int radius = TEST_BOX_RADIUS[index];
@@ -321,8 +181,14 @@ int run_on_device(int num, const void* device, std::string patform) {
       auto blur_line_kernel = dehancer::UnaryKernel(command_queue,
                                                     text,
                                                     output_text.get_texture(),
-                                                    kf.row,
-                                                    kf.col,
+              //kf.row,
+              // kf.col,
+                                                    {
+                                                            .row = kf.row,
+                                                            .col = kf.col,
+                                                            .user_data = kf.name,
+                                                            .address_mode = EdgeAddress ::ADDRESS_CLAMP
+                                                    },
                                                     true
       );
       

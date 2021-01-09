@@ -4,7 +4,7 @@
 
 #include "gtest/gtest.h"
 #include "../fast_blur_test.h"
-#include "../../include/run_test.h"
+#include "tests/include/run_test.h"
 #include "tests/cuda/paths_config.h"
 
 

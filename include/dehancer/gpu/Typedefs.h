@@ -16,6 +16,7 @@ using namespace metal;
 
 #else
 
+#include "dehancer/gpu/kernels/types.h"
 #include "dehancer/math.hpp"
 
 namespace dehancer {

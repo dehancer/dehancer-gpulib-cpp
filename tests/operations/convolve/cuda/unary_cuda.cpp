@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 
 #include "tests/cuda/paths_config.h"
-#include "../blur_test.h"
+#include "../convolve_test.h"
 
 TEST(TEST, AOBENCH_OpenCL) {
   

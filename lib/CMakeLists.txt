@@ -4,6 +4,7 @@ set (PUBLIC_INCLUDE_FILES  ${CMAKE_SOURCE_DIR}/include/dehancer)
 
 file (GLOB COMMON_SRC ${COMMON_SRC}
         ${CMAKE_SOURCE_DIR}/src/*.cpp
+        ${CMAKE_SOURCE_DIR}/src/operations/*.cpp
         ${CMAKE_SOURCE_DIR}/src/*.c
         ${CMAKE_SOURCE_DIR}/src/ocio/*.cpp
         ${CMAKE_SOURCE_DIR}/src/platforms/*.cpp

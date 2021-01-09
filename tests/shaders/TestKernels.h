@@ -157,81 +157,6 @@ __DEHANCER_KERNEL__ void blend_kernel(
   write_image(destination, color, tex.gid);
 }
 
-__DEHANCER_KERNEL__ void convolve_horizontal_kernel (
-        __DEHANCER_DEVICE_ARG__     float*       scl BIND_BUFFER(0),
-        __DEHANCER_DEVICE_ARG__     float*       tcl BIND_BUFFER(1),
-        __DEHANCER_CONST_ARG__    __int_ref        w BIND_BUFFER(2),
-        __DEHANCER_CONST_ARG__    __int_ref        h BIND_BUFFER(3),
-        __DEHANCER_DEVICE_ARG__       float* weights BIND_BUFFER(4),
-        __DEHANCER_CONST_ARG__    __int_ref     size BIND_BUFFER(5)
-) {
-  
-  int2 tid; get_kernel_tid2d(tid);
-  
-  if ((tid.x < w) && (tid.y < h)) {
-    
-    float val = 0;
-    const int index = ((tid.y * w) + tid.x);
-    
-    if (size==0) {
-      tcl[index] = scl[index];
-      return;
-    }
-    int half_size = size/2;
-  
-    #pragma unroll
-    for (int i = -half_size; i < half_size; ++i) {
-      int jx =  tid.x+i;
-      /**
-       * CLAMP address supports now
-       */
-      if (jx<0)  jx = 0;   //jx -= i + size/2;
-      if (jx>=w) jx = w-1; //-= i + size/2;
-      const int j = ((tid.y * w) + jx);
-      val += scl[j] * weights[i+half_size];
-    }
-    
-    tcl[index] = val;
-  }
-}
-
-__DEHANCER_KERNEL__ void convolve_vertical_kernel (
-        __DEHANCER_DEVICE_ARG__     float*       scl BIND_BUFFER(0),
-        __DEHANCER_DEVICE_ARG__     float*       tcl BIND_BUFFER(1),
-        __DEHANCER_CONST_ARG__    __int_ref        w BIND_BUFFER(2),
-        __DEHANCER_CONST_ARG__    __int_ref        h BIND_BUFFER(3),
-        __DEHANCER_DEVICE_ARG__      float*  weights BIND_BUFFER(4),
-        __DEHANCER_CONST_ARG__    __int_ref     size BIND_BUFFER(5)
-) {
-  
-  int2 tid; get_kernel_tid2d(tid);
-  
-  if ((tid.x < w) && (tid.y < h)) {
-    
-    float val = 0;
-    const int index = ((tid.y * w) + tid.x);
-    
-    if (size==0) {
-      tcl[index] = scl[index];
-      return;
-    }
-    int half_size = size/2;
-  
-    #pragma unroll
-    for (int i = -half_size; i < half_size; ++i) {
-      int jy =  tid.y+i;
-      /**
-       * CLAMP address supports now
-       */
-      if (jy<=0) jy = 0;   // -= i + size/2;
-      if (jy>=h) jy = h-1; //-= i - size/2;
-      const int j = ((jy * w) + tid.x);
-      val += scl[j] * weights[i+half_size];
-    }
-    
-    tcl[index] = val;
-  }
-}
 
 typedef union {
     float4 vec;
@@ -243,7 +168,7 @@ __DEHANCER_KERNEL__ void kernel_fast_convolve(
         __write_only      image2d_t      destination BIND_TEXTURE(1),
         __DEHANCER_DEVICE_ARG__       float*   weights_array BIND_BUFFER(2),
         __DEHANCER_DEVICE_ARG__       float*   offsets_array BIND_BUFFER(3),
-        __DEHANCER_CONST_ARG__          int*      step_count BIND_BUFFER(4),
+        __DEHANCER_DEVICE_ARG__         int*      step_count BIND_BUFFER(4),
         __DEHANCER_CONST_ARG__    __int_ref         channels BIND_BUFFER(5),
         __DEHANCER_CONST_ARG__ __float2_ref        direction BIND_BUFFER(6)
 ) {
@@ -260,8 +185,7 @@ __DEHANCER_KERNEL__ void kernel_fast_convolve(
   
   int next_array_index = 0;
   
-  //#pragma unroll
-  //int j = 0;
+  #pragma unroll
   for (int j = 0; j < channels; ++j) {
     
     if (j>=4) return;
@@ -275,18 +199,18 @@ __DEHANCER_KERNEL__ void kernel_fast_convolve(
       result.a[j] = color.a[j];
     }
     else {
-     
+      
       #pragma unroll
       for (int i = 0; i < step_count[j]; ++i) {
         float2 coords_offset = offsets_array[next_array_index + i] * pixel_size;
-    
+        
         float2 xy = coords + coords_offset;
         
         color.vec = read_image(source, xy);
-    
+        
         xy = coords - coords_offset;
         color.vec += read_image(source, xy);
-    
+        
         result.a[j] += weights_array[next_array_index + i] * color.a[j];
       }
     }

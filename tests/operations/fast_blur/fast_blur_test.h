@@ -8,7 +8,6 @@
 #include "dehancer/gpu/Lib.h"
 #include "tests/test_config.h"
 
-//#define TEST_RADIUS 20
 const float TEST_RADIUS[] = {90,90,90,0};
 #define TEST_RADIUS_BOXED 1
 
@@ -68,7 +67,7 @@ int make_fast_blur_convolve(float radius, std::vector<float>& weights, std::vect
 
 namespace dehancer {
     
-    class UnaryKernel: public ChannelsInput {
+    class UnaryFastKernel: public ChannelsInput {
     public:
         
         /**
@@ -82,8 +81,8 @@ namespace dehancer {
          */
         
         using KernelFunction = std::function<void (int channel_index, std::vector<float>& line)>;
-        
-        UnaryKernel(const void* command_queue,
+    
+        UnaryFastKernel(const void* command_queue,
                     const Texture& s,
                     const Texture& d,
                     const KernelFunction& row,

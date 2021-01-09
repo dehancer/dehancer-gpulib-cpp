@@ -1,0 +1,2 @@
+add_subdirectory(convolve)
+add_subdirectory(fast_blur)

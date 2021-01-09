@@ -11,4 +11,6 @@
 #include "dehancer/gpu/kernels/opencl/opencl.h"
 #endif
 
+#include "dehancer/gpu/kernels/unary_kernels.h"
+
 #endif // DEHANCER_GPULIB_LIB_H
