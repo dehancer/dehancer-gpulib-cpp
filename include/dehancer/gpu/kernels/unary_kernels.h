@@ -7,7 +7,7 @@
 
 #include "dehancer/gpu/kernels/types.h"
 
-__DEHANCER_KERNEL__ void convolve_horizontal_kernel (
+__DEHANCER_KERNEL__ void kernel_convolve_horizontal(
         __DEHANCER_DEVICE_ARG__     float*       scl BIND_BUFFER(0),
         __DEHANCER_DEVICE_ARG__     float*       tcl BIND_BUFFER(1),
         __DEHANCER_CONST_ARG__    __int_ref        w BIND_BUFFER(2),
@@ -59,7 +59,7 @@ __DEHANCER_KERNEL__ void convolve_horizontal_kernel (
   }
 }
 
-__DEHANCER_KERNEL__ void convolve_vertical_kernel (
+__DEHANCER_KERNEL__ void kernel_convolve_vertical (
         __DEHANCER_DEVICE_ARG__     float*       scl BIND_BUFFER(0),
         __DEHANCER_DEVICE_ARG__     float*       tcl BIND_BUFFER(1),
         __DEHANCER_CONST_ARG__    __int_ref        w BIND_BUFFER(2),

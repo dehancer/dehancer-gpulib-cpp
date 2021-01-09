@@ -125,5 +125,4 @@ namespace dehancer::math {
         v/=sum;
       }
     }
-  
 }

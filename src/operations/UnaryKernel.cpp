@@ -93,10 +93,10 @@ namespace dehancer {
       ChannelsInput::process();
       
       auto horizontal_kernel = Function(get_command_queue(),
-                                        "convolve_horizontal_kernel");
+                                        "kernel_convolve_horizontal");
       
       auto vertical_kernel = Function(get_command_queue(),
-                                      "convolve_vertical_kernel",
+                                      "kernel_convolve_vertical",
                                       get_wait_completed());
       
       for (int i = 0; i < get_channels()->size(); ++i) {
