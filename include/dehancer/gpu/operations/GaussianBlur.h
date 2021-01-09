@@ -4,7 +4,6 @@
 
 #pragma once
 
-//#include "dehancer/gpu/Kernel.h"
 #include "dehancer/gpu/operations/UnaryKernel.h"
 
 namespace dehancer {
@@ -13,7 +12,7 @@ namespace dehancer {
     public:
 
         /***
-         * A filter that convolves an image with a Gaussian blur of a given sigma in both the x and y directions.
+         * A filter that convolves an image with a Gaussian blur of a given channels radius in both the x and y directions.
          * @param command_queue
          * @param s - source texture
          * @param d - destination texture
@@ -27,7 +26,20 @@ namespace dehancer {
         GaussianBlur(const void* command_queue,
                      const Texture&    s,
                      const Texture&    d,
-                     std::array<int,4> radius,
+                     std::array<float,4> radius,
+                     EdgeAddress       address_mode = EdgeAddress::ADDRESS_CLAMP,
+                     float             accuracy = 0.001,
+                     bool wait_until_completed = WAIT_UNTIL_COMPLETED,
+                     const std::string& library_path = ""
+        );
+    
+        /***
+         * A filter that convolves an image with a Gaussian blur of a given radius in both the x and y directions for RGB channels only.
+         */
+        GaussianBlur(const void* command_queue,
+                     const Texture&    s,
+                     const Texture&    d,
+                     float radius,
                      EdgeAddress       address_mode = EdgeAddress::ADDRESS_CLAMP,
                      float             accuracy = 0.001,
                      bool wait_until_completed = WAIT_UNTIL_COMPLETED,
