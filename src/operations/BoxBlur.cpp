@@ -28,12 +28,12 @@ namespace dehancer {
     };
     
     BoxBlur::BoxBlur (const void *command_queue,
-                                const Texture &s,
-                                const Texture &d,
-                                std::array<size_t, 4> radius,
-                                EdgeAddress    address_mode,
-                                bool wait_until_completed,
-                                const std::string &library_path):
+                      const Texture &s,
+                      const Texture &d,
+                      std::array<size_t, 4> radius,
+                      DHCR_EdgeAddress    address_mode,
+                      bool wait_until_completed,
+                      const std::string &library_path):
             UnaryKernel(command_queue,s,d,{
                                 .row = kernel_box_blur,
                                 .col = kernel_box_blur,
@@ -46,8 +46,8 @@ namespace dehancer {
     }
     
     BoxBlur::BoxBlur (const void *command_queue, const Texture &s, const Texture &d, size_t radius,
-                                EdgeAddress address_mode, bool wait_until_completed,
-                                const std::string &library_path):
+                      DHCR_EdgeAddress address_mode, bool wait_until_completed,
+                      const std::string &library_path):
             BoxBlur(command_queue,s,d,
                          {radius,radius,radius,0},
                          address_mode,

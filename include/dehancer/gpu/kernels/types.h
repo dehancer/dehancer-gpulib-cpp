@@ -12,19 +12,19 @@
 #define __write_only
 #define __read_write
 
-#define BIND_TEXTURE(N)
-#define BIND_BUFFER(N)
+#define DHCR_BIND_TEXTURE(N)
+#define DHCR_BIND_BUFFER(N)
 
-#define __DEHANCER_KERNEL__  extern "C" __global__
-#define __DEHANCER_DEVICE_FUNC__ __device__
-#define __DEHANCER_DEVICE_ARG__
-#define __DEHANCER_THREAD_ARG__
-#define __DEHANCER_CONST_ARG__
-#define __int_ref int
-#define __float_ref  float
-#define __float2_ref float2
-#define __float3_ref float3
-#define __float4_ref float4
+#define DHCR_KERNEL         extern "C" __global__
+#define DHCR_DEVICE_FUNC   __device__
+#define DHCR_DEVICE_ARG
+#define DHCR_THREAD_ARG
+#define DHCR_CONST_ARG
+#define int_ref_t int
+#define float_ref_t  float
+#define float2_ref_t float2
+#define float3_ref_t float3
+#define float4_ref_t float4
 
 typedef struct  {
     int gid;
@@ -42,26 +42,26 @@ typedef struct  {
 } Texel3d;
 
 typedef enum:int {
-    ADDRESS_CLAMP,
-    ADDRESS_BORDER,
-    ADDRESS_WRAP
-} EdgeAddress;
+    DHCR_ADDRESS_CLAMP,
+    DHCR_ADDRESS_BORDER,
+    DHCR_ADDRESS_WRAP
+} DHCR_EdgeAddress;
 
 #elif defined(CL_VERSION_1_2)
 
-#define BIND_TEXTURE(N)
-#define BIND_BUFFER(N)
+#define DHCR_BIND_TEXTURE(N)
+#define DHCR_BIND_BUFFER(N)
 
-#define __DEHANCER_KERNEL__ __kernel
-#define __DEHANCER_DEVICE_FUNC__
-#define __DEHANCER_DEVICE_ARG__ __global
-#define __DEHANCER_THREAD_ARG__
-#define __DEHANCER_CONST_ARG__
-#define __int_ref int
-#define __float_ref  float
-#define __float2_ref float2
-#define __float3_ref float3
-#define __float4_ref float4
+#define DHCR_KERNEL __kernel
+#define DHCR_DEVICE_FUNC
+#define DHCR_DEVICE_ARG __global
+#define DHCR_THREAD_ARG
+#define DHCR_CONST_ARG
+#define int_ref_t int
+#define float_ref_t  float
+#define float2_ref_t float2
+#define float3_ref_t float3
+#define float4_ref_t float4
 
 typedef struct  {
     int gid;
@@ -79,10 +79,10 @@ typedef struct  {
 } Texel3d;
 
 typedef enum {
-    ADDRESS_CLAMP,
-    ADDRESS_BORDER,
-    ADDRESS_WRAP
-} EdgeAddress;
+    DHCR_ADDRESS_CLAMP,
+    DHCR_ADDRESS_BORDER,
+    DHCR_ADDRESS_WRAP
+} DHCR_EdgeAddress;
 
 #else
 
@@ -96,27 +96,30 @@ typedef enum {
 #define __write_only
 #define __read_write
 
-#define BIND_TEXTURE(N)
-#define BIND_BUFFER(N)
+#define DHCR_BIND_TEXTURE(N)
+#define DHCR_BIND_BUFFER(N)
 
-#define __DEHANCER_KERNEL__
-#define __DEHANCER_DEVICE_FUNC__
-#define __DEHANCER_DEVICE_ARG__
-#define __DEHANCER_THREAD_ARG__
-#define __DEHANCER_CONST_ARG__
-#define __int_ref int
-#define __float_ref  float
-#define __float2_ref float2
-#define __float3_ref float3
-#define __float4_ref float4
+#define DHCR_KERNEL
+#define DHCR_DEVICE_FUNC
+#define DHCR_DEVICE_ARG
+#define DHCR_THREAD_ARG
+#define DHCR_CONST_ARG
+#define int_ref_t int
+#define float_ref_t  float
+#define float2_ref_t float2
+#define float3_ref_t float3
+#define float4_ref_t float4
 
 typedef enum:int {
-    ADDRESS_CLAMP,
-    ADDRESS_BORDER,
-    ADDRESS_WRAP
-} EdgeAddress;
+    DHCR_ADDRESS_CLAMP,
+    DHCR_ADDRESS_BORDER,
+    DHCR_ADDRESS_WRAP
+} DHCR_EdgeAddress;
 
 #endif
 
+#define DHCR_READ_ONLY  __read_only
+#define DHCR_WRITE_ONLY __write_only
+#define DHCR_READ_WRITE __read_write
 
 #endif //DEHANCER_GPULIB_TYPES_H

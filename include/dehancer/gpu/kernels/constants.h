@@ -7,7 +7,7 @@
 
 #include "dehancer/gpu/kernels/types.h"
 
-static __constant __DEHANCER_DEVICE_FUNC__ float3 kIMP_Y_YUV_factor = {
+static __constant DHCR_DEVICE_FUNC float3 kIMP_Y_YUV_factor = {
     0.2125, 0.7154, 0.0721
 };
 

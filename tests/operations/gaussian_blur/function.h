@@ -34,7 +34,7 @@ auto function_test =  [] (int dev_num,
                              input_text.get_texture(),
                              output_text.get_texture(),
                              {20,20,20,0},
-                             EdgeAddress::ADDRESS_CLAMP
+                             DHCR_EdgeAddress::DHCR_ADDRESS_CLAMP
       ).process();
       
       {

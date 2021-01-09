@@ -187,7 +187,7 @@ int run_on_device(int num, const void* device, std::string patform) {
                                                             .row = kf.row,
                                                             .col = kf.col,
                                                             .user_data = kf.name,
-                                                            .address_mode = EdgeAddress ::ADDRESS_CLAMP
+                                                            .address_mode = DHCR_EdgeAddress ::DHCR_ADDRESS_CLAMP
                                                     },
                                                     true
       );

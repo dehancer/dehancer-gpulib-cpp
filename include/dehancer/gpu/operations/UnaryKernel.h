@@ -55,7 +55,7 @@ namespace dehancer {
              * This can happen because of a negative offset property, because the offset + clipRect.size is larger than
              * the source image, or because the filter uses neighboring pixels in its calculations (e.g. convolution filters).
              */
-            EdgeAddress    address_mode = EdgeAddress::ADDRESS_CLAMP;
+            DHCR_EdgeAddress    address_mode = DHCR_EdgeAddress::DHCR_ADDRESS_CLAMP;
         };
     
         /***

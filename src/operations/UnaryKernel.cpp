@@ -11,7 +11,7 @@ namespace dehancer {
         UnaryKernel::KernelFunction row_func;
         UnaryKernel::KernelFunction col_func;
         UnaryKernel::UserData       user_data;
-        EdgeAddress    address_mode;
+        DHCR_EdgeAddress    address_mode;
         std::array<dehancer::Memory,4> row_weights;
         std::array<int,4> row_sizes{};
         std::array<dehancer::Memory,4> col_weights;
@@ -28,7 +28,7 @@ namespace dehancer {
                 const UnaryKernel::KernelFunction& row_func,
                 const UnaryKernel::KernelFunction& col_func,
                 const UnaryKernel::UserData&       user_data,
-                EdgeAddress    address_mode
+                DHCR_EdgeAddress    address_mode
         ):
                 root_(root),
                 row_func(row_func),

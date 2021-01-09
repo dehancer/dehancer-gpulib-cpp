@@ -7,14 +7,14 @@
 
 #include "dehancer/gpu/kernels/types.h"
 
-__DEHANCER_KERNEL__ void kernel_convolve_horizontal(
-        __DEHANCER_DEVICE_ARG__     float*       scl BIND_BUFFER(0),
-        __DEHANCER_DEVICE_ARG__     float*       tcl BIND_BUFFER(1),
-        __DEHANCER_CONST_ARG__    __int_ref        w BIND_BUFFER(2),
-        __DEHANCER_CONST_ARG__    __int_ref        h BIND_BUFFER(3),
-        __DEHANCER_DEVICE_ARG__       float* weights BIND_BUFFER(4),
-        __DEHANCER_CONST_ARG__    __int_ref     size BIND_BUFFER(5),
-        __DEHANCER_CONST_ARG__    __int_ref  address BIND_BUFFER(6)
+DHCR_KERNEL void kernel_convolve_horizontal(
+        DHCR_DEVICE_ARG     float*       scl DHCR_BIND_BUFFER(0),
+        DHCR_DEVICE_ARG     float*       tcl DHCR_BIND_BUFFER(1),
+        DHCR_CONST_ARG   int_ref_t         w DHCR_BIND_BUFFER(2),
+        DHCR_CONST_ARG   int_ref_t         h DHCR_BIND_BUFFER(3),
+        DHCR_DEVICE_ARG     float*   weights DHCR_BIND_BUFFER(4),
+        DHCR_CONST_ARG    int_ref_t     size DHCR_BIND_BUFFER(5),
+        DHCR_CONST_ARG    int_ref_t  address DHCR_BIND_BUFFER(6)
 ) {
   
   int2 tid; get_kernel_tid2d(tid);
@@ -37,16 +37,16 @@ __DEHANCER_KERNEL__ void kernel_convolve_horizontal(
  * CLAMP address supports now
  */
       float f = 1;
-      switch ((EdgeAddress)address) {
-        case ADDRESS_CLAMP:
+      switch ((DHCR_EdgeAddress)address) {
+        case DHCR_ADDRESS_CLAMP:
           if (jx<0)  jx = 0;
           if (jx>=w) jx = w-1;
           break;
-        case ADDRESS_BORDER:
+        case DHCR_ADDRESS_BORDER:
           if (jx<0)  {jx = 0;f = 0;}
           if (jx>=w) {jx = w-1;f = 0;}
           break;
-        case ADDRESS_WRAP:
+        case DHCR_ADDRESS_WRAP:
           if (jx<0)  jx -= i;
           if (jx>=w) jx -= i;
           break;
@@ -59,14 +59,14 @@ __DEHANCER_KERNEL__ void kernel_convolve_horizontal(
   }
 }
 
-__DEHANCER_KERNEL__ void kernel_convolve_vertical (
-        __DEHANCER_DEVICE_ARG__     float*       scl BIND_BUFFER(0),
-        __DEHANCER_DEVICE_ARG__     float*       tcl BIND_BUFFER(1),
-        __DEHANCER_CONST_ARG__    __int_ref        w BIND_BUFFER(2),
-        __DEHANCER_CONST_ARG__    __int_ref        h BIND_BUFFER(3),
-        __DEHANCER_DEVICE_ARG__      float*  weights BIND_BUFFER(4),
-        __DEHANCER_CONST_ARG__    __int_ref     size BIND_BUFFER(5),
-        __DEHANCER_CONST_ARG__    __int_ref  address BIND_BUFFER(6)
+DHCR_KERNEL void kernel_convolve_vertical (
+        DHCR_DEVICE_ARG     float*       scl DHCR_BIND_BUFFER(0),
+        DHCR_DEVICE_ARG     float*       tcl DHCR_BIND_BUFFER(1),
+        DHCR_CONST_ARG    int_ref_t        w DHCR_BIND_BUFFER(2),
+        DHCR_CONST_ARG    int_ref_t        h DHCR_BIND_BUFFER(3),
+        DHCR_DEVICE_ARG      float*  weights DHCR_BIND_BUFFER(4),
+        DHCR_CONST_ARG    int_ref_t     size DHCR_BIND_BUFFER(5),
+        DHCR_CONST_ARG    int_ref_t  address DHCR_BIND_BUFFER(6)
 ) {
   
   int2 tid; get_kernel_tid2d(tid);
@@ -89,16 +89,16 @@ __DEHANCER_KERNEL__ void kernel_convolve_vertical (
  * CLAMP address supports now
  */
       float f = 1.0f;
-      switch ((EdgeAddress)address) {
-        case ADDRESS_CLAMP:
+      switch ((DHCR_EdgeAddress)address) {
+        case DHCR_ADDRESS_CLAMP:
           if (jy<0)  jy = 0;
           if (jy>=h) jy = h-1;
           break;
-        case ADDRESS_BORDER:
+        case DHCR_ADDRESS_BORDER:
           if (jy<0)  {jy = 0;f = 0;}
           if (jy>=h) {jy = h-1;f = 0;}
           break;
-        case ADDRESS_WRAP:
+        case DHCR_ADDRESS_WRAP:
           if (jy<0)  jy -= i + half_size;
           if (jy>=h) jy -= i - half_size;
           break;

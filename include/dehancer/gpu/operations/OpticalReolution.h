@@ -26,7 +26,7 @@ namespace dehancer {
                          const Texture&    s,
                          const Texture&    d,
                          std::array<float ,4> radius,
-                         EdgeAddress       address_mode = EdgeAddress::ADDRESS_CLAMP,
+                         DHCR_EdgeAddress       address_mode = DHCR_EdgeAddress::DHCR_ADDRESS_CLAMP,
                          bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                          const std::string& library_path = ""
         );
@@ -38,7 +38,7 @@ namespace dehancer {
                          const Texture&    s,
                          const Texture&    d,
                          float radius,
-                         EdgeAddress       address_mode = EdgeAddress::ADDRESS_CLAMP,
+                         DHCR_EdgeAddress       address_mode = DHCR_EdgeAddress::DHCR_ADDRESS_CLAMP,
                          bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                          const std::string& library_path = ""
         );

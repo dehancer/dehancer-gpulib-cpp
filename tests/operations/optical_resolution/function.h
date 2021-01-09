@@ -31,10 +31,10 @@ auto function_test =  [] (int dev_num,
       });
       
       dehancer::OpticalReolution(command_queue,
-                             input_text.get_texture(),
-                             output_text.get_texture(),
-                             3,
-                             EdgeAddress::ADDRESS_CLAMP
+                                 input_text.get_texture(),
+                                 output_text.get_texture(),
+                                 3,
+                                 DHCR_EdgeAddress::DHCR_ADDRESS_CLAMP
       ).process();
       
       {

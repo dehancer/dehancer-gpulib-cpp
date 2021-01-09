@@ -8,11 +8,11 @@
 #include "dehancer/gpu/kernels/lib.h"
 #include "aoBenchKernel.h"
 
-__DEHANCER_KERNEL__ void kernel_vec_add(
-        __DEHANCER_DEVICE_ARG__   float* A BIND_BUFFER(0) ,
-        __DEHANCER_DEVICE_ARG__   float* B BIND_BUFFER(1) ,
-        __DEHANCER_DEVICE_ARG__   float* C BIND_BUFFER(2) ,
-        __DEHANCER_CONST_ARG__ __int_ref N BIND_BUFFER(3)
+DHCR_KERNEL void kernel_vec_add(
+        DHCR_DEVICE_ARG   float* A DHCR_BIND_BUFFER(0) ,
+        DHCR_DEVICE_ARG   float* B DHCR_BIND_BUFFER(1) ,
+        DHCR_DEVICE_ARG   float* C DHCR_BIND_BUFFER(2) ,
+        DHCR_CONST_ARG int_ref_t N DHCR_BIND_BUFFER(3)
 )
 {
   int tid; get_kernel_tid1d(tid);
@@ -20,18 +20,18 @@ __DEHANCER_KERNEL__ void kernel_vec_add(
     C[tid] = A[tid] + B[tid];
 }
 
-__DEHANCER_KERNEL__ void kernel_vec_dev(
-        __DEHANCER_DEVICE_ARG__    float* C BIND_BUFFER(0),
-        __DEHANCER_CONST_ARG__  __int_ref N BIND_BUFFER(1))
+DHCR_KERNEL void kernel_vec_dev(
+        DHCR_DEVICE_ARG    float* C DHCR_BIND_BUFFER(0),
+        DHCR_CONST_ARG  int_ref_t N DHCR_BIND_BUFFER(1))
 {
   int tid; get_kernel_tid1d(tid);
   if (tid < N)
     C[tid] /= 3.0f;
 }
 
-__DEHANCER_KERNEL__ void kernel_test_simple_transform(
-        __read_only  image2d_t source       BIND_TEXTURE(0),
-        __write_only image2d_t destination  BIND_TEXTURE(1)
+DHCR_KERNEL void kernel_test_simple_transform(
+        __read_only  image2d_t source       DHCR_BIND_TEXTURE(0),
+        __write_only image2d_t destination  DHCR_BIND_TEXTURE(1)
 )
 {
   // Calculate surface coordinates
@@ -46,9 +46,9 @@ __DEHANCER_KERNEL__ void kernel_test_simple_transform(
   write_image(destination, color, tex.gid);
 }
 
-__DEHANCER_KERNEL__  void kernel_make3DLut_transform(
-        __write_only      image3d_t      d3DLut BIND_TEXTURE(0),
-        __DEHANCER_CONST_ARG__ __float2_ref compression BIND_BUFFER(1)
+DHCR_KERNEL  void kernel_make3DLut_transform(
+        __write_only      image3d_t      d3DLut DHCR_BIND_TEXTURE(0),
+        DHCR_CONST_ARG float2_ref_t compression DHCR_BIND_BUFFER(1)
 )
 {
   
@@ -64,11 +64,11 @@ __DEHANCER_KERNEL__  void kernel_make3DLut_transform(
   write_image(d3DLut, color, tex.gid);
 }
 
-__DEHANCER_KERNEL__ void kernel_grid_test_transform(
-        __read_only  image2d_t      source BIND_TEXTURE(0),
-        __write_only image2d_t destination BIND_TEXTURE(1),
-        __read_only  image3d_t      d3DLut BIND_TEXTURE(2),
-        __read_only  image1d_t      d1DLut BIND_TEXTURE(3))
+DHCR_KERNEL void kernel_grid_test_transform(
+        __read_only  image2d_t      source DHCR_BIND_TEXTURE(0),
+        __write_only image2d_t destination DHCR_BIND_TEXTURE(1),
+        __read_only  image3d_t      d3DLut DHCR_BIND_TEXTURE(2),
+        __read_only  image1d_t      d1DLut DHCR_BIND_TEXTURE(3))
 {
   // Calculate surface coordinates
   Texel2d tex; get_kernel_texel2d(destination,tex);
@@ -86,9 +86,9 @@ __DEHANCER_KERNEL__ void kernel_grid_test_transform(
   write_image(destination, color, tex.gid);
 }
 
-__DEHANCER_KERNEL__ void kernel_make1DLut_transform(
-        __write_only     image1d_t  d1DLut      BIND_TEXTURE(0),
-        __DEHANCER_CONST_ARG__ __float2_ref compression BIND_BUFFER(1))
+DHCR_KERNEL void kernel_make1DLut_transform(
+        __write_only     image1d_t  d1DLut      DHCR_BIND_TEXTURE(0),
+        DHCR_CONST_ARG float2_ref_t compression DHCR_BIND_BUFFER(1))
 {
   
   Texel1d tex; get_kernel_texel1d(d1DLut,tex);
@@ -107,9 +107,9 @@ __DEHANCER_KERNEL__ void kernel_make1DLut_transform(
   write_image(d1DLut, color, x);
 }
 
-__DEHANCER_KERNEL__ void ao_bench_kernel(
-        __DEHANCER_CONST_ARG__ __int_ref nsubsamples  BIND_BUFFER(0),
-        __write_only   image2d_t destination BIND_TEXTURE(1)
+DHCR_KERNEL void ao_bench_kernel(
+        DHCR_CONST_ARG int_ref_t nsubsamples  DHCR_BIND_BUFFER(0),
+        __write_only   image2d_t destination DHCR_BIND_TEXTURE(1)
 )
 {
   
@@ -122,12 +122,12 @@ __DEHANCER_KERNEL__ void ao_bench_kernel(
   write_image(destination, color, tex.gid);
 }
 
-__DEHANCER_KERNEL__ void blend_kernel(
-        __read_only     image2d_t      source BIND_TEXTURE(0),
-        __write_only    image2d_t destination BIND_TEXTURE(1),
-        __DEHANCER_DEVICE_ARG__    float*   color_map BIND_BUFFER(2),
-        __DEHANCER_CONST_ARG__    __int_ref      levels BIND_BUFFER(3),
-        __DEHANCER_CONST_ARG__ __float3_ref     opacity BIND_BUFFER(4)
+DHCR_KERNEL void blend_kernel(
+        __read_only     image2d_t      source DHCR_BIND_TEXTURE(0),
+        __write_only    image2d_t destination DHCR_BIND_TEXTURE(1),
+        DHCR_DEVICE_ARG    float*   color_map DHCR_BIND_BUFFER(2),
+        DHCR_CONST_ARG    int_ref_t      levels DHCR_BIND_BUFFER(3),
+        DHCR_CONST_ARG float3_ref_t     opacity DHCR_BIND_BUFFER(4)
 ) {
   Texel2d tex; get_kernel_texel2d(destination,tex);
   
@@ -163,14 +163,14 @@ typedef union {
     float a[4];
 } U4;
 
-__DEHANCER_KERNEL__ void kernel_fast_convolve(
-        __read_only      image2d_t           source BIND_TEXTURE(0),
-        __write_only      image2d_t      destination BIND_TEXTURE(1),
-        __DEHANCER_DEVICE_ARG__       float*   weights_array BIND_BUFFER(2),
-        __DEHANCER_DEVICE_ARG__       float*   offsets_array BIND_BUFFER(3),
-        __DEHANCER_DEVICE_ARG__         int*      step_count BIND_BUFFER(4),
-        __DEHANCER_CONST_ARG__    __int_ref         channels BIND_BUFFER(5),
-        __DEHANCER_CONST_ARG__ __float2_ref        direction BIND_BUFFER(6)
+DHCR_KERNEL void kernel_fast_convolve(
+        __read_only      image2d_t           source DHCR_BIND_TEXTURE(0),
+        __write_only      image2d_t      destination DHCR_BIND_TEXTURE(1),
+        DHCR_DEVICE_ARG       float*   weights_array DHCR_BIND_BUFFER(2),
+        DHCR_DEVICE_ARG       float*   offsets_array DHCR_BIND_BUFFER(3),
+        DHCR_DEVICE_ARG         int*      step_count DHCR_BIND_BUFFER(4),
+        DHCR_CONST_ARG    int_ref_t         channels DHCR_BIND_BUFFER(5),
+        DHCR_CONST_ARG float2_ref_t        direction DHCR_BIND_BUFFER(6)
 ) {
   Texel2d tex; get_kernel_texel2d(destination, tex);
   

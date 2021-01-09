@@ -38,7 +38,7 @@ namespace dehancer {
                                 const Texture &s,
                                 const Texture &d,
                                 std::array<float, 4> radius,
-                                EdgeAddress    address_mode,
+                                DHCR_EdgeAddress    address_mode,
                                 float             accuracy,
                                 bool wait_until_completed,
                                 const std::string &library_path):
@@ -54,7 +54,7 @@ namespace dehancer {
     }
     
     GaussianBlur::GaussianBlur (const void *command_queue, const Texture &s, const Texture &d, float radius,
-                                EdgeAddress address_mode, float accuracy, bool wait_until_completed,
+                                DHCR_EdgeAddress address_mode, float accuracy, bool wait_until_completed,
                                 const std::string &library_path):
             GaussianBlur(command_queue,s,d,
                          {radius,radius,radius,0},
