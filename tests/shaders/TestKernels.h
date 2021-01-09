@@ -30,8 +30,8 @@ DHCR_KERNEL void kernel_vec_dev(
 }
 
 DHCR_KERNEL void kernel_test_simple_transform(
-        __read_only  image2d_t source       DHCR_BIND_TEXTURE(0),
-        __write_only image2d_t destination  DHCR_BIND_TEXTURE(1)
+        texture2d_read_t source       DHCR_BIND_TEXTURE(0),
+        texture2d_write_t destination  DHCR_BIND_TEXTURE(1)
 )
 {
   // Calculate surface coordinates
@@ -47,7 +47,7 @@ DHCR_KERNEL void kernel_test_simple_transform(
 }
 
 DHCR_KERNEL  void kernel_make3DLut_transform(
-        __write_only      image3d_t      d3DLut DHCR_BIND_TEXTURE(0),
+        texture3d_write_t      d3DLut DHCR_BIND_TEXTURE(0),
         DHCR_CONST_ARG float2_ref_t compression DHCR_BIND_BUFFER(1)
 )
 {
@@ -65,10 +65,10 @@ DHCR_KERNEL  void kernel_make3DLut_transform(
 }
 
 DHCR_KERNEL void kernel_grid_test_transform(
-        __read_only  image2d_t      source DHCR_BIND_TEXTURE(0),
-        __write_only image2d_t destination DHCR_BIND_TEXTURE(1),
-        __read_only  image3d_t      d3DLut DHCR_BIND_TEXTURE(2),
-        __read_only  image1d_t      d1DLut DHCR_BIND_TEXTURE(3))
+        texture2d_read_t       source DHCR_BIND_TEXTURE(0),
+        texture2d_write_t destination DHCR_BIND_TEXTURE(1),
+        texture3d_read_t       d3DLut DHCR_BIND_TEXTURE(2),
+        texture1d_read_t       d1DLut DHCR_BIND_TEXTURE(3))
 {
   // Calculate surface coordinates
   Texel2d tex; get_kernel_texel2d(destination,tex);
@@ -87,7 +87,7 @@ DHCR_KERNEL void kernel_grid_test_transform(
 }
 
 DHCR_KERNEL void kernel_make1DLut_transform(
-        __write_only     image1d_t  d1DLut      DHCR_BIND_TEXTURE(0),
+        texture1d_write_t  d1DLut      DHCR_BIND_TEXTURE(0),
         DHCR_CONST_ARG float2_ref_t compression DHCR_BIND_BUFFER(1))
 {
   
@@ -108,8 +108,8 @@ DHCR_KERNEL void kernel_make1DLut_transform(
 }
 
 DHCR_KERNEL void ao_bench_kernel(
-        DHCR_CONST_ARG int_ref_t nsubsamples  DHCR_BIND_BUFFER(0),
-        __write_only   image2d_t destination DHCR_BIND_TEXTURE(1)
+        DHCR_CONST_ARG int_ref_t nsubsamples DHCR_BIND_BUFFER(0),
+        texture2d_write_t        destination DHCR_BIND_TEXTURE(1)
 )
 {
   
@@ -123,8 +123,8 @@ DHCR_KERNEL void ao_bench_kernel(
 }
 
 DHCR_KERNEL void blend_kernel(
-        __read_only     image2d_t      source DHCR_BIND_TEXTURE(0),
-        __write_only    image2d_t destination DHCR_BIND_TEXTURE(1),
+        texture2d_read_t       source DHCR_BIND_TEXTURE(0),
+        texture2d_write_t destination DHCR_BIND_TEXTURE(1),
         DHCR_DEVICE_ARG    float*   color_map DHCR_BIND_BUFFER(2),
         DHCR_CONST_ARG    int_ref_t      levels DHCR_BIND_BUFFER(3),
         DHCR_CONST_ARG float3_ref_t     opacity DHCR_BIND_BUFFER(4)
@@ -164,8 +164,8 @@ typedef union {
 } U4;
 
 DHCR_KERNEL void kernel_fast_convolve(
-        __read_only      image2d_t           source DHCR_BIND_TEXTURE(0),
-        __write_only      image2d_t      destination DHCR_BIND_TEXTURE(1),
+        texture2d_read_t           source DHCR_BIND_TEXTURE(0),
+        texture2d_write_t     destination DHCR_BIND_TEXTURE(1),
         DHCR_DEVICE_ARG       float*   weights_array DHCR_BIND_BUFFER(2),
         DHCR_DEVICE_ARG       float*   offsets_array DHCR_BIND_BUFFER(3),
         DHCR_DEVICE_ARG         int*      step_count DHCR_BIND_BUFFER(4),

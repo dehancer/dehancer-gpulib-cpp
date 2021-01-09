@@ -4,7 +4,6 @@
 
 #pragma once
 
-//#include <src/platforms/cuda/utils.h>
 #include <cuda.h>
 #include <cuda_runtime.h>
 
@@ -23,5 +22,4 @@ namespace dehancer {
         };
 
     }
-
 }

@@ -12,6 +12,15 @@
 #include "dehancer/gpu/kernels/constants.h"
 #include "dehancer/gpu/kernels/types.h"
 
+#define texture1d_read_t DHCR_READ_ONLY image1d_t
+#define texture1d_write_t DHCR_WRITE_ONLY image1d_t
+
+#define texture2d_read_t DHCR_READ_ONLY image2d_t
+#define texture2d_write_t DHCR_WRITE_ONLY image2d_t
+
+#define texture3d_read_t DHCR_READ_ONLY image3d_t
+#define texture3d_write_t DHCR_WRITE_ONLY image3d_t
+
 inline __device__ __host__ void get_kernel_tid1d(int& tid) {
   tid = blockIdx.x * blockDim.x + threadIdx.x;
 }

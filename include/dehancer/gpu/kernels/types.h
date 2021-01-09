@@ -122,4 +122,13 @@ typedef enum:int {
 #define DHCR_WRITE_ONLY __write_only
 #define DHCR_READ_WRITE __read_write
 
+#define texture1d_read_t DHCR_READ_ONLY image1d_t
+#define texture1d_write_t DHCR_WRITE_ONLY image1d_t
+
+#define texture2d_read_t DHCR_READ_ONLY image2d_t
+#define texture2d_write_t DHCR_WRITE_ONLY image2d_t
+
+#define texture3d_read_t DHCR_READ_ONLY image3d_t
+#define texture3d_write_t DHCR_WRITE_ONLY image3d_t
+
 #endif //DEHANCER_GPULIB_TYPES_H
