@@ -81,14 +81,14 @@ namespace dehancer {
          */
         
         using KernelFunction = std::function<void (int channel_index, std::vector<float>& line)>;
-    
+        
         UnaryFastKernel(const void* command_queue,
-                    const Texture& s,
-                    const Texture& d,
-                    const KernelFunction& row,
-                    const KernelFunction& col,
-                    bool wait_until_completed = WAIT_UNTIL_COMPLETED,
-                    const std::string& library_path = ""
+                        const Texture& s,
+                        const Texture& d,
+                        const KernelFunction& row,
+                        const KernelFunction& col,
+                        bool wait_until_completed = WAIT_UNTIL_COMPLETED,
+                        const std::string& library_path = ""
         ):
                 ChannelsInput (command_queue, s, wait_until_completed, library_path),
                 row_func_(row),
@@ -205,7 +205,7 @@ auto fast_blur_test =  [] (int dev_num,
         command_encoder.set(step_count_array,4);
         int channels = 4;
         command_encoder.set(channels,5);
-      
+        
         dehancer::math::float2 direction = {1.0f,0.0f};
         command_encoder.set(direction,6);
         
@@ -260,56 +260,62 @@ auto fast_blur_test =  [] (int dev_num,
 };
 
 
-auto gaussian_boxed_blur_test =  [] (int dev_num,
-                                     const void* command_queue,
-                                     const dehancer::Texture& texture,
-                                     const std::string& platform) {
-    
-    std::cout << "Test fast blur on platform: " << platform << std::endl;
-    
-    auto destination = dehancer::TextureOutput(command_queue, texture, {
-            .type =  dehancer::TextureOutput::Options::Type::png,
-            .compression = 0.3f
-    });
-    
-    auto kernel = dehancer::GaussianBlur(command_queue, texture, destination.get_texture(),
-                                         {
-                                                 TEST_RADIUS_BOXED,TEST_RADIUS_BOXED,TEST_RADIUS_BOXED,TEST_RADIUS_BOXED
-                                         }, true);
-    
-    std::chrono::time_point<std::chrono::system_clock> clock_begin
-            = std::chrono::system_clock::now();
-    
-    kernel.process();
-    
-    std::chrono::time_point<std::chrono::system_clock> clock_end
-            = std::chrono::system_clock::now();
-    std::chrono::duration<double> seconds = clock_end-clock_begin;
-    
-    {
-      
-      std::string out_file_cv = "gaussian-boxed-blur-io-";
-      out_file_cv.append(platform);
-      out_file_cv.append("-["); out_file_cv.append(std::to_string(dev_num)); out_file_cv.append("]");
-      out_file_cv.append(test::ext);
-      
-      std::ofstream os(out_file_cv, std::ostream::binary | std::ostream::trunc);
-      if (os.is_open()) {
-        os << destination << std::flush;
-        
-        std::cout << "Save to: " << out_file_cv << std::endl;
-        
-      } else {
-        std::cerr << "File: " << out_file_cv << " could not been opened..." << std::endl;
-      }
-    }
-    
-    std::cout << "[convolve-processing "
-              <<platform<<"/"<<"gaussian-boxed-blur"
-              <<" ("
-              <<"-"
-              <<")]:\t" << seconds.count() << "s "
-              << ", for a " << texture->get_width() << "x" << texture->get_height() << " pixels" << std::endl;
-  
-    return 0;
-};
+//auto gaussian_boxed_blur_test =  [] (int dev_num,
+//                                     const void* command_queue,
+//                                     const dehancer::Texture& texture,
+//                                     const std::string& platform) {
+//
+//    std::cout << "Test fast blur on platform: " << platform << std::endl;
+//
+//    auto destination = dehancer::TextureOutput(command_queue, texture, {
+//            .type =  dehancer::TextureOutput::Options::Type::png,
+//            .compression = 0.3f
+//    });
+//
+//    auto kernel = dehancer::GaussianBlur(command_queue,
+//                                         texture,
+//                                         destination.get_texture(),
+//                                         {
+//                                                 TEST_RADIUS_BOXED,TEST_RADIUS_BOXED,TEST_RADIUS_BOXED,TEST_RADIUS_BOXED
+//                                         },
+//                                         DHCR_EdgeAddress::DHCR_ADDRESS_CLAMP,
+//                                         dehancer::GaussianBlur::accuracy,
+//                                         true
+//    );
+//
+//    std::chrono::time_point<std::chrono::system_clock> clock_begin
+//            = std::chrono::system_clock::now();
+//
+//    kernel.process();
+//
+//    std::chrono::time_point<std::chrono::system_clock> clock_end
+//            = std::chrono::system_clock::now();
+//    std::chrono::duration<double> seconds = clock_end-clock_begin;
+//
+//    {
+//
+//      std::string out_file_cv = "gaussian-boxed-blur-io-";
+//      out_file_cv.append(platform);
+//      out_file_cv.append("-["); out_file_cv.append(std::to_string(dev_num)); out_file_cv.append("]");
+//      out_file_cv.append(test::ext);
+//
+//      std::ofstream os(out_file_cv, std::ostream::binary | std::ostream::trunc);
+//      if (os.is_open()) {
+//        os << destination << std::flush;
+//
+//        std::cout << "Save to: " << out_file_cv << std::endl;
+//
+//      } else {
+//        std::cerr << "File: " << out_file_cv << " could not been opened..." << std::endl;
+//      }
+//    }
+//
+//    std::cout << "[convolve-processing "
+//              <<platform<<"/"<<"gaussian-boxed-blur"
+//              <<" ("
+//              <<"-"
+//              <<")]:\t" << seconds.count() << "s "
+//              << ", for a " << texture->get_width() << "x" << texture->get_height() << " pixels" << std::endl;
+//
+//    return 0;
+//};

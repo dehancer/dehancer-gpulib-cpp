@@ -11,6 +11,8 @@ namespace dehancer {
     class GaussianBlur: public UnaryKernel {
     public:
 
+        static constexpr float accuracy = 0.001;
+        
         /***
          * A filter that convolves an image with a Gaussian blur of a given channels radius in both the x and y directions.
          * @param command_queue
@@ -28,7 +30,7 @@ namespace dehancer {
                      const Texture&    d,
                      std::array<float,4> radius,
                      DHCR_EdgeAddress       address_mode = DHCR_EdgeAddress::DHCR_ADDRESS_CLAMP,
-                     float             accuracy = 0.001,
+                     float             accuracy = GaussianBlur::accuracy,
                      bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                      const std::string& library_path = ""
         );
