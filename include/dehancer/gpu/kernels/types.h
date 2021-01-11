@@ -45,7 +45,7 @@ typedef enum:int {
     DHCR_ADDRESS_CLAMP,
     DHCR_ADDRESS_BORDER,
     DHCR_ADDRESS_WRAP
-} DHCR_EdgeAddress;
+} DHCR_EdgeMode;
 
 #elif defined(CL_VERSION_1_2)
 
@@ -82,7 +82,7 @@ typedef enum {
     DHCR_ADDRESS_CLAMP,
     DHCR_ADDRESS_BORDER,
     DHCR_ADDRESS_WRAP
-} DHCR_EdgeAddress;
+} DHCR_EdgeMode;
 
 #else
 
@@ -114,7 +114,7 @@ typedef enum:int {
     DHCR_ADDRESS_CLAMP,
     DHCR_ADDRESS_BORDER,
     DHCR_ADDRESS_WRAP
-} DHCR_EdgeAddress;
+} DHCR_EdgeMode;
 
 #endif
 

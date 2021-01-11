@@ -30,12 +30,20 @@ auto function_test =  [] (int dev_num,
               .compression = test::compression
       });
       
-      dehancer::OpticalReolution(command_queue,
-                                 input_text.get_texture(),
-                                 output_text.get_texture(),
-                                 3,
-                                 DHCR_EdgeAddress::DHCR_ADDRESS_CLAMP
-      ).process();
+      auto kernel = dehancer::OpticalReolution(command_queue
+                                 //,
+                                 //input_text.get_texture(),
+                                 //output_text.get_texture(),
+                                 //3,
+                                 //DHCR_EdgeMode::DHCR_ADDRESS_CLAMP
+      );
+      
+      kernel.set_source(input_text.get_texture());
+      kernel.set_destination(output_text.get_texture());
+      kernel.set_radius(3);
+      kernel.set_edge_mode(DHCR_ADDRESS_BORDER);
+      
+      kernel.process();
       
       {
         std::ofstream os(output_image, std::ostream::binary | std::ostream::trunc);

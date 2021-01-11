@@ -31,6 +31,30 @@ namespace dehancer {
         
         using UserData = std::optional<std::any>;
         
+        /***
+         * Kernel function must create kernel line for channel with a chosen index.
+         * For example:
+         *   struct BoxBlurOptions {
+         *        std::array<size_t, 4> radius_array;
+         *    };
+         *
+         *
+         *  auto kernel_box_blur = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
+         *
+         *       data.clear();
+         *
+         *       if (!user_data.has_value()) return ;
+         *
+         *       auto options = std::any_cast<BoxBlurOptions>(user_data.value());
+         *
+         *       auto radius = options.radius_array.at(index);
+         *
+         *       if (radius <= 1 ) return;
+         *       for (int i = 0; i < radius; ++i) {
+         *         data.push_back(1.0f/(float)radius);
+         *       }
+         *   };
+         */
         using KernelFunction = std::function<void (int channel_index, std::vector<float>& line, const UserData& user_data)>;
         
         /***
@@ -55,7 +79,7 @@ namespace dehancer {
              * This can happen because of a negative offset property, because the offset + clipRect.size is larger than
              * the source image, or because the filter uses neighboring pixels in its calculations (e.g. convolution filters).
              */
-            DHCR_EdgeAddress    address_mode = DHCR_EdgeAddress::DHCR_ADDRESS_CLAMP;
+            DHCR_EdgeMode    edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP;
         };
     
         using ChannelsInput::ChannelsInput;
@@ -93,10 +117,18 @@ namespace dehancer {
     
         void process() override;
     
-        void set_source(const Texture& source) override;
-        void set_destination(const Texture& destination) override;
+        [[maybe_unused]] void set_source(const Texture& source) override;
+        [[maybe_unused]] void set_destination(const Texture& destination) override;
+        [[maybe_unused]] void set_edge_mode(DHCR_EdgeMode mode);
+
+    protected:
+    
+        [[maybe_unused]] virtual void set_options(const Options& options);
+        virtual Options get_options() const;
+        virtual void set_user_data(const UserData &user_data);
         
     private:
         std::shared_ptr<UnaryKernelImpl> impl_;
+        void recompute_kernel();
     };
 }

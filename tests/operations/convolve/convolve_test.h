@@ -14,6 +14,19 @@ const float TEST_RADIUS[] = {90,90,90,0};
 const int TEST_BOX_RADIUS[] = {4,4,4,0};
 const float TEST_RESOLURION[] = {3.8,3.8,3.8,0};
 
+namespace test {
+    class Convolver: public dehancer::UnaryKernel {
+    public:
+        using dehancer::UnaryKernel::UnaryKernel;
+        
+        Convolver(const void* command_queue): dehancer::UnaryKernel(command_queue, {}, true) {};
+        
+        void set_options(const Options &options) override {
+          dehancer::UnaryKernel::set_options(options);
+        }
+    };
+}
+
 void downscale_kernel (int length_, std::vector<float>& kernel) {
   float step = length_;
   int length = ceil(step);
@@ -168,6 +181,9 @@ int run_on_device(int num, const void* device, std::string patform) {
   
   std::vector<dehancer::Texture> inputs = {grid_text,lena_text.get_texture()};
   
+  auto line_kernel = test::Convolver(command_queue);
+  
+  
   for (auto kf: kernels) {
     int text_num = 0;
     
@@ -178,31 +194,27 @@ int run_on_device(int num, const void* device, std::string patform) {
               .compression = compression
       });
       
-      auto blur_line_kernel = dehancer::UnaryKernel(command_queue,
-                                                    //nullptr,//text,
-                                                    //nullptr,//output_text.get_texture(),
-                                                    {
-                                                            .row = kf.row,
-                                                            .col = kf.col,
-                                                            .user_data = kf.name,
-                                                            .address_mode = DHCR_EdgeAddress ::DHCR_ADDRESS_CLAMP
-                                                    },
-                                                    true
-      );
-      
-      
       std::cout << "[convolve_line_kernel kernel " << grid_kernel.get_name() << " args: " << std::endl;
-      for (auto &a: blur_line_kernel.get_arg_list()) {
+      for (auto &a: line_kernel.get_arg_list()) {
         std::cout << std::setw(20) << a.name << "[" << a.index << "]: " << a.type_name << std::endl;
       }
       
       std::chrono::time_point<std::chrono::system_clock> clock_begin
               = std::chrono::system_clock::now();
       
-      blur_line_kernel.set_source(text);
-      blur_line_kernel.set_destination(output_text.get_texture());
+      dehancer::UnaryKernel::Options options =  {
+              .row = kf.row,
+              .col = kf.col,
+              .user_data = kf.name,
+              .edge_mode = DHCR_EdgeMode ::DHCR_ADDRESS_CLAMP
+      };
       
-      blur_line_kernel.process();
+      
+      line_kernel.set_options(options);
+      line_kernel.set_source(text);
+      line_kernel.set_destination(output_text.get_texture());
+      
+      line_kernel.process();
       
       std::chrono::time_point<std::chrono::system_clock> clock_end
               = std::chrono::system_clock::now();

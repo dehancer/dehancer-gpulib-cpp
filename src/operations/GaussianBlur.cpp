@@ -16,7 +16,10 @@ namespace dehancer {
     
     auto kernel_blur = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
         
+        
         data.clear();
+        
+        if (!user_data.has_value()) return ;
         
         auto options = std::any_cast<GaussianBlurOptions>(user_data.value());
         
@@ -26,6 +29,9 @@ namespace dehancer {
         
         float sigma = radius/2.0f;
         int kRadius = (int)std::ceil(sigma*std::sqrt(-2.0f*std::log(options.accuracy)))+1;
+        int maxRadius = (int)std::ceil(radius/2+1) * 4 - 1;
+        
+        kRadius = std::min(kRadius,maxRadius);
         
         auto size = kRadius;
         if (size%2==0) size+=1;
@@ -38,7 +44,7 @@ namespace dehancer {
                                 const Texture &s,
                                 const Texture &d,
                                 std::array<float, 4> radius,
-                                DHCR_EdgeAddress    address_mode,
+                                DHCR_EdgeMode    edge_mode,
                                 float             accuracy_,
                                 bool wait_until_completed,
                                 const std::string &library_path):
@@ -46,33 +52,72 @@ namespace dehancer {
                                 .row = kernel_blur,
                                 .col = kernel_blur,
                                 .user_data = (GaussianBlurOptions){radius,accuracy_},
-                                .address_mode = address_mode
+                                .edge_mode = edge_mode
                         },
                         wait_until_completed,
                         library_path)
     {
     }
     
-    GaussianBlur::GaussianBlur (const void *command_queue, const Texture &s, const Texture &d, float radius,
-                                DHCR_EdgeAddress address_mode, float accuracy_, bool wait_until_completed,
+    GaussianBlur::GaussianBlur (const void *command_queue,
+                                const Texture &s,
+                                const Texture &d,
+                                float radius,
+                                DHCR_EdgeMode edge_mode,
+                                float accuracy_,
+                                bool wait_until_completed,
                                 const std::string &library_path):
             GaussianBlur(command_queue,s,d,
                          {radius,radius,radius,0},
-                         address_mode, accuracy_,
+                         edge_mode, accuracy_,
                          wait_until_completed,
                          library_path) {
       
     }
     
-    GaussianBlur::GaussianBlur (const void *command_queue, std::array<float, 4> radius, DHCR_EdgeAddress address_mode,
-                                float accuracy_, bool wait_until_completed, const std::string &library_path):
-            GaussianBlur(command_queue, nullptr, nullptr, radius, address_mode, accuracy_, wait_until_completed, library_path){
+    GaussianBlur::GaussianBlur (const void *command_queue,
+                                std::array<float, 4> radius,
+                                DHCR_EdgeMode edge_mode,
+                                float accuracy_,
+                                bool wait_until_completed,
+                                const std::string &library_path):
+            GaussianBlur(command_queue, nullptr, nullptr,
+                         radius, edge_mode, accuracy_, wait_until_completed, library_path){
       
     }
     
-    GaussianBlur::GaussianBlur (const void *command_queue, float radius, DHCR_EdgeAddress address_mode, float accuracy_,
-                                bool wait_until_completed, const std::string &library_path):GaussianBlur(command_queue,{radius,radius,radius,0},address_mode,accuracy_,wait_until_completed,library_path) {
+    GaussianBlur::GaussianBlur (const void *command_queue,
+                                float radius,
+                                DHCR_EdgeMode edge_mode,
+                                float accuracy_,
+                                bool wait_until_completed,
+                                const std::string &library_path)
+            :GaussianBlur(command_queue,
+                          {radius,radius,radius,0},
+                          edge_mode,accuracy_,wait_until_completed,library_path) {
       
+    }
+    
+    void GaussianBlur::set_radius (float radius) {
+      set_radius({radius,radius,radius,0});
+    }
+    
+    void GaussianBlur::set_radius (std::array<float, 4> radius) {
+      auto options = get_options();
+      auto data = options.user_data.has_value()
+                  ? std::any_cast<GaussianBlurOptions>(options.user_data.value())
+                  : (GaussianBlurOptions){radius,GaussianBlur::accuracy};
+      data.radius_array = radius;
+      set_user_data(data);
+    }
+    
+    void GaussianBlur::set_accuracy (float accuracy_) {
+      auto options = get_options();
+      auto data = options.user_data.has_value()
+                  ? std::any_cast<GaussianBlurOptions>(options.user_data.value())
+                  : (GaussianBlurOptions){{0,0,0,0},accuracy_};
+      data.accuracy = accuracy_;
+      set_user_data(data);
     }
     
     //

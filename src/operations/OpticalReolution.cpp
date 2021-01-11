@@ -15,7 +15,9 @@ namespace dehancer {
     auto kernel_resolution = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
         
         data.clear();
-        
+    
+        if (!user_data.has_value()) return ;
+    
         auto options = std::any_cast<DeresolutiOptions>(user_data.value());
         auto radius = options.radius_array.at(index);
     
@@ -43,14 +45,14 @@ namespace dehancer {
                                         const Texture &s,
                                         const Texture &d,
                                         std::array<float, 4> radius,
-                                        DHCR_EdgeAddress    address_mode,
+                                        DHCR_EdgeMode    edge_mode,
                                         bool wait_until_completed,
                                         const std::string &library_path):
             UnaryKernel(command_queue,s,d,{
                                 .row = kernel_resolution,
                                 .col = kernel_resolution,
                                 .user_data = (DeresolutiOptions){radius},
-                                .address_mode = address_mode
+                                .edge_mode = edge_mode
                         },
                         wait_until_completed,
                         library_path)
@@ -58,13 +60,33 @@ namespace dehancer {
     }
     
     OpticalReolution::OpticalReolution (const void *command_queue, const Texture &s, const Texture &d, float radius,
-                                        DHCR_EdgeAddress address_mode, bool wait_until_completed,
+                                        DHCR_EdgeMode address_mode, bool wait_until_completed,
                                         const std::string &library_path):
             OpticalReolution(command_queue,s,d,
                          {radius,radius,radius,0},
                          address_mode,
                          wait_until_completed,
                          library_path) {
+      
+    }
+    
+    void OpticalReolution::set_radius (float radius) {
+      set_radius({radius,radius,radius,0});
+    }
+    
+    void OpticalReolution::set_radius (std::array<float, 4> radius) {
+      set_user_data((DeresolutiOptions){radius});
+    }
+    
+    OpticalReolution::OpticalReolution (const void *command_queue, std::array<float, 4> radius, DHCR_EdgeMode edge_mode,
+                                        bool wait_until_completed, const std::string &library_path):
+            OpticalReolution(command_queue, nullptr, nullptr, radius, edge_mode, wait_until_completed, library_path){
+      
+    }
+    
+    OpticalReolution::OpticalReolution (const void *command_queue, float radius, DHCR_EdgeMode edge_mode,
+                                        bool wait_until_completed, const std::string &library_path):
+            OpticalReolution(command_queue, {radius,radius,radius,0}, edge_mode, wait_until_completed, library_path){
       
     }
 }

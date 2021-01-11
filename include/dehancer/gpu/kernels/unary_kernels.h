@@ -37,7 +37,7 @@ DHCR_KERNEL void kernel_convolve_horizontal(
  * CLAMP address supports now
  */
       float f = 1;
-      switch ((DHCR_EdgeAddress)address) {
+      switch ((DHCR_EdgeMode)address) {
         case DHCR_ADDRESS_CLAMP:
           if (jx<0)  jx = 0;
           if (jx>=w) jx = w-1;
@@ -89,7 +89,7 @@ DHCR_KERNEL void kernel_convolve_vertical (
  * CLAMP address supports now
  */
       float f = 1.0f;
-      switch ((DHCR_EdgeAddress)address) {
+      switch ((DHCR_EdgeMode)address) {
         case DHCR_ADDRESS_CLAMP:
           if (jy<0)  jy = 0;
           if (jy>=h) jy = h-1;

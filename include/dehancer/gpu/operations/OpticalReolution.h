@@ -28,7 +28,14 @@ namespace dehancer {
                          const Texture&    s,
                          const Texture&    d,
                          std::array<float ,4> radius,
-                         DHCR_EdgeAddress       address_mode = DHCR_EdgeAddress::DHCR_ADDRESS_CLAMP,
+                         DHCR_EdgeMode       edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP,
+                         bool wait_until_completed = WAIT_UNTIL_COMPLETED,
+                         const std::string& library_path = ""
+        );
+    
+        OpticalReolution(const void* command_queue,
+                         std::array<float ,4> radius,
+                         DHCR_EdgeMode       edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP,
                          bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                          const std::string& library_path = ""
         );
@@ -39,11 +46,21 @@ namespace dehancer {
         OpticalReolution(const void* command_queue,
                          const Texture&    s,
                          const Texture&    d,
-                         float radius,
-                         DHCR_EdgeAddress       address_mode = DHCR_EdgeAddress::DHCR_ADDRESS_CLAMP,
+                         float radius = 0,
+                         DHCR_EdgeMode       edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP,
                          bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                          const std::string& library_path = ""
         );
+    
+        explicit OpticalReolution(const void* command_queue,
+                         float radius = 0,
+                         DHCR_EdgeMode       edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP,
+                         bool wait_until_completed = WAIT_UNTIL_COMPLETED,
+                         const std::string& library_path = ""
+        );
+        
+        [[maybe_unused]] void set_radius(float radius);
+        [[maybe_unused]] void set_radius(std::array<float ,4>  radius);
     };
 }
 

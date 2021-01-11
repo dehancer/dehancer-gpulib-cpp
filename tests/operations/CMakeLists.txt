@@ -1,4 +1,4 @@
 add_subdirectory(convolve)
-add_subdirectory(gaussian_blur)
+add_subdirectory(box-and-gauss-blur)
 add_subdirectory(optical_resolution)
 add_subdirectory(fast_blur_experimental)
