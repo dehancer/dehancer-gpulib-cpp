@@ -23,12 +23,14 @@ namespace test {
           add(pass_, true)
                   .add(optic_, true)
                   .add(blur_, true);
-          
-          optic_->set_radius(3);
-          blur_->set_radius(21.2);
         }
     
-        void set_radius(float radius) { radius_ = radius; };
+        void set_radius(float radius) {
+          radius_ = radius;
+          optic_->set_radius(radius_);
+          blur_->set_radius(radius_*5.4f);
+        };
+        
         [[nodiscard]] float get_radius() const {return radius_;};
         
     protected:
@@ -67,6 +69,8 @@ auto filter_test =  [] (int dev_num,
     
     filter.set_source(input_text.get_texture());
     filter.set_destination(output_text.get_texture());
+    
+    filter.set_radius(3);
     
     filter.set_enabling_at(0, false);
     filter.set_enabling_at(1, false);
