@@ -30,6 +30,8 @@ namespace dehancer {
                         const std::string &library_path=""
         );
     
+        virtual ~Filter() = default;
+        
         Filter &add (const KernelItem &kernel, bool enabled = true);
         Filter &add (const FilterItem &filter, bool enabled = true, bool emplace = false);
     
