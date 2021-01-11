@@ -35,12 +35,28 @@ namespace dehancer {
                      const std::string& library_path = ""
         );
     
+        GaussianBlur(const void* command_queue,
+                     std::array<float,4> radius,
+                     DHCR_EdgeAddress       address_mode = DHCR_EdgeAddress::DHCR_ADDRESS_CLAMP,
+                     float             accuracy = GaussianBlur::accuracy,
+                     bool wait_until_completed = WAIT_UNTIL_COMPLETED,
+                     const std::string& library_path = ""
+        );
+        
         /***
          * A filter that convolves an image with a Gaussian blur of a given radius in both the x and y directions for RGB channels only.
          */
         GaussianBlur(const void* command_queue,
                      const Texture&    s,
                      const Texture&    d,
+                     float radius,
+                     DHCR_EdgeAddress       address_mode = DHCR_EdgeAddress::DHCR_ADDRESS_CLAMP,
+                     float             accuracy = 0.001,
+                     bool wait_until_completed = WAIT_UNTIL_COMPLETED,
+                     const std::string& library_path = ""
+        );
+    
+        GaussianBlur(const void* command_queue,
                      float radius,
                      DHCR_EdgeAddress       address_mode = DHCR_EdgeAddress::DHCR_ADDRESS_CLAMP,
                      float             accuracy = 0.001,

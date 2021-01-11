@@ -61,12 +61,17 @@ namespace dehancer {
     const Texture& Kernel::get_destination() const {
       return impl_->destination_;
     }
-
-    void Kernel::set_destination(Texture &dest) {
+    
+    void Kernel::set_source (const Texture &src) {
+      impl_->source_ = src;
+    }
+    
+    void Kernel::set_destination(const Texture &dest) {
       impl_->destination_ = dest;
     }
 
     CommandEncoder::Size Kernel::get_encoder_size() const {
       throw std::runtime_error("get_encoder_size must be defined for kernel: " + get_name());
     }
+    
 }

@@ -19,7 +19,7 @@ namespace dehancer {
         size_t width;
         size_t height;
         Channels channels_out;
-        ChannelsOutput channels_finalizer;
+        std::shared_ptr<ChannelsOutput> channels_finalizer;
         
         UnaryKernelImpl(
                 ChannelsInput* root,
@@ -35,10 +35,10 @@ namespace dehancer {
                 col_func(col_func),
                 user_data(user_data),
                 address_mode(address_mode),
-                width(s->get_width()),
-                height(s->get_height()),
-                channels_out(ChannelsHolder::Make(root_->get_command_queue(), width, height)),
-                channels_finalizer(root_->get_command_queue(), d, root_->get_channels(), root_->get_wait_completed())
+                width(s?s->get_width():0),
+                height(s?s->get_height():0),
+                channels_out(width>0?ChannelsHolder::Make(root_->get_command_queue(), width, height): nullptr),
+                channels_finalizer(std::make_shared<ChannelsOutput>(root_->get_command_queue(), d, root_->get_channels(), root_->get_wait_completed()))
         {};
     };
     
@@ -72,7 +72,7 @@ namespace dehancer {
         else
           impl_->row_weights[i] = dehancer::MemoryHolder::Make(get_command_queue(),
                                                                buf.data(),
-                                                                buf.size() * sizeof(float));
+                                                               buf.size() * sizeof(float));
         
         buf.clear();
         
@@ -84,7 +84,7 @@ namespace dehancer {
         else
           impl_->col_weights[i] = dehancer::MemoryHolder::Make(get_command_queue(),
                                                                buf.data(),
-                                                                buf.size() * sizeof(float));
+                                                               buf.size() * sizeof(float));
       }
     }
     
@@ -138,7 +138,7 @@ namespace dehancer {
               
               command.set(impl_->col_weights.at(0), 4);
               command.set(impl_->col_sizes[0], 5);
-    
+              
               int a = impl_->address_mode;
               command.set(a, 6);
               
@@ -147,7 +147,28 @@ namespace dehancer {
         }
       }
       
-      impl_->channels_finalizer.process();
+      impl_->channels_finalizer->process();
     }
     
+    void UnaryKernel::set_source (const Texture &s) {
+      dehancer::ChannelsInput::set_source(s);
+      impl_->width = s?s->get_width():0;
+      impl_->height = s?s->get_height():0;
+      impl_->channels_out = impl_->width>0?ChannelsHolder::Make(get_command_queue(), impl_->width, impl_->height): nullptr;
+    }
+    
+    void UnaryKernel::set_destination (const Texture &dest) {
+      dehancer::ChannelsInput::set_destination(nullptr);
+      impl_->channels_finalizer = std::make_shared<ChannelsOutput>(
+              get_command_queue(),
+              dest,
+              get_channels(),
+              get_wait_completed());
+    }
+    
+    UnaryKernel::UnaryKernel (const void *command_queue, const UnaryKernel::Options &options, bool wait_until_completed,
+                              const std::string &library_path):UnaryKernel(command_queue, nullptr, nullptr, options, wait_until_completed, library_path) {
+      
+    }
+  
 }

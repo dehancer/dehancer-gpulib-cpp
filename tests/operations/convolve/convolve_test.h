@@ -179,10 +179,8 @@ int run_on_device(int num, const void* device, std::string patform) {
       });
       
       auto blur_line_kernel = dehancer::UnaryKernel(command_queue,
-                                                    text,
-                                                    output_text.get_texture(),
-              //kf.row,
-              // kf.col,
+                                                    //nullptr,//text,
+                                                    //nullptr,//output_text.get_texture(),
                                                     {
                                                             .row = kf.row,
                                                             .col = kf.col,
@@ -200,6 +198,9 @@ int run_on_device(int num, const void* device, std::string patform) {
       
       std::chrono::time_point<std::chrono::system_clock> clock_begin
               = std::chrono::system_clock::now();
+      
+      blur_line_kernel.set_source(text);
+      blur_line_kernel.set_destination(output_text.get_texture());
       
       blur_line_kernel.process();
       

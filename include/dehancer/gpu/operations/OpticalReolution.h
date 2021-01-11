@@ -10,6 +10,8 @@ namespace dehancer {
     
     class OpticalReolution: public UnaryKernel {
     public:
+    
+        using UnaryKernel::UnaryKernel;
         
         /***
          * A filter that convolves an image with a Box blur of a given channels radius in both the x and y directions.

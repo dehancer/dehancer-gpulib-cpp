@@ -53,7 +53,7 @@ namespace dehancer {
                    nullptr,
                    wait_until_completed,
                    library_path),
-            channels_(ChannelsHolder::Make(command_queue,texture->get_width(),texture->get_height()))
+            channels_(texture ? ChannelsHolder::Make(command_queue,texture->get_width(),texture->get_height()): nullptr)
     {}
 
     void ChannelsInput::setup(CommandEncoder &command)  {
@@ -61,7 +61,17 @@ namespace dehancer {
         command.set(channels_->at(i),i+1);
       }
     }
-
+    
+    void ChannelsInput::set_source (const Texture &source) {
+      Kernel::set_source(source);
+      channels_ = source ? ChannelsHolder::Make(get_command_queue(),source->get_width(),source->get_height()): nullptr;
+    }
+    
+    void ChannelsInput::set_destination (const Texture &destination) {
+      Kernel::set_destination(nullptr);
+    }
+    
+    
     ChannelsOutput::ChannelsOutput(const void *command_queue,
                                    const Texture& destination,
                                    const Channels& channels,
@@ -80,5 +90,13 @@ namespace dehancer {
       for (int i = 0; i <channels_->size(); ++i) {
         command.set(channels_->at(i),i+1);
       }
+    }
+    
+    void ChannelsOutput::set_destination (const Texture &destination) {
+      Kernel::set_destination(destination);
+    }
+    
+    void ChannelsOutput::set_source (const Texture &source) {
+      Kernel::set_source(nullptr);
     }
 }

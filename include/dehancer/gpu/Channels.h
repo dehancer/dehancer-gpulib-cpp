@@ -47,7 +47,7 @@ namespace dehancer {
     class ChannelsInput: public Kernel {
 
     public:
-
+        
         explicit ChannelsInput(const void *command_queue,
                                const Texture& source,
                                bool wait_until_completed = WAIT_UNTIL_COMPLETED,
@@ -56,6 +56,9 @@ namespace dehancer {
 
         [[nodiscard]] const Channels& get_channels() const { return channels_;}
         void setup(CommandEncoder &encode) override;
+    
+        void set_source(const Texture& source) override;
+        void set_destination(const Texture& destination) override;
 
     private:
         Channels channels_;
@@ -64,7 +67,9 @@ namespace dehancer {
     class ChannelsOutput: public Kernel {
 
     public:
-
+    
+        using Kernel::Kernel;
+        
         explicit ChannelsOutput(const void *command_queue,
                                 const Texture& destination,
                                 const Channels& channels,
@@ -73,7 +78,8 @@ namespace dehancer {
         );
 
         void setup(CommandEncoder &encode) override;
-
+        void set_source(const Texture& source) override;
+        void set_destination(const Texture& destination) override;
     private:
         Channels channels_;
     };

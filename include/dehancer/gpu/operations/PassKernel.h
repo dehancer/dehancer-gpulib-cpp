@@ -15,8 +15,8 @@ namespace dehancer {
     
     public:
         PassKernel(const void *command_queue,
-                   const Texture &source,
-                   const Texture &destination,
+                   const Texture &source = nullptr,
+                   const Texture &destination = nullptr,
                    bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                    const std::string &library_path = "");
     };

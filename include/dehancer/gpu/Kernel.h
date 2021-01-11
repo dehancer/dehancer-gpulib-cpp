@@ -30,8 +30,8 @@ namespace dehancer {
         explicit Kernel(
                 const void *command_queue,
                 const std::string& kernel_name,
-                const Texture& source,
-                const Texture& destination,
+                const Texture& source = nullptr,
+                const Texture& destination = nullptr,
                 bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                 const std::string &library_path=""
         );
@@ -65,10 +65,16 @@ namespace dehancer {
         [[nodiscard]] virtual const Texture& get_destination() const;
 
         /***
+         * Set new source
+         *
+         */
+        virtual void set_source(const Texture& source);
+    
+        /***
          * Set new destination texture
          * @param dest - texture object
          */
-        virtual void set_destination(Texture& dest);
+        virtual void set_destination(const Texture& destination);
 
         [[nodiscard]] virtual CommandEncoder::Size get_encoder_size() const;
 

@@ -39,13 +39,13 @@ namespace dehancer {
                                 const Texture &d,
                                 std::array<float, 4> radius,
                                 DHCR_EdgeAddress    address_mode,
-                                float             accuracy,
+                                float             accuracy_,
                                 bool wait_until_completed,
                                 const std::string &library_path):
             UnaryKernel(command_queue,s,d,{
                                 .row = kernel_blur,
                                 .col = kernel_blur,
-                                .user_data = (GaussianBlurOptions){radius,accuracy},
+                                .user_data = (GaussianBlurOptions){radius,accuracy_},
                                 .address_mode = address_mode
                         },
                         wait_until_completed,
@@ -54,13 +54,24 @@ namespace dehancer {
     }
     
     GaussianBlur::GaussianBlur (const void *command_queue, const Texture &s, const Texture &d, float radius,
-                                DHCR_EdgeAddress address_mode, float accuracy, bool wait_until_completed,
+                                DHCR_EdgeAddress address_mode, float accuracy_, bool wait_until_completed,
                                 const std::string &library_path):
             GaussianBlur(command_queue,s,d,
                          {radius,radius,radius,0},
-                         address_mode, accuracy,
+                         address_mode, accuracy_,
                          wait_until_completed,
                          library_path) {
+      
+    }
+    
+    GaussianBlur::GaussianBlur (const void *command_queue, std::array<float, 4> radius, DHCR_EdgeAddress address_mode,
+                                float accuracy_, bool wait_until_completed, const std::string &library_path):
+            GaussianBlur(command_queue, nullptr, nullptr, radius, address_mode, accuracy_, wait_until_completed, library_path){
+      
+    }
+    
+    GaussianBlur::GaussianBlur (const void *command_queue, float radius, DHCR_EdgeAddress address_mode, float accuracy_,
+                                bool wait_until_completed, const std::string &library_path):GaussianBlur(command_queue,{radius,radius,radius,0},address_mode,accuracy_,wait_until_completed,library_path) {
       
     }
     

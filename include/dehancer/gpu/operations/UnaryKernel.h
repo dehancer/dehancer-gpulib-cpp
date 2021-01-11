@@ -58,6 +58,8 @@ namespace dehancer {
             DHCR_EdgeAddress    address_mode = DHCR_EdgeAddress::DHCR_ADDRESS_CLAMP;
         };
     
+        using ChannelsInput::ChannelsInput;
+        
         /***
          * A filter that convolves an image with a given kernel of odd width and height that must be defined
          * in the options constructor parameter.
@@ -82,8 +84,17 @@ namespace dehancer {
                     bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                     const std::string& library_path = ""
         );
-
+    
+        UnaryKernel(const void* command_queue,
+                    const Options& options,
+                    bool wait_until_completed = WAIT_UNTIL_COMPLETED,
+                    const std::string& library_path = ""
+        );
+    
         void process() override;
+    
+        void set_source(const Texture& source) override;
+        void set_destination(const Texture& destination) override;
         
     private:
         std::shared_ptr<UnaryKernelImpl> impl_;
