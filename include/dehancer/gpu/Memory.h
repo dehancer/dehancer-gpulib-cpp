@@ -8,25 +8,25 @@
 #include "dehancer/Common.h"
 
 namespace dehancer {
-
+    
     struct MemoryHolder;
-
+    
     /***
      * Memory pointer object
      */
     using Memory = std::shared_ptr<MemoryHolder>;
-
+    
     struct MemoryDesc {
         enum MemType : uint32_t {
             host,
             device
         };
-
+        
         size_t length{};
         MemType type = MemType::host;
         Memory make(const void *command_queue, const void* from_memory = nullptr);
     };
-
+    
     /***
      * Device memory object holder
      */
@@ -39,7 +39,7 @@ namespace dehancer {
          * @return device memory object holder
          */
         static Memory Make(const void *command_queue, const void *buffer, size_t length);
-
+        
         /***
         * Allocate new MemoryHolder object on device
         * @param command_queue - device command_queue or context
@@ -47,7 +47,7 @@ namespace dehancer {
         * @return device memory object holder
         */
         static Memory Make(const void *command_queue, size_t length);
-
+        
         /***
         * Allocate new MemoryHolder object on device
         * @param command_queue - device command_queue or context
@@ -55,7 +55,7 @@ namespace dehancer {
         * @return device memory object holder
         */
         static Memory Make(const void *command_queue, std::vector<uint8_t> buffer);
-
+        
         /***
          * Create MemoryHolder object from device allocated object
          * @param command_queue - device command_queue or context
@@ -63,42 +63,42 @@ namespace dehancer {
          * @return device memory object holder
          */
         static Memory Make(const void* command_queue, void* device_memory);
-
+        
         static Memory Make(const void* command_queue, const void* device_memory);
-
+        
         /***
         * Get a weak shared pointer to memory object.
         * @return
         */
-          Memory get_ptr() { return shared_from_this(); }
-
-
+        Memory get_ptr() { return shared_from_this(); }
+        
+        
         /***
          * Get memory object size in bytes.
          * @return number of bytes
          */
         virtual size_t get_length() const = 0;
-
+        
         /***
         * Get platform specific handler of object placed in device memory.
         * @return device memory handler
         */
         [[nodiscard]] virtual const void*  get_memory() const = 0;
-
+        
         /***
         * Get platform specific handler of object placed in device memory.
         * @return device memory handler
         */
         [[nodiscard]] virtual void*  get_memory() = 0;
-
-
+        
+        
         /***
          * Get memory object pointer
          * @return device memory object pointer
          */
         [[nodiscard]] virtual const void*  get_pointer() const = 0;
         [[nodiscard]] virtual void*  get_pointer() = 0;
-
+        
         /***
          * Copy contents of memory object to host memory buffer as as a sequential array of bytes.
          * @param buffer
@@ -106,12 +106,12 @@ namespace dehancer {
          */
         virtual Error get_contents(std::vector<uint8_t>& buffer) const = 0;
         virtual Error get_contents(void *buffer, size_t length) const = 0;
-
+        
         virtual ~MemoryHolder() = default;
-
+    
     protected:
         MemoryHolder() = default;
     };
-
+    
     //using Memory::Make = MemoryHolder::Make;
 }

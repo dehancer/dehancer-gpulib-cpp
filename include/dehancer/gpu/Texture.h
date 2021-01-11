@@ -171,7 +171,9 @@ namespace dehancer {
          * @return
          */
         [[nodiscard]] virtual TextureDesc::Type get_type() const = 0;
-
+    
+        virtual TextureDesc get_desc() const = 0;
+        
         TextureHolder(const TextureHolder&) = delete;
         TextureHolder(TextureHolder&&) = delete;
         TextureHolder& operator=(const TextureHolder&) = delete;

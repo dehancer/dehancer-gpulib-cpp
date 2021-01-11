@@ -14,6 +14,9 @@
 #include "dehancer/gpu/Paths.h"
 #include "dehancer/gpu/Log.h"
 #include "dehancer/gpu/Channels.h"
+
+#include "dehancer/gpu/Filter.h"
+
 #include "dehancer/gpu/operations/PassKernel.h"
 #include "dehancer/gpu/operations/UnaryKernel.h"
 #include "dehancer/gpu/operations/BoxBlur.h"

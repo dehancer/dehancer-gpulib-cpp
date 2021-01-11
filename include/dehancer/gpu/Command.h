@@ -19,7 +19,7 @@ namespace dehancer {
      * GPU Command layer. Command is the base item of computation.
      * Any command object can be put into device command queue to execute.
      */
-    class Command {
+    class Command: public std::enable_shared_from_this<Command> {
 
     public:
         /***
@@ -69,7 +69,9 @@ namespace dehancer {
          * @return pointer to hardware depended descriptor
          */
         void* get_command_queue();
-
+    
+        std::shared_ptr<Command> get_ptr() { return shared_from_this(); }
+    
         virtual ~Command();
 
     protected:

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "dehancer/gpu/Lib.h"
+#include "tests/test_config.h"
 
 using dh_test_function = std::function<int (int num,
                                             const void* command_queue,

@@ -28,7 +28,9 @@ namespace dehancer::cuda {
         [[nodiscard]] size_t get_length() const override;
         [[nodiscard]] TextureDesc::PixelFormat get_pixel_format() const override;
         [[nodiscard]] TextureDesc::Type get_type() const override;
-
+    
+        TextureDesc get_desc() const override { return desc_;}
+        
     private:
         TextureDesc desc_;
         std::shared_ptr<dehancer::nvcc::texture> mem_;

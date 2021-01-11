@@ -25,6 +25,8 @@ namespace dehancer::opencl {
         [[nodiscard]] TextureDesc::PixelFormat get_pixel_format() const override;
         [[nodiscard]] TextureDesc::Type get_type() const override;
 
+        TextureDesc get_desc() const override { return desc_;}
+        
     private:
         TextureDesc desc_;
         cl_mem memobj_;
