@@ -12,7 +12,7 @@ TEST(TEST, AOBENCH_OpenCL) {
   std::cout << std::endl;
   std::cerr << std::endl;
   
-  run_images("opencl", filter_test);
+  run_images("cuda", filter_test);
   
 }
 

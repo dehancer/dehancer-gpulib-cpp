@@ -9,10 +9,12 @@ namespace dehancer {
     
     namespace impl {
         
-        struct KernelItem {
+        struct Item {
             
             std::shared_ptr<dehancer::Kernel> kernel = nullptr;
+            std::shared_ptr<dehancer::Filter> filter = nullptr;
             bool    enabled = true;
+            bool    emplace = false;
         };
         
         struct FilterImlp {
@@ -23,7 +25,7 @@ namespace dehancer {
             bool        wait_until_completed = false;
             std::string library_path;
             
-            std::vector<std::shared_ptr<KernelItem>> list{};
+            std::vector<std::shared_ptr<Item>> list{};
             
             std::array<Texture,2> ping_pong = {nullptr, nullptr};
         };
@@ -44,9 +46,19 @@ namespace dehancer {
       impl_->library_path = library_path;
     }
     
+    Filter &Filter::add (const Filter::FilterItem &filter, bool enabled, bool emplace) {
+      auto item = std::make_shared<impl::Item>((impl::Item){
+              .filter = filter,
+              .enabled = enabled,
+              .emplace = emplace
+      });
+      impl_->list.push_back(item);
+      return *this;
+    }
+    
     Filter &Filter::add (const std::shared_ptr<Kernel> &kernel, bool enabled) {
       
-      auto item = std::make_shared<impl::KernelItem>((impl::KernelItem){
+      auto item = std::make_shared<impl::Item>((impl::Item){
               .kernel = kernel,
               .enabled = enabled
       });
@@ -61,9 +73,9 @@ namespace dehancer {
       if (!impl_->source) return *this;
       
       auto current_source = impl_->source;
-  
+      
       TextureDesc desc = impl_->destination->get_desc();
-  
+      
       if (emplace) {
         if (impl_->destination)
           impl_->ping_pong = {impl_->destination, impl_->destination};
@@ -73,9 +85,9 @@ namespace dehancer {
       else {
         if (current_source->get_length() < impl_->destination->get_length())
           desc = current_source->get_desc();
-  
+        
         auto ping = TextureHolder::Make(impl_->command_queue, desc);
-  
+        
         impl_->ping_pong.at(0) = ping;
       }
       
@@ -86,7 +98,7 @@ namespace dehancer {
       for (const auto& f: impl_->list) {
         
         auto current_destination = impl_->ping_pong[next_index%2]; next_index++;
-  
+        
         if (!current_destination) {
           auto pong = TextureHolder::Make(impl_->command_queue, desc);
           impl_->ping_pong.at(1) = pong;
@@ -98,16 +110,31 @@ namespace dehancer {
           pass_kernel.set_destination(current_destination);
           pass_kernel.process();
         } else {
-          std::cout << "Process Filter kernel: " << f->kernel->get_name() << " enabled: " << f->enabled << " emplace: "
-                    << emplace << std::endl;
-          f->kernel->set_source(current_source);
-          f->kernel->set_destination(current_destination);
-          f->kernel->process();
+          if (f->kernel) {
+  
+            std::cout << "Process Filter kernel: " << f->kernel->get_name() << " enabled: " << f->enabled << " emplace: "
+                      << emplace << std::endl;
+  
+            f->kernel->set_source(current_source);
+            f->kernel->set_destination(current_destination);
+            f->kernel->process();
+          }
+          
+          else if (f->filter) {
+  
+            std::cout << "Process Filter " << " enabled: " << f->enabled << " emplace: "
+                      << emplace << std::endl;
+  
+            f->filter->set_source(current_source);
+            f->filter->set_destination(current_destination);
+            f->filter->process(f->emplace);
+          }
+          
         }
         
         current_source = current_destination;
       }
-  
+      
       if (!emplace && impl_->destination) {
         pass_kernel.set_source(current_source);
         pass_kernel.set_destination(impl_->destination);
@@ -134,10 +161,10 @@ namespace dehancer {
       impl_->destination = destination;
     }
     
-    std::shared_ptr<Kernel> Filter::get_kernel_at (int index) const {
+    Filter::Item Filter::get_item_at (int index) const {
       if (index>=0 && index<impl_->list.size() )
         return impl_->list[index]->kernel;
-      return nullptr;
+      return Item((KernelItem)nullptr);
     }
     
     bool Filter::get_enabling_at (int index) const {

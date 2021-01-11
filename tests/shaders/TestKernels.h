@@ -64,7 +64,7 @@ DHCR_KERNEL  void kernel_make3DLut_transform(
   write_image(d3DLut, color, tex.gid);
 }
 
-DHCR_KERNEL void kernel_grid_test_transform(
+DHCR_KERNEL void kernel_test_transform(
         texture2d_read_t       source DHCR_BIND_TEXTURE(0),
         texture2d_write_t destination DHCR_BIND_TEXTURE(1),
         texture3d_read_t       d3DLut DHCR_BIND_TEXTURE(2),

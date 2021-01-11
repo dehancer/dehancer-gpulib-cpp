@@ -5,6 +5,7 @@
 #pragma once
 
 #include "dehancer/gpu/Kernel.h"
+#include <variant>
 
 namespace dehancer {
     
@@ -17,6 +18,10 @@ namespace dehancer {
      */
     class Filter: public std::enable_shared_from_this<Filter>  {
     public:
+    
+        using KernelItem = std::shared_ptr<Kernel>;
+        using FilterItem = std::shared_ptr<Filter>;
+        using Item = std::variant<KernelItem,FilterItem>;
         
         explicit Filter(const void* command_queue,
                         const Texture& source= nullptr,
@@ -24,10 +29,11 @@ namespace dehancer {
                         bool wait_until_completed = Command::WAIT_UNTIL_COMPLETED,
                         const std::string &library_path=""
         );
-        
-        Filter &add (const std::shared_ptr<Kernel> &kernel, bool enabled = true);
-        
-        std::shared_ptr<Kernel> get_kernel_at(int index) const;
+    
+        Filter &add (const KernelItem &kernel, bool enabled = true);
+        Filter &add (const FilterItem &filter, bool enabled = true, bool emplace = false);
+    
+        Item get_item_at(int index) const;
         
         bool get_enabling_at(int index) const;
         

@@ -62,8 +62,8 @@ TEST(TEST, CUDA_TEXTURE_LOW_LAYER) {
   CHECK_CUDA(cuModuleGetFunction(&kernel_surface_gen, cuModule, "kernel_grid"));
 
   // Get function handle from module
-  CUfunction kernel_grid_test_transform;
-  CHECK_CUDA(cuModuleGetFunction(&kernel_grid_test_transform, cuModule, "kernel_grid_test_transform"));
+  CUfunction kernel_test_transform;
+  CHECK_CUDA(cuModuleGetFunction(&kernel_test_transform, cuModule, "kernel_test_transform"));
 
   // Get function handle from module
   CUfunction kernel_make3DLut_transform;
@@ -163,7 +163,7 @@ TEST(TEST, CUDA_TEXTURE_LOW_LAYER) {
   );
 
   CHECK_CUDA(cuLaunchKernel(
-          kernel_grid_test_transform,
+          kernel_test_transform,
           dimGrid_scale.x, dimGrid_scale.y, dimGrid_scale.z,
           dimBlock.x, dimBlock.y, dimBlock.z,
           0,

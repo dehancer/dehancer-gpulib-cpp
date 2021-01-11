@@ -78,7 +78,7 @@ auto function_test =  [] (int dev_num,
       /***
        * Execute transformation
        */
-      auto kernel_transform = dehancer::Function(command_queue, "kernel_grid_test_transform", true);
+      auto kernel_transform = dehancer::Function(command_queue, "kernel_test_transform", true);
 
       kernel_transform.execute(
               [&input_text, &output_text, &clut, &clut_curve](dehancer::CommandEncoder &command_encoder) {
