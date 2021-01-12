@@ -78,8 +78,18 @@ namespace dehancer {
          */
         Item get_item_at(int index) const;
         
+        /***
+         * Get index of filter item
+         * @param item - shared filter item
+         * @return index
+         */
         int get_index_of(const FilterItem& item) const;
         
+        /***
+         * Get index of kernel item
+         * @param item - shared kernel item
+         * @return index
+         */
         int get_index_of(const KernelItem& item) const;
     
         /***
@@ -89,7 +99,18 @@ namespace dehancer {
          */
         bool is_enable(int index) const;
     
+        /***
+         * Test enable state of filter placed at index of processing stack
+         * @param item - shared filter item
+         * @return state value
+         */
         bool is_enable(const FilterItem& item) const;
+
+        /***
+         * Test enable state of kernel placed at index of processing stack
+         * @param item - shared kernel item
+         * @return state value
+         */
         bool is_enable(const KernelItem& item) const;
     
         /***
@@ -99,7 +120,21 @@ namespace dehancer {
          * @return true if state is changed, false if index out of range
          */
         bool set_enable(int index, bool enabled);
+    
+        /***
+         * Set enable state of filter placed at index of processing stack
+         * @param item - shared filter item
+         * @param enabled - state
+         * @return true if state is changed, false if index out of range
+         */
         bool set_enable(const FilterItem& item, bool enabled);
+    
+        /***
+         * Set enable state of kernel placed at index of processing stack
+         * @param item - shared kernel item
+         * @param enabled - state
+         * @return true if state is changed, false if index out of range
+         */
         bool set_enable(const KernelItem& item, bool enabled);
     
         /***
@@ -140,8 +175,21 @@ namespace dehancer {
          */
         virtual void set_destination(const Texture& destination);
         
+        std::string get_name() const;
+        
         std::shared_ptr<Filter> get_ptr() { return shared_from_this(); }
-    
+
+    protected:
+        /***
+         * Can be initialized at inheritance for debug cases
+         */
+        std::string name;
+        
+        /***
+         * Caching ping-pong textures
+         */
+        bool        cache_enabled;
+        
     private:
         std::shared_ptr<impl::FilterImlp> impl_;
     };

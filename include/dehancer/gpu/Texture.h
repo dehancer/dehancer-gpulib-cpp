@@ -92,7 +92,10 @@ namespace dehancer {
         
         Texture make(const void *command_queue, const float *from_memory = nullptr);
     };
-
+    
+    bool operator==(const TextureDesc& lhs, const TextureDesc& rhs);
+    bool operator!=(const TextureDesc& lhs, const TextureDesc& rhs);
+    
     /***
      * Texture object holder. U must use only Texture pointer object.
      */

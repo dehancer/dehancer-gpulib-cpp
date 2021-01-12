@@ -14,7 +14,9 @@ namespace test {
     
     class Custom3DLut: public dehancer::Kernel {
     public:
-        explicit Custom3DLut(const void* command_queue):dehancer::Kernel(command_queue, "kernel_make3DLut_transform"){
+        explicit Custom3DLut(const void* command_queue):
+        dehancer::Kernel(command_queue, "kernel_make3DLut_transform")
+        {
           /***
           * Make empty 3D Lut
           */
@@ -95,6 +97,9 @@ namespace test {
                 lut1d_transform_(command_queue),
                 trasnform_(std::make_shared<CustomLutTransform>(command_queue))
         {
+  
+          cache_enabled = true;
+          name = "CustomTransform";
           
           lut1d_transform_.process();
           lut3d_transform_.process();
@@ -122,6 +127,9 @@ namespace test {
                 blur_(std::make_shared<dehancer::GaussianBlur>(command_queue)),
                 transform_(std::make_shared<CustomTransform>(command_queue))
         {
+          cache_enabled = true;
+          name = "CustomFilter";
+          
           add(pass_, true)
                   .add(optic_, true)
                   .add(blur_, true)
@@ -190,9 +198,15 @@ auto filter_test =  [] (int dev_num,
     
     filter.set_enable(0, false);
     filter.set_enable(1, true);
-    filter.set_enable(3, true);
+    filter.set_enable(2, false);
+    filter.set_enable(3, false);
     
-    filter.process() ;
+    for (int i = 0; i < 4; ++i) {
+      filter.process() ;
+    }
+    
+    
+    std::cout<<"Filter " << filter.get_name() << " done..." << std::endl;
     
     {
       std::ofstream os(output_image, std::ostream::binary | std::ostream::trunc);

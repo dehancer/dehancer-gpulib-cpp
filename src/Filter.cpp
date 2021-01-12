@@ -9,6 +9,12 @@ namespace dehancer {
     
     namespace impl {
         
+        template <typename T>
+        std::string filter_name(T t)
+        {
+          return typeid(t).name();
+        }
+        
         struct Item {
             
             std::shared_ptr<dehancer::Kernel> kernel = nullptr;
@@ -37,7 +43,9 @@ namespace dehancer {
                     bool wait_until_completed,
                     const std::string &library_path
     ):
-            impl_(std::make_shared<impl::FilterImlp>())
+            impl_(std::make_shared<impl::FilterImlp>()),
+            name(),
+            cache_enabled(false)
     {
       impl_->command_queue = command_queue;
       impl_->source = source;
@@ -83,30 +91,39 @@ namespace dehancer {
           impl_->ping_pong = {impl_->source, impl_->source};
       }
       else {
+        
         if (current_source->get_length() < impl_->destination->get_length())
           desc = current_source->get_desc();
-        
-        desc.label = "Filter ping texture";
-        auto ping = TextureHolder::Make(impl_->command_queue, desc);
-        
-        impl_->ping_pong.at(0) = ping;
+  
+        if (!impl_->ping_pong.at(0) || impl_->ping_pong.at(0)->get_desc()!=desc) {
+          desc.label = "Filter[" + get_name() + "] ping texture";
+          auto ping = TextureHolder::Make(impl_->command_queue, desc);
+          impl_->ping_pong.at(0) = ping;
+        }
       }
       
       int next_index = 0;
       
       auto pass_kernel = PassKernel(impl_->command_queue, impl_->wait_until_completed, impl_->library_path);
       
+      int index = 0;
+      bool make_last_copy = true;
       for (const auto& f: impl_->list) {
         
         auto current_destination = impl_->ping_pong[next_index%2]; next_index++;
-        
-        if (!current_destination) {
-          
-          desc.label = "Filter pong texture";
-          
-          auto pong = TextureHolder::Make(impl_->command_queue, desc);
-          impl_->ping_pong.at(1) = pong;
-          current_destination = pong;
+  
+        if (index==impl_->list.size()-1 && impl_->source->get_desc()==impl_->destination->get_desc()) {
+          current_destination = impl_->destination;
+          make_last_copy = false;
+        } else {
+          if (!current_destination || current_destination->get_desc() != desc) {
+    
+            desc.label = "Filter[" + get_name() + "] pong texture";
+    
+            auto pong = TextureHolder::Make(impl_->command_queue, desc);
+            impl_->ping_pong.at(1) = pong;
+            current_destination = pong;
+          }
         }
         
         if (!f->enabled){
@@ -116,9 +133,6 @@ namespace dehancer {
         } else {
           if (f->kernel) {
             
-            std::cout << "Process Filter kernel: " << f->kernel->get_name() << " enabled: " << f->enabled << " emplace: "
-                      << emplace << std::endl;
-            
             f->kernel->set_source(current_source);
             f->kernel->set_destination(current_destination);
             f->kernel->process();
@@ -126,26 +140,24 @@ namespace dehancer {
           
           else if (f->filter) {
             
-            std::cout << "Process Filter " << " enabled: " << f->enabled << " emplace: "
-                      << emplace << std::endl;
-            
             f->filter->set_source(current_source);
             f->filter->set_destination(current_destination);
             f->filter->process(f->emplace);
           }
-          
         }
         
         current_source = current_destination;
+        index++;
       }
       
-      if (!emplace && impl_->destination) {
+      if (!emplace && impl_->destination && make_last_copy) {
         pass_kernel.set_source(current_source);
         pass_kernel.set_destination(impl_->destination);
         pass_kernel.process();
       }
-      
-      impl_->ping_pong = {nullptr, nullptr};
+  
+      if (!cache_enabled)
+        impl_->ping_pong = {nullptr, nullptr};
       
       return *this;
     }
@@ -234,5 +246,11 @@ namespace dehancer {
       }
       return -1;
     }
-  
+    
+    std::string Filter::get_name () const {
+      if (name.empty())
+        return impl::filter_name(*this);
+      return name;
+    }
+    
 }
