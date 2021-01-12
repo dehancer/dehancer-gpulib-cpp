@@ -26,7 +26,7 @@ namespace dehancer {
         
         std::vector<float> gaus;
 
-        dehancer::math::make_gaussian_kernel(gaus, data.size()*2,data.size());
+        dehancer::math::make_gaussian_kernel(gaus, data.size(),data.size()/2);
 
         float sum = 0;
         int size = data.size()/2;

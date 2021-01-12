@@ -40,7 +40,7 @@ auto function_test =  [] (int dev_num,
       
       kernel.set_source(input_text.get_texture());
       kernel.set_destination(output_text.get_texture());
-      kernel.set_radius(3);
+      kernel.set_radius(10);
       kernel.set_edge_mode(DHCR_ADDRESS_BORDER);
       
       kernel.process();
