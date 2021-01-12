@@ -85,6 +85,11 @@ namespace dehancer {
          */
         MemFlags mem_flags = MemFlags::read_write;
 
+        /***
+         * Debug info
+         */
+        std::string label;
+        
         Texture make(const void *command_queue, const float *from_memory = nullptr);
     };
 

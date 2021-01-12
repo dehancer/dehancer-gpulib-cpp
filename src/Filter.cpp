@@ -86,6 +86,7 @@ namespace dehancer {
         if (current_source->get_length() < impl_->destination->get_length())
           desc = current_source->get_desc();
         
+        desc.label = "Filter ping texture";
         auto ping = TextureHolder::Make(impl_->command_queue, desc);
         
         impl_->ping_pong.at(0) = ping;
@@ -100,6 +101,9 @@ namespace dehancer {
         auto current_destination = impl_->ping_pong[next_index%2]; next_index++;
         
         if (!current_destination) {
+          
+          desc.label = "Filter pong texture";
+          
           auto pong = TextureHolder::Make(impl_->command_queue, desc);
           impl_->ping_pong.at(1) = pong;
           current_destination = pong;
@@ -111,20 +115,20 @@ namespace dehancer {
           pass_kernel.process();
         } else {
           if (f->kernel) {
-  
+            
             std::cout << "Process Filter kernel: " << f->kernel->get_name() << " enabled: " << f->enabled << " emplace: "
                       << emplace << std::endl;
-  
+            
             f->kernel->set_source(current_source);
             f->kernel->set_destination(current_destination);
             f->kernel->process();
           }
           
           else if (f->filter) {
-  
+            
             std::cout << "Process Filter " << " enabled: " << f->enabled << " emplace: "
                       << emplace << std::endl;
-  
+            
             f->filter->set_source(current_source);
             f->filter->set_destination(current_destination);
             f->filter->process(f->emplace);
@@ -140,6 +144,8 @@ namespace dehancer {
         pass_kernel.set_destination(impl_->destination);
         pass_kernel.process();
       }
+      
+      impl_->ping_pong = {nullptr, nullptr};
       
       return *this;
     }
@@ -164,21 +170,69 @@ namespace dehancer {
     Filter::Item Filter::get_item_at (int index) const {
       if (index>=0 && index<impl_->list.size() )
         return impl_->list[index]->kernel;
-      return Item((KernelItem)nullptr);
+      return Item(Error(CommonError::OUT_OF_RANGE));
     }
     
-    bool Filter::get_enabling_at (int index) const {
+    bool Filter::is_enable (int index) const {
       if (index>=0 && index<impl_->list.size() )
         return impl_->list[index]->enabled;
       return false;
     }
     
-    bool Filter::set_enabling_at (int index, bool enabled) {
+    bool Filter::set_enable (int index, bool enabled) {
       if (index>=0 && index<impl_->list.size() ) {
         impl_->list[index]->enabled = enabled;
         return true;
       }
       return false;
+    }
+    
+    bool Filter::is_enable (const Filter::FilterItem &item) const {
+      int index = get_index_of(item);
+      if(index>=0)
+        return is_enable(index);
+      return false;
+    }
+    
+    bool Filter::is_enable (const Filter::KernelItem &item) const {
+      int index = get_index_of(item);
+      if(index>=0)
+        return is_enable(index);
+      return false;
+    }
+    
+    bool Filter::set_enable (const Filter::FilterItem &item, bool enabled) {
+      int index = get_index_of(item);
+      if(index>=0)
+        return set_enable(index, enabled);
+      return false;
+    }
+    
+    bool Filter::set_enable (const Filter::KernelItem &item, bool enabled) {
+      int index = get_index_of(item);
+      if(index>=0)
+        return set_enable(index, enabled);
+      return false;
+    }
+    
+    int Filter::get_index_of (const Filter::FilterItem &item) const {
+      for (int i = 0; i < impl_->list.size(); ++i) {
+        if(auto f = impl_->list.at(i)->filter) {
+          if (f.get() == item.get())
+            return i;
+        }
+      }
+      return -1;
+    }
+    
+    int Filter::get_index_of (const Filter::KernelItem &item) const {
+      for (int i = 0; i < impl_->list.size(); ++i) {
+        if(auto k = impl_->list.at(i)->kernel) {
+          if (k.get() == item.get())
+            return i;
+        }
+      }
+      return -1;
     }
   
 }

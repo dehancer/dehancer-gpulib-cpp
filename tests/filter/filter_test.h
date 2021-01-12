@@ -128,6 +128,18 @@ namespace test {
                   .add(transform_);
         }
         
+        Filter & process(bool emplace) override {
+          std::cout << "pass_ enable: " << is_enable(pass_) << std::endl;
+          std::cout << "optic_ enable: " << is_enable(optic_) << std::endl;
+          std::cout << "blur_ enable: " << is_enable(blur_) << std::endl;
+          std::cout << "transform_ enable: " << is_enable(transform_) << std::endl;
+          return dehancer::Filter::process(emplace);
+        }
+        
+        Filter & process() override {
+          return process(false);
+        }
+        
         void set_radius(float radius) {
           radius_ = radius;
           optic_->set_radius(radius_);
@@ -176,11 +188,11 @@ auto filter_test =  [] (int dev_num,
     
     filter.set_radius(3);
     
-    filter.set_enabling_at(0, false);
-    filter.set_enabling_at(1, false);
-    filter.set_enabling_at(3, true);
+    filter.set_enable(0, false);
+    filter.set_enable(1, true);
+    filter.set_enable(3, true);
     
-    filter.process(1);
+    filter.process() ;
     
     {
       std::ofstream os(output_image, std::ostream::binary | std::ostream::trunc);
