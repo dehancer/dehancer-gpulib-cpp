@@ -30,7 +30,7 @@ auto function_test =  [] (int dev_num,
               .compression = test::compression
       });
       
-      auto kernel = dehancer::OpticalReolution(command_queue
+      auto kernel = dehancer::OpticalResolution(command_queue
                                  //,
                                  //input_text.get_texture(),
                                  //output_text.get_texture(),

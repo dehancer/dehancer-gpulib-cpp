@@ -123,7 +123,7 @@ namespace test {
         explicit CustomFilter(const void* command_queue, const dehancer::Texture& source= nullptr, const dehancer::Texture& destination= nullptr):
                 dehancer::Filter(command_queue, source, destination),
                 pass_(std::make_shared<dehancer::PassKernel>(command_queue)),
-                optic_(std::make_shared<dehancer::OpticalReolution>(command_queue)),
+                optic_(std::make_shared<dehancer::OpticalResolution>(command_queue)),
                 blur_(std::make_shared<dehancer::GaussianBlur>(command_queue)),
                 transform_(std::make_shared<CustomTransform>(command_queue))
         {
@@ -158,7 +158,7 @@ namespace test {
     
     protected:
         std::shared_ptr<dehancer::PassKernel> pass_;
-        std::shared_ptr<dehancer::OpticalReolution> optic_;
+        std::shared_ptr<dehancer::OpticalResolution> optic_;
         std::shared_ptr<dehancer::GaussianBlur> blur_;
         std::shared_ptr<CustomTransform> transform_;
     
