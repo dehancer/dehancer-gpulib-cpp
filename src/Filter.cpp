@@ -156,9 +156,7 @@ namespace dehancer {
         index++;
       }
       
-      if (index==0) make_last_copy = true;
-      
-      if (!emplace && impl_->destination && make_last_copy) {
+      if ((!emplace || index==0) && impl_->destination && make_last_copy) {
         PassKernel(impl_->command_queue,
                    current_source,
                    impl_->destination,
