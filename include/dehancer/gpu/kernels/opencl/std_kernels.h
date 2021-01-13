@@ -12,10 +12,12 @@ __kernel void kernel_dehancer_pass(
         __write_only image2d_t destination
 ){
   Texel2d tex; get_kernel_texel2d(destination,tex);
-
-  float4  color = sampled_color(source, destination, tex.gid);
-
-  write_image(destination, color, tex.gid);
+  
+  if (!get_texel_boundary(tex)) return;
+  
+  float2 coords = get_texel_coords(tex);
+  float4 color = read_image(source, coords);
+  write_imagef(destination, tex.gid, color);
 }
 
 __kernel void kernel_grid(int levels, __write_only image2d_t destination )

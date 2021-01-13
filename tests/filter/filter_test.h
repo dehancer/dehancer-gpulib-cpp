@@ -15,7 +15,7 @@ namespace test {
     class Custom3DLut: public dehancer::Kernel {
     public:
         explicit Custom3DLut(const void* command_queue):
-        dehancer::Kernel(command_queue, "kernel_make3DLut_transform")
+                dehancer::Kernel(command_queue, "kernel_make3DLut_transform")
         {
           /***
           * Make empty 3D Lut
@@ -72,7 +72,8 @@ namespace test {
     
     class CustomLutTransform: public dehancer::Kernel {
     public:
-        explicit CustomLutTransform(const void* command_queue):dehancer::Kernel(command_queue, "kernel_test_transform"){
+        explicit CustomLutTransform(const void* command_queue):dehancer::Kernel(command_queue, "kernel_test_transform",
+                                                                                nullptr, nullptr, true){
         }
         
         void setup(dehancer::CommandEncoder &encode) override {
@@ -97,7 +98,7 @@ namespace test {
                 lut1d_transform_(command_queue),
                 trasnform_(std::make_shared<CustomLutTransform>(command_queue))
         {
-  
+          
           cache_enabled = true;
           name = "CustomTransform";
           
@@ -109,8 +110,8 @@ namespace test {
           
           add(trasnform_);
         }
-        
-        
+    
+    
     protected:
         Custom3DLut lut3d_transform_;
         Custom1DLut lut1d_transform_;
@@ -133,7 +134,7 @@ namespace test {
           add(pass_, true)
                   .add(optic_, true)
                   .add(blur_, true)
-                  .add(transform_);
+                  .add(transform_, false);
         }
         
         Filter & process(bool emplace) override {
@@ -186,10 +187,14 @@ auto filter_test =  [] (int dev_num,
     std::ifstream ifs(input_image, std::ios::binary);
     ifs >> input_text;
     
-    auto output_text = dehancer::TextureOutput(command_queue, input_text.get_texture(), {
-            .type = test::type,
-            .compression = test::compression
-    });
+    auto output_text = dehancer::TextureOutput(command_queue,
+                                               input_text.get_texture()->get_width(),
+                                               input_text.get_texture()->get_height(),
+                                               nullptr,
+                                               {
+                                                       .type = test::type,
+                                                       .compression = test::compression
+                                               });
     
     filter.set_source(input_text.get_texture());
     filter.set_destination(output_text.get_texture());
@@ -198,8 +203,8 @@ auto filter_test =  [] (int dev_num,
     
     filter.set_enable(0, false);
     filter.set_enable(1, true);
-    filter.set_enable(2, false);
-    filter.set_enable(3, false);
+    filter.set_enable(2, true);
+    filter.set_enable(3, true);
     
     for (int i = 0; i < 4; ++i) {
       filter.process() ;

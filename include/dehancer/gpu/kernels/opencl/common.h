@@ -138,13 +138,13 @@ static inline void __attribute__((overloadable)) write_image(__write_only image3
 }
 
 static inline float4 sampled_color(
-        __read_only image2d_t source,
-        __write_only image2d_t destination,
+        image2d_t source,
+        image2d_t destination,
         int2 gid
 ){
 
   Texel2d tex; get_kernel_texel2d(destination,tex);
-
+  
   float2 coords = get_texel_coords(tex);
 
   return read_image(source, coords);

@@ -80,6 +80,18 @@ namespace dehancer {
       
       if (!impl_->source) return *this;
       
+      if (impl_->list.empty()) {
+        if (impl_->source == impl_->destination) {
+          return *this;
+        }
+        PassKernel(impl_->command_queue,
+                   impl_->source,
+                   impl_->destination,
+                   impl_->wait_until_completed,
+                   impl_->library_path).process();
+        return *this;
+      }
+      
       auto current_source = impl_->source;
       
       TextureDesc desc = impl_->destination->get_desc();
@@ -94,7 +106,7 @@ namespace dehancer {
         
         if (current_source->get_length() < impl_->destination->get_length())
           desc = current_source->get_desc();
-  
+        
         if (!impl_->ping_pong.at(0) || impl_->ping_pong.at(0)->get_desc()!=desc) {
           desc.label = "Filter[" + get_name() + "] ping texture";
           auto ping = TextureHolder::Make(impl_->command_queue, desc);
@@ -104,58 +116,56 @@ namespace dehancer {
       
       int next_index = 0;
       
-      auto pass_kernel = PassKernel(impl_->command_queue, impl_->wait_until_completed, impl_->library_path);
-      
       int index = 0;
       bool make_last_copy = true;
       for (const auto& f: impl_->list) {
         
+        if (!f->enabled) continue;
+        
         auto current_destination = impl_->ping_pong[next_index%2]; next_index++;
-  
+        
         if (index==impl_->list.size()-1 && impl_->source->get_desc()==impl_->destination->get_desc()) {
           current_destination = impl_->destination;
           make_last_copy = false;
         } else {
           if (!current_destination || current_destination->get_desc() != desc) {
-    
+            
             desc.label = "Filter[" + get_name() + "] pong texture";
-    
+            
             auto pong = TextureHolder::Make(impl_->command_queue, desc);
             impl_->ping_pong.at(1) = pong;
             current_destination = pong;
           }
         }
         
-        if (!f->enabled){
-          pass_kernel.set_source(current_source);
-          pass_kernel.set_destination(current_destination);
-          pass_kernel.process();
-        } else {
-          if (f->kernel) {
-            
-            f->kernel->set_source(current_source);
-            f->kernel->set_destination(current_destination);
-            f->kernel->process();
-          }
+        if (f->kernel) {
           
-          else if (f->filter) {
-            
-            f->filter->set_source(current_source);
-            f->filter->set_destination(current_destination);
-            f->filter->process(f->emplace);
-          }
+          f->kernel->set_source(current_source);
+          f->kernel->set_destination(current_destination);
+          f->kernel->process();
+        }
+        
+        else if (f->filter) {
+          
+          f->filter->set_source(current_source);
+          f->filter->set_destination(current_destination);
+          f->filter->process(f->emplace);
         }
         
         current_source = current_destination;
         index++;
       }
       
+      if (index==0) make_last_copy = true;
+      
       if (!emplace && impl_->destination && make_last_copy) {
-        pass_kernel.set_source(current_source);
-        pass_kernel.set_destination(impl_->destination);
-        pass_kernel.process();
+        PassKernel(impl_->command_queue,
+                   current_source,
+                   impl_->destination,
+                   impl_->wait_until_completed,
+                   impl_->library_path).process();
       }
-  
+      
       if (!cache_enabled)
         impl_->ping_pong = {nullptr, nullptr};
       
@@ -252,5 +262,5 @@ namespace dehancer {
         return impl::filter_name(*this);
       return name;
     }
-    
+  
 }
