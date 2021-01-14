@@ -17,11 +17,10 @@ namespace dehancer::opencl {
       std::unique_lock<std::mutex> lock(Function::mutex_);
 
       auto texture_size = block(*encoder_);
-
-      // auto device_id = command_->get_device_id();
-
-      size_t local_work_size[3] = {16,16,16};
-
+      
+      //size_t local_work_size[3] = {16,16,16};
+      size_t local_work_size[3] = {1,1,1};
+      
       ///
       /// TODO: optimize workgroups automatically
       ///
@@ -29,16 +28,16 @@ namespace dehancer::opencl {
       //local_work_size[1] = 1;
       //if (local_work_size[0]>=texture_size.width) local_work_size[0] = 1;
 
-      if (texture_size.depth==1) {
-        local_work_size[2] = 1;
-      }
-      else {
-        local_work_size[0] = local_work_size[1] = local_work_size[2] = 8;
-      }
-
-      if (texture_size.height==1) {
-        local_work_size[1] = 1;
-      }
+//      if (texture_size.depth==1) {
+//        local_work_size[2] = 1;
+//      }
+//      else {
+//        local_work_size[0] = local_work_size[1] = local_work_size[2] = 8;
+//      }
+//
+//      if (texture_size.height==1) {
+//        local_work_size[1] = 1;
+//      }
 
       if (texture_size.width < local_work_size[0]) local_work_size[0] = texture_size.width;
       if (texture_size.height < local_work_size[1]) local_work_size[1] = texture_size.height;
@@ -69,7 +68,8 @@ namespace dehancer::opencl {
                                           kernel_, 3,
                                           nullptr,
                                           global_work_size,
-                                          local_work_size,
+                                          nullptr,
+                                          //local_work_size,
                                           0,
                                           nullptr,
                                           &waiting_event);
