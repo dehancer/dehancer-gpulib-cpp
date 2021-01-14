@@ -237,19 +237,23 @@ inline static  uint4 __attribute__((overloadable)) make_uint4(int4 a) {
 //////////////////////////////////////////////////////////////////////////////////
 //// min
 //////////////////////////////////////////////////////////////////////////////////
-//
-//inline static   float2 fminf(float2 a, float2 b) {
-//  return make_float2(fminf(a.x, b.x), fminf(a.y, b.y));
-//}
-//
-//inline static  float3 fminf(float3 a, float3 b) {
-//  return make_float3(fminf(a.x, b.x), fminf(a.y, b.y), fminf(a.z, b.z));
-//}
-//
-//inline static   float4 fminf(float4 a, float4 b) {
-//  return make_float4(fminf(a.x, b.x), fminf(a.y, b.y), fminf(a.z, b.z), fminf(a.w, b.w));
-//}
-//
+
+inline static float __attribute__((overloadable)) fminf(float a, float b) {
+  return fmin(a, b), fmin(a, b);
+}
+
+inline static   float2 __attribute__((overloadable)) fminf(float2 a, float2 b) {
+  return make_float2(fminf(a.x, b.x), fminf(a.y, b.y));
+}
+
+inline static  float3 __attribute__((overloadable)) fminf(float3 a, float3 b) {
+  return make_float3(fminf(a.x, b.x), fminf(a.y, b.y), fminf(a.z, b.z));
+}
+
+inline static   float4 __attribute__((overloadable)) fminf(float4 a, float4 b) {
+  return make_float4(fminf(a.x, b.x), fminf(a.y, b.y), fminf(a.z, b.z), fminf(a.w, b.w));
+}
+
 //inline static  int2 min(int2 a, int2 b) {
 //  return make_int2(min(a.x, b.x), min(a.y, b.y));
 //}
@@ -277,19 +281,23 @@ inline static  uint4 __attribute__((overloadable)) make_uint4(int4 a) {
 //////////////////////////////////////////////////////////////////////////////////
 //// max
 //////////////////////////////////////////////////////////////////////////////////
-//
-//inline static  float2 fmaxf(float2 a, float2 b) {
-//  return make_float2(fmaxf(a.x, b.x), fmaxf(a.y, b.y));
-//}
-//
-//inline static  float3 fmaxf(float3 a, float3 b) {
-//  return make_float3(fmaxf(a.x, b.x), fmaxf(a.y, b.y), fmaxf(a.z, b.z));
-//}
-//
-//inline static  float4 fmaxf(float4 a, float4 b) {
-//  return make_float4(fmaxf(a.x, b.x), fmaxf(a.y, b.y), fmaxf(a.z, b.z), fmaxf(a.w, b.w));
-//}
-//
+
+inline static  float __attribute__((overloadable)) fmaxf(float a, float b) {
+  return fmaxf(a, b), fmaxf(a, b);
+}
+
+inline static  float2 __attribute__((overloadable)) fmaxf(float2 a, float2 b) {
+  return make_float2(fmaxf(a.x, b.x), fmaxf(a.y, b.y));
+}
+
+inline static  float3 __attribute__((overloadable)) fmaxf(float3 a, float3 b) {
+  return make_float3(fmaxf(a.x, b.x), fmaxf(a.y, b.y), fmaxf(a.z, b.z));
+}
+
+inline static  float4 __attribute__((overloadable)) fmaxf(float4 a, float4 b) {
+  return make_float4(fmaxf(a.x, b.x), fmaxf(a.y, b.y), fmaxf(a.z, b.z), fmaxf(a.w, b.w));
+}
+
 //inline static  int2 max(int2 a, int2 b) {
 //  return make_int2(max(a.x, b.x), max(a.y, b.y));
 //}
