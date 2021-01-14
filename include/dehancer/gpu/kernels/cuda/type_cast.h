@@ -1,0 +1,8 @@
+//
+// Created by denn on 14.01.2021.
+//
+
+#ifndef DEHANCER_GPULIB_TYPE_CAST_H
+#define DEHANCER_GPULIB_TYPE_CAST_H
+
+#endif //DEHANCER_GPULIB_TYPE_CAST_H

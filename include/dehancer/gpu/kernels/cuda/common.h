@@ -11,6 +11,7 @@
 #include "dehancer/gpu/kernels/cuda/cmatrix.h"
 #include "dehancer/gpu/kernels/constants.h"
 #include "dehancer/gpu/kernels/types.h"
+#include "dehancer/gpu/kernels/cuda/type_cast.h"
 
 #define texture1d_read_t DHCR_READ_ONLY image1d_t
 #define texture1d_write_t DHCR_WRITE_ONLY image1d_t

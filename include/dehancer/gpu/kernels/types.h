@@ -6,6 +6,9 @@
 #define DEHANCER_GPULIB_TYPES_H
 
 #if defined(__CUDA_ARCH__)
+
+typedef  unsigned int uint;
+
 #define __constant const
 #define __constant const
 #define __read_only const
