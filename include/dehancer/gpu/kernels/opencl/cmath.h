@@ -76,6 +76,10 @@ inline static  float2 __attribute__((overloadable)) make_float2(float3 a) {
   return make_float2(a.x, a.y);
 }
 
+inline static  float2 __attribute__((overloadable)) make_float2(float4 a) {
+  return make_float2(a.x, a.y);
+}
+
 inline static  float2 __attribute__((overloadable)) make_float2(int2 a) {
   return make_float2((float)(a.x), (float)(a.y));
 }
