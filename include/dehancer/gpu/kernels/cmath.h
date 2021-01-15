@@ -60,4 +60,5 @@ inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) powf(float3 a, floa
 inline DHCR_DEVICE_FUNC float __attribute__((overloadable)) lum(float3 c) {
   return dot(c, kIMP_Y_YCbCr_factor);
 }
+
 #endif //DEHANCER_GPULIB_CMATH_H
