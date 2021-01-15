@@ -180,6 +180,7 @@ namespace dehancer::opencl {
           clGetProgramBuildInfo(program_, command_->get_device_id(), CL_PROGRAM_BUILD_LOG,
                                 log_size, log.data(),nullptr);
           
+          std::cerr << "Function build Error: " << log << std::endl;
           throw std::runtime_error("Unable to build OpenCL program from: '" + p_path + "' on: " + kernel_name_ + ": \n[" + std::to_string(log_size) + "] " + log);
         }
         
