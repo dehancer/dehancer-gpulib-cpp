@@ -8,8 +8,6 @@
 #if defined(__CUDA_ARCH__)
 #include <cmath>
 
-#define bool_ref_t bool
-
 #elif defined(CL_VERSION_1_2)
 
 inline DHCR_DEVICE_FUNC float __attribute__((overloadable)) powf(float a, float b) {
