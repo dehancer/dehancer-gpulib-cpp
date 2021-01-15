@@ -172,13 +172,15 @@ namespace dehancer::opencl {
           
           // Determine the size of the log
           size_t log_size;
-          clGetProgramBuildInfo(program_, command_->get_device_id(), CL_PROGRAM_BUILD_LOG, 0, nullptr, &log_size);
+          clGetProgramBuildInfo(program_, command_->get_device_id(), CL_PROGRAM_BUILD_LOG,
+                                0, nullptr, &log_size);
           log.resize(log_size);
-          // Get the log
-          clGetProgramBuildInfo(program_, command_->get_device_id(), CL_PROGRAM_BUILD_LOG, log_size, log.data(),
-                                NULL);
           
-          throw std::runtime_error("Unable to build OpenCL program from: " + kernel_name_ + ": \n" + log);
+          // Get the log
+          clGetProgramBuildInfo(program_, command_->get_device_id(), CL_PROGRAM_BUILD_LOG,
+                                log_size, log.data(),nullptr);
+          
+          throw std::runtime_error("Unable to build OpenCL program from: '" + p_path + "' on: " + kernel_name_ + ": \n[" + std::to_string(log_size) + "] " + log);
         }
         
         program_map_[command_->get_command_queue()][p_path_hash] = program_ ;
