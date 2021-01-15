@@ -20,10 +20,6 @@
     Thanks to Linh Hah for additions and fixes.
 */
 
-//#pragma once
-
-//typedef unsigned int uint;
-//typedef unsigned short ushort;
 
 #ifndef DEHANCER_GPULIB_CMATH_OPENCL_H
 
