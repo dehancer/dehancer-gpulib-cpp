@@ -22,12 +22,13 @@ namespace dehancer {
             __device__ [[nodiscard]] size_t get_depth() const override { return depth_;};
 
 #ifndef CUDA_KERNEL
-            texture3d(size_t width, size_t height, size_t depth):
+            texture3d(size_t width, size_t height, size_t depth, bool normalized_coords = true):
                     texture_(0),
                     surface_(0),
                     width_(width),
                     depth_(depth),
-                    height_(height)
+                    height_(height),
+                    normalized_coords_(normalized_coords)
             {
               assert(width_ > 0 && height_ > 0 && depth_ > 0);
 
@@ -51,7 +52,7 @@ namespace dehancer {
               texDesc.addressMode[2]   = cudaAddressModeMirror;//cudaAddressModeClamp;
               texDesc.filterMode       = cudaFilterModeLinear;
               texDesc.readMode         = cudaReadModeElementType;
-              texDesc.normalizedCoords = 1;
+              texDesc.normalizedCoords = normalized_coords_;
 
               // Create texture object
               CHECK_CUDA(cudaCreateTextureObject(&texture_, &resDesc, &texDesc, nullptr));
@@ -95,6 +96,7 @@ namespace dehancer {
             size_t width_;
             size_t height_;
             size_t depth_;
+            bool normalized_coords_;
 
 #ifndef CUDA_KERNEL
             cudaArray* mem_ = nullptr;
