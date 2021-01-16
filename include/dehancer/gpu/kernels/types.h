@@ -62,7 +62,7 @@ typedef enum:int {
 #define DHCR_DEVICE_ARG __global
 #define DHCR_THREAD_ARG
 #define DHCR_CONST_ARG
-#define bool_ref_t cl_bool
+#define bool_ref_t uint
 #define uint_ref_t unsigned int
 #define int_ref_t int
 #define float_ref_t  float
