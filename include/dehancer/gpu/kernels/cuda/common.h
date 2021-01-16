@@ -24,40 +24,39 @@
 #define texture3d_read_t DHCR_READ_ONLY image3d_t
 #define texture3d_write_t DHCR_WRITE_ONLY image3d_t
 
-
-static inline  int __attribute__((overloadable)) get_texture_width(image1d_t source) {
+static inline __device__ __host__ int __attribute__((overloadable)) get_texture_width(const image1d_t& source) {
   return (int)source.get_width();
 }
 
-static inline  int __attribute__((overloadable)) get_texture_height(image1d_t source) {
+static inline __device__ __host__ int __attribute__((overloadable)) get_texture_height(const image1d_t& source) {
   return (int)1;
 }
 
-static inline  int __attribute__((overloadable)) get_texture_depth(image1d_t source) {
+static inline __device__ __host__ int __attribute__((overloadable)) get_texture_depth(const image1d_t& source) {
   return (int)1;
 }
 
-static inline  int __attribute__((overloadable)) get_texture_width(image2d_t source) {
+static inline __device__ __host__ int __attribute__((overloadable)) get_texture_width(const image2d_t& source) {
   return (int)source.get_width();
 }
 
-static inline  int __attribute__((overloadable)) get_texture_height(image2d_t source) {
+static inline __device__ __host__ int __attribute__((overloadable)) get_texture_height(const image2d_t& source) {
   return (int)source.get_height();
 }
 
-static inline  int __attribute__((overloadable)) get_texture_depth(image2d_t source) {
+static inline __device__ __host__ int __attribute__((overloadable)) get_texture_depth(const image2d_t& source) {
   return (int)1;
 }
 
-static inline  int __attribute__((overloadable)) get_texture_width(image3d_t source) {
+static inline __device__ __host__ int __attribute__((overloadable)) get_texture_width(const image3d_t& source) {
   return (int)source.get_width();
 }
 
-static inline  int __attribute__((overloadable)) get_texture_height(image3d_t source) {
+static inline __device__ __host__ int __attribute__((overloadable)) get_texture_height(const image3d_t& source) {
   return (int)source.get_height();
 }
 
-static inline  int __attribute__((overloadable)) get_texture_depth(image3d_t source) {
+static inline __device__ __host__ int __attribute__((overloadable)) get_texture_depth(const image3d_t& source) {
   return (int)source.get_depth();
 }
 
