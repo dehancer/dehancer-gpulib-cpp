@@ -16,7 +16,7 @@ namespace dehancer::cuda {
                  const std::string& kernel_name,
                  const std::string &library_path
                  );
-        void execute(const dehancer::Function::FunctionHandler& block);
+        void execute(const dehancer::Function::EncodeHandler& block);
 
         dehancer::cuda::Command* get_command() { return command_;}
         [[nodiscard]] const std::string& get_name() const;

@@ -13,7 +13,7 @@ namespace dehancer::opencl {
     std::unordered_map<cl_command_queue, Function::KernelMap> Function::kernel_map_;
     std::unordered_map<cl_command_queue, Function::ProgamMap> Function::program_map_;
     
-    void Function::execute(const dehancer::Function::FunctionHandler &block) {
+    void Function::execute(const dehancer::Function::EncodeHandler &block) {
       
       std::unique_lock<std::mutex> lock(Function::mutex_);
       

@@ -47,8 +47,8 @@ namespace dehancer {
     }
 
     void Kernel::setup(CommandEncoder &commandEncoder) {
-      if (optionsHandler) {
-        optionsHandler(commandEncoder);
+      if (encode_handler) {
+        encode_handler(commandEncoder);
       }
     }
 

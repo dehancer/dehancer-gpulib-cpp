@@ -15,7 +15,7 @@ namespace dehancer::cuda {
     std::unordered_map<CUstream, Function::KernelMap> Function::kernel_map_;
     std::unordered_map<CUstream, Function::ProgamMap> Function::module_map_;
 
-    void Function::execute(const dehancer::Function::FunctionHandler &block) {
+    void Function::execute(const dehancer::Function::EncodeHandler &block) {
 
       std::unique_lock<std::mutex> lock(Function::mutex_);
 

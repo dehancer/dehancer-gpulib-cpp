@@ -39,7 +39,7 @@ namespace dehancer {
         /***
          * Custom options handler
          */
-        FunctionHandler optionsHandler = nullptr;
+        EncodeHandler encode_handler = nullptr;
 
         /***
          * Process Kernel functor
@@ -48,9 +48,9 @@ namespace dehancer {
 
         /***
          * Set up kernel parameters
-         * @param encode - command encoder interface
+         * @param encoder - command encoder interface
          */
-        virtual void setup(CommandEncoder &encode);
+        virtual void setup(CommandEncoder &encoder);
 
         /**
          * Get source texture

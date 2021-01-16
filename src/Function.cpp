@@ -45,7 +45,7 @@ namespace dehancer {
     {
     }
 
-    void Function::execute(const Function::FunctionHandler &block) {
+    void Function::execute(const Function::EncodeHandler &block) {
       impl_->execute(block);
     }
 

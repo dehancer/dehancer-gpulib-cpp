@@ -16,7 +16,7 @@ namespace dehancer::opencl {
                  const std::string& kernel_name,
                  const std::string &library_path
                  );
-        void execute(const dehancer::Function::FunctionHandler& block);
+        void execute(const dehancer::Function::EncodeHandler& block);
 
         [[nodiscard]] const std::string& get_name() const;
         [[nodiscard]] const std::vector<dehancer::Function::ArgInfo>& get_arg_info_list() const ;
