@@ -10,7 +10,8 @@
 __kernel void swap_channels_kernel (__global float* scl,
                                     __global float* tcl,
                                     int w,
-                                    int h) {
+                                    int h
+                                    ) {
   int x = get_global_id(0);
   int y = get_global_id(1);
 
@@ -27,7 +28,12 @@ __kernel void image_to_channels (
         __global float* reds,
         __global float* greens,
         __global float* blues,
-        __global float* alphas)
+        __global float* alphas,
+        float4_ref_t slope,
+        float4_ref_t offset,
+        bool4_ref_t transform,
+        int_ref_t direction
+        )
 {
   int x = get_global_id(0);
   int y = get_global_id(1);
@@ -40,7 +46,19 @@ __kernel void image_to_channels (
     const int index = ((gid.y * w) + gid.x);
 
     float4 color     = read_imagef(source, nearest_sampler, gid);
-
+  
+    if (transform.x)
+      color.x = linearlog( color.x, slope.x, offset.x, direction);
+  
+    if (transform.y)
+      color.y = linearlog( color.y, slope.y, offset.y, direction);
+  
+    if (transform.z)
+      color.z = linearlog( color.z, slope.z, offset.z, direction);
+  
+    if (transform.w)
+      color.w = linearlog( color.w, slope.w, offset.w, direction);
+    
     reds[index] = color.x;
     greens[index] = color.y;
     blues[index] = color.z;
@@ -54,7 +72,12 @@ __kernel void channels_to_image (
         __global float* reds,
         __global float* greens,
         __global float* blues,
-        __global float* alphas)
+        __global float* alphas,
+        float4_ref_t slope,
+        float4_ref_t offset,
+        bool4_ref_t transform,
+        int_ref_t direction
+        )
 {
   int x = get_global_id(0);
   int y = get_global_id(1);
@@ -65,8 +88,21 @@ __kernel void channels_to_image (
 
   if ((gid.x < w) && (gid.y < h)) {
     const int index = ((gid.y * w) + gid.x);
-    float4 inColor = {reds[index], greens[index], blues[index], alphas[index]};
-    write_imagef(destination, gid, inColor);
+    float4 color = {reds[index], greens[index], blues[index], alphas[index]};
+  
+    if (transform.x)
+      color.x = linearlog( color.x, slope.x, offset.x, direction);
+  
+    if (transform.y)
+      color.y = linearlog( color.y, slope.y, offset.y, direction);
+  
+    if (transform.z)
+      color.z = linearlog( color.z, slope.z, offset.z, direction);
+  
+    if (transform.w)
+      color.w = linearlog( color.w, slope.w, offset.w, direction);
+    
+    write_imagef(destination, gid, color);
   }
 }
 

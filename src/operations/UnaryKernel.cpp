@@ -10,10 +10,7 @@ namespace dehancer {
     
     struct UnaryKernelImpl{
         ChannelsInput* root_;
-        UnaryKernel::KernelFunction row_func;
-        UnaryKernel::KernelFunction col_func;
-        UnaryKernel::UserData       user_data;
-        DHCR_EdgeMode    edge_mode;
+        UnaryKernel::Options options_;
         std::array<dehancer::Memory,4> row_weights;
         std::array<int,4> row_sizes{};
         std::array<dehancer::Memory,4> col_weights;
@@ -27,27 +24,43 @@ namespace dehancer {
                 ChannelsInput* root,
                 const Texture& s,
                 const Texture& d,
-                UnaryKernel::KernelFunction row_func,
-                UnaryKernel::KernelFunction col_func,
-                UnaryKernel::UserData        user_data,
-                DHCR_EdgeMode    address_mode
+                const UnaryKernel::Options& options
         );
+        
+        ChannelDesc::Transform get_output_transform() const {
+          ChannelDesc::Transform t = options_.transform;
+          if (t.direction == ChannelDesc::TransformDirection::forward) {
+            t.direction = ChannelDesc::TransformDirection::inverse;
+          }
+          else if (t.direction == ChannelDesc::TransformDirection::inverse) {
+            t.direction = ChannelDesc::TransformDirection::forward;
+          }
+          return t;
+        }
     };
     
-    UnaryKernelImpl::UnaryKernelImpl (ChannelsInput *root, const Texture &s, const Texture &d,
-                                      UnaryKernel::KernelFunction row_func,
-                                      UnaryKernel::KernelFunction col_func,
-                                      UnaryKernel::UserData  user_data,
-                                      DHCR_EdgeMode address_mode) :
+    UnaryKernelImpl::UnaryKernelImpl (ChannelsInput *root,
+                                      const Texture &s,
+                                      const Texture &d,
+                                      const UnaryKernel::Options& options
+                                      ) :
             root_(root),
-            row_func(std::move(row_func)),
-            col_func(std::move(col_func)),
-            user_data(std::move(user_data)),
-            edge_mode(address_mode),
+            options_(options),
             width(s?s->get_width():0),
             height(s?s->get_height():0),
-            channels_out(width>0?ChannelsHolder::Make(root_->get_command_queue(), width, height): nullptr),
-            channels_finalizer(std::make_shared<ChannelsOutput>(root_->get_command_queue(), d, root_->get_channels(), root_->get_wait_completed()))
+            channels_out(ChannelsHolder::Make(root_->get_command_queue(),
+                                              (ChannelDesc){
+              .width = width,
+              .height = height,
+              .transform = options.transform
+            })),
+            channels_finalizer(std::make_shared<ChannelsOutput>(
+                    root_->get_command_queue(),
+                    d,
+                    root_->get_channels(),
+                    get_output_transform(),
+                    root_->get_wait_completed())
+            )
     {}
     
     UnaryKernel::UnaryKernel(const void* command_queue,
@@ -57,15 +70,12 @@ namespace dehancer {
                              bool wait_until_completed,
                              const std::string& library_path
     ):
-            ChannelsInput (command_queue, s, wait_until_completed, library_path),
+            ChannelsInput (command_queue, s, options.transform, wait_until_completed, library_path),
             impl_(std::make_shared<UnaryKernelImpl>(
                     this,
                     s,
                     d,
-                    options.row,
-                    options.col,
-                    options.user_data,
-                    options.edge_mode
+                    options
             ))
     {
       recompute_kernel();
@@ -100,7 +110,7 @@ namespace dehancer {
               command.set(impl_->row_weights.at(i), 4);
               command.set(impl_->row_sizes[i], 5);
               
-              int a = impl_->edge_mode;
+              int a = impl_->options_.edge_mode;
               command.set(a, 6);
               
               return (CommandEncoder::Size) {impl_->width, impl_->height, 1};
@@ -122,7 +132,7 @@ namespace dehancer {
               command.set(impl_->col_weights.at(0), 4);
               command.set(impl_->col_sizes[0], 5);
               
-              int a = impl_->edge_mode;
+              int a = impl_->options_.edge_mode;
               command.set(a, 6);
               
               return (CommandEncoder::Size) {impl_->width, impl_->height, 1};
@@ -146,6 +156,7 @@ namespace dehancer {
               get_command_queue(),
               dest,
               get_channels(),
+              impl_->options_.transform,
               get_wait_completed());
     }
     
@@ -158,44 +169,44 @@ namespace dehancer {
     }
     
     [[maybe_unused]] void UnaryKernel::set_edge_mode (DHCR_EdgeMode address) {
-      impl_->edge_mode = address;
+      impl_->options_.edge_mode = address;
     }
     
     void UnaryKernel::set_user_data (const UserData &user_data) {
-      impl_->user_data = user_data;
+      impl_->options_.user_data = user_data;
       recompute_kernel();
     }
     
     void UnaryKernel::set_options (const UnaryKernel::Options &options) {
-      impl_->user_data = options.user_data ? options.user_data : impl_->user_data;
-      impl_->row_func  = options.row ? options.row : impl_->row_func;
-      impl_->col_func  = options.col ? options.col : impl_->col_func;
-      impl_->edge_mode = options.edge_mode;
+      impl_->options_ = options;
+      ChannelsInput::set_transform(impl_->options_.transform);
+      impl_->channels_out->set_transform(impl_->options_.transform);
+      impl_->channels_finalizer->set_transform(impl_->options_.transform);
       recompute_kernel();
     }
     
-    UnaryKernel::Options UnaryKernel::get_options () const {
-      return {
-        impl_->row_func,
-        impl_->col_func,
-        impl_->user_data,
-        impl_->edge_mode
-      };
+    const UnaryKernel::Options& UnaryKernel::get_options () const {
+      return impl_->options_;
+    }
+    
+    
+    UnaryKernel::Options &UnaryKernel::get_options () {
+      return impl_->options_;
     }
     
     void UnaryKernel::recompute_kernel () {
-  
-      if (!impl_->user_data.has_value()) return;
+      
+      if (!impl_->options_.user_data.has_value()) return;
       
       for (int i = 0; i < 4; ++i) {
-  
+        
         std::vector<float> buf;
-  
-        if (impl_->row_func && impl_->user_data) {
+        
+        if (impl_->options_.row && impl_->options_.user_data) {
           
-          impl_->row_func(i, buf, impl_->user_data);
+          impl_->options_.row(i, buf, impl_->options_.user_data);
           impl_->row_sizes[i] = buf.size();
-    
+          
           if (buf.empty())
             impl_->row_weights[i] = nullptr;
           else
@@ -203,12 +214,12 @@ namespace dehancer {
                                                                  buf.data(),
                                                                  buf.size() * sizeof(float));
         }
-        if (impl_->col_func && impl_->user_data) {
+        if (impl_->options_.col && impl_->options_.user_data) {
           buf.clear();
-    
-          impl_->col_func(i, buf, impl_->user_data);
+          
+          impl_->options_.col(i, buf, impl_->options_.user_data);
           impl_->col_sizes[i] = buf.size();
-    
+          
           if (buf.empty())
             impl_->col_weights[i] = nullptr;
           else
@@ -218,5 +229,5 @@ namespace dehancer {
         }
       }
     }
-  
+   
 }

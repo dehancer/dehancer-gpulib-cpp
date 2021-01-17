@@ -76,10 +76,74 @@ namespace dehancer::cuda {
       args_.at(index) = a.get();
     }
 
+    ///
+    ///
+    /// TODO: float2x2 CommandEncoder!
+    ///
+    /// \param m
+    /// \param index
     void CommandEncoder::set(const float2x2& m, int index){
-      //::flo
     };
-
+    
+    void CommandEncoder::set(const float3x3& m, int index){
+    };
+    
     void CommandEncoder::set(const float4x4& m, int index){
     };
+    
+    void CommandEncoder::set(const math::uint2 &p, int index) {
+      resize_at_index(index);
+      auto a = std::make_shared<::uint2>((::uint2){p.x(),p.y()}); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
+    }
+    
+    void CommandEncoder::set(const math::uint3 &p, int index) {
+      resize_at_index(index);
+      auto a = std::make_shared<::uint3>((::uint3){p.x(),p.y(),p.z()}); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
+    }
+    
+    void CommandEncoder::set(const math::uint4 &p, int index) {
+      resize_at_index(index);
+      auto a = std::make_shared<::uint4>((::uint4){p.x(),p.y(),p.z(),p.w()}); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
+    }
+    
+    void CommandEncoder::set(const math::int2 &p, int index) {
+      resize_at_index(index);
+      auto a = std::make_shared<::int2>((::int2){p.x(),p.y()}); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
+    }
+    
+    void CommandEncoder::set(const math::int3 &p, int index) {
+      resize_at_index(index);
+      auto a = std::make_shared<::int3>((::int3){p.x(),p.y(),p.z()}); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
+    }
+    
+    void CommandEncoder::set(const math::int4 &p, int index) {
+      resize_at_index(index);
+      auto a = std::make_shared<::int4>((::int4){p.x(),p.y(),p.z(),p.w()}); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
+    }
+    
+    
+    void CommandEncoder::set(const math::bool2 &p, int index) {
+      resize_at_index(index);
+      auto a = std::make_shared<uint2>((::uint2){p.x(),p.y()}); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
+    }
+    
+    void CommandEncoder::set(const math::bool3 &p, int index) {
+      resize_at_index(index);
+      auto a = std::make_shared<::uint3>((::uint3){p.x(),p.y(),p.z()}); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
+    }
+    
+    void CommandEncoder::set(const math::bool4 &p, int index) {
+      resize_at_index(index);
+      auto a = std::make_shared<::uint4>((::uint4){p.x(),p.y(),p.z(),p.w()}); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
+    }
+  
 }

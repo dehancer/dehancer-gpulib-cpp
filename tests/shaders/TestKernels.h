@@ -137,6 +137,8 @@ DHCR_KERNEL void blend_kernel(
   
   float4 inColor = read_image(source, coords);
   
+  float luma = lum(make_float3(inColor));
+  
   float3        c = (float3){inColor.x,inColor.y,inColor.z};
   float luminance = dot(c, kIMP_Y_YUV_factor);
   int       index = clamp((int)(luminance*(float)(levels-1)),(int)(0),(int)(levels-1));

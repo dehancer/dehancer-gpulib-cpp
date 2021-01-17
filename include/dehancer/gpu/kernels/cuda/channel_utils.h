@@ -6,6 +6,7 @@
 
 #include "dehancer/gpu/kernels/cuda/common.h"
 
+
 extern "C" __global__ void swap_channels_kernel (
         float* scl,
         float* tcl,
@@ -28,7 +29,16 @@ extern "C" __global__ void image_to_channels (
         float* reds,
         float* greens,
         float* blues,
-        float* alphas)
+        float* alphas
+        ,
+        float4_ref_t slope
+        ,
+        float4_ref_t offset
+        ,
+        bool4_ref_t transform
+        ,
+        TransformDirection direction
+        )
 {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -41,10 +51,23 @@ extern "C" __global__ void image_to_channels (
     const int index = ((gid.y * w) + gid.x);
     
     float4 color     = read_image(source, gid);
-    
-    reds[index] = color.x;
+  
+    //if (transform.x)
+      color.x = linearlog( color.x, slope.x, offset.x, direction);
+    //color.x = linearlog( color.x, 32.0f, 64.0f, DHCR_forward);
+
+    if (transform.y)
+      color.y = linearlog( color.y, slope.y, offset.y, direction);
+
+    if (transform.z)
+      color.z = linearlog( color.z, slope.z, offset.z, direction);
+
+    if (transform.w)
+      color.w = linearlog( color.w, slope.w, offset.w, direction);
+  
+    reds[index]   = color.x;
     greens[index] = color.y;
-    blues[index] = color.z;
+    blues[index]  = color.z;
     alphas[index] = color.w;
   }
 }
@@ -54,7 +77,16 @@ extern "C" __global__ void channels_to_image (
         float* reds,
         float* greens,
         float* blues,
-        float* alphas)
+        float* alphas
+        ,
+        float4_ref_t slope
+        ,
+        float4_ref_t offset
+        ,
+        bool4_ref_t transform
+        ,
+        TransformDirection direction
+        )
 {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -65,7 +97,22 @@ extern "C" __global__ void channels_to_image (
   
   if ((gid.x < w) && (gid.y < h)) {
     const int index = ((gid.y * w) + gid.x);
-    float4 inColor = {reds[index], greens[index], blues[index], alphas[index]};
-    write_image(destination, inColor, gid);
+    float4 color = make_float4(reds[index], greens[index], blues[index], alphas[index]);
+  
+    //color.x = linearlog( color.x, 32.0f, 64.0f, DHCR_inverse);
+
+    //if (transform.x)
+      color.x = linearlog( color.x, slope.x, offset.x, direction);
+
+    if (transform.y)
+      color.y = linearlog( color.y, slope.y, offset.y, direction);
+
+    if (transform.z)
+      color.z = linearlog( color.z, slope.z, offset.z, direction);
+
+    if (transform.w)
+      color.w = linearlog( color.w, slope.w, offset.w, direction);
+    
+    write_image(destination, color, gid);
   }
 }

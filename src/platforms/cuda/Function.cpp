@@ -68,12 +68,12 @@ namespace dehancer::cuda {
 
       cudaEvent_t start, stop;
       if (command_->get_wait_completed()) {
-        CHECK_CUDA(cudaEventCreate(&start));
-        CHECK_CUDA(cudaEventCreate(&stop));
-        CHECK_CUDA(cudaEventRecord(start, nullptr));
+        CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventCreate(&start));
+        CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventCreate(&stop));
+        CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventRecord(start, nullptr));
       }
 
-      CHECK_CUDA(cuLaunchKernel(
+      CHECK_CUDA_KERNEL(kernel_name_.c_str(),cuLaunchKernel(
               kernel_,
               grid_size.x, grid_size.y, grid_size.z,
               block_size.x, block_size.y, block_size.z,
@@ -84,8 +84,8 @@ namespace dehancer::cuda {
       );
 
       if (command_->get_wait_completed()) {
-        CHECK_CUDA(cudaEventRecord(stop, nullptr));
-        CHECK_CUDA(cudaEventSynchronize(stop));
+        CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventRecord(stop, nullptr));
+        CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventSynchronize(stop));
       }
     }
 

@@ -57,12 +57,27 @@ namespace dehancer {
         virtual void set(uint8_t p, int index);
         virtual void set(uint16_t p, int index);
         virtual void set(uint32_t p, int index);
+        
         virtual void set(float p, int index);
+        
         virtual void set(const float2& p, int index);
         virtual void set(const float3& p, int index);
         virtual void set(const float4& p, int index);
-
+    
         virtual void set(const float2x2& m, int index);
+        virtual void set(const float3x3& m, int index);
         virtual void set(const float4x4& m, int index);
+    
+        virtual void set(const math::uint2& p, int index);
+        virtual void set(const math::uint3& p, int index);
+        virtual void set(const math::uint4& p, int index);
+    
+        virtual void set(const math::int2& p, int index);
+        virtual void set(const math::int3& p, int index);
+        virtual void set(const math::int4& p, int index);
+    
+        virtual void set(const math::bool2& p, int index);
+        virtual void set(const math::bool3& p, int index);
+        virtual void set(const math::bool4& p, int index);
     };
 }

@@ -31,6 +31,18 @@ typedef  unsigned int uint;
 #define float3_ref_t float3
 #define float4_ref_t float4
 
+#define uint2_ref_t uint2
+#define uint3_ref_t uint3
+#define uint4_ref_t uint4
+
+#define int2_ref_t int2
+#define int3_ref_t int3
+#define int4_ref_t int4
+
+#define bool2_ref_t uint2
+#define bool3_ref_t uint3
+#define bool4_ref_t uint4
+
 typedef struct  {
     int gid;
     int size;
@@ -69,6 +81,18 @@ typedef enum:int {
 #define float2_ref_t float2
 #define float3_ref_t float3
 #define float4_ref_t float4
+
+#define uint2_ref_t uint2
+#define uint3_ref_t uint3
+#define uint4_ref_t uint4
+
+#define int2_ref_t int2
+#define int3_ref_t int3
+#define int4_ref_t int4
+
+#define bool2_ref_t uint2
+#define bool3_ref_t uint3
+#define bool4_ref_t uint4
 
 typedef struct  {
     int gid;
@@ -118,6 +142,18 @@ typedef enum {
 #define float2_ref_t float2
 #define float3_ref_t float3
 #define float4_ref_t float4
+
+#define uint2_ref_t uint2
+#define uint3_ref_t uint3
+#define uint4_ref_t uint4
+
+#define int2_ref_t int2
+#define int3_ref_t int3
+#define int4_ref_t int4
+
+#define bool2_ref_t bool2
+#define bool3_ref_t bool3
+#define bool4_ref_t bool4
 
 typedef enum:int {
     DHCR_ADDRESS_CLAMP,

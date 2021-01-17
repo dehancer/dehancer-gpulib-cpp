@@ -80,6 +80,8 @@ namespace dehancer {
              * the source image, or because the filter uses neighboring pixels in its calculations (e.g. convolution filters).
              */
             DHCR_EdgeMode    edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP;
+            
+            ChannelDesc::Transform transform {};
         };
     
         using ChannelsInput::ChannelsInput;
@@ -124,7 +126,8 @@ namespace dehancer {
     protected:
     
         [[maybe_unused]] virtual void set_options(const Options& options);
-        virtual Options get_options() const;
+        virtual const Options& get_options() const;
+        virtual Options& get_options();
         virtual void set_user_data(const UserData &user_data);
         
     private:

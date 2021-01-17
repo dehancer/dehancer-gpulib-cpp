@@ -10,16 +10,32 @@
 
 #include "tests/test_config.h"
 
-const float TEST_RADIUS[] = {90,90,90,0};
+const float TEST_RADIUS[] = {20,0,0,0};
 const int TEST_BOX_RADIUS[] = {4,4,4,0};
 const float TEST_RESOLURION[] = {3.8,3.8,3.8,0};
+
+static dehancer::UnaryKernel::Options options_one= {
+        .transform = {
+                .slope = {32.0f,0,0,0},
+                .offset = {64.0f,0,0,0},
+                .enabled = {true,false,false,false},
+                .direction = dehancer::ChannelDesc::TransformDirection::forward
+        }
+};
 
 namespace test {
     class Convolver: public dehancer::UnaryKernel {
     public:
         using dehancer::UnaryKernel::UnaryKernel;
         
-        Convolver(const void* command_queue): dehancer::UnaryKernel(command_queue, {}, true) {};
+        Convolver(const void* command_queue):
+        dehancer::UnaryKernel(command_queue, options_one, true) {
+//          get_options().transform.slope.x() = 32.0f;
+//          get_options().transform.offset.x() = 64.0f;
+//          get_options().transform.direction = dehancer::ChannelDesc::TransformDirection::forward;
+//          get_options().transform.enabled.x() = true;
+//          set_options(get_options());
+        };
         
         void set_options(const Options &options) override {
           dehancer::UnaryKernel::set_options(options);
