@@ -51,8 +51,7 @@ namespace dehancer {
             channels_out(ChannelsHolder::Make(root_->get_command_queue(),
                                               (ChannelDesc){
               .width = width,
-              .height = height,
-              .transform = options.transform
+              .height = height
             })),
             channels_finalizer(std::make_shared<ChannelsOutput>(
                     root_->get_command_queue(),
@@ -129,8 +128,8 @@ namespace dehancer {
               command.set(w, 2);
               command.set(h, 3);
               
-              command.set(impl_->col_weights.at(0), 4);
-              command.set(impl_->col_sizes[0], 5);
+              command.set(impl_->col_weights.at(i), 4);
+              command.set(impl_->col_sizes[i], 5);
               
               int a = impl_->options_.edge_mode;
               command.set(a, 6);
@@ -147,17 +146,18 @@ namespace dehancer {
       dehancer::ChannelsInput::set_source(s);
       impl_->width = s?s->get_width():0;
       impl_->height = s?s->get_height():0;
-      impl_->channels_out = impl_->width>0?ChannelsHolder::Make(get_command_queue(), impl_->width, impl_->height): nullptr;
+      if (impl_->channels_out){
+        if (impl_->channels_out->get_height()!=impl_->height || impl_->channels_out->get_width()!=impl_->width)
+          impl_->channels_out = nullptr;
+      }
+      if (!impl_->channels_out)
+        impl_->channels_out = ChannelsHolder::Make(get_command_queue(), impl_->width, impl_->height);
     }
     
     void UnaryKernel::set_destination (const Texture &dest) {
       dehancer::ChannelsInput::set_destination(nullptr);
-      impl_->channels_finalizer = std::make_shared<ChannelsOutput>(
-              get_command_queue(),
-              dest,
-              get_channels(),
-              impl_->options_.transform,
-              get_wait_completed());
+      impl_->channels_finalizer->set_destination(dest);
+      impl_->channels_finalizer->set_channels(get_channels());
     }
     
     UnaryKernel::UnaryKernel (const void *command_queue,
@@ -178,10 +178,9 @@ namespace dehancer {
     }
     
     void UnaryKernel::set_options (const UnaryKernel::Options &options) {
+      ChannelsInput::set_transform(options.transform);
       impl_->options_ = options;
-      ChannelsInput::set_transform(impl_->options_.transform);
-      impl_->channels_out->set_transform(impl_->options_.transform);
-      impl_->channels_finalizer->set_transform(impl_->options_.transform);
+      impl_->channels_finalizer->set_transform(impl_->get_output_transform());
       recompute_kernel();
     }
     

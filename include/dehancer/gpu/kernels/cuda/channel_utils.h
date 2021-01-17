@@ -52,7 +52,7 @@ extern "C" __global__ void image_to_channels (
     
     float4 color     = read_image(source, gid);
   
-    //if (transform.x)
+    if (transform.x)
       color.x = linearlog( color.x, slope.x, offset.x, direction);
     //color.x = linearlog( color.x, 32.0f, 64.0f, DHCR_forward);
 
@@ -101,7 +101,7 @@ extern "C" __global__ void channels_to_image (
   
     //color.x = linearlog( color.x, 32.0f, 64.0f, DHCR_inverse);
 
-    //if (transform.x)
+    if (transform.x)
       color.x = linearlog( color.x, slope.x, offset.x, direction);
 
     if (transform.y)

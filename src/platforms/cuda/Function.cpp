@@ -121,7 +121,12 @@ namespace dehancer::cuda {
       cudaDeviceProp props{};
 
       cudaGetDeviceProperties(&props, cUdevice_0);
-
+  
+      if (function_context_ != current_context_) {
+        CHECK_CUDA(cuCtxPopCurrent(&function_context_));
+        CHECK_CUDA(cuCtxPushCurrent( current_context_ ));
+      }
+      
       max_device_threads_ = props.maxThreadsPerBlock;
 
       if (kernel_map_.find(command_->get_command_queue()) != kernel_map_.end())
@@ -178,10 +183,10 @@ namespace dehancer::cuda {
     }
 
     Function::~Function() {
-      if (function_context_ != current_context_) {
-        CHECK_CUDA(cuCtxPopCurrent(&function_context_));
-        CHECK_CUDA(cuCtxPushCurrent( current_context_ ));
-      }
+//      if (function_context_ != current_context_) {
+//        CHECK_CUDA(cuCtxPopCurrent(&function_context_));
+//        CHECK_CUDA(cuCtxPushCurrent( current_context_ ));
+//      }
     }
 
     const std::vector<dehancer::Function::ArgInfo>& Function::get_arg_info_list() const {

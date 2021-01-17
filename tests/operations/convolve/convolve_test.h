@@ -10,15 +10,15 @@
 
 #include "tests/test_config.h"
 
-const float TEST_RADIUS[] = {20,0,0,0};
+const float TEST_RADIUS[] = {10,5,0,0};
 const int TEST_BOX_RADIUS[] = {4,4,4,0};
 const float TEST_RESOLURION[] = {3.8,3.8,3.8,0};
 
-static dehancer::UnaryKernel::Options options_one= {
+static dehancer::UnaryKernel::Options options_one = {
         .transform = {
-                .slope = {32.0f,0,0,0},
-                .offset = {64.0f,0,0,0},
-                .enabled = {true,false,false,false},
+                .slope = {8.0f,8.0f,0,0},
+                .offset = {16.0f,4.0f,0,0},
+                .enabled = {true,true,false,false},
                 .direction = dehancer::ChannelDesc::TransformDirection::forward
         }
 };
@@ -29,7 +29,7 @@ namespace test {
         using dehancer::UnaryKernel::UnaryKernel;
         
         Convolver(const void* command_queue):
-        dehancer::UnaryKernel(command_queue, options_one, true) {
+                dehancer::UnaryKernel(command_queue, options_one, true) {
 //          get_options().transform.slope.x() = 32.0f;
 //          get_options().transform.offset.x() = 64.0f;
 //          get_options().transform.direction = dehancer::ChannelDesc::TransformDirection::forward;
@@ -129,8 +129,6 @@ int run_on_device(int num, const void* device, std::string patform) {
     });
   }
   
-  
-  
   auto kernel_blur = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
       data.clear();
       
@@ -177,20 +175,20 @@ int run_on_device(int num, const void* device, std::string patform) {
                   .col = kernel_blur,
                   .name = "blur"
           },
-          {
-                  .row = kernel_magic_resolution,
-                  .col = kernel_magic_resolution,
-                  .name = "resolution"
-          },
-          {
-                  .row = kernel_box_blur,
-                  .col = kernel_box_blur,
-                  .name = "box-blur"
-          }
+//          {
+//                  .row = kernel_magic_resolution,
+//                  .col = kernel_magic_resolution,
+//                  .name = "resolution"
+//          },
+//          {
+//                  .row = kernel_box_blur,
+//                  .col = kernel_box_blur,
+//                  .name = "box-blur"
+//          }
   };
   
   auto lena_text = dehancer::TextureInput(command_queue);
-  std::string lena_file = IMAGES_DIR; lena_file +="/"; lena_file+= IMAGE_FILES[4];
+  std::string lena_file = IMAGES_DIR; lena_file +="/"; lena_file+= IMAGE_FILES[5];
   
   std::ifstream ifs(lena_file, std::ios::binary);
   ifs >> lena_text;
@@ -198,7 +196,6 @@ int run_on_device(int num, const void* device, std::string patform) {
   std::vector<dehancer::Texture> inputs = {grid_text,lena_text.get_texture()};
   
   auto line_kernel = test::Convolver(command_queue);
-  
   
   for (auto kf: kernels) {
     int text_num = 0;
@@ -222,7 +219,8 @@ int run_on_device(int num, const void* device, std::string patform) {
               .row = kf.row,
               .col = kf.col,
               .user_data = kf.name,
-              .edge_mode = DHCR_EdgeMode ::DHCR_ADDRESS_CLAMP
+              .edge_mode = DHCR_EdgeMode ::DHCR_ADDRESS_CLAMP,
+              .transform = options_one.transform
       };
       
       

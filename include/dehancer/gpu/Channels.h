@@ -55,7 +55,6 @@ namespace dehancer {
         
         size_t  width     = 0;
         size_t  height    = 0;
-        Transform transform;
     
         Channels make(const void *command_queue) const;
       
@@ -70,8 +69,6 @@ namespace dehancer {
         
         virtual size_t get_width() const = 0;
         virtual size_t get_height() const = 0;
-        virtual void set_transform(const ChannelDesc::Transform& transform) = 0;
-        virtual const ChannelDesc::Transform& get_transform() const = 0;
         
         virtual Memory& at(int index) = 0;
         virtual const Memory& at(int index) const = 0;
@@ -106,6 +103,7 @@ namespace dehancer {
         
     private:
         Channels channels_;
+        ChannelDesc::Transform transform_;
     };
     
     class ChannelsOutput: public Kernel {
@@ -126,9 +124,11 @@ namespace dehancer {
         void set_source(const Texture& source) override;
         void set_destination(const Texture& destination) override;
         void set_transform(const ChannelDesc::Transform& transform);
+        void set_channels(const Channels& channels);
         const ChannelDesc::Transform& get_transform() const;
     private:
         Channels channels_;
+        ChannelDesc::Transform transform_;
     };
 }
 

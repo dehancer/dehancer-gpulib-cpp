@@ -6,6 +6,14 @@
 
 namespace dehancer {
     
+    static dehancer::ChannelDesc::Transform options_one = {
+            .slope = {8.0f,4,0,0},
+            .offset = {128.0f,128,0,0},
+            .enabled = {true,true,false,false},
+            .direction = dehancer::ChannelDesc::TransformDirection::forward
+    };
+    
+    
     Channels ChannelDesc::make (const void *command_queue) const {
       return ChannelsHolder::Make(command_queue, *this);
     }
@@ -19,41 +27,9 @@ namespace dehancer {
             size_t get_width() const override { return desc_.width; };
             size_t get_height() const override {return desc_.height;};
             
-            void set_transform(const ChannelDesc::Transform &transform) override {
-              desc_.transform = {
-                      .slope = transform.slope,
-                      .offset = transform.offset,
-                      .enabled = transform.enabled,
-                      .direction = transform.direction
-              };
-            }
-            
-            const ChannelDesc::Transform & get_transform() const override {
-              return desc_.transform;
-            }
-            
             Memory& at(int index) override { return channels_->at(index);};
             const Memory& at(int index) const override { return channels_->at(index);};
             [[nodiscard]] size_t size() const override { return channels_->size(); };
-
-//            ChannelsHolder(const void *command_queue,
-//                           size_t width, size_t height):
-//                    Command(command_queue),
-//                    channels_(std::make_shared<std::array<Memory,4>>()),
-//                    desc_({
-//                                  .width = width,
-//                                  .height = height,
-//                                  .transform = {
-//                                          .enabled = {false,false,false,false}
-//                                  }
-//                          })
-//            {
-//              auto size = sizeof(float)*desc_.width*desc_.height;
-//              if (size==0) return;
-//              for (auto & c : *channels_) {
-//                c = MemoryHolder::Make(get_command_queue(),size);
-//              }
-//            }
             
             ChannelsHolder(const void *command_queue, const ChannelDesc& desc):
                     Command(command_queue),
@@ -80,7 +56,6 @@ namespace dehancer {
               .height = height
       };
       return std::make_shared<impl::ChannelsHolder>(command_queue,desc);
-      //return std::make_shared<impl::ChannelsHolder>(command_queue,width,height);
     }
     
     Channels ChannelsHolder::Make (const void *command_queue, const ChannelDesc &desc) {
@@ -100,17 +75,13 @@ namespace dehancer {
                    wait_until_completed,
                    library_path),
             channels_(ChannelsHolder::Make(command_queue,
-                    //texture ? texture->get_width() : 0,
-                    //texture ? texture->get_height() : 0)
                                            (ChannelDesc) {
                                                    .width = texture ? texture->get_width() : 0,
-                                                   .height = texture ? texture->get_height() : 0,
-                                                   .transform = transform
+                                                   .height = texture ? texture->get_height() : 0
                                            }
-            ))
-    {
-      //channels_->set_transform(transform);
-    }
+            )),
+            transform_(transform)
+    {}
     
     void ChannelsInput::setup(CommandEncoder &command)  {
       int i = 0;
@@ -118,25 +89,19 @@ namespace dehancer {
       for (; i <channels->size(); ++i) {
         command.set(channels->at(i),i+1);
       }
-      command.set(channels->desc_.transform.slope,i+1);
-      command.set(channels->desc_.transform.offset,i+2);
-      command.set(channels->desc_.transform.enabled,i+3);
-      command.set(channels->desc_.transform.direction ,i+4);
+      command.set(transform_.slope,i+1);
+      command.set(transform_.offset,i+2);
+      command.set(transform_.enabled,i+3);
+      command.set(transform_.direction ,i+4);
     }
     
     void ChannelsInput::set_source (const Texture &source) {
       Kernel::set_source(source);
-      auto *channels = dynamic_cast<impl::ChannelsHolder *>(channels_.get());
-      auto desc = channels->desc_;
       size_t width = source?source->get_width():0;
       size_t height = source?source->get_height():0;
       channels_ = ChannelsHolder::Make(get_command_queue(),
                                        width,
                                        height);
-      channels = dynamic_cast<impl::ChannelsHolder *>(channels_.get());
-      desc.width = width;
-      desc.height = height;
-      channels->desc_ = desc;
     }
     
     void ChannelsInput::set_destination (const Texture &destination) {
@@ -144,12 +109,11 @@ namespace dehancer {
     }
     
     void ChannelsInput::set_transform (const ChannelDesc::Transform &transform) {
-      channels_->set_transform(transform);
+      transform_ = transform;
     }
     
     const ChannelDesc::Transform &ChannelsInput::get_transform () const {
-      auto *channels = dynamic_cast<impl::ChannelsHolder *>(channels_.get());
-      return channels->desc_.transform;
+      return transform_;
     }
     
     
@@ -165,10 +129,9 @@ namespace dehancer {
                    destination,
                    wait_until_completed,
                    library_path),
-            channels_(channels)
+            channels_(channels),
+            transform_(transform)
     {
-      auto *c = dynamic_cast<impl::ChannelsHolder *>(channels_.get());
-      c->desc_.transform = transform;
     }
     
     void ChannelsOutput::setup(CommandEncoder &command) {
@@ -177,10 +140,10 @@ namespace dehancer {
       for (; i <channels->size(); ++i) {
         command.set(channels->at(i),i+1);
       }
-      command.set(channels->desc_.transform.slope,i+1);
-      command.set(channels->desc_.transform.offset,i+2);
-      command.set(channels->desc_.transform.enabled,i+3);
-      command.set(channels->desc_.transform.direction,i+4);
+      command.set(transform_.slope,i+1);
+      command.set(transform_.offset,i+2);
+      command.set(transform_.enabled,i+3);
+      command.set(transform_.direction,i+4);
     }
     
     void ChannelsOutput::set_destination (const Texture &destination) {
@@ -192,12 +155,15 @@ namespace dehancer {
     }
     
     void ChannelsOutput::set_transform (const ChannelDesc::Transform &transform) {
-      channels_->set_transform(transform);
+      transform_ = transform;
     }
     
     const ChannelDesc::Transform &ChannelsOutput::get_transform () const {
-      auto *channels = dynamic_cast<impl::ChannelsHolder *>(channels_.get());
-      return channels->desc_.transform;
+      return transform_;
+    }
+    
+    void ChannelsOutput::set_channels (const Channels &channels) {
+      channels_ = channels;
     }
   
 }
