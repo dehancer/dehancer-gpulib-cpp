@@ -147,6 +147,11 @@ inline DHCR_DEVICE_FUNC float4 blend_color(float4 base, float4 overlay){
   return make_float4(base_rgb * make_float3(1.0f - overlay.w) + setlum(overlay_rgb, lum(base_rgb)) * overlay.w, base.w);
 }
 
+inline DHCR_DEVICE_FUNC float4 blend_add(float4 base, float4 overlay){
+  float3 base_rgb = make_float3(base);
+  float3 overlay_rgb = make_float3(overlay);
+  return clamp(make_float4(mix(base_rgb, base_rgb+overlay_rgb, make_float3(overlay.w)),1.0f), make_float4(0.0f), make_float4(1.0f));
+}
 
 inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) blend(float4 base, float4 overlay, DCHR_BlendingMode mode, float opacity){
   
@@ -165,15 +170,26 @@ inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) blend(float4 base, 
     case DCHR_Normal:
       result = blend_normal(base, result);
       break;
-    
+  
+    case DCHR_Overlay:
+      result = blend_overlay(base, result);
+      break;
+  
     case DCHR_Mix:
       result = mix(base, overlay, make_float4(opacity));
-    
+      break;
+      
     case DCHR_Min:
       result = mix(base, fminf(overlay,base), make_float4(opacity));
-    
+      break;
+      
     case DCHR_Max:
       result = mix(base, fmaxf(overlay,base), make_float4(opacity));
+      break;
+      
+    case DCHR_Add:
+      result = blend_add(base, overlay);
+      break;
   }
   
   return  result;

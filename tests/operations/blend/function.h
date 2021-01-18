@@ -28,6 +28,10 @@ static std::vector<test_blend_options> options = {
                 .mode_name = "luminosity"
         },
         {
+                .mode = DCHR_Overlay,
+                .mode_name = "overlay"
+        },
+        {
                 .mode = DCHR_Mix,
                 .mode_name = "mix"
         },
@@ -38,6 +42,10 @@ static std::vector<test_blend_options> options = {
         {
                 .mode = DCHR_Max,
                 .mode_name = "max"
+        },
+        {
+                .mode = DCHR_Add,
+                .mode_name = "add"
         },
 };
 
