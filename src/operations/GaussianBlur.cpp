@@ -44,6 +44,7 @@ namespace dehancer {
                                 const Texture &s,
                                 const Texture &d,
                                 std::array<float, 4> radius,
+                                const ChannelDesc::Transform& transform,
                                 DHCR_EdgeMode    edge_mode,
                                 float             accuracy_,
                                 bool wait_until_completed,
@@ -54,6 +55,7 @@ namespace dehancer {
                                 .user_data = (GaussianBlurOptions){radius,accuracy_},
                                 .edge_mode = edge_mode
                         },
+                        transform,
                         wait_until_completed,
                         library_path)
     {
@@ -63,12 +65,14 @@ namespace dehancer {
                                 const Texture &s,
                                 const Texture &d,
                                 float radius,
+                                const ChannelDesc::Transform& transform,
                                 DHCR_EdgeMode edge_mode,
                                 float accuracy_,
                                 bool wait_until_completed,
                                 const std::string &library_path):
             GaussianBlur(command_queue,s,d,
                          {radius,radius,radius,0},
+                         transform,
                          edge_mode, accuracy_,
                          wait_until_completed,
                          library_path) {
@@ -77,23 +81,26 @@ namespace dehancer {
     
     GaussianBlur::GaussianBlur (const void *command_queue,
                                 std::array<float, 4> radius,
+                                const ChannelDesc::Transform& transform,
                                 DHCR_EdgeMode edge_mode,
                                 float accuracy_,
                                 bool wait_until_completed,
                                 const std::string &library_path):
             GaussianBlur(command_queue, nullptr, nullptr,
-                         radius, edge_mode, accuracy_, wait_until_completed, library_path){
+                         radius, transform, edge_mode, accuracy_, wait_until_completed, library_path){
       
     }
     
     GaussianBlur::GaussianBlur (const void *command_queue,
                                 float radius,
+                                const ChannelDesc::Transform& transform,
                                 DHCR_EdgeMode edge_mode,
                                 float accuracy_,
                                 bool wait_until_completed,
                                 const std::string &library_path)
             :GaussianBlur(command_queue,
                           {radius,radius,radius,0},
+                          transform,
                           edge_mode,accuracy_,wait_until_completed,library_path) {
       
     }

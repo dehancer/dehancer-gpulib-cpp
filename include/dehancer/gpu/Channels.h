@@ -98,8 +98,9 @@ namespace dehancer {
         
         void set_source(const Texture& source) override;
         void set_destination(const Texture& destination) override;
-        void set_transform(const ChannelDesc::Transform& transform);
-        const ChannelDesc::Transform& get_transform() const;
+    
+        virtual void set_transform(const ChannelDesc::Transform& transform);
+        virtual const ChannelDesc::Transform& get_transform() const;
         
     private:
         Channels channels_;
@@ -123,9 +124,9 @@ namespace dehancer {
         void setup(CommandEncoder &encode) override;
         void set_source(const Texture& source) override;
         void set_destination(const Texture& destination) override;
-        void set_transform(const ChannelDesc::Transform& transform);
-        void set_channels(const Channels& channels);
-        const ChannelDesc::Transform& get_transform() const;
+        virtual void set_transform(const ChannelDesc::Transform& transform);
+        virtual void set_channels(const Channels& channels);
+        virtual const ChannelDesc::Transform& get_transform() const;
     private:
         Channels channels_;
         ChannelDesc::Transform transform_;

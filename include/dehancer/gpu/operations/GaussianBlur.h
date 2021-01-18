@@ -7,10 +7,10 @@
 #include "dehancer/gpu/operations/UnaryKernel.h"
 
 namespace dehancer {
-
+    
     class GaussianBlur: public UnaryKernel {
     public:
-
+        
         static constexpr float accuracy = 0.001;
         
         /***
@@ -29,14 +29,16 @@ namespace dehancer {
                      const Texture&    s,
                      const Texture&    d,
                      std::array<float,4> radius,
+                     const ChannelDesc::Transform& transform = {},
                      DHCR_EdgeMode   edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP,
                      float            accuracy = GaussianBlur::accuracy,
                      bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                      const std::string& library_path = ""
         );
-    
+        
         GaussianBlur(const void* command_queue,
                      std::array<float,4> radius,
+                     const ChannelDesc::Transform& transform = {},
                      DHCR_EdgeMode   edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP,
                      float            accuracy = GaussianBlur::accuracy,
                      bool wait_until_completed = WAIT_UNTIL_COMPLETED,
@@ -50,20 +52,22 @@ namespace dehancer {
                      const Texture&    s,
                      const Texture&    d,
                      float radius,
+                     const ChannelDesc::Transform& transform = {},
                      DHCR_EdgeMode   edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP,
                      float            accuracy = 0.001,
                      bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                      const std::string& library_path = ""
         );
-    
+        
         explicit GaussianBlur(const void* command_queue,
-                     float radius = 0,
-                     DHCR_EdgeMode   edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP,
-                     float            accuracy = 0.001,
-                     bool wait_until_completed = WAIT_UNTIL_COMPLETED,
-                     const std::string& library_path = ""
+                              float radius = 0,
+                              const ChannelDesc::Transform& transform = {},
+                              DHCR_EdgeMode   edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP,
+                              float            accuracy = 0.001,
+                              bool wait_until_completed = WAIT_UNTIL_COMPLETED,
+                              const std::string& library_path = ""
         );
-    
+        
         [[maybe_unused]] void set_radius(float radius);
         [[maybe_unused]] void set_radius(std::array<float ,4>  radius);
         [[maybe_unused]] void set_accuracy(float accuracy);

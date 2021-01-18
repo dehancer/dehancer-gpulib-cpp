@@ -81,9 +81,9 @@ namespace dehancer {
              */
             DHCR_EdgeMode    edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP;
             
-            ChannelDesc::Transform transform {};
+            //ChannelDesc::Transform transform {};
         };
-    
+        
         using ChannelsInput::ChannelsInput;
         
         /***
@@ -107,29 +107,34 @@ namespace dehancer {
                     const Texture& s,
                     const Texture& d,
                     const Options& options,
+                    const ChannelDesc::Transform& transform = {},
                     bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                     const std::string& library_path = ""
         );
-    
+        
         UnaryKernel(const void* command_queue,
                     const Options& options,
+                    const ChannelDesc::Transform& transform = {},
                     bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                     const std::string& library_path = ""
         );
-    
+        
         void process() override;
-    
+        
         [[maybe_unused]] void set_source(const Texture& source) override;
         [[maybe_unused]] void set_destination(const Texture& destination) override;
         [[maybe_unused]] void set_edge_mode(DHCR_EdgeMode mode);
-
-    protected:
+        [[maybe_unused]] void set_transform(const ChannelDesc::Transform &transform) override;
     
+        const ChannelDesc::Transform & get_transform() const override;
+        
+    protected:
+        
         [[maybe_unused]] virtual void set_options(const Options& options);
         virtual const Options& get_options() const;
         virtual Options& get_options();
         virtual void set_user_data(const UserData &user_data);
-        
+    
     private:
         std::shared_ptr<UnaryKernelImpl> impl_;
         void recompute_kernel();

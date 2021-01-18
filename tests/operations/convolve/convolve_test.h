@@ -14,13 +14,11 @@ const float TEST_RADIUS[] = {10,5,0,0};
 const int TEST_BOX_RADIUS[] = {4,4,4,0};
 const float TEST_RESOLURION[] = {3.8,3.8,3.8,0};
 
-static dehancer::UnaryKernel::Options options_one = {
-        .transform = {
-                .slope = {8.0f,8.0f,0,0},
-                .offset = {16.0f,4.0f,0,0},
-                .enabled = {true,true,false,false},
-                .direction = dehancer::ChannelDesc::TransformDirection::forward
-        }
+static dehancer::ChannelDesc::Transform options_one = {
+        .slope = {8.0f,8.0f,0,0},
+        .offset = {16.0f,4.0f,0,0},
+        .enabled = {true,true,false,false},
+        .direction = dehancer::ChannelDesc::TransformDirection::forward
 };
 
 namespace test {
@@ -29,13 +27,7 @@ namespace test {
         using dehancer::UnaryKernel::UnaryKernel;
         
         Convolver(const void* command_queue):
-                dehancer::UnaryKernel(command_queue, options_one, true) {
-          get_options().transform.slope.x() = 32.0f;
-          get_options().transform.offset.x() = 64.0f;
-          get_options().transform.direction = dehancer::ChannelDesc::TransformDirection::forward;
-          get_options().transform.enabled.x() = true;
-          set_options(get_options());
-        };
+                dehancer::UnaryKernel(command_queue, {}, {}, true) {};
         
         void set_options(const Options &options) override {
           dehancer::UnaryKernel::set_options(options);
@@ -197,6 +189,7 @@ int run_on_device(int num, const void* device, std::string patform) {
   
   auto line_kernel = test::Convolver(command_queue);
   
+  line_kernel.set_transform(options_one);
   for (auto kf: kernels) {
     int text_num = 0;
     
@@ -220,10 +213,11 @@ int run_on_device(int num, const void* device, std::string patform) {
               .col = kf.col,
               .user_data = kf.name,
               .edge_mode = DHCR_EdgeMode ::DHCR_ADDRESS_CLAMP,
-              .transform = options_one.transform
+              //.transform = options_one.transform
       };
       
       
+      //line_kernel.s
       line_kernel.set_options(options);
       line_kernel.set_source(text);
       line_kernel.set_destination(output_text.get_texture());

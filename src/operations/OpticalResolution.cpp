@@ -45,6 +45,7 @@ namespace dehancer {
                                           const Texture &s,
                                           const Texture &d,
                                           std::array<float, 4> radius,
+                                          const ChannelDesc::Transform& transform,
                                           DHCR_EdgeMode    edge_mode,
                                           bool wait_until_completed,
                                           const std::string &library_path):
@@ -54,16 +55,22 @@ namespace dehancer {
                                 .user_data = (DeresolutiOptions){radius},
                                 .edge_mode = edge_mode
                         },
+                        transform,
                         wait_until_completed,
                         library_path)
     {
     }
     
-    OpticalResolution::OpticalResolution (const void *command_queue, const Texture &s, const Texture &d, float radius,
-                                          DHCR_EdgeMode address_mode, bool wait_until_completed,
+    OpticalResolution::OpticalResolution (const void *command_queue,
+                                          const Texture &s,
+                                          const Texture &d,
+                                          float radius,
+                                          const ChannelDesc::Transform& transform,
+                                          DHCR_EdgeMode address_mode,
+                                          bool wait_until_completed,
                                           const std::string &library_path):
             OpticalResolution(command_queue, s, d,
-                              {radius,radius,radius,0},
+                              {radius,radius,radius,0},transform,
                               address_mode,
                               wait_until_completed,
                               library_path) {
@@ -78,15 +85,22 @@ namespace dehancer {
       set_user_data((DeresolutiOptions){radius});
     }
     
-    OpticalResolution::OpticalResolution (const void *command_queue, std::array<float, 4> radius, DHCR_EdgeMode edge_mode,
-                                          bool wait_until_completed, const std::string &library_path):
-            OpticalResolution(command_queue, nullptr, nullptr, radius, edge_mode, wait_until_completed, library_path){
+    OpticalResolution::OpticalResolution (const void *command_queue,
+                                          std::array<float, 4> radius,
+                                          const ChannelDesc::Transform& transform,
+                                          DHCR_EdgeMode edge_mode,
+                                          bool wait_until_completed,
+                                          const std::string &library_path):
+            OpticalResolution(command_queue, nullptr, nullptr, radius, transform, edge_mode, wait_until_completed, library_path){
       
     }
     
-    OpticalResolution::OpticalResolution (const void *command_queue, float radius, DHCR_EdgeMode edge_mode,
+    OpticalResolution::OpticalResolution (const void *command_queue,
+                                          float radius,
+                                          const ChannelDesc::Transform& transform,
+                                          DHCR_EdgeMode edge_mode,
                                           bool wait_until_completed, const std::string &library_path):
-            OpticalResolution(command_queue, {radius, radius, radius, 0}, edge_mode, wait_until_completed, library_path){
+            OpticalResolution(command_queue, {radius, radius, radius, 0}, transform, edge_mode, wait_until_completed, library_path){
       
     }
 }

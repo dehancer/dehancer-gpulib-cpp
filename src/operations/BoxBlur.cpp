@@ -33,6 +33,7 @@ namespace dehancer {
                       const Texture &s,
                       const Texture &d,
                       std::array<size_t, 4> radius,
+                      const ChannelDesc::Transform& transform,
                       DHCR_EdgeMode    edge_mode,
                       bool wait_until_completed,
                       const std::string &library_path):
@@ -42,6 +43,7 @@ namespace dehancer {
                                 .user_data = (BoxBlurOptions){radius},
                                 .edge_mode = edge_mode
                         },
+                        transform,
                         wait_until_completed,
                         library_path)
     {
@@ -51,11 +53,13 @@ namespace dehancer {
                       const Texture &s,
                       const Texture &d,
                       size_t radius,
+                      const ChannelDesc::Transform& transform,
                       DHCR_EdgeMode edge_mode,
                       bool wait_until_completed,
                       const std::string &library_path):
             BoxBlur(command_queue,s,d,
                     {radius,radius,radius,0},
+                    transform,
                     edge_mode,
                     wait_until_completed,
                     library_path) {
@@ -64,20 +68,22 @@ namespace dehancer {
     
     BoxBlur::BoxBlur (const void *command_queue,
                       std::array<size_t, 4> radius,
+                      const ChannelDesc::Transform& transform,
                       DHCR_EdgeMode edge_mode,
                       bool wait_until_completed,
                       const std::string &library_path):
             BoxBlur(command_queue, nullptr, nullptr,
-                    radius, edge_mode, wait_until_completed, library_path){
+                    radius, transform, edge_mode, wait_until_completed, library_path){
       
     }
     
     BoxBlur::BoxBlur (const void *command_queue,
                       size_t radius,
+                      const ChannelDesc::Transform& transform,
                       DHCR_EdgeMode edge_mode,
                       bool wait_until_completed,
                       const std::string &library_path):
-            BoxBlur(command_queue,{radius,radius,radius,0},edge_mode,wait_until_completed,library_path){
+            BoxBlur(command_queue,{radius,radius,radius,0},transform,edge_mode,wait_until_completed,library_path){
       
     }
     

@@ -11,6 +11,7 @@ namespace dehancer {
     struct UnaryKernelImpl{
         ChannelsInput* root_;
         UnaryKernel::Options options_;
+        ChannelDesc::Transform transform_ {};
         std::array<dehancer::Memory,4> row_weights;
         std::array<int,4> row_sizes{};
         std::array<dehancer::Memory,4> col_weights;
@@ -24,11 +25,12 @@ namespace dehancer {
                 ChannelsInput* root,
                 const Texture& s,
                 const Texture& d,
-                const UnaryKernel::Options& options
+                const UnaryKernel::Options& options,
+                const ChannelDesc::Transform& transform
         );
         
         ChannelDesc::Transform get_output_transform() const {
-          ChannelDesc::Transform t = options_.transform;
+          ChannelDesc::Transform t = transform_;
           if (t.direction == ChannelDesc::TransformDirection::forward) {
             t.direction = ChannelDesc::TransformDirection::inverse;
           }
@@ -42,10 +44,12 @@ namespace dehancer {
     UnaryKernelImpl::UnaryKernelImpl (ChannelsInput *root,
                                       const Texture &s,
                                       const Texture &d,
-                                      const UnaryKernel::Options& options
+                                      const UnaryKernel::Options& options,
+                                      const ChannelDesc::Transform& transform
                                       ) :
             root_(root),
             options_(options),
+            transform_(transform),
             width(s?s->get_width():0),
             height(s?s->get_height():0),
             channels_out(ChannelsHolder::Make(root_->get_command_queue(),
@@ -66,15 +70,17 @@ namespace dehancer {
                              const Texture& s,
                              const Texture& d,
                              const Options& options,
+                             const ChannelDesc::Transform& transform,
                              bool wait_until_completed,
                              const std::string& library_path
     ):
-            ChannelsInput (command_queue, s, options.transform, wait_until_completed, library_path),
+            ChannelsInput (command_queue, s, transform, wait_until_completed, library_path),
             impl_(std::make_shared<UnaryKernelImpl>(
                     this,
                     s,
                     d,
-                    options
+                    options,
+                    transform
             ))
     {
       recompute_kernel();
@@ -162,9 +168,10 @@ namespace dehancer {
     
     UnaryKernel::UnaryKernel (const void *command_queue,
                               const UnaryKernel::Options &options,
+                              const ChannelDesc::Transform& transform,
                               bool wait_until_completed,
                               const std::string &library_path):
-            UnaryKernel(command_queue, nullptr, nullptr, options, wait_until_completed, library_path)
+            UnaryKernel(command_queue, nullptr, nullptr, options, transform, wait_until_completed, library_path)
     {
     }
     
@@ -177,17 +184,23 @@ namespace dehancer {
       recompute_kernel();
     }
     
-    void UnaryKernel::set_options (const UnaryKernel::Options &options) {
-      ChannelsInput::set_transform(options.transform);
-      impl_->options_ = options;
+    void UnaryKernel::set_transform (const ChannelDesc::Transform &transform) {
+      impl_->transform_ = transform;
+      ChannelsInput::set_transform(transform);
       impl_->channels_finalizer->set_transform(impl_->get_output_transform());
+      recompute_kernel();
+    }
+    
+    void UnaryKernel::set_options (const UnaryKernel::Options &options) {
+      //ChannelsInput::set_transform(options.transform);
+      impl_->options_ = options;
+      //impl_->channels_finalizer->set_transform(impl_->get_output_transform());
       recompute_kernel();
     }
     
     const UnaryKernel::Options& UnaryKernel::get_options () const {
       return impl_->options_;
     }
-    
     
     UnaryKernel::Options &UnaryKernel::get_options () {
       return impl_->options_;
@@ -228,5 +241,10 @@ namespace dehancer {
         }
       }
     }
-   
+    
+    const ChannelDesc::Transform &UnaryKernel::get_transform () const {
+      return impl_->transform_;
+    }
+  
+  
 }
