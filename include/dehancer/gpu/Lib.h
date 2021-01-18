@@ -17,6 +17,7 @@
 
 #include "dehancer/gpu/Filter.h"
 
+#include "dehancer/gpu/operations/BlendKernel.h"
 #include "dehancer/gpu/operations/ResampleKernel.h"
 #include "dehancer/gpu/operations/PassKernel.h"
 #include "dehancer/gpu/operations/UnaryKernel.h"

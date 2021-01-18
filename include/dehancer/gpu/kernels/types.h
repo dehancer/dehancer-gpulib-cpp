@@ -64,6 +64,15 @@ typedef enum:int {
     DHCR_ADDRESS_WRAP
 } DHCR_EdgeMode;
 
+typedef enum:int {
+    DCHR_Normal     = 0,
+    DCHR_Luminosity = 1,
+    DCHR_Color      = 2,
+    DCHR_Mix        = 3,
+    DCHR_Min        = 4,
+    DCHR_Max        = 5
+} DCHR_BlendingMode;
+
 #elif defined(CL_VERSION_1_2)
 
 #define DHCR_BIND_TEXTURE(N)
@@ -115,11 +124,23 @@ typedef enum {
     DHCR_ADDRESS_WRAP
 } DHCR_EdgeMode;
 
+typedef enum {
+    DCHR_Normal     = 0,
+    DCHR_Luminosity = 1,
+    DCHR_Color      = 2,
+    DCHR_Mix        = 3,
+    DCHR_Min        = 4,
+    DCHR_Max        = 5
+} DCHR_BlendingMode;
+
+
 #else
 
 /**
  * Dummy auto indentation for CLion
  */
+
+typedef  unsigned int uint;
 
 #define __constant const
 #define __constant const
@@ -161,6 +182,15 @@ typedef enum:int {
     DHCR_ADDRESS_WRAP
 } DHCR_EdgeMode;
 
+typedef enum:int {
+    DCHR_Normal     = 0,
+    DCHR_Luminosity = 1,
+    DCHR_Color      = 2,
+    DCHR_Mix        = 3,
+    DCHR_Min        = 4,
+    DCHR_Max        = 5
+} DCHR_BlendingMode;
+
 #endif
 
 #define DHCR_READ_ONLY  __read_only
@@ -175,5 +205,6 @@ typedef enum:int {
 
 #define texture3d_read_t DHCR_READ_ONLY image3d_t
 #define texture3d_write_t DHCR_WRITE_ONLY image3d_t
+
 
 #endif //DEHANCER_GPULIB_TYPES_H
