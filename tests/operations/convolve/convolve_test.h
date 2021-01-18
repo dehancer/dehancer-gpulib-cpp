@@ -30,11 +30,11 @@ namespace test {
         
         Convolver(const void* command_queue):
                 dehancer::UnaryKernel(command_queue, options_one, true) {
-//          get_options().transform.slope.x() = 32.0f;
-//          get_options().transform.offset.x() = 64.0f;
-//          get_options().transform.direction = dehancer::ChannelDesc::TransformDirection::forward;
-//          get_options().transform.enabled.x() = true;
-//          set_options(get_options());
+          get_options().transform.slope.x() = 32.0f;
+          get_options().transform.offset.x() = 64.0f;
+          get_options().transform.direction = dehancer::ChannelDesc::TransformDirection::forward;
+          get_options().transform.enabled.x() = true;
+          set_options(get_options());
         };
         
         void set_options(const Options &options) override {
