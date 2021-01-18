@@ -89,13 +89,13 @@ int function_test_blend (int dev_num,
                                                        .compression = test::compression
                                                });
     
-    auto kernel = dehancer::BlendKernel(command_queue);
+    auto kernel = dehancer::BlendKernel(command_queue, 0.5);
     
     kernel.set_source(input_text.get_texture());
     kernel.set_destination(output_text.get_texture());
     kernel.set_overlay(grid_text);
     kernel.set_mode(opt.mode);
-    kernel.set_opacity(opt.opacity);
+    //kernel.set_opacity(opt.opacity);
     
     kernel.process();
     

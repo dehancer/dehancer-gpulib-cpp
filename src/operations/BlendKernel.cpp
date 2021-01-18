@@ -14,7 +14,9 @@ namespace dehancer {
                               DCHR_BlendingMode mode,
                               bool wait_until_completed,
                               const std::string &library_path):
-            Kernel(command_queue, "kernel_blend", base, destination, wait_until_completed, library_path)
+            Kernel(command_queue, "kernel_blend", base, destination, wait_until_completed, library_path),
+            opacity_(opacity),
+            mode_(mode)
     {
       
     }
