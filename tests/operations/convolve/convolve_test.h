@@ -146,6 +146,18 @@ int run_on_device(int num, const void* device, std::string patform) {
       magic_resampler(r,data);
   };
   
+  auto kernel_resample = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
+      data.clear();
+      if (index==3) return ;
+      size_t size = 2;
+      downscale_kernel(size,data);
+      data.erase(data.begin());
+      int i = 0;
+      for (auto v: data) {
+        std::cout << "d["<<i++<<"] = " << v << std::endl;
+      }
+  };
+  
   auto kernel_box_blur = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
       data.clear();
       if (index==3) return ;
@@ -167,16 +179,23 @@ int run_on_device(int num, const void* device, std::string patform) {
                   .col = kernel_blur,
                   .name = "blur"
           },
-//          {
-//                  .row = kernel_magic_resolution,
-//                  .col = kernel_magic_resolution,
-//                  .name = "resolution"
-//          },
-//          {
-//                  .row = kernel_box_blur,
-//                  .col = kernel_box_blur,
-//                  .name = "box-blur"
-//          }
+          {
+                  .row = kernel_magic_resolution,
+                  .col = kernel_magic_resolution,
+                  .name = "resolution"
+          },
+          {
+                  .row = kernel_box_blur,
+                  .col = kernel_box_blur,
+                  .name = "box-blur"
+          }
+        
+          ,
+          {
+                  .row = kernel_resample,
+                  .col = kernel_resample,
+                  .name = "resampler"
+          }
   };
   
   auto lena_text = dehancer::TextureInput(command_queue);
@@ -189,7 +208,8 @@ int run_on_device(int num, const void* device, std::string patform) {
   
   auto line_kernel = test::Convolver(command_queue);
   
-  line_kernel.set_transform(options_one);
+  //line_kernel.set_transform(options_one);
+  
   for (auto kf: kernels) {
     int text_num = 0;
     
@@ -213,11 +233,9 @@ int run_on_device(int num, const void* device, std::string patform) {
               .col = kf.col,
               .user_data = kf.name,
               .edge_mode = DHCR_EdgeMode ::DHCR_ADDRESS_CLAMP,
-              //.transform = options_one.transform
       };
       
       
-      //line_kernel.s
       line_kernel.set_options(options);
       line_kernel.set_source(text);
       line_kernel.set_destination(output_text.get_texture());

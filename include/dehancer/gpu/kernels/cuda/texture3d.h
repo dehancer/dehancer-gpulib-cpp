@@ -50,6 +50,9 @@ namespace dehancer {
               texDesc.addressMode[0]   = cudaAddressModeMirror;//cudaAddressModeClamp;
               texDesc.addressMode[1]   = cudaAddressModeMirror;//cudaAddressModeClamp;
               texDesc.addressMode[2]   = cudaAddressModeMirror;//cudaAddressModeClamp;
+              /***
+               * ALWAYS LINEAR! IT USES for LUT interpolations only
+               */
               texDesc.filterMode       = cudaFilterModeLinear;
               texDesc.readMode         = cudaReadModeElementType;
               texDesc.normalizedCoords = normalized_coords_;
@@ -83,6 +86,13 @@ namespace dehancer {
               return tex3D<T>(texture_, coords.x, coords.y, coords.z);
             }
 
+            __device__
+            T read_pixel(int3 coords) const {
+              T data;
+              surf3Dread<T>(&data, surface_, coords.x * sizeof(T) , coords.y ,  coords.z , cudaBoundaryModeClamp);
+              return data;
+            }
+            
             template<class C>
             __device__
             void write(T color, C coords) {

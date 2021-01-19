@@ -2,11 +2,7 @@
 // Created by denn nevera on 16/11/2020.
 //
 
-#include "dehancer/gpu/kernels/cuda/common.h"
-
-inline __device__ float3 compress(float3 rgb, float2 compression) {
-  return  compression.x*rgb + compression.y;
-}
+#include "dehancer/gpu/kernels/lib.h"
 
 ///
 /// @brief Kernel optimized 1D LUT identity

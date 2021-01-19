@@ -12,6 +12,8 @@ extern "C" __global__ void  kernel_dehancer_pass(
 ){
   Texel2d tex; get_kernel_texel2d(destination,tex);
   
+  if (!get_texel_boundary(tex)) return;
+  
   float4  color = sampled_color(source, destination, tex.gid);
   
   write_image(destination, color, tex.gid);

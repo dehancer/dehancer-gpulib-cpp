@@ -50,7 +50,7 @@ namespace dehancer {
               memset(&texDesc, 0, sizeof(texDesc));
               texDesc.addressMode[0]   = cudaAddressModeMirror;//cudaAddressModeClamp;
               texDesc.addressMode[1]   = cudaAddressModeMirror;//cudaAddressModeClamp;
-              texDesc.filterMode       = cudaFilterModeLinear;
+              texDesc.filterMode       = cudaFilterModePoint; //cudaFilterModeLinear; //cudaFilterModePoint;
               texDesc.readMode         = cudaReadModeElementType;
               texDesc.normalizedCoords = normalized_coords_;
 
@@ -83,6 +83,13 @@ namespace dehancer {
               return tex2D<T>(texture_, coords.x, coords.y);
             }
 
+            __device__
+            T read_pixel(int2 coords) const {
+              T data;
+              surf2Dread<T>(&data, surface_, coords.x * sizeof(T) , coords.y , cudaBoundaryModeClamp);
+              return data;
+            }
+            
             template<class C>
             __device__
             void write(T color, C coords) {

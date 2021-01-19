@@ -18,22 +18,20 @@ namespace dehancer {
         /***
          * Resample mode
          */
-        enum Mode {
-            /***
-             * Current version has linear mode
-             */
-            linear
+        enum Mode:int {
+            bilinear = 0 ,
+            bicubic  = 1
         };
         
         explicit ResampleKernel(const void *command_queue,
                                 const Texture &source,
                                 const Texture &destination,
-                                Mode mode = linear,
+                                Mode mode = bilinear,
                                 bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                                 const std::string &library_path = "");
         
         explicit ResampleKernel(const void *command_queue,
-                                Mode mode = linear,
+                                Mode mode = bilinear,
                                 bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                                 const std::string &library_path = "");
     
