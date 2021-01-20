@@ -38,6 +38,11 @@ DHCR_KERNEL void  kernel_blend(
       base          = bicubic_sampled_color(source, destination, tex.gid);
       overlay_color = bicubic_sampled_color(overlay, destination, tex.gid);
       break;
+  
+    case DCHR_BoxAverage:
+      base          = bicubic_sampled_color(source, destination, tex.gid);
+      overlay_color = box_average_sampled_color(overlay, destination, tex.gid);
+      break;
   }
   
   float4 result = blend(base,overlay_color, (DCHR_BlendingMode)mode,opacity);

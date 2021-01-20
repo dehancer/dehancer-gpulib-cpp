@@ -192,7 +192,8 @@ typedef enum {
 
 typedef enum {
     DCHR_Bilinear = 0 ,
-    DCHR_Bicubic  = 1
+    DCHR_Bicubic  = 1,
+    DCHR_BoxAverage  = 2
 } DCHR_InterpolationMode;
 
 #endif //DEHANCER_GPULIB_TYPES_H

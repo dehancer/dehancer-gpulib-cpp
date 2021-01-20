@@ -8,7 +8,8 @@ namespace dehancer {
     
     static std::vector<std::string> _resample_kernel_name_ = {
             "kernel_bilinear",
-            "kernel_bicubic"
+            "kernel_bicubic",
+            "kernel_box_average"
     };
     
     ResampleKernel::ResampleKernel(const void *command_queue,

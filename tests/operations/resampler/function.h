@@ -9,7 +9,7 @@
 #include "tests/test_config.h"
 
 float scale = 1.73;
-auto  interpolation = dehancer::ResampleKernel::Mode::bilinear;
+auto  interpolation = dehancer::ResampleKernel::Mode:: box_average;
 
 auto function_test =  [] (int dev_num,
                           const void* command_queue,

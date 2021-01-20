@@ -124,4 +124,30 @@ float4 tex2D_bicubic(texture2d_read_t tex, float x, float y)
   return cubicFilter(fy,c0,c1,c2,c3);
 }
 
+inline DHCR_DEVICE_FUNC
+float4 tex2D_box_average(texture2d_read_t tex, float x, float y)
+{
+//  x -= 0.5f;
+//  y -= 0.5f;
+  float px = floor(x);
+  float py = floor(y);
+
+  int2 gid = make_int2(px,py);
+  
+  float4 xy;
+  xy  = read_image(tex, gid + make_int2(-1,-1));
+  xy += read_image(tex, gid + make_int2( 0,-1));
+  xy += read_image(tex, gid + make_int2( 1,-1));
+  xy += read_image(tex, gid + make_int2(-1, 0));
+  xy += read_image(tex, gid + make_int2( 0, 0));
+  xy += read_image(tex, gid + make_int2( 1, 0));
+  xy += read_image(tex, gid + make_int2(-1, 1));
+  xy += read_image(tex, gid + make_int2( 0, 1));
+  xy += read_image(tex, gid + make_int2( 1, 1));
+  
+  float3 w = make_float3(1.0f/9.0f);
+  
+  return make_float4((make_float3(xy) * w),1.0f);
+}
+
 #endif //DEHANCER_GPULIB_RESAMPLE_H

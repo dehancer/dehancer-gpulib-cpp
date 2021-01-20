@@ -21,7 +21,8 @@ namespace dehancer {
          */
         enum Mode {
             bilinear = DCHR_Bilinear ,
-            bicubic  = DCHR_Bicubic
+            bicubic  = DCHR_Bicubic,
+            box_average = DCHR_BoxAverage
         };
         
         explicit ResampleKernel(const void *command_queue,
