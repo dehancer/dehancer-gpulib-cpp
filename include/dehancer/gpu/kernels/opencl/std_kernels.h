@@ -22,9 +22,26 @@ static inline float4 sampled_color(
   else {
     Texel2d tex_src;  get_kernel_texel2d(source,tex_src);
     float2 coords = get_texel_coords(tex) * make_float2(tex_src.size);
+    return tex2D_bilinear(source, coords.x, coords.y);
+  }
+}
+
+static inline float4 bicubic_sampled_color(
+        image2d_t source,
+        image2d_t destination,
+        int2 gid
+){
+  
+  Texel2d tex; get_kernel_texel2d(destination,tex);
+  if (!get_texel_boundary(tex)) return make_float4(0.0f);
+  
+  if (tex.size.y==get_image_height(source) && get_image_width(source)==tex.size.x)
+    return read_image(source, tex.gid);
+  else {
+    Texel2d tex_src;  get_kernel_texel2d(source,tex_src);
+    float2 coords = get_texel_coords(tex) * make_float2(tex_src.size);
     return tex2D_bicubic(source, coords.x, coords.y);
   }
-  
 }
 
 __kernel void kernel_dehancer_pass(

@@ -9,42 +9,42 @@
 #include "tests/test_config.h"
 
 struct test_blend_options {
-    DCHR_BlendingMode mode;
+    dehancer::BlendKernel::Mode mode;
     float opacity = 0.5;
     std::string mode_name;
 };
 
 static std::vector<test_blend_options> options = {
         {
-                .mode = DCHR_Normal,
+                .mode = dehancer::BlendKernel::Mode::normal,
                 .mode_name = "normal"
         },
         {
-                .mode = DCHR_Color,
+                .mode = dehancer::BlendKernel::Mode::color,
                 .mode_name = "color"
         },
         {
-                .mode = DCHR_Luminosity,
+                .mode = dehancer::BlendKernel::Mode::luminosity,
                 .mode_name = "luminosity"
         },
         {
-                .mode = DCHR_Overlay,
+                .mode = dehancer::BlendKernel::Mode::overlay,
                 .mode_name = "overlay"
         },
         {
-                .mode = DCHR_Mix,
+                .mode = dehancer::BlendKernel::Mode::mix,
                 .mode_name = "mix"
         },
         {
-                .mode = DCHR_Min,
+                .mode = dehancer::BlendKernel::Mode::min,
                 .mode_name = "min"
         },
         {
-                .mode = DCHR_Max,
+                .mode = dehancer::BlendKernel::Mode::max,
                 .mode_name = "max"
         },
         {
-                .mode = DCHR_Add,
+                .mode = dehancer::BlendKernel::Mode::add,
                 .mode_name = "add"
         },
 };
@@ -89,13 +89,14 @@ int function_test_blend (int dev_num,
                                                        .compression = test::compression
                                                });
     
-    auto kernel = dehancer::BlendKernel(command_queue, 0.5);
+    auto kernel = dehancer::BlendKernel(command_queue);
     
     kernel.set_source(input_text.get_texture());
     kernel.set_destination(output_text.get_texture());
     kernel.set_overlay(grid_text);
     kernel.set_mode(opt.mode);
-    //kernel.set_opacity(opt.opacity);
+    kernel.set_opacity(opt.opacity);
+    kernel.set_interpolation(dehancer::ResampleKernel::bicubic);
     
     kernel.process();
     

@@ -5,6 +5,7 @@
 #pragma once
 
 #include "dehancer/gpu/Kernel.h"
+#include "dehancer/gpu/kernels/types.h"
 
 namespace dehancer {
     
@@ -18,9 +19,9 @@ namespace dehancer {
         /***
          * Resample mode
          */
-        enum Mode:int {
-            bilinear = 0 ,
-            bicubic  = 1
+        enum Mode {
+            bilinear = DCHR_Bilinear ,
+            bicubic  = DCHR_Bicubic
         };
         
         explicit ResampleKernel(const void *command_queue,

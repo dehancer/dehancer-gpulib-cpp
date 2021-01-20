@@ -11,12 +11,14 @@ namespace dehancer {
                               const Texture &destination,
                               const Texture &overlay,
                               float opacity,
-                              DCHR_BlendingMode mode,
+                              Mode mode,
+                              ResampleKernel::Mode interpolation,
                               bool wait_until_completed,
                               const std::string &library_path):
             Kernel(command_queue, "kernel_blend", base, destination, wait_until_completed, library_path),
             opacity_(opacity),
-            mode_(mode)
+            mode_(mode),
+            interpolation_mode_(interpolation)
     {
       
     }
@@ -24,20 +26,22 @@ namespace dehancer {
     BlendKernel::BlendKernel (const void *command_queue,
                               const Texture &overlay,
                               float opacity,
-                              DCHR_BlendingMode mode,
+                              Mode mode,
+                              ResampleKernel::Mode interpolation,
                               bool wait_until_completed,
                               const std::string &library_path):
-            BlendKernel(command_queue, nullptr, nullptr,  overlay, opacity, mode, wait_until_completed, library_path)
+            BlendKernel(command_queue, nullptr, nullptr,  overlay, opacity, mode, interpolation, wait_until_completed, library_path)
     {
       
     }
     
     BlendKernel::BlendKernel (const void *command_queue,
                               float opacity,
-                              DCHR_BlendingMode mode,
+                              Mode mode,
+                              ResampleKernel::Mode interpolation,
                               bool wait_until_completed,
                               const std::string &library_path):
-            BlendKernel(command_queue, nullptr, nullptr, nullptr, opacity, mode, wait_until_completed, library_path)
+            BlendKernel(command_queue, nullptr, nullptr, nullptr, opacity, mode, interpolation, wait_until_completed, library_path)
     {
     
     }
@@ -46,7 +50,7 @@ namespace dehancer {
       opacity_ = opacity;
     }
     
-    void BlendKernel::set_mode (DCHR_BlendingMode mode) {
+    void BlendKernel::set_mode (Mode mode) {
       mode_ = mode;
     }
     
@@ -59,5 +63,10 @@ namespace dehancer {
       encoder.set(overlay_,2);
       encoder.set(opacity_,3);
       encoder.set(mode_,4);
+      encoder.set(interpolation_mode_,5);
+    }
+    
+    void BlendKernel::set_interpolation (ResampleKernel::Mode mode) {
+      interpolation_mode_ = mode;
     }
 }

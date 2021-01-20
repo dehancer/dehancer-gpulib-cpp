@@ -190,4 +190,9 @@ typedef enum {
     DCHR_Add        = 7
 } DCHR_BlendingMode;
 
+typedef enum {
+    DCHR_Bilinear = 0 ,
+    DCHR_Bicubic  = 1
+} DCHR_InterpolationMode;
+
 #endif //DEHANCER_GPULIB_TYPES_H
