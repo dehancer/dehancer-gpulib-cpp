@@ -54,7 +54,6 @@ extern "C" __global__ void image_to_channels (
   
     if (transform.x)
       color.x = linearlog( color.x, slope.x, offset.x, direction);
-    //color.x = linearlog( color.x, 32.0f, 64.0f, DHCR_forward);
 
     if (transform.y)
       color.y = linearlog( color.y, slope.y, offset.y, direction);
@@ -98,9 +97,7 @@ extern "C" __global__ void channels_to_image (
   if ((gid.x < w) && (gid.y < h)) {
     const int index = ((gid.y * w) + gid.x);
     float4 color = make_float4(reds[index], greens[index], blues[index], alphas[index]);
-  
-    //color.x = linearlog( color.x, 32.0f, 64.0f, DHCR_inverse);
-
+    
     if (transform.x)
       color.x = linearlog( color.x, slope.x, offset.x, direction);
 

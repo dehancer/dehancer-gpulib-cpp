@@ -5,8 +5,10 @@
 #ifndef DEHANCER_GPULIB_BLEND_KERNELS_H
 #define DEHANCER_GPULIB_BLEND_KERNELS_H
 
+#include "dehancer/gpu/kernels/common.h"
 #include "dehancer/gpu/kernels/types.h"
 #include "dehancer/gpu/kernels/blend.h"
+#include "dehancer/gpu/kernels/resample.h"
 
 DHCR_KERNEL void  kernel_blend(
         texture2d_read_t       source DHCR_BIND_TEXTURE(0),
@@ -18,14 +20,14 @@ DHCR_KERNEL void  kernel_blend(
   Texel2d tex; get_kernel_texel2d(destination,tex);
   if (!get_texel_boundary(tex)) return;
   
-  float2 coords = get_texel_coords(tex);
+  Texel2d tex_src;  get_kernel_texel2d(source,tex_src);
   
-  float4  base          = read_image(source, coords);
-  float4  overlay_color = read_image(overlay, coords);
+  float2 coords = get_texel_coords(tex) * make_float2(tex_src.size);
   
-  DCHR_BlendingMode r_mode = (DCHR_BlendingMode)mode;
+  float4  base          = sampled_color(source, destination, tex.gid);
+  float4  overlay_color = sampled_color(overlay, destination, tex.gid);
   
-  float4 result = blend(base,overlay_color,r_mode,opacity);
+  float4 result = blend(base,overlay_color, (DCHR_BlendingMode)mode,opacity);
 
   write_image(destination, result, tex.gid);
 }

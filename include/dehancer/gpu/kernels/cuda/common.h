@@ -143,9 +143,6 @@ __device__ const T& clamp(const T& v, const T& lo, const T& hi )
 
 // 1D
 inline __device__ float4 __attribute__((overloadable)) read_image(__read_only image1d_t source, int gid) {
-  //auto size   = (float)source.get_width();
-  //auto coords = (float)gid;
-  //return source.read(coords/size);
   return source.read_pixel(gid);
 }
 
@@ -167,9 +164,6 @@ inline __device__ void __attribute__((overloadable)) write_image(__write_only im
 
 // 2D
 inline __device__ __host__ float4 __attribute__((overloadable)) read_image(__read_only image2d_t source, int2 gid) {
-  //float2 size   = (float2){(float)source.get_width(),(float)source.get_height()};
-  //float2 coords = (float2){(float)gid.x,(float)gid.y};
-  //return source.read(coords/size);
   return source.read_pixel(gid);
 }
 
@@ -183,9 +177,6 @@ inline __device__ __host__ void __attribute__((overloadable)) write_image(__writ
 
 // 3D
 inline __device__ __host__ float4 __attribute__((overloadable)) read_image(__read_only image3d_t source, int3 gid) {
-  //float3 size   = (float3){(float)source.get_width(),(float)source.get_height(),(float)source.get_depth()};
-  //float3 coords = (float3){(float)gid.x,(float)gid.y,(float)gid.z};
-  //return source.read(coords/size);
   return source.read_pixel(gid);
 }
 
@@ -199,17 +190,6 @@ inline __device__ __host__ float4 __attribute__((overloadable)) read_image(__rea
 
 inline __device__ __host__ void __attribute__((overloadable)) write_image(__write_only image3d_t destination, float4 color, int3 gid) {
   destination.write(color, gid);
-}
-
-inline __device__ __host__ float4 sampled_color(
-        __read_only image2d_t source,
-        __write_only image2d_t destination,
-        int2 gid
-){
-  
-  Texel2d tex; get_kernel_texel2d(destination,tex);
-  if (!get_texel_boundary(tex)) return make_float4(0.0f);
-  return read_image(source, tex.gid);
 }
 
 inline __device__ __host__  float3 compress(float3 rgb, float2 compression) {

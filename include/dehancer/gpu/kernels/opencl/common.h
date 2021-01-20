@@ -176,18 +176,6 @@ static inline void __attribute__((overloadable)) write_image(__write_only image3
   write_imagef(destination, (int4){gid.x,gid.y,gid.z,0}, color);
 }
 
-static inline float4 sampled_color(
-        image2d_t source,
-        image2d_t destination,
-        int2 gid
-){
-
-  Texel2d tex; get_kernel_texel2d(destination,tex);
-  
-  float2 coords = get_texel_coords(tex);
-
-  return read_image(source, coords);
-}
 
 static inline  float3 compress(float3 rgb, float2 compression) {
   return  compression.x*rgb + compression.y;

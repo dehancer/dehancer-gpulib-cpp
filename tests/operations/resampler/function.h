@@ -8,7 +8,8 @@
 #include "dehancer/gpu/Lib.h"
 #include "tests/test_config.h"
 
-float scale = 0.6;
+float scale = 1.73;
+auto  interpolation = dehancer::ResampleKernel::Mode::bilinear;
 
 auto function_test =  [] (int dev_num,
                           const void* command_queue,
@@ -37,7 +38,7 @@ auto function_test =  [] (int dev_num,
                                                          .compression = test::compression
                                                  });
       
-      auto kernel = dehancer::ResampleKernel(command_queue, dehancer::ResampleKernel::Mode::bicubic);
+      auto kernel = dehancer::ResampleKernel(command_queue, interpolation);
       
       kernel.set_source(input_text.get_texture());
       kernel.set_destination(output_text.get_texture());
