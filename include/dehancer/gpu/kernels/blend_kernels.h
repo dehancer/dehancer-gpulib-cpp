@@ -28,24 +28,24 @@ DHCR_KERNEL void  kernel_blend(
   float4  base ;
   float4  overlay_color;
   
-  switch ((DCHR_InterpolationMode)int_mode) {
-    case DCHR_Bilinear:
+  switch ((DHCR_InterpolationMode)int_mode) {
+    case DHCR_Bilinear:
       base          = sampled_color(source, destination, tex.gid);
       overlay_color = sampled_color(overlay, destination, tex.gid);
       break;
   
-    case DCHR_Bicubic:
+    case DHCR_Bicubic:
       base          = bicubic_sampled_color(source, destination, tex.gid);
       overlay_color = bicubic_sampled_color(overlay, destination, tex.gid);
       break;
   
-    case DCHR_BoxAverage:
+    case DHCR_BoxAverage:
       base          = bicubic_sampled_color(source, destination, tex.gid);
       overlay_color = box_average_sampled_color(overlay, destination, tex.gid);
       break;
   }
   
-  float4 result = blend(base,overlay_color, (DCHR_BlendingMode)mode,opacity);
+  float4 result = blend(base,overlay_color, (DHCR_BlendingMode)mode,opacity);
 
   write_image(destination, result, tex.gid);
 }

@@ -14,6 +14,7 @@
 #include "dehancer/gpu/Paths.h"
 #include "dehancer/gpu/Log.h"
 #include "dehancer/gpu/Channels.h"
+#include "dehancer/gpu/ocio/Params.h"
 
 #include "dehancer/gpu/Filter.h"
 

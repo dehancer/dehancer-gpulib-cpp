@@ -9,5 +9,6 @@
 #include "dehancer/gpu/kernels/blend_kernels.h"
 #include "dehancer/gpu/kernels/unary_kernels.h"
 #include "dehancer/gpu/kernels/resample_kernels.h"
+#include "dehancer/gpu/kernels/gamma_kernels.h"
 
 #endif // DEHANCER_GPULIB_LIB_H

@@ -3,12 +3,14 @@
 //
 
 #include "dehancer/gpu/ocio/LogParams.h"
+#include <cfloat>
+#include <cmath>
 
 namespace dehancer {
 
     namespace ocio {
 
-        namespace __internal__ {
+        namespace _internal_ {
 
             struct forward_m_params {
                 float m_kinv;
@@ -29,8 +31,8 @@ namespace dehancer {
                 float m_linearSlope;
                 float m_linearOffset;
             };
-
-            __METAL_INLINE__ float apply_log_forward_x(float in, forward_m_params params) {
+    
+            inline  float apply_log_forward_x(float in, forward_m_params params) {
 
                 //
                 // if in <= logBreak
@@ -47,14 +49,14 @@ namespace dehancer {
                     out = params.m_linsinv * (in + params.m_minuslino);
                 } else {
                     out = (in + params.m_minuskb) * params.m_kinv;
-                    out = exp2(out);
+                    out = std::exp2(out);
                     out = (out + params.m_minusb) * params.m_minv;
                 }
 
                 return out;
             };
-
-            __METAL_INLINE__ float apply_log_inverse_x(float in, inverse_m_params params) {
+    
+            inline  float apply_log_inverse_x(float in, inverse_m_params params) {
 
                 //
                 // if in <= linBreak
@@ -71,17 +73,17 @@ namespace dehancer {
                     out = params.m_linearSlope * in + params.m_linearOffset;
                 } else {
                     out = in * params.m_m + params.m_b;
-                    out = ocio::max(FLT_MIN, out);
-                    out = log2(out);
+                    out = std::fmax(FLT_MIN, out);
+                    out = std::log2(out);
                     out = out * params.m_klog + params.m_kb;
                 }
 
                 return out;
             }
         }
-
-        __METAL_INLINE__ float3 apply_log_forward(float3 in, LogParameters params) {
-            __internal__::forward_m_params m;
+    
+        inline  float3 apply_log_forward(float3 in, LogParameters params) {
+            _internal_::forward_m_params m{};
             m.m_kinv = params.log2_base / params.log_side_slope;
             m.m_minuskb = -params.log_side_offset;
             m.m_minusb = -params.lin_side_offset;
@@ -96,9 +98,9 @@ namespace dehancer {
 
             return out;
         }
-
-        __METAL_INLINE__ float3 apply_log_inverse(float3 in, LogParameters params) {
-            __internal__::inverse_m_params m;
+    
+        inline  float3 apply_log_inverse(float3 in, LogParameters params) {
+            _internal_::inverse_m_params m{};
 
             m.m_m = params.lin_side_slope;
             m.m_b = params.lin_side_offset;

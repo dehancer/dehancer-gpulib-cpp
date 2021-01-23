@@ -118,6 +118,8 @@ typedef enum {
 
 #else
 
+#include "dehancer/gpu/Typedefs.h"
+
 /**
  * Dummy auto indentation for CLion
  */
@@ -180,20 +182,51 @@ typedef enum:int {
 #define texture3d_write_t DHCR_WRITE_ONLY image3d_t
 
 typedef enum {
-    DCHR_Normal     = 0,
-    DCHR_Luminosity = 1,
-    DCHR_Color      = 2,
-    DCHR_Mix        = 3,
-    DCHR_Overlay    = 4,
-    DCHR_Min        = 5,
-    DCHR_Max        = 6,
-    DCHR_Add        = 7
-} DCHR_BlendingMode;
+    DHCR_Normal     = 0,
+    DHCR_Luminosity = 1,
+    DHCR_Color      = 2,
+    DHCR_Mix        = 3,
+    DHCR_Overlay    = 4,
+    DHCR_Min        = 5,
+    DHCR_Max        = 6,
+    DHCR_Add        = 7
+} DHCR_BlendingMode;
 
 typedef enum {
-    DCHR_Bilinear = 0 ,
-    DCHR_Bicubic  = 1,
-    DCHR_BoxAverage  = 2
-} DCHR_InterpolationMode;
+    DHCR_Bilinear = 0 ,
+    DHCR_Bicubic  = 1,
+    DHCR_BoxAverage  = 2
+} DHCR_InterpolationMode;
+
+typedef struct {
+    float lin_side_break;
+    float lin_side_coeff;
+    float lin_side_offset;
+    float lin_side_slope;
+    float gama_side_break;
+    float base;
+    bool  enabled;
+} DHCR_GammaParameters;
+
+typedef struct {
+    float log_side_slope;
+    float log_side_offset;
+    float lin_side_slope;
+    float lin_side_offset;
+    float lin_side_break;
+    float log_side_break;
+    float linear_slope;
+    float linear_offset;
+    float log2_base;
+    float base;
+    bool  enabled;
+} DHCR_LogParameters ;
+
+typedef enum {
+    DHCR_Forward = 0,
+    DHCR_Inverse,
+    DHCR_None
+} DHCR_TransformDirection;
+
 
 #endif //DEHANCER_GPULIB_TYPES_H

@@ -153,41 +153,41 @@ inline DHCR_DEVICE_FUNC float4 blend_add(float4 base, float4 overlay){
   return clamp(make_float4(mix(base_rgb, base_rgb+overlay_rgb, make_float3(overlay.w)),1.0f), make_float4(0.0f), make_float4(1.0f));
 }
 
-inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) blend(float4 base, float4 overlay, DCHR_BlendingMode mode, float opacity){
+inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) blend(float4 base, float4 overlay, DHCR_BlendingMode mode, float opacity){
   
   float3 overlay_rgb  = make_float3(overlay);
   float4 result = make_float4(overlay_rgb, opacity);
   
   switch (mode) {
-    case DCHR_Luminosity:
+    case DHCR_Luminosity:
       result = blend_luminosity(base, result);
       break;
     
-    case DCHR_Color:
+    case DHCR_Color:
       result = blend_color(base, result);
       break;
     
-    case DCHR_Normal:
+    case DHCR_Normal:
       result = blend_normal(base, result);
       break;
   
-    case DCHR_Overlay:
+    case DHCR_Overlay:
       result = blend_overlay(base, result);
       break;
   
-    case DCHR_Mix:
+    case DHCR_Mix:
       result = mix(base, overlay, make_float4(opacity));
       break;
       
-    case DCHR_Min:
+    case DHCR_Min:
       result = mix(base, fminf(overlay,base), make_float4(opacity));
       break;
       
-    case DCHR_Max:
+    case DHCR_Max:
       result = mix(base, fmaxf(overlay,base), make_float4(opacity));
       break;
       
-    case DCHR_Add:
+    case DHCR_Add:
       result = blend_add(base, overlay);
       break;
   }
@@ -195,7 +195,7 @@ inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) blend(float4 base, 
   return  result;
 }
 
-inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) blend(float3 base, float3 overlay, DCHR_BlendingMode mode, float opacity){
+inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) blend(float3 base, float3 overlay, DHCR_BlendingMode mode, float opacity){
   float4 base_ = make_float4(base,1.0f);
   float4 overlay_ = make_float4(overlay,1.0f);
   return make_float3(blend(base_, overlay_, mode, opacity));

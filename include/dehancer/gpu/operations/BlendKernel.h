@@ -17,14 +17,14 @@ namespace dehancer {
     public:
     
         enum Mode {
-            normal = DCHR_Normal,
-            luminosity = DCHR_Luminosity,
-            color = DCHR_Color,
-            mix = DCHR_Mix,
-            overlay = DCHR_Overlay,
-            min = DCHR_Min,
-            max = DCHR_Max,
-            add = DCHR_Add
+            normal = DHCR_Normal,
+            luminosity = DHCR_Luminosity,
+            color = DHCR_Color,
+            mix = DHCR_Mix,
+            overlay = DHCR_Overlay,
+            min = DHCR_Min,
+            max = DHCR_Max,
+            add = DHCR_Add
         };
         
         explicit BlendKernel(const void *command_queue,

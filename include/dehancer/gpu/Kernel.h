@@ -75,7 +75,7 @@ namespace dehancer {
          * @param dest - texture object
          */
         virtual void set_destination(const Texture& destination);
-
+        
         [[nodiscard]] virtual CommandEncoder::Size get_encoder_size() const;
 
         ~Kernel() override;

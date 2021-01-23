@@ -7,6 +7,7 @@
 
 #include "dehancer/gpu/Lib.h"
 #include "tests/test_config.h"
+#include "tests/shaders/test_struct.h"
 
 #include <cuda.h>
 
@@ -45,12 +46,18 @@ auto memory_test =  [] (int dev_num,
     auto D = dehancer::MemoryDesc({
                                           .type = dehancer::MemoryDesc::MemType::device
                                   }).make(command_queue, C->get_memory());
-
-    kernel.execute([N, &A, &B, &C](dehancer::CommandEncoder& command_encoder){
+    
+    TestStruct testStruct;
+    
+    testStruct.size = 1;
+    testStruct.data = 1;
+    
+    kernel.execute([N, &A, &B, &C, &testStruct](dehancer::CommandEncoder& command_encoder){
         command_encoder.set(A,0);
         command_encoder.set(B,1);
         command_encoder.set(C,2);
         command_encoder.set(N, 3);
+        command_encoder.set(&testStruct, sizeof(testStruct), 4);
         return dehancer::CommandEncoder::Size{(size_t)N,1,1};
     });
 

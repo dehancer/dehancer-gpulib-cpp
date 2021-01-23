@@ -5,6 +5,7 @@
 #include "gtest/gtest.h"
 #include "dehancer/gpu/Lib.h"
 #include "tests/cuda/paths_config.h"
+#include "tests/shaders/test_struct.h"
 
 #include <chrono>
 #include <cuda.h>
@@ -29,8 +30,8 @@ void print_device_info (CUdevice device) {
 
   std::cout << "CUDA device id: " << device<< std::endl;
   std::cout << "CUDA device uid: " ;
-  for(int i=0; i< sizeof(props.uuid.bytes); ++i)
-    std::cout << std::hex << (int)props.uuid.bytes[i];
+  for(char byte : props.uuid.bytes)
+    std::cout << std::hex << (int)byte;
   std::cout << std::endl;
   std::cout << "CUDA device multiProcessorCount: " << props.multiProcessorCount << std::endl;
   std::cout << "CUDA device maxThreadsPerBlock: " << props.maxThreadsPerBlock << std::endl;
@@ -134,7 +135,6 @@ TEST(TEST, DeviceCache_OpenCL) {
   checkCudaErrors(cudaMalloc(&d_C, size));
 
   // Copy vectors from host memory to device memory
-  //cuMemcpyHtoDAsync(d_A, h_A, size, stream_0);
   checkCudaErrors(cudaMemcpyAsync(d_A, h_A, size, cudaMemcpyHostToDevice, stream_0));
 
   cuMemcpyHtoDAsync(d_B, h_B, size, stream_0);
@@ -142,8 +142,18 @@ TEST(TEST, DeviceCache_OpenCL) {
   // Invoke kernel
   int threadsPerBlock = 64;
   int blocksPerGrid   = (N + threadsPerBlock - 1) / threadsPerBlock;
-
-  void* args[] = { &d_A, &d_B, &d_C, &N };
+  
+  
+  TestStruct testStruct;
+  
+  testStruct.size = 1;
+  testStruct.data = 3;
+  
+  std::shared_ptr<char> test_data = std::make_shared<char>(sizeof (TestStruct));
+  
+  memcpy(test_data.get(),&testStruct,sizeof (TestStruct));
+  
+  void* args[] = { &d_A, &d_B, &d_C, &N, test_data.get()};
 
   checkCudaErrors(cuLaunchKernel(
           vecAdd,
@@ -155,7 +165,6 @@ TEST(TEST, DeviceCache_OpenCL) {
           nullptr)
   );
 
-  //cuMemcpyDtoHAsync(h_A, d_C, size, stream_0);
   memset(h_A,0,size);
   checkCudaErrors(cudaMemcpyAsync(h_A, d_C, size, cudaMemcpyDeviceToHost, stream_0));
 
@@ -174,6 +183,8 @@ TEST(TEST, DeviceCache_OpenCL) {
 
   checkCudaErrors(cuCtxDestroy(cuContext));
 
+  //delete[] test_data;
+  
 }
 
 namespace dehancer::device {
