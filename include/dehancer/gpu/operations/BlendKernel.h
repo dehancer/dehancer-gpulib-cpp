@@ -31,6 +31,7 @@ namespace dehancer {
                              const Texture &source,
                              const Texture &destination,
                              const Texture &overlay,
+                             const Texture &mask = nullptr,
                              float opacity = 1.0f,
                              Mode mode = normal,
                              ResampleKernel::Mode interpolation = ResampleKernel::Mode::bilinear,
@@ -39,12 +40,21 @@ namespace dehancer {
         
         explicit BlendKernel(const void *command_queue,
                              const Texture &overlay,
+                             const Texture &mask,
                              float opacity = 1.0f,
                              Mode mode = normal,
                              ResampleKernel::Mode interpolation = ResampleKernel::Mode::bilinear,
                              bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                              const std::string &library_path = "");
     
+        explicit BlendKernel(const void *command_queue,
+                             const Texture &overlay,
+                             float opacity = 1.0f,
+                             Mode mode = normal,
+                             ResampleKernel::Mode interpolation = ResampleKernel::Mode::bilinear,
+                             bool wait_until_completed = WAIT_UNTIL_COMPLETED,
+                             const std::string &library_path = "");
+        
         explicit BlendKernel(const void *command_queue,
                              float opacity = 1.0f,
                              Mode mode = normal,
@@ -53,6 +63,7 @@ namespace dehancer {
                              const std::string &library_path = "");
     
         void set_overlay(const Texture &overlay);
+        void set_mask(const Texture &mask);
         void set_opacity(float opacity);
         void set_mode(Mode mode);
         void set_interpolation(ResampleKernel::Mode mode);
@@ -60,9 +71,11 @@ namespace dehancer {
         void setup(CommandEncoder &encoder) override;
         
     private:
+        Texture overlay_;
+        Texture mask_;
         float opacity_;
         Mode mode_;
         ResampleKernel::Mode interpolation_mode_;
-        Texture overlay_;
+        bool has_mask_;
     };
 }

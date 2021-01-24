@@ -27,8 +27,9 @@ inline  DHCR_DEVICE_FUNC float3 apply_gama_inverse(float3 in, DHCR_GammaParamete
 DHCR_KERNEL void  kernel_gamma(
         texture2d_read_t       source DHCR_BIND_TEXTURE(0),
         texture2d_write_t destination DHCR_BIND_TEXTURE(1),
-        DHCR_CONST_ARG      DHCR_GammaParameters     params DHCR_BIND_BUFFER(2),
-        DHCR_CONST_ARG      int_ref_t     mode DHCR_BIND_BUFFER(2)
+        DHCR_CONST_ARG     DHCR_GammaParameters    params DHCR_BIND_BUFFER(2),
+        DHCR_CONST_ARG  DHCR_TransformDirection direction DHCR_BIND_BUFFER(3),
+        DHCR_CONST_ARG  float impact DHCR_BIND_BUFFER(4)
 ) {
   
   Texel2d tex; get_kernel_texel2d(destination, tex);
@@ -36,21 +37,19 @@ DHCR_KERNEL void  kernel_gamma(
   
   float2 coords = get_texel_coords(tex);
   
-  DHCR_TransformDirection direction = (DHCR_TransformDirection)mode;
-
   float4 rgba = sampled_color(source, destination, tex.gid);
   float3 result = make_float3(rgba);
   
   if (direction == DHCR_Forward) {
-    //result =
+    result = apply_gama_forward(result, params);
   }
   else if (direction == DHCR_Inverse) {
-  
+    result = apply_gama_inverse(result, params);
   }
+
+  result = mix(make_float3(rgba),result,make_float3(impact));
   
   write_image(destination, make_float4(result,rgba.w), tex.gid);
-  
-  
 }
 
 #endif //DEHANCER_GPULIB_GAMMA_KERNELS_H

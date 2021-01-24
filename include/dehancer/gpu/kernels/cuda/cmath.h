@@ -1387,6 +1387,11 @@ __device__ __host__ T mix(T x, T y, T a) {
 }
 
 template<class T>
+__device__ __host__ T mix(T x, T y, float a) {
+  return x + (y - x) * a;
+}
+
+template<class T>
 __device__ __host__ T step(T edge, T x) {
   return x < edge ? (T)0.0 : (T)1.0;
 }

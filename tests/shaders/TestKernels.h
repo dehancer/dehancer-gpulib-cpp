@@ -5,16 +5,16 @@
 #ifndef DEHANCER_GPULIB_TEST_KERNELS_CPP
 #define DEHANCER_GPULIB_TEST_KERNELS_CPP
 
+#include "test_struct.h"
 #include "dehancer/gpu/kernels/lib.h"
 #include "aoBenchKernel.h"
-#include "test_struct.h"
 
 DHCR_KERNEL void kernel_vec_add(
         DHCR_DEVICE_ARG   float* A DHCR_BIND_BUFFER(0) ,
         DHCR_DEVICE_ARG   float* B DHCR_BIND_BUFFER(1) ,
         DHCR_DEVICE_ARG   float* C DHCR_BIND_BUFFER(2) ,
         DHCR_CONST_ARG int_ref_t N DHCR_BIND_BUFFER(3),
-        DHCR_DEVICE_ARG TestStruct data DHCR_BIND_BUFFER(4)
+        DHCR_CONST_ARG TestStruct data DHCR_BIND_BUFFER(4)
 )
 {
   int tid; get_kernel_tid1d(tid);
@@ -223,6 +223,23 @@ DHCR_KERNEL void kernel_fast_convolve(
   }
   
   write_image(destination, result.vec, tex.gid);
+  
+}
+
+DHCR_KERNEL void kernel_gradient(
+        texture2d_write_t     destination DHCR_BIND_TEXTURE(0)
+        )
+{
+  
+  Texel2d tex; get_kernel_texel2d(destination, tex);
+  
+  if (!get_texel_boundary(tex)) return;
+  
+  float2 coords = get_texel_coords(tex);
+  
+  float4 color = make_float4(1.0f, 1.0f, 1.0f, coords.x) ;
+  
+  write_image(destination, color, tex.gid);
   
 }
 

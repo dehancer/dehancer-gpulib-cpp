@@ -134,6 +134,4 @@ namespace dehancer::impl {
       os.write(reinterpret_cast<const char *>(buffer.data()), static_cast<size_t >(buffer.size()));
       return os;
     }
-  
-  
 }

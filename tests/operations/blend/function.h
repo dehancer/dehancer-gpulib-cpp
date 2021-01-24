@@ -70,8 +70,17 @@ int function_test_blend (int dev_num,
         
         return dehancer::CommandEncoder::Size::From(grid_text);
     });
-    
-    
+  
+  
+    auto grad_kernel = dehancer::Function(command_queue,"kernel_gradient");
+    auto grad_text = grad_kernel.make_texture(800, 400);
+  
+    grad_kernel.execute([&grad_text](dehancer::CommandEncoder& command_encoder){
+        command_encoder.set(grad_text, 0);
+        return dehancer::CommandEncoder::Size::From(grad_text);
+    });
+  
+  
     std::cout << "Load file: " << input_image << std::endl;
     
     /***
@@ -93,6 +102,8 @@ int function_test_blend (int dev_num,
     
     kernel.set_source(input_text.get_texture());
     kernel.set_destination(output_text.get_texture());
+    kernel.set_mask(grad_text);
+    
     kernel.set_overlay(grid_text);
     kernel.set_mode(opt.mode);
     kernel.set_opacity(opt.opacity);

@@ -25,5 +25,6 @@
 #include "dehancer/gpu/operations/BoxBlur.h"
 #include "dehancer/gpu/operations/OpticalResolution.h"
 #include "dehancer/gpu/operations/GaussianBlur.h"
+#include "dehancer/gpu/operations/GammaKernel.h"
 
 #include "dehancer/gpu/math/ConvolveUtils.h"

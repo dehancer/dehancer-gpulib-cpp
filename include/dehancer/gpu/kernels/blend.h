@@ -153,10 +153,12 @@ inline DHCR_DEVICE_FUNC float4 blend_add(float4 base, float4 overlay){
   return clamp(make_float4(mix(base_rgb, base_rgb+overlay_rgb, make_float3(overlay.w)),1.0f), make_float4(0.0f), make_float4(1.0f));
 }
 
-inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) blend(float4 base, float4 overlay, DHCR_BlendingMode mode, float opacity){
+inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) blend(float4 base, float4 overlay, DHCR_BlendingMode mode, float4 opacity){
+  
+  float3 base_opacity = clamp(make_float3(opacity), 0.0f, 1.0f);
   
   float3 overlay_rgb  = make_float3(overlay);
-  float4 result = make_float4(overlay_rgb, opacity);
+  float4 result = make_float4(overlay_rgb, opacity.w);
   
   switch (mode) {
     case DHCR_Luminosity:
@@ -176,23 +178,29 @@ inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) blend(float4 base, 
       break;
   
     case DHCR_Mix:
-      result = mix(base, overlay, make_float4(opacity));
+      result = mix(base, overlay, opacity.w);
       break;
       
     case DHCR_Min:
-      result = mix(base, fminf(overlay,base), make_float4(opacity));
+      result = mix(base, fminf(overlay,base), opacity.w);
       break;
       
     case DHCR_Max:
-      result = mix(base, fmaxf(overlay,base), make_float4(opacity));
+      result = mix(base, fmaxf(overlay,base), opacity.w);
       break;
       
     case DHCR_Add:
-      result = blend_add(base, overlay);
+      result = blend_add(base, result);
       break;
   }
   
+  result = mix(base, result, make_float4(base_opacity, 1.0f));
+  
   return  result;
+}
+
+inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) blend(float4 base, float4 overlay, DHCR_BlendingMode mode, float opacity) {
+  return blend(base,overlay,mode,make_float4(opacity));
 }
 
 inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) blend(float3 base, float3 overlay, DHCR_BlendingMode mode, float opacity){

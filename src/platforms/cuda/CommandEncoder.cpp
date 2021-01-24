@@ -27,10 +27,14 @@ namespace dehancer::cuda {
 
     void CommandEncoder::set(const void *bytes, size_t bytes_length, int index)  {
       resize_at_index(index);
-      std::shared_ptr<char> a = std::make_shared<char>(bytes_length);
-      memcpy(a.get(),bytes,bytes_length);
-      args_.at(index) = a.get();
+      
+      std::shared_ptr<char> a = std::shared_ptr<char>(new char[bytes_length]);
       args_container_.emplace_back(a);
+  
+      memcpy(a.get(),bytes,bytes_length);
+      
+      args_.at(index) = a.get();
+      
     }
 
     void CommandEncoder::set(const Memory &memory, int index) {

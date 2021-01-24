@@ -24,6 +24,7 @@ typedef  unsigned int uint;
 #define DHCR_THREAD_ARG
 #define DHCR_CONST_ARG
 #define bool_ref_t bool
+#define bool_t bool
 #define uint_ref_t unsigned int
 #define int_ref_t int
 #define float_ref_t  float
@@ -76,6 +77,8 @@ typedef enum:int {
 #define DHCR_THREAD_ARG
 #define DHCR_CONST_ARG
 #define bool_ref_t uint
+#define bool_t uint
+
 #define uint_ref_t unsigned int
 #define int_ref_t int
 #define float_ref_t  float
@@ -141,6 +144,7 @@ typedef  unsigned int uint;
 #define DHCR_THREAD_ARG
 #define DHCR_CONST_ARG
 #define bool_ref_t bool
+#define bool_t bool
 #define uint_ref_t unsigned int
 #define int_ref_t int
 #define float_ref_t  float
@@ -205,7 +209,7 @@ typedef struct {
     float lin_side_slope;
     float gama_side_break;
     float base;
-    bool  enabled;
+    bool_t  enabled;
 } DHCR_GammaParameters;
 
 typedef struct {
@@ -219,7 +223,7 @@ typedef struct {
     float linear_offset;
     float log2_base;
     float base;
-    bool  enabled;
+    bool_t  enabled;
 } DHCR_LogParameters ;
 
 typedef enum {
