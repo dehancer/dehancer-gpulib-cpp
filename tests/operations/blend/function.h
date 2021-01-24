@@ -8,7 +8,7 @@
 #include "dehancer/gpu/Lib.h"
 #include "tests/test_config.h"
 
-#define DO_MASK 0
+#define DO_MASK 1
 
 struct test_blend_options {
     dehancer::BlendKernel::Mode mode;
@@ -48,6 +48,10 @@ static std::vector<test_blend_options> options = {
         {
                 .mode = dehancer::BlendKernel::Mode::add,
                 .mode_name = "add"
+        },
+        {
+          .mode = dehancer::BlendKernel::Mode::subtract,
+          .mode_name = "subtract"
         },
 };
 

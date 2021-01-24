@@ -24,7 +24,8 @@ namespace dehancer {
             overlay = DHCR_Overlay,
             min = DHCR_Min,
             max = DHCR_Max,
-            add = DHCR_Add
+            add = DHCR_Add,
+            subtract = DHCR_Subtract
         };
         
         explicit BlendKernel(const void *command_queue,

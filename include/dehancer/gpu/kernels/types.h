@@ -193,7 +193,8 @@ typedef enum {
     DHCR_Overlay    = 4,
     DHCR_Min        = 5,
     DHCR_Max        = 6,
-    DHCR_Add        = 7
+    DHCR_Add        = 7,
+    DHCR_Subtract   = 8
 } DHCR_BlendingMode;
 
 typedef enum {
