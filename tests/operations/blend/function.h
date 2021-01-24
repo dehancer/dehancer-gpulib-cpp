@@ -8,6 +8,8 @@
 #include "dehancer/gpu/Lib.h"
 #include "tests/test_config.h"
 
+#define DO_MASK 0
+
 struct test_blend_options {
     dehancer::BlendKernel::Mode mode;
     float opacity = 0.5;
@@ -102,7 +104,10 @@ int function_test_blend (int dev_num,
     
     kernel.set_source(input_text.get_texture());
     kernel.set_destination(output_text.get_texture());
+  
+    #if DO_MASK
     kernel.set_mask(grad_text);
+    #endif
     
     kernel.set_overlay(grid_text);
     kernel.set_mode(opt.mode);
