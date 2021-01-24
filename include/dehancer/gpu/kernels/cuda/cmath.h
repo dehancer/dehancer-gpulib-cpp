@@ -1386,9 +1386,16 @@ __device__ __host__ T mix(T x, T y, T a) {
   return x + (y - x) * a;
 }
 
-template<class T>
-__device__ __host__ T mix(T x, T y, float a) {
-  return x + (y - x) * a;
+inline __host__ __device__ float4 mix(float4 x, float4 y, float a) {
+  return mix(x,y,make_float4(a));
+}
+
+inline __host__ __device__ float3 mix(float3 x, float3 y, float a) {
+  return mix(x,y,make_float3(a));
+}
+
+inline __host__ __device__ float2 mix(float2 x, float2 y, float a) {
+  return mix(x,y,make_float2(a));
 }
 
 template<class T>
