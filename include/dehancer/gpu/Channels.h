@@ -40,7 +40,8 @@ namespace dehancer {
             dehancer::math::float4  slope = { 0.f,0.f,0.f,0.f };
             dehancer::math::float4 offset = { 1.0f,1.0f,1.0f,1.0f };
             dehancer::math::bool4 enabled = {false,false,false,false};
-            TransformDirection direction  = none;
+            TransformDirection  direction = none;
+            Texture                  mask = nullptr;
             
             static Transform make(TransformType type, float slope, float offset, TransformDirection direction, bool enabled = true) {
               return {
@@ -105,6 +106,8 @@ namespace dehancer {
     private:
         Channels channels_;
         ChannelDesc::Transform transform_;
+        bool has_mask_;
+        Texture mask_;
     };
     
     class ChannelsOutput: public Kernel {
@@ -130,6 +133,8 @@ namespace dehancer {
     private:
         Channels channels_;
         ChannelDesc::Transform transform_;
+        bool has_mask_;
+        Texture mask_;
     };
 }
 

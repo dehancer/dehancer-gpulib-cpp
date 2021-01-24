@@ -5,7 +5,7 @@
 #pragma once
 
 #include "dehancer/gpu/kernels/cuda/common.h"
-
+#include "dehancer/gpu/kernels/cuda/std_kernels.h"
 
 extern "C" __global__ void swap_channels_kernel (
         float* scl,
@@ -38,6 +38,10 @@ extern "C" __global__ void image_to_channels (
         bool4_ref_t transform
         ,
         TransformDirection direction
+        ,
+        bool_ref_t has_mask
+        ,
+        texture2d_read_t mask
         )
 {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -52,18 +56,20 @@ extern "C" __global__ void image_to_channels (
     
     float4 color     = read_image(source, gid);
   
-    if (transform.x)
-      color.x = linearlog( color.x, slope.x, offset.x, direction);
-
-    if (transform.y)
-      color.y = linearlog( color.y, slope.y, offset.y, direction);
-
-    if (transform.z)
-      color.z = linearlog( color.z, slope.z, offset.z, direction);
-
-    if (transform.w)
-      color.w = linearlog( color.w, slope.w, offset.w, direction);
+    float4  eColor = has_mask ? sampled_color(mask, source, gid) : make_float4(1.0f);
   
+    if (transform.x)
+      color.x = linearlog( color.x, slope.x, offset.x, direction, eColor.x);
+  
+    if (transform.y)
+      color.y = linearlog( color.y, slope.y, offset.y, direction, eColor.y);
+  
+    if (transform.z)
+      color.z = linearlog( color.z, slope.z, offset.z, direction, eColor.z);
+  
+    if (transform.w)
+      color.w = linearlog( color.w, slope.w, offset.w, direction, eColor.w);
+    
     reds[index]   = color.x;
     greens[index] = color.y;
     blues[index]  = color.z;
@@ -85,6 +91,10 @@ extern "C" __global__ void channels_to_image (
         bool4_ref_t transform
         ,
         TransformDirection direction
+        ,
+        bool_ref_t has_mask
+        ,
+        texture2d_read_t mask
         )
 {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
@@ -95,20 +105,24 @@ extern "C" __global__ void channels_to_image (
   int2 gid = (int2){x, y};
   
   if ((gid.x < w) && (gid.y < h)) {
-    const int index = ((gid.y * w) + gid.x);
-    float4 color = make_float4(reds[index], greens[index], blues[index], alphas[index]);
     
+    const int index = ((gid.y * w) + gid.x);
+    
+    float4 color = make_float4(reds[index], greens[index], blues[index], alphas[index]);
+  
+    float4  eColor = has_mask ? sampled_color(mask, destination, gid) : make_float4(1.0f);
+  
     if (transform.x)
-      color.x = linearlog( color.x, slope.x, offset.x, direction);
+      color.x = linearlog( color.x, slope.x, offset.x, direction, eColor.x);
 
     if (transform.y)
-      color.y = linearlog( color.y, slope.y, offset.y, direction);
+      color.y = linearlog( color.y, slope.y, offset.y, direction, eColor.y);
 
     if (transform.z)
-      color.z = linearlog( color.z, slope.z, offset.z, direction);
+      color.z = linearlog( color.z, slope.z, offset.z, direction, eColor.z);
 
     if (transform.w)
-      color.w = linearlog( color.w, slope.w, offset.w, direction);
+      color.w = linearlog( color.w, slope.w, offset.w, direction, eColor.w);
     
     write_image(destination, color, gid);
   }

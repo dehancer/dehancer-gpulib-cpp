@@ -10,7 +10,8 @@ namespace dehancer {
             .slope = {8.0f,4,0,0},
             .offset = {128.0f,128,0,0},
             .enabled = {true,true,false,false},
-            .direction = dehancer::ChannelDesc::TransformDirection::forward
+            .direction = dehancer::ChannelDesc::TransformDirection::forward,
+            .mask = nullptr
     };
     
     
@@ -20,7 +21,6 @@ namespace dehancer {
     
     namespace impl {
         struct ChannelsHolder: public dehancer::ChannelsHolder, public dehancer::Command {
-            
             
             typedef std::shared_ptr<std::array<Memory,4>> Array;
             
@@ -80,8 +80,18 @@ namespace dehancer {
                                                    .height = texture ? texture->get_height() : 0
                                            }
             )),
+            has_mask_(transform_.mask != nullptr),
             transform_(transform)
-    {}
+    {
+      if (!transform_.mask) {
+        TextureDesc desc ={
+                .width = 1,
+                .height = 1
+        };
+        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
+        mask_ = desc.make(get_command_queue(),mem);
+      }
+    }
     
     void ChannelsInput::setup(CommandEncoder &command)  {
       int i = 0;
@@ -93,6 +103,8 @@ namespace dehancer {
       command.set(transform_.offset,i+2);
       command.set(transform_.enabled,i+3);
       command.set(transform_.direction ,i+4);
+      command.set(has_mask_ , i + 5);
+      command.set(mask_ ,i+6);
     }
     
     void ChannelsInput::set_source (const Texture &source) {
@@ -110,6 +122,17 @@ namespace dehancer {
     
     void ChannelsInput::set_transform (const ChannelDesc::Transform &transform) {
       transform_ = transform;
+      has_mask_ = transform_.mask != nullptr;
+      if (!transform_.mask) {
+        TextureDesc desc ={
+                .width = 1,
+                .height = 1
+        };
+        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
+        mask_ = desc.make(get_command_queue(),mem);
+      }
+      else
+        mask_ = transform_.mask;
     }
     
     const ChannelDesc::Transform &ChannelsInput::get_transform () const {
@@ -130,8 +153,17 @@ namespace dehancer {
                    wait_until_completed,
                    library_path),
             channels_(channels),
+            has_mask_(transform_.mask != nullptr),
             transform_(transform)
     {
+      if (!transform_.mask) {
+        TextureDesc desc ={
+                .width = 1,
+                .height = 1
+        };
+        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
+        mask_ = desc.make(get_command_queue(),mem);
+      }
     }
     
     void ChannelsOutput::setup(CommandEncoder &command) {
@@ -144,6 +176,8 @@ namespace dehancer {
       command.set(transform_.offset,i+2);
       command.set(transform_.enabled,i+3);
       command.set(transform_.direction,i+4);
+      command.set(has_mask_, i + 5);
+      command.set(mask_,i+6);
     }
     
     void ChannelsOutput::set_destination (const Texture &destination) {
@@ -156,6 +190,18 @@ namespace dehancer {
     
     void ChannelsOutput::set_transform (const ChannelDesc::Transform &transform) {
       transform_ = transform;
+      has_mask_ = transform_.mask != nullptr;
+      if (!transform_.mask) {
+        TextureDesc desc ={
+                .width = 1,
+                .height = 1
+        };
+        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
+        mask_ = desc.make(get_command_queue(),mem);
+      }
+      else {
+        mask_ = transform_.mask;
+      }
     }
     
     const ChannelDesc::Transform &ChannelsOutput::get_transform () const {

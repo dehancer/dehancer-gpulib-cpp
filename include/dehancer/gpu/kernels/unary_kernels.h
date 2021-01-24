@@ -5,6 +5,7 @@
 #ifndef DEHANCER_GPULIB_UNARY_KERNELS_H
 #define DEHANCER_GPULIB_UNARY_KERNELS_H
 
+#include "dehancer/gpu/kernels/common.h"
 #include "dehancer/gpu/kernels/types.h"
 
 DHCR_KERNEL void kernel_convolve_horizontal(
@@ -14,7 +15,9 @@ DHCR_KERNEL void kernel_convolve_horizontal(
         DHCR_CONST_ARG   int_ref_t         h DHCR_BIND_BUFFER(3),
         DHCR_DEVICE_ARG     float*   weights DHCR_BIND_BUFFER(4),
         DHCR_CONST_ARG    int_ref_t     size DHCR_BIND_BUFFER(5),
-        DHCR_CONST_ARG    int_ref_t  address DHCR_BIND_BUFFER(6)
+        DHCR_CONST_ARG    int_ref_t  address DHCR_BIND_BUFFER(6),
+        DHCR_CONST_ARG bool_ref_t has_mask DHCR_BIND_BUFFER(7),
+        texture2d_read_t       mask DHCR_BIND_TEXTURE(8)
 ) {
   
   int2 tid; get_kernel_tid2d(tid);
@@ -66,7 +69,9 @@ DHCR_KERNEL void kernel_convolve_vertical (
         DHCR_CONST_ARG    int_ref_t        h DHCR_BIND_BUFFER(3),
         DHCR_DEVICE_ARG      float*  weights DHCR_BIND_BUFFER(4),
         DHCR_CONST_ARG    int_ref_t     size DHCR_BIND_BUFFER(5),
-        DHCR_CONST_ARG    int_ref_t  address DHCR_BIND_BUFFER(6)
+        DHCR_CONST_ARG    int_ref_t  address DHCR_BIND_BUFFER(6),
+        DHCR_CONST_ARG bool_ref_t has_mask DHCR_BIND_BUFFER(7),
+        texture2d_read_t       mask DHCR_BIND_TEXTURE(8)
 ) {
   
   int2 tid; get_kernel_tid2d(tid);

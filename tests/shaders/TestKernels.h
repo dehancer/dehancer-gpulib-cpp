@@ -227,7 +227,8 @@ DHCR_KERNEL void kernel_fast_convolve(
 }
 
 DHCR_KERNEL void kernel_gradient(
-        texture2d_write_t     destination DHCR_BIND_TEXTURE(0)
+        texture2d_write_t     destination DHCR_BIND_TEXTURE(0),
+        DHCR_CONST_ARG bool_ref_t inverse DHCR_BIND_BUFFER(1)
         )
 {
   
@@ -237,8 +238,12 @@ DHCR_KERNEL void kernel_gradient(
   
   float2 coords = get_texel_coords(tex);
   
-  float4 color = make_float4(1.0f, 1.0f, 1.0f, coords.x) ;
+  //float4 color = make_float4(1.0f, 1.0f, 1.0f, coords.x) ;
+  float4 color = make_float4(coords.x, coords.x, coords.x, 1.0f) ;
   
+  if (inverse)
+    color = make_float4(1.0f) - color;
+    
   write_image(destination, color, tex.gid);
   
 }

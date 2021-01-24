@@ -107,6 +107,23 @@ inline DHCR_DEVICE_FUNC float __attribute__((overloadable)) lum(float3 c) {
   return dot(c, kIMP_Y_YCbCr_factor);
 }
 
+inline DHCR_DEVICE_FUNC float __attribute__((overloadable))  linearlog(float in, float slope, float offset, TransformDirection direction, float opacity) {
+  float result = in;
+  
+  slope = mix(0.1f,slope,opacity);
+  offset = mix(1.0f,offset,opacity);
+  
+  if (slope==0.0f) return result;
+  
+  if (direction == DHCR_forward) {
+    result = powf( 2.0f, result*slope-offset);
+  }
+  else {
+    result = (log2f(result) + offset) / slope;
+  }
+  return result;
+}
+
 inline DHCR_DEVICE_FUNC float __attribute__((overloadable))  linearlog(float in, float slope, float offset, TransformDirection direction) {
   float result = in;
   if (slope==0.0f) return result;

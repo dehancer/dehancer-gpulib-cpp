@@ -83,6 +83,7 @@ int function_test_blend (int dev_num,
   
     grad_kernel.execute([&grad_text](dehancer::CommandEncoder& command_encoder){
         command_encoder.set(grad_text, 0);
+        command_encoder.set(false, 1);
         return dehancer::CommandEncoder::Size::From(grad_text);
     });
   

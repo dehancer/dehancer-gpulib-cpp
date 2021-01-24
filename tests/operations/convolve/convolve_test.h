@@ -10,14 +10,14 @@
 
 #include "tests/test_config.h"
 
-const float TEST_RADIUS[] = {10,5,0,0};
-const int TEST_BOX_RADIUS[] = {4,4,4,0};
+const float TEST_RADIUS[]     = {0,0,20,0};
+const int TEST_BOX_RADIUS[]   = {4,4,4,0};
 const float TEST_RESOLURION[] = {3.8,3.8,3.8,0};
 
 static dehancer::ChannelDesc::Transform options_one = {
-        .slope = {8.0f,8.0f,0,0},
-        .offset = {16.0f,4.0f,0,0},
-        .enabled = {true,true,false,false},
+        .slope   = {8.0f,  8.0f, 8,0},
+        .offset  = {16.0f, 16.0f, 16,0},
+        .enabled = {true,true,true,false},
         .direction = dehancer::ChannelDesc::TransformDirection::forward
 };
 
@@ -208,7 +208,26 @@ int run_on_device(int num, const void* device, std::string patform) {
   
   auto line_kernel = test::Convolver(command_queue);
   
-  //line_kernel.set_transform(options_one);
+  auto grad_kernel = dehancer::Function(command_queue,"kernel_gradient");
+  auto grad_text = grad_kernel.make_texture(800, 400);
+  
+  grad_kernel.execute([&grad_text](dehancer::CommandEncoder& command_encoder){
+      command_encoder.set(grad_text, 0);
+      command_encoder.set(false, 1);
+      return dehancer::CommandEncoder::Size::From(grad_text);
+  });
+  
+  {
+    std::ofstream gfs("gradient."+ext, std::ios::binary);
+    gfs << dehancer::TextureOutput(command_queue, grad_text, {
+            .type = type,
+            .compression = compression
+    });
+  }
+  
+  options_one.mask = grad_text;
+  
+  line_kernel.set_transform(options_one);
   
   for (auto kf: kernels) {
     int text_num = 0;

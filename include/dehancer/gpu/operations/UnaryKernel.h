@@ -80,6 +80,8 @@ namespace dehancer {
              * the source image, or because the filter uses neighboring pixels in its calculations (e.g. convolution filters).
              */
             DHCR_EdgeMode    edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP;
+    
+            Texture               mask = nullptr;
         };
         
         using ChannelsInput::ChannelsInput;
@@ -123,6 +125,7 @@ namespace dehancer {
         [[maybe_unused]] void set_destination(const Texture& destination) override;
         [[maybe_unused]] void set_edge_mode(DHCR_EdgeMode mode);
         [[maybe_unused]] void set_transform(const ChannelDesc::Transform &transform) override;
+        [[maybe_unused]] void set_mask(const Texture &mask);
     
         const ChannelDesc::Transform & get_transform() const override;
         
