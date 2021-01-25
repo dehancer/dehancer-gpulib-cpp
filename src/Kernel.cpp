@@ -45,7 +45,13 @@ namespace dehancer {
           return get_encoder_size();
       });
     }
-
+    
+    void Kernel::process (const Texture &source, const Texture &destination) {
+      impl_->source_ = source;
+      impl_->destination_ = destination;
+      process();
+    }
+    
     void Kernel::setup(CommandEncoder &commandEncoder) {
       if (encode_handler) {
         encode_handler(commandEncoder);
@@ -74,10 +80,5 @@ namespace dehancer {
       throw std::runtime_error("get_encoder_size must be defined for kernel: " + get_name());
     }
     
-    void Kernel::process (const Texture &source, const Texture &destination) {
-      set_source(source);
-      set_destination(destination);
-      process();
-    }
   
 }
