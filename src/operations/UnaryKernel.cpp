@@ -291,6 +291,8 @@ namespace dehancer {
     }
     
     void UnaryKernel::process (const Texture &source, const Texture &destination) {
-      Kernel::process(source, destination);
+      set_source(source);
+      set_destination(destination);
+      process();
     }
 }
