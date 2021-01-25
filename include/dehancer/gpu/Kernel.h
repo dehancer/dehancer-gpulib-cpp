@@ -45,7 +45,9 @@ namespace dehancer {
          * Process Kernel functor
          */
         virtual void process();
-
+    
+        virtual void process(const Texture& source, const Texture& destination);
+    
         /***
          * Set up kernel parameters
          * @param encoder - command encoder interface

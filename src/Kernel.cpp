@@ -74,4 +74,10 @@ namespace dehancer {
       throw std::runtime_error("get_encoder_size must be defined for kernel: " + get_name());
     }
     
+    void Kernel::process (const Texture &source, const Texture &destination) {
+      set_source(source);
+      set_destination(destination);
+      process();
+    }
+  
 }
