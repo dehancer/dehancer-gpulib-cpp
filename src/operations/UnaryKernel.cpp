@@ -289,4 +289,8 @@ namespace dehancer {
     const ChannelDesc::Transform &UnaryKernel::get_transform () const {
       return impl_->transform_;
     }
+    
+    void UnaryKernel::process (const Texture &source, const Texture &destination) {
+      Kernel::process(source, destination);
+    }
 }

@@ -256,10 +256,11 @@ int run_on_device(int num, const void* device, std::string patform) {
       
       
       line_kernel.set_options(options);
-      line_kernel.set_source(text);
-      line_kernel.set_destination(output_text.get_texture());
       
-      line_kernel.process();
+      //line_kernel.set_source(text);
+      //line_kernel.set_destination(output_text.get_texture());
+      
+      line_kernel.process(text, output_text.get_texture());
       
       std::chrono::time_point<std::chrono::system_clock> clock_end
               = std::chrono::system_clock::now();
