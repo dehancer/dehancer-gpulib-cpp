@@ -10,7 +10,9 @@ namespace dehancer {
     
     class GaussianBlur: public UnaryKernel {
     public:
-        
+    
+        using UnaryKernel::UnaryKernel;
+    
         static constexpr float accuracy = 0.001;
         
         /***

@@ -86,6 +86,8 @@ namespace dehancer {
     class ChannelsInput: public Kernel {
     
     public:
+    
+        using Kernel::Kernel;
         
         explicit ChannelsInput(const void *command_queue,
                                const Texture& source,

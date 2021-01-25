@@ -15,6 +15,7 @@ namespace dehancer {
     class GammaKernel: public Kernel {
     
     public:
+        using Kernel::Kernel;
     
         using Gamma = DHCR_GammaParameters;
         using Direction = DHCR_TransformDirection;

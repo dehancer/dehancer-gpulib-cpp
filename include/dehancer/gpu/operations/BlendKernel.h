@@ -15,7 +15,8 @@ namespace dehancer {
     class BlendKernel: public Kernel {
     
     public:
-    
+        using Kernel::Kernel;
+      
         enum Mode {
             normal = DHCR_Normal,
             luminosity = DHCR_Luminosity,

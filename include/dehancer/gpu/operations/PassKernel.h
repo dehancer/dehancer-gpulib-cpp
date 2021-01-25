@@ -14,6 +14,8 @@ namespace dehancer {
     class PassKernel: public Kernel {
     
     public:
+        using Kernel::Kernel;
+    
         explicit PassKernel(const void *command_queue,
                    const Texture &source,
                    const Texture &destination,

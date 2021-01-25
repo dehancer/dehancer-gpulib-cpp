@@ -15,7 +15,8 @@ namespace dehancer {
     class ResampleKernel: public Kernel {
     
     public:
-        
+        using Kernel::Kernel;
+    
         /***
          * Resample mode
          */
