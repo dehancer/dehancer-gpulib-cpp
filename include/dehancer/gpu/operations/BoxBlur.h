@@ -64,6 +64,7 @@ namespace dehancer {
         
         [[maybe_unused]] void set_radius(size_t radius);
         [[maybe_unused]] void set_radius(std::array<size_t ,4>  radius);
+        [[maybe_unused]] std::array<size_t ,4> get_radius() const;
     };
 }
 

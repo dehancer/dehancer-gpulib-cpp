@@ -127,6 +127,14 @@ namespace dehancer {
       set_user_data(data);
     }
     
+    std::array<float, 4> GaussianBlur::get_radius () const {
+      auto options = get_options();
+      if (options.user_data.has_value())
+        return std::any_cast<GaussianBlurOptions>(options.user_data.value()).radius_array;
+      else
+        return {};
+    }
+    
     //
     // experimental blur as boxed blur
     //

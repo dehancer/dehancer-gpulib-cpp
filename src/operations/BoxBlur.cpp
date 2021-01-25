@@ -99,4 +99,12 @@ namespace dehancer {
     void BoxBlur::set_radius (size_t radius) {
       set_radius({radius,radius,radius,0});
     }
+    
+    std::array<size_t, 4> BoxBlur::get_radius () const {
+      auto options = get_options();
+      if (options.user_data.has_value())
+        return std::any_cast<BoxBlurOptions>(options.user_data.value()).radius_array;
+      else
+        return {};
+    }
 }

@@ -10,14 +10,14 @@
 
 #include "tests/test_config.h"
 
-const float TEST_RADIUS[]     = {0,0,20,0};
+const float TEST_RADIUS[]     = {20,0,0,0};
 const int TEST_BOX_RADIUS[]   = {4,4,4,0};
 const float TEST_RESOLURION[] = {3.8,3.8,3.8,0};
 
 static dehancer::ChannelDesc::Transform options_one = {
         .slope   = {8.0f,  8.0f, 8,0},
         .offset  = {16.0f, 16.0f, 16,0},
-        .enabled = {true,true,true,false},
+        .enabled = {true,true,false,false},
         .direction = dehancer::ChannelDesc::TransformDirection::forward
 };
 

@@ -73,6 +73,8 @@ namespace dehancer {
         [[maybe_unused]] void set_radius(float radius);
         [[maybe_unused]] void set_radius(std::array<float ,4>  radius);
         [[maybe_unused]] void set_accuracy(float accuracy);
+    
+        [[maybe_unused]] std::array<float ,4> get_radius() const;
     };
 }
 
