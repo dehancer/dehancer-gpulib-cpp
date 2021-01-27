@@ -17,8 +17,8 @@
 inline DHCR_DEVICE_FUNC
 float4 tex2D_bilinear(texture2d_read_t source, float x, float y)
 {
-  //x -= 0.5f;
-  //y -= 0.5f;
+  x -= 0.5f;
+  y -= 0.5f;
   
   float  u = floor(x);
   float  v = floor(y);
@@ -91,8 +91,8 @@ float4 cubicFilter(float x, float4 c0, float4  c1, float4  c2, float4  c3)
 inline DHCR_DEVICE_FUNC
 float4 tex2D_bicubic(texture2d_read_t tex, float x, float y)
 {
-  //x -= 0.5f;
-  //y -= 0.5f;
+  x -= 0.5f;
+  y -= 0.5f;
   float px = floor(x);
   float py = floor(y);
   float fx = x - px;
@@ -127,8 +127,8 @@ float4 tex2D_bicubic(texture2d_read_t tex, float x, float y)
 inline DHCR_DEVICE_FUNC
 float4 tex2D_box_average(texture2d_read_t tex, float x, float y)
 {
-//  x -= 0.5f;
-//  y -= 0.5f;
+  x -= 0.5f;
+  y -= 0.5f;
   float px = floor(x);
   float py = floor(y);
 
