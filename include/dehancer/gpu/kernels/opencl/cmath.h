@@ -239,7 +239,7 @@ inline static  uint4 __attribute__((overloadable)) make_uint4(int4 a) {
 //////////////////////////////////////////////////////////////////////////////////
 
 inline static float __attribute__((overloadable)) fminf(float a, float b) {
-  return fmin(a, b), fmin(a, b);
+  return fmin(a, b);
 }
 
 inline static   float2 __attribute__((overloadable)) fminf(float2 a, float2 b) {

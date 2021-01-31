@@ -31,7 +31,7 @@ namespace dehancer {
         int kRadius = (int)std::ceil(sigma*std::sqrt(-2.0f*std::log(options.accuracy)))+1;
         int maxRadius = (int)std::ceil(radius/2+1) * 4 - 1;
         
-        kRadius = std::min(kRadius,maxRadius);
+        kRadius = std::max(kRadius,maxRadius);
         
         auto size = kRadius;
         if (size%2==0) size+=1;

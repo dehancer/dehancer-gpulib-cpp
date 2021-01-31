@@ -10,14 +10,14 @@
 
 #include "tests/test_config.h"
 
-const float TEST_RADIUS[]     = {20,0,0,0};
+const float TEST_RADIUS[]     = {90,0,0,0};
 const int TEST_BOX_RADIUS[]   = {4,4,4,0};
 const float TEST_RESOLURION[] = {3.8,3.8,3.8,0};
 
 static dehancer::ChannelDesc::Transform options_one = {
         .slope   = {8.0f,  8.0f, 8,0},
         .offset  = {16.0f, 16.0f, 16,0},
-        .enabled = {true,true,false,false},
+        .enabled = {true,false,false,false},
         .direction = dehancer::ChannelDesc::TransformDirection::forward
 };
 
@@ -122,6 +122,34 @@ int run_on_device(int num, const void* device, std::string patform) {
   }
   
   auto kernel_blur = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
+      
+      
+      data.clear();
+      
+      if (!user_data.has_value()) return ;
+      
+      //auto options = std::any_cast<GaussianBlurOptions>(user_data.value());
+      
+      //auto radius = options.radius_array.at(index);
+      auto radius = TEST_RADIUS[index];
+    
+    
+      if (radius==0) return ;
+      
+      float sigma = radius/2.0f;
+      int kRadius = (int)std::ceil(sigma*std::sqrt(-2.0f*std::log(0.0001)))+1;
+      int maxRadius = (int)std::ceil(radius/2+1) * 4 - 1;
+      
+      kRadius = std::min(kRadius,maxRadius);
+      
+      auto size = kRadius;
+      if (size%2==0) size+=1;
+      if (size<3) size=3;
+      
+      dehancer::math::make_gaussian_kernel(data, size, radius/2.0f);
+  };
+  
+  auto kernel_blur2 = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
       data.clear();
       
       auto radius = TEST_RADIUS[index];
@@ -131,7 +159,8 @@ int run_on_device(int num, const void* device, std::string patform) {
       float sigma = radius/2.0f;
       int kRadius = (int)ceil(sigma*sqrt(-2.0f*log(0.0001)))+1;
       
-      auto size = kRadius;// (int)ceil(radius/2+1) * 4 - 1;
+      auto size = kRadius;
+      //auto size = (int)ceil(radius/2+1) * 4 - 1;
       if (size%2==0) size+=1;
       if (size<3) size=3;
       dehancer::math::make_gaussian_kernel(data, size, radius/2.0f);
