@@ -29,7 +29,7 @@ namespace dehancer {
         
         float sigma = radius/2.0f;
         int kRadius = (int)std::ceil(sigma*std::sqrt(-2.0f*std::log(options.accuracy)))+1;
-        int maxRadius = (int)std::ceil(radius/2+1) * 4 - 1;
+        int maxRadius = (int)std::ceil(radius/2+1) * 2 - 1;
         
         kRadius = std::max(kRadius,maxRadius);
         
