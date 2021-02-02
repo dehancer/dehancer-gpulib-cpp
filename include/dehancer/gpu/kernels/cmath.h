@@ -110,8 +110,8 @@ static inline DHCR_DEVICE_FUNC float __attribute__((overloadable)) lum(float3 c)
 static inline DHCR_DEVICE_FUNC float __attribute__((overloadable))  linearlog(float in, float slope, float offset, TransformDirection direction, float opacity) {
   float result = in;
   
-  slope = mix(0.1f,slope,opacity);
-  offset = mix(1.0f,offset,opacity);
+  //slope = mix(0.1f,slope,opacity);
+  //offset = mix(1.0f,offset,opacity);
   
   if (slope==0.0f) return result;
   
@@ -121,6 +121,9 @@ static inline DHCR_DEVICE_FUNC float __attribute__((overloadable))  linearlog(fl
   else {
     result = (log2f(result) + offset) / slope;
   }
+  
+  result = mix (in, result, smoothstep(0.0f,1.0f, opacity));
+  
   return result;
 }
 
