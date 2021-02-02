@@ -122,7 +122,7 @@ static inline DHCR_DEVICE_FUNC float __attribute__((overloadable))  linearlog(fl
     result = (log2f(result) + offset) / slope;
   }
   
-  result = mix (in, result, smoothstep(0.0f,1.0f, opacity));
+  //result = mix (in, result, smoothstep(0.0f,1.0f, opacity));
   
   return result;
 }

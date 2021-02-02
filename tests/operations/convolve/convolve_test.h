@@ -10,7 +10,7 @@
 
 #include "tests/test_config.h"
 
-const float TEST_RADIUS[]     = {90,0,0,0};
+const float TEST_RADIUS[]     = {30,0,0,0};
 const int TEST_BOX_RADIUS[]   = {4,4,4,0};
 const float TEST_RESOLURION[] = {3.8,3.8,3.8,0};
 
@@ -207,24 +207,25 @@ int run_on_device(int num, const void* device, std::string patform) {
                   .row = kernel_blur,
                   .col = kernel_blur,
                   .name = "blur"
-          },
-          {
-                  .row = kernel_magic_resolution,
-                  .col = kernel_magic_resolution,
-                  .name = "resolution"
-          },
-          {
-                  .row = kernel_box_blur,
-                  .col = kernel_box_blur,
-                  .name = "box-blur"
           }
-        
-          ,
-          {
-                  .row = kernel_resample,
-                  .col = kernel_resample,
-                  .name = "resampler"
-          }
+//          ,
+//          {
+//                  .row = kernel_magic_resolution,
+//                  .col = kernel_magic_resolution,
+//                  .name = "resolution"
+//          },
+//          {
+//                  .row = kernel_box_blur,
+//                  .col = kernel_box_blur,
+//                  .name = "box-blur"
+//          }
+//
+//          ,
+//          {
+//                  .row = kernel_resample,
+//                  .col = kernel_resample,
+//                  .name = "resampler"
+//          }
   };
   
   auto lena_text = dehancer::TextureInput(command_queue);
@@ -254,9 +255,10 @@ int run_on_device(int num, const void* device, std::string patform) {
     });
   }
   
-  options_one.mask = grad_text;
+  //options_one.mask = grad_text;
   
   line_kernel.set_transform(options_one);
+  //line_kernel.set_mask(grad_text);
   
   for (auto kf: kernels) {
     int text_num = 0;
@@ -281,6 +283,7 @@ int run_on_device(int num, const void* device, std::string patform) {
               .col = kf.col,
               .user_data = kf.name,
               .edge_mode = DHCR_EdgeMode ::DHCR_ADDRESS_CLAMP,
+              .mask = grad_text
       };
       
       

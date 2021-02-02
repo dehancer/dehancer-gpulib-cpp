@@ -134,6 +134,7 @@ namespace dehancer {
     
               command.set(impl_->has_mask_, 7);
               command.set(impl_->mask_, 8);
+              command.set(i, 9);
     
               return (CommandEncoder::Size) {impl_->width, impl_->height, 1};
           });
@@ -159,6 +160,7 @@ namespace dehancer {
     
               command.set(impl_->has_mask_, 7);
               command.set(impl_->mask_, 8);
+              command.set(i, 9);
     
               return (CommandEncoder::Size) {impl_->width, impl_->height, 1};
           });

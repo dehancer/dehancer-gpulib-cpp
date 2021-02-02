@@ -17,7 +17,8 @@ DHCR_KERNEL void kernel_convolve_horizontal(
         DHCR_CONST_ARG    int_ref_t     size DHCR_BIND_BUFFER(5),
         DHCR_CONST_ARG    int_ref_t  address DHCR_BIND_BUFFER(6),
         DHCR_CONST_ARG bool_ref_t has_mask DHCR_BIND_BUFFER(7),
-        texture2d_read_t       mask DHCR_BIND_TEXTURE(8)
+        texture2d_read_t              mask DHCR_BIND_TEXTURE(8),
+        DHCR_CONST_ARG int_ref_t channel_index DHCR_BIND_TEXTURE(9)
 ) {
   
   int2 tid; get_kernel_tid2d(tid);
@@ -57,8 +58,20 @@ DHCR_KERNEL void kernel_convolve_horizontal(
       const int j = ((tid.y * w) + jx);
       val += scl[j] * weights[i+half_size] * f;
     }
-    
-    tcl[index] = val;
+  
+    if (has_mask){
+      float2 coords = make_float2(tid)/make_float2(w,h);
+      float4  mask_color = read_image(mask,coords);
+      switch (channel_index) {
+        case 0: val = mix(scl[index], val, mask_color.x); break;
+        case 1: val = mix(scl[index], val, mask_color.y); break;
+        case 2: val = mix(scl[index], val, mask_color.z); break;
+        case 3: val = mix(scl[index], val, mask_color.w); break;
+      }
+    }
+    //else {
+      tcl[index] = val;
+    //}
   }
 }
 
@@ -71,7 +84,8 @@ DHCR_KERNEL void kernel_convolve_vertical (
         DHCR_CONST_ARG    int_ref_t     size DHCR_BIND_BUFFER(5),
         DHCR_CONST_ARG    int_ref_t  address DHCR_BIND_BUFFER(6),
         DHCR_CONST_ARG bool_ref_t has_mask DHCR_BIND_BUFFER(7),
-        texture2d_read_t       mask DHCR_BIND_TEXTURE(8)
+        texture2d_read_t       mask DHCR_BIND_TEXTURE(8),
+        DHCR_CONST_ARG int_ref_t channel_index DHCR_BIND_TEXTURE(9)
 ) {
   
   int2 tid; get_kernel_tid2d(tid);
@@ -111,8 +125,20 @@ DHCR_KERNEL void kernel_convolve_vertical (
       const int j = ((jy * w) + tid.x);
       val += scl[j] * weights[i+half_size] * f;
     }
-    
-    tcl[index] = val;
+  
+    if (has_mask){
+      float2 coords = make_float2(tid)/make_float2(w,h);
+      float4  mask_color = read_image(mask,coords);
+      switch (channel_index) {
+        case 0: val = mix(scl[index], val, mask_color.x); break;
+        case 1: val = mix(scl[index], val, mask_color.y); break;
+        case 2: val = mix(scl[index], val, mask_color.z); break;
+        case 3: val = mix(scl[index], val, mask_color.w); break;
+      }
+    }
+    //else {
+      tcl[index] = val;
+    //}
   }
 }
 

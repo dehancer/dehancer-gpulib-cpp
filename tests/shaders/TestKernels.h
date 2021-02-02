@@ -239,7 +239,8 @@ DHCR_KERNEL void kernel_gradient(
   float2 coords = get_texel_coords(tex);
   
   //float4 color = make_float4(1.0f, 1.0f, 1.0f, coords.x) ;
-  float4 color = make_float4(coords.x, coords.x, coords.x, 1.0f) ;
+  float x = coords.x;
+  float4 color = make_float4(x, x, x, 1.0f) ;
   
   if (inverse)
     color = make_float4(1.0f) - color;
