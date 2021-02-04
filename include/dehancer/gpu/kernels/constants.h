@@ -18,4 +18,24 @@ static __constant DHCR_DEVICE_FUNC float3 kIMP_Y_YCbCr_factor = {0.299, 0.587, 0
 // average
 static __constant DHCR_DEVICE_FUNC float3 kIMP_Y_mean_factor = {0.3333, 0.3333, 0.3333};
 
+static __constant DHCR_DEVICE_FUNC float kIMP_Std_Gamma      = 2.2;
+static __constant DHCR_DEVICE_FUNC float kIMP_RGB2SRGB_Gamma = 2.4;
+
+static __constant DHCR_DEVICE_FUNC float kIMP_Cielab_X = 95.047;
+static __constant DHCR_DEVICE_FUNC float kIMP_Cielab_Y = 100.000;
+static __constant DHCR_DEVICE_FUNC float kIMP_Cielab_Z = 108.883;
+
+
+static __constant DHCR_DEVICE_FUNC float4 kIMP_HSV_K0      = {0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0};
+static __constant DHCR_DEVICE_FUNC float4 kIMP_HSV_K1      = {0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0};
+static __constant DHCR_DEVICE_FUNC float4 kIMP_Reds        = {315.0, 345.0, 15.0,   45.0};
+static __constant DHCR_DEVICE_FUNC float4 kIMP_Yellows     = { 15.0,  45.0, 75.0,  105.0};
+static __constant DHCR_DEVICE_FUNC float4 kIMP_Greens      = { 75.0, 105.0, 135.0, 165.0};
+static __constant DHCR_DEVICE_FUNC float4 kIMP_Cyans       = {135.0, 165.0, 195.0, 225.0};
+static __constant DHCR_DEVICE_FUNC float4 kIMP_Blues       = {195.0, 225.0, 255.0, 285.0};
+static __constant DHCR_DEVICE_FUNC float4 kIMP_Magentas    = {255.0, 285.0, 315.0, 345.0};
+
+static __constant DHCR_DEVICE_FUNC float kIMP_COLOR_TEMP = 5000.0;
+static __constant DHCR_DEVICE_FUNC float kIMP_COLOR_TINT = 0.0;
+
 #endif //DEHANCER_GPULIB_CONSTANTS_H
