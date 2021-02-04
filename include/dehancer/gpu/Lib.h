@@ -26,5 +26,8 @@
 #include "dehancer/gpu/operations/OpticalResolution.h"
 #include "dehancer/gpu/operations/GaussianBlur.h"
 #include "dehancer/gpu/operations/GammaKernel.h"
+#include "dehancer/gpu/operations/MorphKernel.h"
+#include "dehancer/gpu/operations/DilateKernel.h"
+#include "dehancer/gpu/operations/ErodeKernel.h"
 
 #include "dehancer/gpu/math/ConvolveUtils.h"
