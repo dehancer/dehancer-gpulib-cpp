@@ -47,8 +47,6 @@ namespace dehancer {
     }
     
     void Kernel::process (const Texture &source, const Texture &destination) {
-      //set_source(source);
-      //set_destination(destination);
       impl_->source_ = source;
       impl_->destination_ = destination;
       process();
