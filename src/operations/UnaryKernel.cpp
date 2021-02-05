@@ -100,6 +100,12 @@ namespace dehancer {
       recompute_kernel();
     }
     
+    void UnaryKernel::process (const Texture &source, const Texture &destination) {
+      set_source(source);
+      set_destination(destination);
+      process();
+    }
+    
     void UnaryKernel::process() {
       
       ChannelsInput::process();
@@ -292,9 +298,5 @@ namespace dehancer {
       return impl_->transform_;
     }
     
-    void UnaryKernel::process (const Texture &source, const Texture &destination) {
-      set_source(source);
-      set_destination(destination);
-      process();
-    }
+  
 }

@@ -1,7 +1,6 @@
 add_subdirectory(convolve)
 add_subdirectory(box-and-gauss-blur)
 add_subdirectory(optical_resolution)
-add_subdirectory(fast_blur_experimental)
 add_subdirectory(blend)
 add_subdirectory(resampler)
 add_subdirectory(gamma)
