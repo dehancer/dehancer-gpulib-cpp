@@ -100,9 +100,19 @@ namespace dehancer {
       recompute_kernel();
     }
     
-    void UnaryKernel::process() {
+    //void UnaryKernel::process (const Texture &source, const Texture &destination) {
+    void UnaryKernel::process () {
+      //set_source(source);
+      //set_destination(destination);
+      process(get_source(),get_destination());
+    }
+    
+    void UnaryKernel::process(const Texture &source, const Texture &destination) {
+  
+      set_source(source);
+      set_destination(destination);
       
-      ChannelsInput::process();
+      ChannelsInput::process(source, nullptr);
       
       auto horizontal_kernel = Function(get_command_queue(),
                                         "kernel_convolve_horizontal");
@@ -167,6 +177,7 @@ namespace dehancer {
         }
       }
       
+      //impl_->channels_finalizer->process(nullptr,destination);
       impl_->channels_finalizer->process();
     }
     
@@ -292,9 +303,5 @@ namespace dehancer {
       return impl_->transform_;
     }
     
-    void UnaryKernel::process (const Texture &source, const Texture &destination) {
-      set_source(source);
-      set_destination(destination);
-      process();
-    }
+  
 }

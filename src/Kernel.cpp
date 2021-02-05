@@ -32,6 +32,29 @@ namespace dehancer {
     }
 
     void Kernel::process() {
+      //impl_->source_;
+      //impl_->destination_;
+      //process(impl_->source_, impl_->destination_);
+      
+      process(get_source(),get_destination());
+      
+//      execute([this](CommandEncoder& command){
+//          int count = 0;
+//          if (this->get_source())
+//            command.set(this->get_source(),count++);
+//          if (this->get_destination())
+//            command.set(this->get_destination(), count++);
+//          this->setup(command);
+//          auto t = this->get_destination() ? this->get_destination() : this->get_source();
+//          if (t)
+//            return (CommandEncoder::Size){t->get_width(),t->get_height(),t->get_depth()};
+//          return get_encoder_size();
+//      });
+    }
+    
+    void Kernel::process (const Texture &source, const Texture &destination) {
+      if (get_source()!=source) set_source(source);
+      if (get_destination()!=destination) set_destination(destination);
       execute([this](CommandEncoder& command){
           int count = 0;
           if (this->get_source())
@@ -44,12 +67,20 @@ namespace dehancer {
             return (CommandEncoder::Size){t->get_width(),t->get_height(),t->get_depth()};
           return get_encoder_size();
       });
-    }
-    
-    void Kernel::process (const Texture &source, const Texture &destination) {
-      impl_->source_ = source;
-      impl_->destination_ = destination;
-      process();
+//      impl_->source_ = source;
+//      impl_->destination_ = destination;
+//      execute([this](CommandEncoder& command){
+//          int count = 0;
+//          if (source)
+//            command.set(source,count++);
+//          if (destination)
+//            command.set(destination, count++);
+//          this->setup(command);
+//          auto t = destination ? destination : source;
+//          if (t)
+//            return (CommandEncoder::Size){t->get_width(),t->get_height(),t->get_depth()};
+//          return get_encoder_size();
+//      });
     }
     
     void Kernel::setup(CommandEncoder &commandEncoder) {
