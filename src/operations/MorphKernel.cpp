@@ -20,7 +20,7 @@ namespace dehancer {
             tmp_(destination ? destination->get_desc().make(command_queue) : nullptr)
     {
     }
-
+    
     void MorphKernel::set_size (size_t patches) {
       patches_ = patches;
     }
@@ -30,11 +30,7 @@ namespace dehancer {
     }
     
     void MorphKernel::process () {
-      process(get_source(), get_destination());
-    }
-    
-    void MorphKernel::process (const Texture &source, const Texture &destination) {
-      
+      //process(get_source(), get_destination());
       auto src = get_source();
       for(size_t i=0; i<iterations_; ++i){
         execute([this, &src] (CommandEncoder &encoder) {
@@ -45,7 +41,7 @@ namespace dehancer {
             encoder.set(step, 3);
             return CommandEncoder::Size::From(tmp_);
         });
-    
+        
         execute([this] (CommandEncoder &encoder) {
             encoder.set(tmp_, 0);
             encoder.set(get_destination(), 1);
@@ -56,6 +52,12 @@ namespace dehancer {
         });
         src = get_destination();
       }
+    }
+    
+    void MorphKernel::process (const Texture &source, const Texture &destination) {
+      set_source(source);
+      set_destination(destination);
+      process();
     }
     
     void MorphKernel::set_destination (const Texture &destination) {
