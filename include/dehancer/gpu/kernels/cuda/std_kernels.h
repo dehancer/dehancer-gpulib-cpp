@@ -7,38 +7,20 @@
 #include "dehancer/gpu/kernels/cuda/common.h"
 #include "dehancer/gpu/kernels/resample.h"
 
-//inline __device__ __host__ float4 sampled_color(
-//        __read_only image2d_t source,
-//        int2 gid,
-//        int2 size
-//){
-//
-//  //Texel2d tex; get_kernel_texel2d(destination,tex);
-//  //if (!get_texel_boundary(tex)) return make_float4(0.0f);
-//
-//  if (size.y==source.get_height() && source.get_width()==size.x)
-//    return read_image(source, gid);
-//  else {
-//    //Texel2d tex_src;  get_kernel_texel2d(source,tex_src);
-//    //float2 coords = get_texel_coords(tex) * make_float2(tex_src.size);
-//    return tex2D_bilinear(source, coords.x, coords.y);
-//  }
-//}
-
 inline __device__ __host__ float4 sampled_color(
         __read_only image2d_t source,
         __write_only image2d_t destination,
         int2 gid
 ){
   
-  Texel2d tex; get_kernel_texel2d(destination,tex);
-  if (!get_texel_boundary(tex)) return make_float4(0.0f);
+  int2 size = (int2){source.get_width(), source.get_height()};
   
-  if (tex.size.y==source.get_height() && source.get_width()==tex.size.x)
-    return read_image(source, tex.gid);
+  if (size.y==destination.get_height() && destination.get_width()==size.x)
+    return read_image(source, gid);
   else {
-    Texel2d tex_src;  get_kernel_texel2d(source,tex_src);
-    float2 coords = get_texel_coords(tex) * make_float2(tex_src.size);
+    float2 coords = (float2){(float)gid.x / (float)(destination.get_width() - 1),
+                             (float)gid.y / (float)(destination.get_height()- 1)};
+    coords = coords * make_float2(size);
     return tex2D_bilinear(source, coords.x, coords.y);
   }
 }
@@ -49,14 +31,14 @@ inline __device__ __host__ float4 bicubic_sampled_color(
         int2 gid
 ){
   
-  Texel2d tex; get_kernel_texel2d(destination,tex);
-  if (!get_texel_boundary(tex)) return make_float4(0.0f);
+  int2 size = (int2){source.get_width(), source.get_height()};
   
-  if (tex.size.y==source.get_height() && source.get_width()==tex.size.x)
-    return read_image(source, tex.gid);
+  if (size.y==destination.get_height() && destination.get_width()==size.x)
+    return read_image(source, gid);
   else {
-    Texel2d tex_src;  get_kernel_texel2d(source,tex_src);
-    float2 coords = get_texel_coords(tex) * make_float2(tex_src.size);
+    float2 coords = (float2){(float)gid.x / (float)(destination.get_width() - 1),
+                             (float)gid.y / (float)(destination.get_height()- 1)};
+    coords = coords * make_float2(size);
     return tex2D_bicubic(source, coords.x, coords.y);
   }
 }
@@ -67,14 +49,14 @@ inline __device__ __host__ float4 box_average_sampled_color(
         int2 gid
 ){
   
-  Texel2d tex; get_kernel_texel2d(destination,tex);
-  if (!get_texel_boundary(tex)) return make_float4(0.0f);
+  int2 size = (int2){source.get_width(), source.get_height()};
   
-  if (tex.size.y==source.get_height() && source.get_width()==tex.size.x)
-    return read_image(source, tex.gid);
+  if (size.y==destination.get_height() && destination.get_width()==size.x)
+    return read_image(source, gid);
   else {
-    Texel2d tex_src;  get_kernel_texel2d(source,tex_src);
-    float2 coords = get_texel_coords(tex) * make_float2(tex_src.size);
+    float2 coords = (float2){(float)gid.x / (float)(destination.get_width() - 1),
+                             (float)gid.y / (float)(destination.get_height()- 1)};
+    coords = coords * make_float2(size);
     return tex2D_box_average(source, coords.x, coords.y);
   }
 }
