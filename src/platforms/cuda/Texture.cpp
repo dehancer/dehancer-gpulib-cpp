@@ -55,7 +55,7 @@ namespace dehancer::cuda {
       }
     }
     
-    TextureHolder::~TextureHolder() = default
+    TextureHolder::~TextureHolder() = default;
     
     const void *TextureHolder::get_memory() const {
       return mem_.get();
