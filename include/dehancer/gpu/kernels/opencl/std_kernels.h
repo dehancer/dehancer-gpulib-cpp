@@ -39,7 +39,7 @@ static inline float4 bicubic_sampled_color(
   else {
     float2 coords = (float2){(float)gid.x / (float)(get_image_width(destination) - 1),
                              (float)gid.y / (float)(get_image_height(destination)- 1)};
-    coords *= make_float2(size);
+    coords = coords * make_float2(size);
     return tex2D_bicubic(source, coords.x, coords.y);
   }
 }
@@ -56,7 +56,7 @@ static inline float4 box_average_sampled_color(
   else {
     float2 coords = (float2){(float)gid.x / (float)(get_image_width(destination) - 1),
                              (float)gid.y / (float)(get_image_height(destination)- 1)};
-    coords *= make_float2(size);
+    coords = coords * make_float2(size);
     return tex2D_box_average(source, coords.x, coords.y);
   }
 }
