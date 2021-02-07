@@ -55,11 +55,7 @@ namespace dehancer::cuda {
       }
     }
     
-    TextureHolder::~TextureHolder() {
-      #ifdef PRINT_DEBUG
-      dehancer::log::print("~TextureHolder[%s] desc: %ix%ix%i",  desc_.label.c_str(), desc_.width, desc_.height, desc_.depth);
-      #endif
-    };
+    TextureHolder::~TextureHolder() = default
     
     const void *TextureHolder::get_memory() const {
       return mem_.get();

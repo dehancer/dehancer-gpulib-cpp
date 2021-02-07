@@ -146,9 +146,6 @@ namespace dehancer::opencl {
     TextureHolder::~TextureHolder() {
       if(memobj_)
         clReleaseMemObject(memobj_);
-#ifdef PRINT_DEBUG
-        dehancer::log::print("~TextureHolder[%s] desc: %ix%ix%i",  get_desc().label.c_str(), get_width(), get_length(), get_depth());
-#endif
     }
 
     dehancer::Error TextureHolder::get_contents(std::vector<float> &buffer) const {
