@@ -30,6 +30,7 @@ DHCR_KERNEL void  kernel_gamma(
         DHCR_CONST_ARG     DHCR_GammaParameters    params DHCR_BIND_BUFFER(2),
         DHCR_CONST_ARG  DHCR_TransformDirection direction DHCR_BIND_BUFFER(3),
         DHCR_CONST_ARG  float impact DHCR_BIND_BUFFER(4)
+        DHCR_KERNEL_GID_2D
 ) {
   
   Texel2d tex; get_kernel_texel2d(destination, tex);

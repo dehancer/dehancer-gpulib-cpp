@@ -7,10 +7,6 @@
 
 #ifdef __METAL_VERSION__
 
-#include <metal_stdlib>
-#include "aoBenchKernel.h"
-
-using namespace metal;
 
 #elif CL_VERSION_1_2
 
@@ -27,11 +23,9 @@ namespace dehancer {
     typedef dehancer::math::float3x3 float3x3;
     typedef dehancer::math::float4x4 float4x4;
 
-    //namespace arma {
     typedef arma::Col<uint> uint_vec;
     typedef arma::Col<int> int_vec;
     typedef arma::Col<uint> bool_vec;
-    //}
     
     namespace math {
     
@@ -224,57 +218,6 @@ namespace dehancer {
         
             explicit bool4(const observable::Aproxy<bool4> &a):bool4(a.get_data()){}
         };
-
-//        struct uint2 {
-//            [[nodiscard]] inline const uint& x() const { return x_; }
-//            [[nodiscard]] inline const uint& y() const { return y_; }
-//            inline uint& x() { return x_; }
-//            inline uint& y() { return y_; }
-//        private:
-//            uint x_,y_;
-//        };
-////
-//        struct uint3 {
-//            [[nodiscard]] inline const uint& x() const { return x_; }
-//            [[nodiscard]] inline const uint& y() const { return y_; }
-//            [[nodiscard]] inline const uint& z() const { return z_; }
-//            inline uint& x() { return x_; }
-//            inline uint& y() { return y_; }
-//            inline uint& z() { return z_; }
-//        private:
-//            uint x_,y_,z_;
-//        };
-//        struct uint4 {
-//        private:
-//            uint x,y,z,w;
-//        };
-//
-//        struct int2 {
-//        private:
-//            int x,y;
-//        };
-//        struct int3 {
-//        private:
-//            int x,y,z;
-//        };
-//        struct int4 {
-//        private:
-//            int x,y,z,w;
-//        };
-//
-//        struct bool2 {
-//        private:
-//            bool x,y;
-//        };
-//        struct bool3 {
-//        private:
-//            bool x,y,z;
-//        };
-//        struct bool4 {
-//        private:
-//            bool x,y,z,w;
-//        };
-      
     }
   
 }

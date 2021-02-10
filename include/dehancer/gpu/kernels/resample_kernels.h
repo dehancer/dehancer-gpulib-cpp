@@ -10,6 +10,7 @@
 DHCR_KERNEL void kernel_bilinear(
         texture2d_read_t       source DHCR_BIND_TEXTURE(0),
         texture2d_write_t destination DHCR_BIND_TEXTURE(1)
+        DHCR_KERNEL_GID_2D
 ){
   Texel2d tex_dest; get_kernel_texel2d(destination,tex_dest);
   
@@ -28,6 +29,7 @@ DHCR_KERNEL void kernel_bilinear(
 DHCR_KERNEL void kernel_bicubic(
         texture2d_read_t       source DHCR_BIND_TEXTURE(0),
         texture2d_write_t destination DHCR_BIND_TEXTURE(1)
+        DHCR_KERNEL_GID_2D
 ){
   Texel2d tex_dest; get_kernel_texel2d(destination,tex_dest);
   
@@ -45,6 +47,7 @@ DHCR_KERNEL void kernel_bicubic(
 DHCR_KERNEL void kernel_box_average(
         texture2d_read_t       source DHCR_BIND_TEXTURE(0),
         texture2d_write_t destination DHCR_BIND_TEXTURE(1)
+        DHCR_KERNEL_GID_2D
 ){
   Texel2d tex_dest; get_kernel_texel2d(destination,tex_dest);
   

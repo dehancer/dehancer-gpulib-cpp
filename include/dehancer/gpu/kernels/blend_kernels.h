@@ -19,6 +19,7 @@ DHCR_KERNEL void  kernel_blend(
         DHCR_CONST_ARG      int_ref_t     mode DHCR_BIND_BUFFER(5),
         DHCR_CONST_ARG      int_ref_t int_mode DHCR_BIND_BUFFER(6),
         texture2d_read_t         mask DHCR_BIND_TEXTURE(7)
+        DHCR_KERNEL_GID_2D
 ){
   Texel2d tex; get_kernel_texel2d(destination,tex);
   if (!get_texel_boundary(tex)) return;
@@ -51,7 +52,6 @@ DHCR_KERNEL void  kernel_blend(
   
   if (has_mask) {
     mask_rgba = bicubic_sampled_color(mask, destination, tex.gid) * make_float4(opacity);
-    //overlay_color = mix(make_float4(0.0f), overlay_color, mask_rgba);
   }
   else
     mask_rgba = mask_rgba * make_float4(opacity);

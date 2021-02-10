@@ -13,6 +13,7 @@ DHCR_KERNEL void kernel_dilate(
         texture2d_write_t         destination DHCR_BIND_TEXTURE(1),
         DHCR_CONST_ARG int_ref_t         size DHCR_BIND_BUFFER(2),
         DHCR_CONST_ARG int2_ref_t        step DHCR_BIND_BUFFER(3)
+        DHCR_KERNEL_GID_2D
 ) {
   
   Texel2d tex; get_kernel_texel2d(destination, tex);
@@ -40,6 +41,7 @@ DHCR_KERNEL void kernel_erode(
         texture2d_write_t         destination DHCR_BIND_TEXTURE(1),
         DHCR_CONST_ARG int_ref_t         size DHCR_BIND_BUFFER(2),
         DHCR_CONST_ARG int2_ref_t        step DHCR_BIND_BUFFER(3)
+        DHCR_KERNEL_GID_2D
 ) {
   
   Texel2d tex; get_kernel_texel2d(destination, tex);
