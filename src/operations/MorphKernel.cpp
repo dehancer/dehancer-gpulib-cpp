@@ -59,4 +59,8 @@ namespace dehancer {
       if (destination) tmp_ = destination->get_desc().make(get_command_queue());
       else tmp_ = nullptr;
     }
+    
+    void MorphKernel::process (const Texture &source, const Texture &destination) {
+      Kernel::process(source, destination);
+    }
 }
