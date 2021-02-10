@@ -33,7 +33,6 @@ namespace dehancer {
         );
         
         void process() override;
-        void process(const Texture &source, const Texture &destination) override;
         
         void set_size(size_t patches);
         void set_iterations(size_t iterations);

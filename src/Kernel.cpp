@@ -32,18 +32,6 @@ namespace dehancer {
     }
 
     void Kernel::process() {
-//      execute([this](CommandEncoder& command){
-//          int count = 0;
-//          if (this->get_source())
-//            command.set(this->get_source(),count++);
-//          if (this->get_destination())
-//            command.set(this->get_destination(), count++);
-//          this->setup(command);
-//          auto t = this->get_destination() ? this->get_destination() : this->get_source();
-//          if (t)
-//            return CommandEncoder::Size::From(t);
-//          return get_encoder_size();
-//      });
       execute([this](CommandEncoder& command){
           int count = 0;
           if (impl_->source_)
@@ -59,8 +47,6 @@ namespace dehancer {
     }
     
     void Kernel::process (const Texture &source, const Texture &destination) {
-      //impl_->source_ = source;
-      //impl_->destination_ = destination;
       set_source(source);
       set_destination(destination);
       process();
