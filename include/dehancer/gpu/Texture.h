@@ -116,7 +116,7 @@ namespace dehancer {
          */
         Texture get_ptr() { return shared_from_this(); }
 
-        virtual ~TextureHolder() = default;
+        virtual ~TextureHolder();
 
         /***
          * Get platform specific handler of texture placed in device memory.

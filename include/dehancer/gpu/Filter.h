@@ -143,7 +143,9 @@ namespace dehancer {
          * @return - the Filter object
          */
         virtual Filter& process(bool emplace);
-        
+    
+        virtual Filter& process(const Texture& source, const Texture& destination,  bool emplace = false);
+    
         /***
          * Process filter
          * @return safe processing all source and destination keeps without changes on all processing stages

@@ -74,26 +74,43 @@ namespace dehancer {
             template<class C>
             __device__
             T read(C coord) {
-              return tex2D<T>(texture_, coord, 0);
+              return tex1D<T>(texture_, coord);
             }
 
               template<class C>
             __device__
             T read(C coord) const {
-              return tex2D<T>(texture_, coord, 0);
+              return tex1D<T>(texture_, coord);
             }
 
-             __device__
-            T read_pixel(int coords) const {
+//
+//
+//             1D DOES NOT WORK! I don't know why...
+//
+//             __device__
+//            T read_pixel(int coords) const {
+//              T data;
+//              surf1Dread<T>(&data, surface_, coords* sizeof(T) , cudaBoundaryModeClamp);
+//              return data;
+//            }
+//
+//            template<class C>
+//            __device__
+//            void write(T color, C coord) {
+//              surf1Dwrite<T>(color, surface_, coord * sizeof(T) , cudaBoundaryModeClamp);
+//            }
+
+            __device__
+            T read_pixel(int coord) const {
               T data;
-              surf1Dread<T>(&data, surface_, coords* sizeof(T) , cudaBoundaryModeClamp);
+              surf2Dread<T>(&data, surface_, coord * sizeof(T) , 0 , cudaBoundaryModeClamp);
               return data;
             }
             
             template<class C>
             __device__
             void write(T color, C coord) {
-              surf1Dwrite<T>(color, surface_, coord * sizeof(T) , cudaBoundaryModeClamp);
+              surf2Dwrite<T>(color, surface_, coord * sizeof(T) , 0 , cudaBoundaryModeClamp);
             }
 #endif
 

@@ -142,53 +142,54 @@ __device__ const T& clamp(const T& v, const T& lo, const T& hi )
 }
 
 // 1D
-inline __device__ float4 __attribute__((overloadable)) read_image(__read_only image1d_t source, int gid) {
+inline __device__ float4 __attribute__((overloadable)) read_image( const image1d_t& source, int gid) {
   return source.read_pixel(gid);
 }
 
-inline __device__ float4 __attribute__((overloadable)) read_image(__read_only image1d_t source, float coords) {
+inline __device__ float4 __attribute__((overloadable)) read_image( const image1d_t& source, float coords) {
   return source.read(coords);
 }
 
-inline __device__ float4 __attribute__((overloadable)) read_image(__read_only image1d_t source, float4 coords) {
-  float4 color = coords;
-  color.x = source.read(color.x).x;
-  color.y = source.read(color.y).y;
-  color.z = source.read(color.z).z;
+inline __device__ float4 __attribute__((overloadable)) read_image( const image1d_t& source, float4 coords) {
+  float4 color = make_float4(1,1,1,1);
+  color.x = source.read(coords.x).x;
+  color.y = source.read(coords.y).x;
+  color.z = source.read(coords.z).x;
+  color.w = 1.0f;
   return color;
 }
 
-inline __device__ void __attribute__((overloadable)) write_image(__write_only image1d_t destination, float4 color, int gid) {
+inline __device__ void __attribute__((overloadable)) write_image( image1d_t& destination, float4 color, int gid) {
   destination.write(color, gid);
 }
 
 // 2D
-inline __device__ __host__ float4 __attribute__((overloadable)) read_image(__read_only image2d_t source, int2 gid) {
+inline __device__ __host__ float4 __attribute__((overloadable)) read_image( const image2d_t& source, int2 gid) {
   return source.read_pixel(gid);
 }
 
-inline __device__ float4 __attribute__((overloadable)) read_image(__read_only image2d_t source, float2 coords) {
+inline __device__ float4 __attribute__((overloadable)) read_image( const image2d_t& source, float2 coords) {
   return source.read(coords);
 }
 
-inline __device__ __host__ void __attribute__((overloadable)) write_image(__write_only image2d_t destination, float4 color, int2 gid) {
+inline __device__ __host__ void __attribute__((overloadable)) write_image(  image2d_t& destination, float4 color, int2 gid) {
   destination.write(color, gid);
 }
 
 // 3D
-inline __device__ __host__ float4 __attribute__((overloadable)) read_image(__read_only image3d_t source, int3 gid) {
+inline __device__ __host__ float4 __attribute__((overloadable)) read_image( const image3d_t& source, int3 gid) {
   return source.read_pixel(gid);
 }
 
-inline __device__ __host__ float4 __attribute__((overloadable)) read_image(__read_only image3d_t source, float3 coords) {
+inline __device__ __host__ float4 __attribute__((overloadable)) read_image( const image3d_t& source, float3 coords) {
   return source.read(coords);
 }
 
-inline __device__ __host__ float4 __attribute__((overloadable)) read_image(__read_only image3d_t source, float4 coords) {
+inline __device__ __host__ float4 __attribute__((overloadable)) read_image( const image3d_t& source, float4 coords) {
   return source.read((float3){coords.x,coords.y,coords.z});
 }
 
-inline __device__ __host__ void __attribute__((overloadable)) write_image(__write_only image3d_t destination, float4 color, int3 gid) {
+inline __device__ __host__ void __attribute__((overloadable)) write_image(  image3d_t& destination, float4 color, int3 gid) {
   destination.write(color, gid);
 }
 

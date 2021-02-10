@@ -48,6 +48,28 @@ DHCR_KERNEL void kernel_test_simple_transform(
   write_image(destination, color, tex.gid);
 }
 
+DHCR_KERNEL void kernel_make1DLut_transform(
+        texture1d_write_t  d1DLut      DHCR_BIND_TEXTURE(0),
+        DHCR_CONST_ARG float2_ref_t compression DHCR_BIND_BUFFER(1))
+{
+  
+  Texel1d tex; get_kernel_texel1d(d1DLut,tex);
+  
+  if (!get_texel_boundary(tex)) return;
+  
+  float3 denom = (float3){tex.size, tex.size, tex.size};
+  
+  float x = (float)tex.gid;
+  
+  float3 c = compress((float3){x, x, x}/denom, compression);
+  
+  // linear transform with compression
+  float4 color = (float4){c.x, c.y, c.z, 1.f};
+  //float4 color = (float4){1.f, 1.f, 1.f, 1.f};
+  
+  write_image(d1DLut, color, tex.gid);
+}
+
 DHCR_KERNEL  void kernel_make3DLut_transform(
         texture3d_write_t      d3DLut DHCR_BIND_TEXTURE(0),
         DHCR_CONST_ARG float2_ref_t compression DHCR_BIND_BUFFER(1)
@@ -81,33 +103,18 @@ DHCR_KERNEL void kernel_test_transform(
   
   float4 color = sampled_color(source, destination, tex.gid);
   
+  //float4 in_color = color;
+  
   color = read_image(d3DLut, color);
   
   color = read_image(d1DLut, color);
   
+  //color = in_color;
+  //color.x = 0.0f;
+  
   write_image(destination, color, tex.gid);
 }
 
-DHCR_KERNEL void kernel_make1DLut_transform(
-        texture1d_write_t  d1DLut      DHCR_BIND_TEXTURE(0),
-        DHCR_CONST_ARG float2_ref_t compression DHCR_BIND_BUFFER(1))
-{
-  
-  Texel1d tex; get_kernel_texel1d(d1DLut,tex);
-  
-  if (!get_texel_boundary(tex)) return;
-  
-  float3 denom = (float3){tex.size, tex.size, tex.size};
-  
-  float x = (float)tex.gid;
-  
-  float3 c = compress((float3){x, x, x}/denom, compression);
-  
-  // linear transform with compression
-  float4 color = (float4){c.x, c.y, c.z, 1.f};
-  
-  write_image(d1DLut, color, x);
-}
 
 DHCR_KERNEL void ao_bench_kernel(
         DHCR_CONST_ARG int_ref_t nsubsamples DHCR_BIND_BUFFER(0),

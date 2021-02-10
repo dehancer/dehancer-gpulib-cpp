@@ -139,17 +139,11 @@ namespace dehancer {
         }
         
         if (f->kernel) {
-          
-          f->kernel->set_source(current_source);
-          f->kernel->set_destination(current_destination);
-          f->kernel->process();
+          f->kernel->process(current_source, current_destination);
         }
         
         else if (f->filter) {
-          
-          f->filter->set_source(current_source);
-          f->filter->set_destination(current_destination);
-          f->filter->process(f->emplace);
+          f->filter->process(current_source, current_destination, f->emplace);
         }
         
         current_source = current_destination;
@@ -168,6 +162,12 @@ namespace dehancer {
         impl_->ping_pong = {nullptr, nullptr};
       
       return *this;
+    }
+    
+    Filter &Filter::process(const Texture& source, const Texture& destination, bool emplace) {
+      set_source(source);
+      set_destination(destination);
+      return process(emplace);
     }
     
     const Texture &Filter::get_source () const {
@@ -260,5 +260,5 @@ namespace dehancer {
         return impl::filter_name(*this);
       return name;
     }
-  
+    
 }

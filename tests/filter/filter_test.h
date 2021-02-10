@@ -96,26 +96,26 @@ namespace test {
                 dehancer::Filter(command_queue, source, destination),
                 lut3d_transform_(command_queue),
                 lut1d_transform_(command_queue),
-                trasnform_(std::make_shared<CustomLutTransform>(command_queue))
+                transform_(std::make_shared<CustomLutTransform>(command_queue))
         {
           
-          cache_enabled = true;
+          cache_enabled = false;
           name = "CustomTransform";
           
           lut1d_transform_.process();
           lut3d_transform_.process();
           
-          trasnform_->set_3d_lut(lut3d_transform_.get_lut());
-          trasnform_->set_curve(lut1d_transform_.get_lut());
+          transform_->set_3d_lut(lut3d_transform_.get_lut());
+          transform_->set_curve(lut1d_transform_.get_lut());
           
-          add(trasnform_);
+          add(transform_);
         }
     
     
     protected:
         Custom3DLut lut3d_transform_;
         Custom1DLut lut1d_transform_;
-        std::shared_ptr<CustomLutTransform> trasnform_;
+        std::shared_ptr<CustomLutTransform> transform_;
     };
     
     class CustomFilter: public dehancer::Filter {
@@ -126,15 +126,16 @@ namespace test {
                 pass_(std::make_shared<dehancer::PassKernel>(command_queue)),
                 optic_(std::make_shared<dehancer::OpticalResolution>(command_queue)),
                 blur_(std::make_shared<dehancer::GaussianBlur>(command_queue)),
-                transform_(std::make_shared<CustomTransform>(command_queue))
-        {
+                transform_(std::make_shared<CustomTransform>(command_queue)) {
+          
           cache_enabled = true;
           name = "CustomFilter";
-          
+  
           add(pass_, true)
                   .add(optic_, true)
                   .add(blur_, true)
                   .add(transform_, false);
+          
         }
         
         Filter & process(bool emplace) override {
@@ -207,7 +208,7 @@ auto filter_test =  [] (int dev_num,
     filter.set_enable(3, true);
     
     for (int i = 0; i < 4; ++i) {
-      filter.process() ;
+      filter.process(true) ;
     }
     
     
