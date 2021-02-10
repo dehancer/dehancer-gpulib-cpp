@@ -10,7 +10,9 @@ namespace dehancer {
     
     class MorphKernel: public Kernel {
     public:
-        
+    
+        using Kernel::Kernel;
+    
         /***
          *
          * @param command_queue - platform based command queue
