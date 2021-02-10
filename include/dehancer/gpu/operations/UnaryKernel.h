@@ -120,7 +120,8 @@ namespace dehancer {
         );
         
         void process() override;
-        
+        void process(const Texture& source, const Texture& destination) override;
+    
         [[maybe_unused]] void set_source(const Texture& source) override;
         [[maybe_unused]] void set_destination(const Texture& destination) override;
         [[maybe_unused]] void set_edge_mode(DHCR_EdgeMode mode);

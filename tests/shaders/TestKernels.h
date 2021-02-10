@@ -103,14 +103,9 @@ DHCR_KERNEL void kernel_test_transform(
   
   float4 color = sampled_color(source, destination, tex.gid);
   
-  //float4 in_color = color;
-  
   color = read_image(d3DLut, color);
   
   color = read_image(d1DLut, color);
-  
-  //color = in_color;
-  //color.x = 0.0f;
   
   write_image(destination, color, tex.gid);
 }

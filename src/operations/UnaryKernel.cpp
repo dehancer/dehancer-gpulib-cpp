@@ -292,5 +292,8 @@ namespace dehancer {
       return impl_->transform_;
     }
     
+    void UnaryKernel::process (const Texture &source, const Texture &destination) {
+      Kernel::process(source, destination);
+    }
   
 }
