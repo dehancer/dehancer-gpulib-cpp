@@ -46,7 +46,7 @@ DHCR_KERNEL void kernel_test_simple_transform(
   
   float2 coords = get_texel_coords(tex);
   
-  float4 color = sampled_color(source, destination, tex.gid); color.x = 0;
+  float4 color = sampled_color(source, tex.size, tex.gid); color.x = 0;
   
   write_image(destination, color, tex.gid);
 }
@@ -107,7 +107,7 @@ DHCR_KERNEL void kernel_test_transform(
   
   float2 coords = get_texel_coords(tex);
   
-  float4 color = sampled_color(source, destination, tex.gid);
+  float4 color = sampled_color(source, tex.size, tex.gid);
   
   color = read_image(d3DLut, color);
   
@@ -250,7 +250,6 @@ DHCR_KERNEL void kernel_gradient(
   
   float2 coords = get_texel_coords(tex);
   
-  //float4 color = make_float4(1.0f, 1.0f, 1.0f, coords.x) ;
   float x = coords.x;
   float4 color = make_float4(x, x, x, 1.0f) ;
   

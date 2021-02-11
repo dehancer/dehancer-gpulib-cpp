@@ -202,7 +202,7 @@ auto filter_test =  [] (int dev_num,
     
     filter.set_radius(3);
     
-    filter.set_enable(0, false);
+    filter.set_enable(0, true);
     filter.set_enable(1, true);
     filter.set_enable(2, true);
     filter.set_enable(3, true);

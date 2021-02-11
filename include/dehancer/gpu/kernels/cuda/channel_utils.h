@@ -48,6 +48,7 @@ extern "C" __global__ void image_to_channels (
   int y = blockIdx.y * blockDim.y + threadIdx.y;
   int w = source.get_width();
   int h = source.get_height();
+  int2 destination_size = make_int2(w,h);
   
   int2 gid = (int2){x, y};
   
@@ -56,7 +57,7 @@ extern "C" __global__ void image_to_channels (
     
     float4 color     = read_image(source, gid);
   
-    float4  eColor = has_mask ? sampled_color(mask, source, gid) : make_float4(1.0f);
+    float4  eColor = has_mask ? sampled_color(mask, destination_size, gid) : make_float4(1.0f);
   
     if (transform.x)
       color.x = linearlog( color.x, slope.x, offset.x, direction, eColor.x);
@@ -101,6 +102,7 @@ extern "C" __global__ void channels_to_image (
   int y = blockIdx.y * blockDim.y + threadIdx.y;
   int w = destination.get_width();
   int h = destination.get_height();
+  int2 destination_size = make_int2(w,h);
   
   int2 gid = (int2){x, y};
   
@@ -110,7 +112,7 @@ extern "C" __global__ void channels_to_image (
     
     float4 color = make_float4(reds[index], greens[index], blues[index], alphas[index]);
   
-    float4  eColor = has_mask ? sampled_color(mask, destination, gid) : make_float4(1.0f);
+    float4  eColor = has_mask ? sampled_color(mask, destination_size, gid) : make_float4(1.0f);
   
     if (transform.x)
       color.x = linearlog( color.x, slope.x, offset.x, direction, eColor.x);

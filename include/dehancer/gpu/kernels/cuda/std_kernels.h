@@ -7,7 +7,25 @@
 #include "dehancer/gpu/kernels/cuda/common.h"
 #include "dehancer/gpu/kernels/resample.h"
 
-inline __device__ __host__ float4 sampled_color(
+inline __device__ __host__ float4 __attribute__((overloadable)) sampled_color(
+        __read_only image2d_t source,
+        int2 destination_size,
+        int2 gid
+){
+  
+  int2 size = (int2){source.get_width(), source.get_height()};
+  
+  if (size.y==destination_size.y && destination_size.x==size.x)
+    return read_image(source, gid);
+  else {
+    float2 coords = (float2){(float)gid.x / (float)(destination_size.x - 1),
+                             (float)gid.y / (float)(destination_size.y- 1)};
+    coords = coords * make_float2(size);
+    return tex2D_bilinear(source, coords.x, coords.y);
+  }
+}
+
+inline __device__ __host__ float4 __attribute__((overloadable)) sampled_color(
         __read_only image2d_t source,
         __write_only image2d_t destination,
         int2 gid
@@ -25,7 +43,25 @@ inline __device__ __host__ float4 sampled_color(
   }
 }
 
-inline __device__ __host__ float4 bicubic_sampled_color(
+inline __device__ __host__ float4 __attribute__((overloadable))  bicubic_sampled_color(
+        __read_only image2d_t source,
+        int2 destination_size,
+        int2 gid
+){
+  
+  int2 size = (int2){source.get_width(), source.get_height()};
+  
+  if (size.y==destination_size.y && destination_size.x==size.x)
+    return read_image(source, gid);
+  else {
+    float2 coords = (float2){(float)gid.x / (float)(destination_size.x - 1),
+                             (float)gid.y / (float)(destination_size.y- 1)};
+    coords = coords * make_float2(size);
+    return tex2D_bicubic(source, coords.x, coords.y);
+  }
+}
+
+inline __device__ __host__ float4 __attribute__((overloadable))  bicubic_sampled_color(
         __read_only image2d_t source,
         __write_only image2d_t destination,
         int2 gid
@@ -43,7 +79,25 @@ inline __device__ __host__ float4 bicubic_sampled_color(
   }
 }
 
-inline __device__ __host__ float4 box_average_sampled_color(
+inline __device__ __host__ float4 __attribute__((overloadable)) box_average_sampled_color(
+        __read_only image2d_t source,
+        int2 destination_size,
+        int2 gid
+){
+  
+  int2 size = (int2){source.get_width(), source.get_height()};
+  
+  if (size.y==destination_size.y && destination_size.x==size.x)
+    return read_image(source, gid);
+  else {
+    float2 coords = (float2){(float)gid.x / (float)(destination_size.x - 1),
+                             (float)gid.y / (float)(destination_size.y- 1)};
+    coords = coords * make_float2(size);
+    return tex2D_box_average(source, coords.x, coords.y);
+  }
+}
+
+inline __device__ __host__ float4 __attribute__((overloadable)) box_average_sampled_color(
         __read_only image2d_t source,
         __write_only image2d_t destination,
         int2 gid
@@ -69,7 +123,7 @@ extern "C" __global__ void  kernel_dehancer_pass(
   
   if (!get_texel_boundary(tex)) return;
   
-  float4  color = sampled_color(source, destination, tex.gid);
+  float4  color = sampled_color(source, tex.size, tex.gid);
   
   write_image(destination, color, tex.gid);
 }

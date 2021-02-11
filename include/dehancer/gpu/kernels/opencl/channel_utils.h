@@ -47,15 +47,16 @@ __kernel void image_to_channels (
   int y = get_global_id(1);
   int w = get_image_width(source);
   int h = get_image_height(source);
+  int2 destination_size = make_int2(w,h);
 
   int2 gid = (int2)(x, y);
 
   if ((gid.x < w) && (gid.y < h)) {
     const int index = ((gid.y * w) + gid.x);
 
-    float4 color     = read_imagef(source, nearest_sampler, gid);
+    float4 color     = sampled_color(source, destination_size, gid);
   
-    float4  eColor = has_mask ? sampled_color(mask, source, gid) : make_float4(1.0f);
+    float4  eColor = has_mask ? sampled_color(mask, destination_size, gid) : make_float4(1.0f);
   
     if (transform.x)
       color.x = linearlog( color.x, slope.x, offset.x, direction, eColor.x);
@@ -100,6 +101,7 @@ __kernel void channels_to_image (
   int y = get_global_id(1);
   int w = get_image_width(destination);
   int h = get_image_height(destination);
+  int2 destination_size = make_int2(w,h);
 
   int2 gid = (int2)(x, y);
 
@@ -107,7 +109,7 @@ __kernel void channels_to_image (
     const int index = ((gid.y * w) + gid.x);
     float4 color = {reds[index], greens[index], blues[index], alphas[index]};
     
-    float4  eColor = has_mask ? sampled_color(mask, destination, gid) : make_float4(1.0f);
+    float4  eColor = has_mask ? sampled_color(mask, destination_size, gid) : make_float4(1.0f);
   
     if (transform.x)
       color.x = linearlog( color.x, slope.x, offset.x, direction, eColor.x);

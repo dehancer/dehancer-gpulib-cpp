@@ -38,7 +38,7 @@ DHCR_KERNEL void  kernel_gamma(
   
   float2 coords = get_texel_coords(tex);
   
-  float4 rgba = sampled_color(source, destination, tex.gid);
+  float4 rgba = sampled_color(source, tex.size, tex.gid);
   float3 result = make_float3(rgba);
   
   if (direction == DHCR_Forward) {

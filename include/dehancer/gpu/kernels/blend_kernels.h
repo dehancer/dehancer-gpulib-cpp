@@ -33,25 +33,25 @@ DHCR_KERNEL void  kernel_blend(
   
   switch ((DHCR_InterpolationMode)int_mode) {
     case DHCR_Bilinear:
-      base          = sampled_color(source, destination, tex.gid);
-      overlay_color = sampled_color(overlay, destination, tex.gid);
+      base          = sampled_color(source, tex.size, tex.gid);
+      overlay_color = sampled_color(overlay, tex.size, tex.gid);
       break;
   
     case DHCR_Bicubic:
-      base          = bicubic_sampled_color(source, destination, tex.gid);
-      overlay_color = bicubic_sampled_color(overlay, destination, tex.gid);
+      base          = bicubic_sampled_color(source, tex.size, tex.gid);
+      overlay_color = bicubic_sampled_color(overlay, tex.size, tex.gid);
       break;
   
     case DHCR_BoxAverage:
-      base          = box_average_sampled_color(source, destination, tex.gid);
-      overlay_color = box_average_sampled_color(overlay, destination, tex.gid);
+      base          = box_average_sampled_color(source, tex.size, tex.gid);
+      overlay_color = box_average_sampled_color(overlay, tex.size, tex.gid);
       break;
   }
   
   float4 mask_rgba = make_float4(1.0f);
   
   if (has_mask) {
-    mask_rgba = bicubic_sampled_color(mask, destination, tex.gid) * make_float4(opacity);
+    mask_rgba = bicubic_sampled_color(mask, tex.size, tex.gid) * make_float4(opacity);
   }
   else
     mask_rgba = mask_rgba * make_float4(opacity);
