@@ -20,12 +20,13 @@ namespace dehancer {
     }
     
     namespace impl {
+        
         struct ChannelsHolder: public dehancer::ChannelsHolder, public dehancer::Command {
             
             typedef std::shared_ptr<std::array<Memory,4>> Array;
             
-            size_t get_width() const override { return desc_.width; };
-            size_t get_height() const override {return desc_.height;};
+            size_t get_width(int index) const override { return channel_descs_->at(index).width; };
+            size_t get_height(int index) const override {return channel_descs_->at(index).height;};
             
             Memory& at(int index) override { return channels_->at(index);};
             const Memory& at(int index) const override { return channels_->at(index);};
@@ -34,16 +35,26 @@ namespace dehancer {
             ChannelsHolder(const void *command_queue, const ChannelDesc& desc):
                     Command(command_queue),
                     channels_(std::make_shared<std::array<Memory,4>>()),
-                    desc_(desc)
+                    channel_descs_({
+                      std::make_shared<std::array<ChannelDesc,4>>()
+                    })
             {
-              auto size = sizeof(float)*desc_.width*desc_.height;
-              if (size==0) return;
+              
+              //channel_descs_->at(0) = desc;
+              for(auto & c: *channel_descs_){
+                c = desc;
+              }
+              
+              int i = 0;
               for (auto & c : *channels_) {
+                auto size = sizeof(float)*channel_descs_->at(i).width*channel_descs_->at(i).height;
+                if (size==0) continue;
                 c = MemoryHolder::Make(get_command_queue(),size);
               }
             }
             std::shared_ptr<std::array<Memory,4>> channels_;
-            ChannelDesc desc_;
+            //ChannelDesc desc_;
+            std::shared_ptr<std::array<ChannelDesc,4>> channel_descs_;
         };
       
     }
@@ -96,7 +107,9 @@ namespace dehancer {
     
     void ChannelsInput::process () {
       auto *channels = dynamic_cast<impl::ChannelsHolder *>(channels_.get());
+    
       for (int j = 0; j < channels->size(); ++j) {
+    
         execute([this, channels, j](CommandEncoder& encoder){
           
             encoder.set(get_source(),0);
@@ -112,8 +125,8 @@ namespace dehancer {
             encoder.set(mask_ , 8);
             
             CommandEncoder::Size size = {
-                    .width = channels->get_width(),
-                    .height = channels->get_height(),
+                    .width = channels->get_width(j),
+                    .height = channels->get_height(j),
                     .depth = 1
             };
             
@@ -182,14 +195,16 @@ namespace dehancer {
                                    bool wait_until_completed,
                                    const std::string& library_path):
             Kernel(command_queue,
-                   "channels_to_image",
+                   //"channels_to_image",
+                   "one_channel_to_image",
                    nullptr,
                    destination,
                    wait_until_completed,
                    library_path),
             channels_(channels),
             has_mask_(transform_.mask != nullptr),
-            transform_(transform)
+            transform_(transform),
+            resapled_destination_(nullptr)
     {
       if (!transform_.mask) {
         TextureDesc desc ={
@@ -201,19 +216,62 @@ namespace dehancer {
       }
     }
     
-    void ChannelsOutput::setup(CommandEncoder &command) {
-      int i = 0;
+    void ChannelsOutput::process () {
       auto *channels = dynamic_cast<impl::ChannelsHolder *>(channels_.get());
-      for (; i <channels->size(); ++i) {
-        command.set(channels->at(i),i+1);
+      for (int j = 0; j < channels->size(); ++j) {
+  
+        auto channel = channels->at(j);
+        
+        execute([this, channels, &channel, j](CommandEncoder& encoder){
+    
+            encoder.set(get_destination(),0);
+
+            encoder.set(get_destination(),1);
+        
+            encoder.set(channel,2);
+    
+            int cw = channels->get_width(j);
+            int ch = channels->get_height(j);
+            encoder.set(cw, 3);
+            encoder.set(ch, 4);
+    
+            encoder.set(j, 5);
+        
+            encoder.set(transform_.slope[j],6);
+            encoder.set(transform_.offset[j],7);
+            encoder.set(transform_.enabled[j],8);
+            encoder.set(transform_.direction ,9);
+            encoder.set(has_mask_ , 10);
+            encoder.set(mask_ , 11);
+        
+            //CommandEncoder::Size size = {
+            //        .width = channels->get_width(),
+            //        .height = channels->get_height(),
+            //        .depth = 1
+            //};
+        
+            return CommandEncoder::Size::From(get_destination());
+        });
       }
-      command.set(transform_.slope,i+1);
-      command.set(transform_.offset,i+2);
-      command.set(transform_.enabled,i+3);
-      command.set(transform_.direction,i+4);
-      command.set(has_mask_, i + 5);
-      command.set(mask_,i+6);
     }
+    
+    void ChannelsOutput::process (const Texture &source, const Texture &destination) {
+      Kernel::process(source, destination);
+    }
+    
+//    void ChannelsOutput::setup(CommandEncoder &command) {
+//      int i = 0;
+//      auto *channels = dynamic_cast<impl::ChannelsHolder *>(channels_.get());
+//      for (; i <channels->size(); ++i) {
+//        command.set(channels->at(i),i+1);
+//      }
+//      command.set(transform_.slope,i+1);
+//      command.set(transform_.offset,i+2);
+//      command.set(transform_.enabled,i+3);
+//      command.set(transform_.direction,i+4);
+//      command.set(has_mask_, i + 5);
+//      command.set(mask_,i+6);
+//    }
     
     void ChannelsOutput::set_destination (const Texture &destination) {
       Kernel::set_destination(destination);

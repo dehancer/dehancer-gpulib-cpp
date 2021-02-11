@@ -42,6 +42,46 @@ float4 tex2D_bilinear(texture2d_read_t source, float x, float y)
   return mix(c1,c2,make_float4(py));
 }
 
+inline DHCR_DEVICE_FUNC
+float get_channel_value(const float* source, int w, int h, int x, int y){
+  int index = y * w + x;
+  if (index<0) return source[0];
+  int l = w*h;
+  if (index>=l) return source[l-1];
+  return source[index];
+}
+
+inline DHCR_DEVICE_FUNC
+float channel_bilinear(const float* source, int w, int h, float x, float y)
+{
+  x -= 0.5f;
+  y -= 0.5f;
+  
+  float  u = floor(x);
+  float  v = floor(y);
+  
+  float  px = x - u;
+  float  py = y - v;
+  
+  int dx = 1;
+  int dy = 1;
+  
+  int2   gid_src = make_int2(u,v);
+  
+  int2 gid;
+  
+  gid = gid_src+make_int2(0,  0); float q11 = get_channel_value(source, w, h, gid.x, gid.y);
+  gid = gid_src+make_int2(0, dy); float q12 = get_channel_value(source, w, h, gid.x, gid.y);
+  gid = gid_src+make_int2(dx,dy); float q22 = get_channel_value(source, w, h, gid.x, gid.y);
+  gid = gid_src+make_int2(dx, 0); float q21 = get_channel_value(source, w, h, gid.x, gid.y);
+  
+  float c1  = mix(q11,q21,px);
+  float c2  = mix(q12,q22,px);
+  
+  return mix(c1,c2,py);
+}
+
+
 //// w0, w1, w2, and w3 are the four cubic B-spline basis functions
 inline DHCR_DEVICE_FUNC
 float w0(float a)

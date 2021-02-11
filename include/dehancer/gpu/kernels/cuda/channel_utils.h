@@ -6,6 +6,7 @@
 
 #include "dehancer/gpu/kernels/cuda/common.h"
 #include "dehancer/gpu/kernels/cuda/std_kernels.h"
+#include "dehancer/gpu/kernels/resample.h"
 
 extern "C" __global__ void swap_channels_kernel (
         float* scl,
@@ -186,6 +187,10 @@ extern "C" __global__ void one_channel_to_image (
         ,
         float* channel
         ,
+        int channel_w
+        ,
+        int channel_h
+        ,
         int    channel_index
         ,
         float_ref_t slope
@@ -210,13 +215,13 @@ extern "C" __global__ void one_channel_to_image (
   
   if ((gid.x < w) && (gid.y < h) && channel_index<4) {
     
-    const int index = ((gid.y * w) + gid.x);
-    
     int2 destination_size = make_int2(w,h);
   
     _channel_tr_ color; color.vec = sampled_color(source, destination_size, gid);
     
-    color.arr[channel_index] =  channel[index];
+    float2 coords = make_float2((float)x/(float)w, (float)y/(float )h) * make_float2((float)channel_w, (float )channel_h);
+    
+    color.arr[channel_index] =  channel_bilinear(channel, channel_w, channel_h, coords.x, coords.y); //channel[index];
   
     _channel_tr_ eColor; eColor.vec = has_mask ? sampled_color(mask, destination_size, gid) : make_float4(1.0f);
   

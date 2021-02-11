@@ -68,8 +68,8 @@ namespace dehancer {
         static Channels Make(const void *command_queue, size_t width, size_t height);
         static Channels Make(const void *command_queue, const ChannelDesc& desc);
         
-        virtual size_t get_width() const = 0;
-        virtual size_t get_height() const = 0;
+        virtual size_t get_width(int index) const = 0;
+        virtual size_t get_height(int index) const = 0;
         
         virtual Memory& at(int index) = 0;
         virtual const Memory& at(int index) const = 0;
@@ -128,8 +128,11 @@ namespace dehancer {
                                 bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                                 const std::string& library_path = ""
         );
+    
+        void process() override;
+        void process(const Texture &source, const Texture &destination) override;
         
-        void setup(CommandEncoder &encode) override;
+        //void setup(CommandEncoder &encode) override;
         void set_source(const Texture& source) override;
         void set_destination(const Texture& destination) override;
         virtual void set_transform(const ChannelDesc::Transform& transform);
@@ -140,6 +143,7 @@ namespace dehancer {
         ChannelDesc::Transform transform_;
         bool has_mask_;
         Texture mask_;
+        Texture resapled_destination_;
     };
 }
 

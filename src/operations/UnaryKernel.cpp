@@ -48,7 +48,7 @@ namespace dehancer {
                                       const Texture &d,
                                       const UnaryKernel::Options& options,
                                       const ChannelDesc::Transform& transform
-                                      ) :
+    ) :
             root_(root),
             options_(options),
             transform_(transform),
@@ -56,9 +56,9 @@ namespace dehancer {
             height(s?s->get_height():0),
             channels_out(ChannelsHolder::Make(root_->get_command_queue(),
                                               (ChannelDesc){
-              .width = width,
-              .height = height
-            })),
+                                                      .width = width,
+                                                      .height = height
+                                              })),
             channels_finalizer(std::make_shared<ChannelsOutput>(
                     root_->get_command_queue(),
                     d,
@@ -131,11 +131,11 @@ namespace dehancer {
               
               int a = impl_->options_.edge_mode;
               command.set(a, 6);
-    
+              
               command.set(impl_->has_mask_, 7);
               command.set(impl_->mask_, 8);
               command.set(i, 9);
-    
+              
               return (CommandEncoder::Size) {impl_->width, impl_->height, 1};
           });
         }
@@ -157,11 +157,11 @@ namespace dehancer {
               
               int a = impl_->options_.edge_mode;
               command.set(a, 6);
-    
+              
               command.set(impl_->has_mask_, 7);
               command.set(impl_->mask_, 8);
               command.set(i, 9);
-    
+              
               return (CommandEncoder::Size) {impl_->width, impl_->height, 1};
           });
         }
@@ -175,8 +175,16 @@ namespace dehancer {
       impl_->width = s?s->get_width():0;
       impl_->height = s?s->get_height():0;
       if (impl_->channels_out){
-        if (impl_->channels_out->get_height()!=impl_->height || impl_->channels_out->get_width()!=impl_->width)
-          impl_->channels_out = nullptr;
+        //if (impl_->channels_out->get_height()!=impl_->height || impl_->channels_out->get_width()!=impl_->width)
+        // impl_->channels_out = nullptr;
+        for (int i = 0; i < impl_->channels_out->size(); ++i) {
+          if (impl_->channels_out->get_height(i)!=impl_->height
+              ||
+              impl_->channels_out->get_width(i)!=impl_->width) {
+            impl_->channels_out = nullptr;
+            break;
+          }
+        }
       }
       if (!impl_->channels_out)
         impl_->channels_out = ChannelsHolder::Make(get_command_queue(), impl_->width, impl_->height);
