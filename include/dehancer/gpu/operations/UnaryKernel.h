@@ -61,18 +61,22 @@ namespace dehancer {
          * A structure defines options to process convolve with UnaryKernel class
          */
         struct Options {
+            
             /***
              * A function handler computes row kernel line
              */
             KernelFunction row;
+            
             /***
              * A function handler computes column kernel line
              */
             KernelFunction col;
+            
             /***
              * User defined data can be used by row and column function handlers
              */
             UserData       user_data = std::nullopt;
+            
             /***
              * The edge mode to use when texture reads stray off the edge of an image.
              * Most kernel objects can read off the edge of a source image.
@@ -81,7 +85,10 @@ namespace dehancer {
              */
             DHCR_EdgeMode    edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP;
     
-            Texture               mask = nullptr;
+            /***
+             * Mask unary operation
+             */
+            Texture           mask = nullptr;
         };
         
         using ChannelsInput::ChannelsInput;
@@ -119,22 +126,73 @@ namespace dehancer {
                     const std::string& library_path = ""
         );
         
+        /***
+         * Process current source
+         */
         void process() override;
+        
+        /***
+         * Process a new source to a new destination
+         * @param source
+         * @param destination
+         */
         void process(const Texture& source, const Texture& destination) override;
     
+        /***
+         * Set new source
+         * @param source
+         */
         [[maybe_unused]] void set_source(const Texture& source) override;
+        
+        /***
+         * Set new destination
+         * @param destination
+         */
         [[maybe_unused]] void set_destination(const Texture& destination) override;
+        
+        /***
+         * Set edge mode
+         * @param mode
+         */
         [[maybe_unused]] void set_edge_mode(DHCR_EdgeMode mode);
+        
+        /***
+         * Set channel colors transformation
+         * @param transform
+         */
         [[maybe_unused]] void set_transform(const ChannelDesc::Transform &transform) override;
+        
+        /***
+         * Set unary mask
+         * @param mask
+         */
         [[maybe_unused]] void set_mask(const Texture &mask);
     
+        /***
+         * Get current channel colors transformation
+         * @return
+         */
         const ChannelDesc::Transform & get_transform() const override;
         
     protected:
         
+        /***
+         * Set new unary kernel options
+         * @param options
+         */
         [[maybe_unused]] virtual void set_options(const Options& options);
+        
+        /***
+         * Get current options
+         * @return
+         */
         virtual const Options& get_options() const;
         virtual Options& get_options();
+        
+        /***
+         * Set user data
+         * @param user_data
+         */
         virtual void set_user_data(const UserData &user_data);
     
     private:

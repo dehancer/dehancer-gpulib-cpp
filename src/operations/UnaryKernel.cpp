@@ -31,7 +31,7 @@ namespace dehancer {
                 const ChannelDesc::Transform& transform
         );
         
-        ChannelDesc::Transform get_output_transform() const {
+        [[nodiscard]] ChannelDesc::Transform get_output_transform() const {
           ChannelDesc::Transform t = transform_;
           if (t.direction == ChannelDesc::TransformDirection::forward) {
             t.direction = ChannelDesc::TransformDirection::inverse;

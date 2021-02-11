@@ -50,7 +50,7 @@ namespace dehancer::opencl {
               ((texture_size.depth + local_work_size[2] - 1) / local_work_size[2]) * local_work_size[2]
       };
 
-#ifdef PRINT_DEBUG
+#ifdef PRINT_KERNELS_DEBUG
       std::cout << "Function "<<kernel_name_
                 << " blocks: "
                 << local_work_size[0] << "x" << local_work_size[1] << "x" << local_work_size[2]

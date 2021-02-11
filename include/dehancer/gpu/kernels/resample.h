@@ -46,21 +46,18 @@ float4 tex2D_bilinear(texture2d_read_t source, float x, float y)
 inline DHCR_DEVICE_FUNC
 float w0(float a)
 {
-  //    return (1.0f/6.0f)*(-a*a*a + 3.0f*a*a - 3.0f*a + 1.0f);
   return (1.0f/6.0f)*(a*(a*(-a + 3.0f) - 3.0f) + 1.0f);   // optimized
 }
 
 inline DHCR_DEVICE_FUNC
 float w1(float a)
 {
-  //    return (1.0f/6.0f)*(3.0f*a*a*a - 6.0f*a*a + 4.0f);
   return (1.0f/6.0f)*(a*a*(3.0f*a - 6.0f) + 4.0f);
 }
 
 inline DHCR_DEVICE_FUNC
 float w2(float a)
 {
-  //    return (1.0f/6.0f)*(-3.0f*a*a*a + 3.0f*a*a + 3.0f*a + 1.0f);
   return (1.0f/6.0f)*(a*(a*(-3.0f*a + 3.0f) + 3.0f) + 1.0f);
 }
 

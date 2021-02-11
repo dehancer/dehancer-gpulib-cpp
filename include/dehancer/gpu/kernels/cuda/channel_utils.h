@@ -48,14 +48,14 @@ extern "C" __global__ void image_to_channels (
   int y = blockIdx.y * blockDim.y + threadIdx.y;
   int w = source.get_width();
   int h = source.get_height();
-  int2 destination_size = make_int2(w,h);
   
   int2 gid = (int2){x, y};
   
   if ((gid.x < w) && (gid.y < h)) {
     const int index = ((gid.y * w) + gid.x);
-    
-    float4 color     = read_image(source, gid);
+    int2 destination_size = make_int2(w,h);
+  
+    float4 color     = sampled_color(source, destination_size, gid);
   
     float4  eColor = has_mask ? sampled_color(mask, destination_size, gid) : make_float4(1.0f);
   
@@ -102,14 +102,14 @@ extern "C" __global__ void channels_to_image (
   int y = blockIdx.y * blockDim.y + threadIdx.y;
   int w = destination.get_width();
   int h = destination.get_height();
-  int2 destination_size = make_int2(w,h);
   
   int2 gid = (int2){x, y};
   
   if ((gid.x < w) && (gid.y < h)) {
     
     const int index = ((gid.y * w) + gid.x);
-    
+    int2 destination_size = make_int2(w,h);
+  
     float4 color = make_float4(reds[index], greens[index], blues[index], alphas[index]);
   
     float4  eColor = has_mask ? sampled_color(mask, destination_size, gid) : make_float4(1.0f);
@@ -127,5 +127,102 @@ extern "C" __global__ void channels_to_image (
       color.w = linearlog( color.w, slope.w, offset.w, direction, eColor.w);
     
     write_image(destination, color, gid);
+  }
+}
+
+typedef union {
+    float4 vec;
+    float  arr[4];
+} _channel_tr_;
+
+extern "C" __global__ void image_to_one_channel (
+        dehancer::nvcc::texture2d<float4> source
+        ,
+        float* channel
+        ,
+        int    channel_index
+        ,
+        float_ref_t slope
+        ,
+        float_ref_t offset
+        ,
+        bool_ref_t transform
+        ,
+        TransformDirection direction
+        ,
+        bool_ref_t has_mask
+        ,
+        texture2d_read_t mask
+)
+{
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+  int w = source.get_width();
+  int h = source.get_height();
+  
+  int2 gid = (int2){x, y};
+  
+  if ((gid.x < w) && (gid.y < h) && channel_index<4) {
+    
+    const int index = ((gid.y * w) + gid.x);
+    
+    int2 size = make_int2(w,h);
+  
+    _channel_tr_ color; color.vec = sampled_color(source, size, gid);
+  
+    _channel_tr_ eColor; eColor.vec = has_mask ? sampled_color(mask, size, gid) : make_float4(1.0f);
+    
+    if (transform)
+      color.arr[channel_index] = linearlog( color.arr[channel_index], slope, offset, direction, eColor.arr[channel_index]);
+  
+    channel[index]   = color.arr[channel_index];
+  }
+}
+
+extern "C" __global__ void one_channel_to_image (
+        dehancer::nvcc::texture2d<float4> source
+        ,
+        dehancer::nvcc::texture2d<float4> destination
+        ,
+        float* channel
+        ,
+        int    channel_index
+        ,
+        float_ref_t slope
+        ,
+        float_ref_t offset
+        ,
+        bool_ref_t transform
+        ,
+        TransformDirection direction
+        ,
+        bool_ref_t has_mask
+        ,
+        texture2d_read_t mask
+)
+{
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+  int w = destination.get_width();
+  int h = destination.get_height();
+  
+  int2 gid = (int2){x, y};
+  
+  if ((gid.x < w) && (gid.y < h) && channel_index<4) {
+    
+    const int index = ((gid.y * w) + gid.x);
+    
+    int2 destination_size = make_int2(w,h);
+  
+    _channel_tr_ color; color.vec = sampled_color(source, destination_size, gid);
+    
+    color.arr[channel_index] =  channel[index];
+  
+    _channel_tr_ eColor; eColor.vec = has_mask ? sampled_color(mask, destination_size, gid) : make_float4(1.0f);
+  
+    if (transform)
+      color.arr[channel_index] = linearlog( color.arr[channel_index], slope, offset, direction, eColor.arr[channel_index]);
+    
+    write_image(destination, color.vec, gid);
   }
 }

@@ -97,7 +97,10 @@ namespace dehancer {
         );
         
         [[nodiscard]] const Channels& get_channels() const { return channels_;}
-        void setup(CommandEncoder &encode) override;
+        //void setup(CommandEncoder &encode) override;
+        
+        void process() override;
+        void process(const Texture &source, const Texture &destination) override;
         
         void set_source(const Texture& source) override;
         void set_destination(const Texture& destination) override;

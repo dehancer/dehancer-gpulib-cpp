@@ -69,7 +69,8 @@ namespace dehancer {
                                  bool wait_until_completed,
                                  const std::string& library_path):
             Kernel(command_queue,
-                   "image_to_channels",
+                   //"image_to_channels",
+                   "image_to_one_channel",
                    texture,
                    nullptr,
                    wait_until_completed,
@@ -93,19 +94,52 @@ namespace dehancer {
       }
     }
     
-    void ChannelsInput::setup(CommandEncoder &command)  {
-      int i = 0;
+    void ChannelsInput::process () {
       auto *channels = dynamic_cast<impl::ChannelsHolder *>(channels_.get());
-      for (; i <channels->size(); ++i) {
-        command.set(channels->at(i),i+1);
+      for (int j = 0; j < channels->size(); ++j) {
+        execute([this, channels, j](CommandEncoder& encoder){
+          
+            encoder.set(get_source(),0);
+    
+            encoder.set(channels->at(j),1);
+            encoder.set(j, 2);
+    
+            encoder.set(transform_.slope[j],3);
+            encoder.set(transform_.offset[j],4);
+            encoder.set(transform_.enabled[j],5);
+            encoder.set(transform_.direction ,6);
+            encoder.set(has_mask_ , 7);
+            encoder.set(mask_ , 8);
+            
+            CommandEncoder::Size size = {
+                    .width = channels->get_width(),
+                    .height = channels->get_height(),
+                    .depth = 1
+            };
+            
+            return size;
+        });
       }
-      command.set(transform_.slope,i+1);
-      command.set(transform_.offset,i+2);
-      command.set(transform_.enabled,i+3);
-      command.set(transform_.direction ,i+4);
-      command.set(has_mask_ , i + 5);
-      command.set(mask_ ,i+6);
     }
+    
+    void ChannelsInput::process (const Texture &source, const Texture &destination) {
+      Kernel::process(source, destination);
+    }
+    
+
+//    void ChannelsInput::setup(CommandEncoder &command)  {
+//      int i = 0;
+//      auto *channels = dynamic_cast<impl::ChannelsHolder *>(channels_.get());
+//      for (; i <channels->size(); ++i) {
+//        command.set(channels->at(i),i+1);
+//      }
+//      command.set(transform_.slope,i+1);
+//      command.set(transform_.offset,i+2);
+//      command.set(transform_.enabled,i+3);
+//      command.set(transform_.direction ,i+4);
+//      command.set(has_mask_ , i + 5);
+//      command.set(mask_ ,i+6);
+//    }
     
     void ChannelsInput::set_source (const Texture &source) {
       Kernel::set_source(source);
@@ -138,6 +172,7 @@ namespace dehancer {
     const ChannelDesc::Transform &ChannelsInput::get_transform () const {
       return transform_;
     }
+    
     
     
     ChannelsOutput::ChannelsOutput(const void *command_queue,

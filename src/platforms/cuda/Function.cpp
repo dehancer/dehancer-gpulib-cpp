@@ -56,7 +56,7 @@ namespace dehancer::cuda {
                      (texture_size.depth + block_size.z - 1) / block_size.z
       );
 
-#ifdef PRINT_DEBUG
+#ifdef PRINT_KERNELS_DEBUG
       std::cout << "Function "<<kernel_name_<<"  max threads: "
                 << max_device_threads_
                 << " blocks: "
