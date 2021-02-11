@@ -56,7 +56,7 @@ namespace dehancer {
         
         size_t  width     = 0;
         size_t  height    = 0;
-    
+        std::array<float,4> scale = {1.0f, 1.0f, 1.0f, 1.0f};
         Channels make(const void *command_queue) const;
       
     };
@@ -70,7 +70,11 @@ namespace dehancer {
         
         virtual size_t get_width(int index) const = 0;
         virtual size_t get_height(int index) const = 0;
-        
+    
+        virtual float get_scale(int index) const = 0;
+    
+        virtual ChannelDesc get_desc() const = 0;
+    
         virtual Memory& at(int index) = 0;
         virtual const Memory& at(int index) const = 0;
         [[nodiscard]] virtual inline size_t size() const = 0;
@@ -92,6 +96,7 @@ namespace dehancer {
         explicit ChannelsInput(const void *command_queue,
                                const Texture& source,
                                const ChannelDesc::Transform& transform = {},
+                               std::array<float,4> scale = {1.0f,1.0f,1.0f,1.0f},
                                bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                                const std::string& library_path = ""
         );

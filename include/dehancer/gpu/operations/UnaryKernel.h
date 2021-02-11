@@ -5,6 +5,7 @@
 #pragma once
 
 #include "dehancer/gpu/Kernel.h"
+#include "dehancer/gpu/operations/PassKernel.h"
 #include "dehancer/gpu/Channels.h"
 #include <vector>
 #include <any>
@@ -16,6 +17,7 @@ namespace dehancer {
     /***
      * Base Kernel operation class
      */
+    //class UnaryKernel: public PassKernel {
     class UnaryKernel: public ChannelsInput {
     public:
         
@@ -92,6 +94,7 @@ namespace dehancer {
         };
         
         using ChannelsInput::ChannelsInput;
+        //using PassKernel::PassKernel;
         
         /***
          * A filter that convolves an image with a given kernel of odd width and height that must be defined

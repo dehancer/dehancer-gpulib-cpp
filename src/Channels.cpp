@@ -4,6 +4,8 @@
 
 #include "dehancer/gpu/Channels.h"
 
+#include <cmath>
+
 namespace dehancer {
     
     static dehancer::ChannelDesc::Transform options_one = {
@@ -27,6 +29,10 @@ namespace dehancer {
             
             size_t get_width(int index) const override { return channel_descs_->at(index).width; };
             size_t get_height(int index) const override {return channel_descs_->at(index).height;};
+    
+            float get_scale(int index) const override { return desc_.scale.at(index);}
+            
+            ChannelDesc get_desc() const override { return desc_;}
             
             Memory& at(int index) override { return channels_->at(index);};
             const Memory& at(int index) const override { return channels_->at(index);};
@@ -35,17 +41,20 @@ namespace dehancer {
             ChannelsHolder(const void *command_queue, const ChannelDesc& desc):
                     Command(command_queue),
                     channels_(std::make_shared<std::array<Memory,4>>()),
+                    desc_(desc),
                     channel_descs_({
                       std::make_shared<std::array<ChannelDesc,4>>()
                     })
             {
-              
-              //channel_descs_->at(0) = desc;
+  
+              int i = 0;
               for(auto & c: *channel_descs_){
-                c = desc;
+                c = desc_;
+                c.width = std::floor((float )c.width * c.scale.at(i));
+                c.height = std::floor((float )c.height * c.scale.at(i));
               }
               
-              int i = 0;
+              i = 0;
               for (auto & c : *channels_) {
                 auto size = sizeof(float)*channel_descs_->at(i).width*channel_descs_->at(i).height;
                 if (size==0) continue;
@@ -53,7 +62,7 @@ namespace dehancer {
               }
             }
             std::shared_ptr<std::array<Memory,4>> channels_;
-            //ChannelDesc desc_;
+            ChannelDesc desc_;
             std::shared_ptr<std::array<ChannelDesc,4>> channel_descs_;
         };
       
@@ -77,6 +86,7 @@ namespace dehancer {
     ChannelsInput::ChannelsInput(const void *command_queue,
                                  const Texture &texture,
                                  const ChannelDesc::Transform& transform,
+                                 const std::array<float,4> scale,
                                  bool wait_until_completed,
                                  const std::string& library_path):
             Kernel(command_queue,
@@ -89,7 +99,8 @@ namespace dehancer {
             channels_(ChannelsHolder::Make(command_queue,
                                            (ChannelDesc) {
                                                    .width = texture ? texture->get_width() : 0,
-                                                   .height = texture ? texture->get_height() : 0
+                                                   .height = texture ? texture->get_height() : 0,
+                                                   .scale = scale
                                            }
             )),
             has_mask_(transform_.mask != nullptr),

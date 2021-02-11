@@ -45,9 +45,9 @@ float4 tex2D_bilinear(texture2d_read_t source, float x, float y)
 inline DHCR_DEVICE_FUNC
 float get_channel_value(const float* source, int w, int h, int x, int y){
   int index = y * w + x;
-  if (index<0) return source[0];
+  if (index<0) return 0.0f;
   int l = w*h;
-  if (index>=l) return source[l-1];
+  if (index>=l) return 0.0f;//source[l-1];
   return source[index];
 }
 

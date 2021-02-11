@@ -9,7 +9,7 @@
 namespace dehancer {
     
     struct UnaryKernelImpl{
-        ChannelsInput* root_;
+        UnaryKernel* root_;
         UnaryKernel::Options options_;
         ChannelDesc::Transform transform_ {};
         std::array<dehancer::Memory,4> row_weights;
@@ -24,7 +24,7 @@ namespace dehancer {
         Texture mask_;
         
         UnaryKernelImpl(
-                ChannelsInput* root,
+                UnaryKernel* root,
                 const Texture& s,
                 const Texture& d,
                 const UnaryKernel::Options& options,
@@ -43,7 +43,7 @@ namespace dehancer {
         }
     };
     
-    UnaryKernelImpl::UnaryKernelImpl (ChannelsInput *root,
+    UnaryKernelImpl::UnaryKernelImpl (UnaryKernel *root,
                                       const Texture &s,
                                       const Texture &d,
                                       const UnaryKernel::Options& options,
@@ -54,11 +54,14 @@ namespace dehancer {
             transform_(transform),
             width(s?s->get_width():0),
             height(s?s->get_height():0),
-            channels_out(ChannelsHolder::Make(root_->get_command_queue(),
-                                              (ChannelDesc){
-                                                      .width = width,
-                                                      .height = height
-                                              })),
+            channels_out(ChannelsHolder::Make(
+                    root_->get_command_queue(),
+                    root_->get_channels()->get_desc()
+                    //(ChannelDesc){
+                    //  .width = width,
+                    //  .height = height
+                    //}
+            )),
             channels_finalizer(std::make_shared<ChannelsOutput>(
                     root_->get_command_queue(),
                     d,
@@ -88,7 +91,12 @@ namespace dehancer {
                              bool wait_until_completed,
                              const std::string& library_path
     ):
-            ChannelsInput (command_queue, s, transform, wait_until_completed, library_path),
+            ChannelsInput (command_queue,
+                           s,
+                           transform,
+                           {1.0f,1.0f,1.0f,1.0f},
+                           wait_until_completed,
+                           library_path),
             impl_(std::make_shared<UnaryKernelImpl>(
                     this,
                     s,
@@ -178,16 +186,16 @@ namespace dehancer {
         //if (impl_->channels_out->get_height()!=impl_->height || impl_->channels_out->get_width()!=impl_->width)
         // impl_->channels_out = nullptr;
         for (int i = 0; i < impl_->channels_out->size(); ++i) {
-          if (impl_->channels_out->get_height(i)!=impl_->height
+          if (impl_->channels_out->get_height(i)!=get_channels()->get_height(i)
               ||
-              impl_->channels_out->get_width(i)!=impl_->width) {
+              impl_->channels_out->get_width(i)!=get_channels()->get_width(i)) {
             impl_->channels_out = nullptr;
             break;
           }
         }
       }
       if (!impl_->channels_out)
-        impl_->channels_out = ChannelsHolder::Make(get_command_queue(), impl_->width, impl_->height);
+        impl_->channels_out = get_channels()->get_desc().make(get_command_queue()); //ChannelsHolder::Make(get_command_queue(), impl_->width, impl_->height);
     }
     
     void UnaryKernel::set_destination (const Texture &dest) {
@@ -264,7 +272,7 @@ namespace dehancer {
       
       if (!impl_->options_.user_data.has_value()) return;
       
-      for (int i = 0; i < 4; ++i) {
+      for (int i = 0; i < get_channels()->size(); ++i) {
         
         std::vector<float> buf;
         
@@ -301,7 +309,7 @@ namespace dehancer {
     }
     
     void UnaryKernel::process (const Texture &source, const Texture &destination) {
-      Kernel::process(source, destination);
+      ChannelsInput::process(source, destination);
     }
   
 }
