@@ -94,7 +94,7 @@ namespace dehancer {
         using Kernel::Kernel;
         
         explicit ChannelsInput(const void *command_queue,
-                               const Texture& source,
+                               const Texture& source = nullptr,
                                const ChannelDesc::Transform& transform = {},
                                std::array<float,4> scale = {1.0f,1.0f,1.0f,1.0f},
                                bool wait_until_completed = WAIT_UNTIL_COMPLETED,
@@ -106,7 +106,8 @@ namespace dehancer {
         
         void process() override;
         void process(const Texture &source, const Texture &destination) override;
-        
+    
+        void set_scale(std::array<float,4> scale);
         void set_source(const Texture& source) override;
         void set_destination(const Texture& destination) override;
     
@@ -114,6 +115,7 @@ namespace dehancer {
         virtual const ChannelDesc::Transform& get_transform() const;
         
     private:
+        std::array<float,4> scale_;
         Channels channels_;
         ChannelDesc::Transform transform_;
         bool has_mask_;

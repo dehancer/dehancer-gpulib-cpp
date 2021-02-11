@@ -17,8 +17,7 @@ namespace dehancer {
     /***
      * Base Kernel operation class
      */
-    //class UnaryKernel: public PassKernel {
-    class UnaryKernel: public ChannelsInput {
+    class UnaryKernel: public PassKernel {
     public:
         
         /**
@@ -93,8 +92,7 @@ namespace dehancer {
             Texture           mask = nullptr;
         };
         
-        using ChannelsInput::ChannelsInput;
-        //using PassKernel::PassKernel;
+        using PassKernel::PassKernel;
         
         /***
          * A filter that convolves an image with a given kernel of odd width and height that must be defined
@@ -163,7 +161,7 @@ namespace dehancer {
          * Set channel colors transformation
          * @param transform
          */
-        [[maybe_unused]] void set_transform(const ChannelDesc::Transform &transform) override;
+        [[maybe_unused]] void set_transform(const ChannelDesc::Transform &transform);
         
         /***
          * Set unary mask
@@ -175,7 +173,7 @@ namespace dehancer {
          * Get current channel colors transformation
          * @return
          */
-        const ChannelDesc::Transform & get_transform() const override;
+        const ChannelDesc::Transform & get_transform() const;
         
     protected:
         
@@ -200,6 +198,5 @@ namespace dehancer {
     
     private:
         std::shared_ptr<UnaryKernelImpl> impl_;
-        void recompute_kernel();
     };
 }
