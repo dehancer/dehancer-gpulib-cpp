@@ -223,9 +223,6 @@ namespace dehancer::metal {
     TextureHolder::~TextureHolder() {
       if (texture_)
         [texture_ release];
-      #ifdef PRINT_DEBUG
-      dehancer::log::print("~TextureHolder[%s] desc: %ix%ix%i",  get_desc().label.c_str(), get_width(), get_length(), get_depth());
-      #endif
     }
 
 }

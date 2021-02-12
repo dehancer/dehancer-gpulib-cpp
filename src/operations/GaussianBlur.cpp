@@ -20,26 +20,24 @@ namespace dehancer {
         
         data.clear();
         
-        if (!user_data.has_value()) return ;
+        if (!user_data.has_value()) return 1.0f;
         
         auto options = std::any_cast<GaussianBlurOptions>(user_data.value());
         
         auto radius = options.radius_array.at(index);
         
-        if (radius==0) return ;
+        if (radius==0) return 1.0f;
         
         float sigma = radius/2.0f;
         
         int kRadius = (int)std::ceil(sigma*std::sqrt(-2.0f*std::log(options.accuracy)))+1;
         int maxRadius = (int)std::ceil(radius/2+1) * 4 - 1;
-        
+
         kRadius = std::max(kRadius,maxRadius);
-        
+
         auto size = kRadius;
         if (size%2==0) size+=1;
         if (size<3) size=3;
-        
-        dehancer::math::make_gaussian_kernel(data, size, sigma);
         
         bool doDownscaling = sigma > 2.0f*MIN_DOWNSCALED_SIGMA + 0.5f;
         
@@ -51,13 +49,15 @@ namespace dehancer {
                            ? std::sqrt(sigma*sigma/(float)(reduceBy*reduceBy) - 1.f/3.f - 1.f/4.f)
                            : sigma;
     
-        //int newLength = doDownscaling ?                           //line length for convolution
-        //                (readTo-readFrom+reduceBy-1)/reduceBy
+        std::cout << " kernel_blur["<<index<<"]:        radius = " << kRadius << "  maxRadius = " << maxRadius << std::endl;
+        std::cout << " kernel_blur["<<index<<"]: doDownscaling = " << doDownscaling << "  reduceBy = " << reduceBy << std::endl;
+        std::cout << " kernel_blur["<<index<<"]:    real_sigma = " << real_sigma << std::endl;
+
+        size = size/reduceBy;
+    
+        dehancer::math::make_gaussian_kernel(data, size, real_sigma);
         
-        std::cout << " kernel_blur:        radius = " << kRadius << "  maxRadius = " << maxRadius << std::endl;
-        std::cout << " kernel_blur: doDownscaling = " << doDownscaling << "  reduceBy = " << reduceBy << std::endl;
-        std::cout << " kernel_blur:    real_sigma = " << real_sigma << std::endl;
-      
+        return 1.0f/(float)reduceBy;
     };
     
     GaussianBlur::GaussianBlur (const void *command_queue,

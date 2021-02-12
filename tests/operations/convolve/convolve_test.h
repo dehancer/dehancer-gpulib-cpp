@@ -126,7 +126,7 @@ int run_on_device(int num, const void* device, std::string patform) {
       
       data.clear();
       
-      if (!user_data.has_value()) return ;
+      if (!user_data.has_value()) return 1.0f;
       
       //auto options = std::any_cast<GaussianBlurOptions>(user_data.value());
       
@@ -134,7 +134,7 @@ int run_on_device(int num, const void* device, std::string patform) {
       auto radius = TEST_RADIUS[index];
     
     
-      if (radius==0) return ;
+      if (radius==0) return 1.0f;
       
       float sigma = radius/2.0f;
       int kRadius = (int)std::ceil(sigma*std::sqrt(-2.0f*std::log(0.0001)))+1;
@@ -147,6 +147,8 @@ int run_on_device(int num, const void* device, std::string patform) {
       if (size<3) size=3;
       
       dehancer::math::make_gaussian_kernel(data, size, radius/2.0f);
+      
+      return 1.0f;
   };
   
   auto kernel_blur2 = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
@@ -154,7 +156,7 @@ int run_on_device(int num, const void* device, std::string patform) {
       
       auto radius = TEST_RADIUS[index];
       
-      if (radius==0) return ;
+      if (radius==0) return 1.0f;
       
       float sigma = radius/2.0f;
       int kRadius = (int)ceil(sigma*sqrt(-2.0f*log(0.0001)))+1;
@@ -164,20 +166,24 @@ int run_on_device(int num, const void* device, std::string patform) {
       if (size%2==0) size+=1;
       if (size<3) size=3;
       dehancer::math::make_gaussian_kernel(data, size, radius/2.0f);
+    
+      return 1.0f;
   };
   
   
   auto kernel_magic_resolution = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
       data.clear();
-      if (index==3) return ;
+      if (index==3) return 1.0f;
       float r = TEST_RESOLURION[index];
-      if (r==0) return;
+      if (r==0) return 1.0f;
       magic_resampler(r,data);
+      
+      return 1.0f;
   };
   
   auto kernel_resample = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
       data.clear();
-      if (index==3) return ;
+      if (index==3) return 1.0f;
       size_t size = 2;
       downscale_kernel(size,data);
       data.erase(data.begin());
@@ -185,16 +191,19 @@ int run_on_device(int num, const void* device, std::string patform) {
       for (auto v: data) {
         std::cout << "d["<<i++<<"] = " << v << std::endl;
       }
+      return 1.0f;
   };
   
   auto kernel_box_blur = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
       data.clear();
-      if (index==3) return ;
+      if (index==3) return 1.0f;
       int radius = TEST_BOX_RADIUS[index];
-      if (radius <= 1 ) return;
+      if (radius <= 1 ) return 1.0f;
       for (int i = 0; i < radius; ++i) {
         data.push_back(1.0f/(float)radius);
       }
+      
+      return 1.0f;
   };
   
   struct kernel_funcx {

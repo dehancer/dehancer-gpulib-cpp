@@ -17,8 +17,7 @@ namespace dehancer {
     /***
      * Base Kernel operation class
      */
-    //class UnaryKernel: public PassKernel {
-    class UnaryKernel: public ChannelsInput {
+    class UnaryKernel: public PassKernel {
     public:
         
         /**
@@ -55,9 +54,11 @@ namespace dehancer {
          *       for (int i = 0; i < radius; ++i) {
          *         data.push_back(1.0f/(float)radius);
          *       }
+         *
+         *       return 1.0f; // return scale factor to increase convolution perform
          *   };
          */
-        using KernelFunction = std::function<void (int channel_index, std::vector<float>& line, const UserData& user_data)>;
+        using KernelFunction = std::function<float (int channel_index, std::vector<float>& line, const UserData& user_data)>;
         
         /***
          * A structure defines options to process convolve with UnaryKernel class
@@ -93,8 +94,7 @@ namespace dehancer {
             Texture           mask = nullptr;
         };
         
-        using ChannelsInput::ChannelsInput;
-        //using PassKernel::PassKernel;
+        using PassKernel::PassKernel;
         
         /***
          * A filter that convolves an image with a given kernel of odd width and height that must be defined
@@ -163,7 +163,7 @@ namespace dehancer {
          * Set channel colors transformation
          * @param transform
          */
-        [[maybe_unused]] void set_transform(const ChannelDesc::Transform &transform) override;
+        [[maybe_unused]] void set_transform(const ChannelDesc::Transform &transform);
         
         /***
          * Set unary mask
@@ -175,7 +175,7 @@ namespace dehancer {
          * Get current channel colors transformation
          * @return
          */
-        const ChannelDesc::Transform & get_transform() const override;
+        const ChannelDesc::Transform & get_transform() const;
         
     protected:
         
@@ -200,6 +200,5 @@ namespace dehancer {
     
     private:
         std::shared_ptr<UnaryKernelImpl> impl_;
-        void recompute_kernel();
     };
 }

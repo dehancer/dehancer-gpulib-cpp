@@ -24,8 +24,6 @@ namespace dehancer {
     
     TextureHolder::~TextureHolder () {
       auto t = (dehancer::DEHANCER_GPU_PLATFORM::TextureHolder*)(this);
-      //dehancer::log::print(" ### ~TextureHolder(%ix%ix%i)", t->get_desc().width, t->get_desc().height, t->get_desc().depth);
-      dehancer::log::print(" ### ~TextureHolder(%p)", t);
     }
     
     Texture TextureDesc::make(const void *command_queue, const float *from_memory) {

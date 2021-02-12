@@ -43,16 +43,16 @@ float4 tex2D_bilinear(texture2d_read_t source, float x, float y)
 }
 
 inline DHCR_DEVICE_FUNC
-float get_channel_value(const float* source, int w, int h, int x, int y){
-  int index = y * w + x;
+float read_channel(const float* source, int2 size, int2 gid){
+  int index = gid.y * size.x + gid.x;
   if (index<0) return 0.0f;
-  int l = w*h;
-  if (index>=l) return 0.0f;//source[l-1];
+  int l = size.x*size.y;
+  if (index>=l) return 0.0f;
   return source[index];
 }
 
 inline DHCR_DEVICE_FUNC
-float channel_bilinear(const float* source, int w, int h, float x, float y)
+float channel_bilinear(const float* source, int2 size, float x, float y)
 {
   x -= 0.5f;
   y -= 0.5f;
@@ -68,12 +68,10 @@ float channel_bilinear(const float* source, int w, int h, float x, float y)
   
   int2   gid_src = make_int2(u,v);
   
-  int2 gid;
-  
-  gid = gid_src+make_int2(0,  0); float q11 = get_channel_value(source, w, h, gid.x, gid.y);
-  gid = gid_src+make_int2(0, dy); float q12 = get_channel_value(source, w, h, gid.x, gid.y);
-  gid = gid_src+make_int2(dx,dy); float q22 = get_channel_value(source, w, h, gid.x, gid.y);
-  gid = gid_src+make_int2(dx, 0); float q21 = get_channel_value(source, w, h, gid.x, gid.y);
+  float q11 = read_channel(source, size, gid_src+make_int2(0,  0));
+  float q12 = read_channel(source, size, gid_src+make_int2(0, dy));
+  float q22 = read_channel(source, size, gid_src+make_int2(dx,dy));
+  float q21 = read_channel(source, size, gid_src+make_int2(dx, 0));
   
   float c1  = mix(q11,q21,px);
   float c2  = mix(q12,q22,px);
@@ -108,13 +106,22 @@ float w3(float a)
 }
 
 inline DHCR_DEVICE_FUNC
-float4 cubicFilter(float x, float4 c0, float4  c1, float4  c2, float4  c3)
+float4 __attribute__((overloadable))  cubicFilter(float x, float4 c0, float4  c1, float4  c2, float4  c3)
 {
-  float4 r;
-  r = c0 * make_float4(w0(x));
+  float4 r = c0 * make_float4(w0(x));
   r += c1 * make_float4(w1(x));
   r += c2 * make_float4(w2(x));
   r += c3 * make_float4(w3(x));
+  return r;
+}
+
+inline DHCR_DEVICE_FUNC
+float __attribute__((overloadable))  cubicFilter(float x, float c0, float  c1, float  c2, float  c3)
+{
+  float r = c0 * w0(x);
+  r += c1 * w1(x);
+  r += c2 * w2(x);
+  r += c3 * w3(x);
   return r;
 }
 
@@ -160,6 +167,43 @@ float4 tex2D_bicubic(texture2d_read_t tex, float x, float y)
   
   return cubicFilter(fy,c0,c1,c2,c3);
 }
+
+inline DHCR_DEVICE_FUNC
+float channel_bicubic(const float* source, int2 size, float x, float y)
+{
+  x -= 0.5f;
+  y -= 0.5f;
+  float px = floor(x);
+  float py = floor(y);
+  float fx = x - px;
+  float fy = y - py;
+  
+  int2 gid = make_int2(px,py);
+  
+  float c0 = cubicFilter(fx,
+                          read_channel(source, size, gid+make_int2(-1,-1)),
+                          read_channel(source, size, gid+make_int2( 0,-1)),
+                          read_channel(source, size, gid+make_int2(+1,-1)),
+                          read_channel(source, size, gid+make_int2(+2,-1)));
+  float c1 = cubicFilter(fx,
+                          read_channel(source, size, gid+make_int2(-1, 0)),
+                          read_channel(source, size, gid+make_int2( 0, 0)),
+                          read_channel(source, size, gid+make_int2(+1, 0)),
+                          read_channel(source, size, gid+make_int2(+2, 0)));
+  float c2 =  cubicFilter(fx,
+                           read_channel(source, size, gid+make_int2(-1,+1)),
+                           read_channel(source, size, gid+make_int2( 0,+1)),
+                           read_channel(source, size, gid+make_int2(+1,+1)),
+                           read_channel(source, size, gid+make_int2(+2,+1)));
+  float c3 =  cubicFilter(fx,
+                           read_channel(source, size, gid+make_int2(-1,+2)),
+                           read_channel(source, size, gid+make_int2( 0,+2)),
+                           read_channel(source, size, gid+make_int2(+1,+2)),
+                           read_channel(source, size, gid+make_int2(+2,+2)));
+  
+  return cubicFilter(fy,c0,c1,c2,c3);
+}
+
 
 inline DHCR_DEVICE_FUNC
 float4 tex2D_box_average(texture2d_read_t tex, float x, float y)

@@ -17,16 +17,19 @@ namespace dehancer {
         
         data.clear();
     
-        if (!user_data.has_value()) return ;
+        if (!user_data.has_value()) return 1.0f;
     
         auto options = std::any_cast<BoxBlurOptions>(user_data.value());
         
         auto radius = options.radius_array.at(index);
         
-        if (radius <= 1 ) return;
+        if (radius <= 1 ) return 1.0f;
+        
         for (int i = 0; i < radius; ++i) {
           data.push_back(1.0f/(float)radius);
         }
+        
+        return 1.0f;
     };
     
     BoxBlur::BoxBlur (const void *command_queue,
