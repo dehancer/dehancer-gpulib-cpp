@@ -50,17 +50,19 @@ namespace dehancer {
             {
               
               int i = 0;
-              for(auto & c: *channel_descs_){
+              for(auto& c: *channel_descs_){
                 c = desc_;
                 c.width = std::floor((float )c.width * c.scale.at(i));
                 c.height = std::floor((float )c.height * c.scale.at(i));
+                ++i;
               }
               
               i = 0;
-              for (auto & c : *channels_) {
+              for (auto& c : *channels_) {
                 auto size = sizeof(float)*channel_descs_->at(i).width*channel_descs_->at(i).height;
                 if (size==0) continue;
                 c = MemoryHolder::Make(get_command_queue(),size);
+                ++i;
               }
             }
         };

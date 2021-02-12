@@ -9,7 +9,7 @@
 
 namespace dehancer {
     
-    static constexpr float MIN_DOWNSCALED_SIGMA = 8.0f;
+    static constexpr float MIN_DOWNSCALED_SIGMA = 4.0f;
     
     struct GaussianBlurOptions {
         std::array<float, 4> radius_array;
@@ -38,8 +38,6 @@ namespace dehancer {
         auto size = kRadius;
         if (size%2==0) size+=1;
         if (size<3) size=3;
-
-//        dehancer::math::make_gaussian_kernel(data, size, sigma);
         
         bool doDownscaling = sigma > 2.0f*MIN_DOWNSCALED_SIGMA + 0.5f;
         

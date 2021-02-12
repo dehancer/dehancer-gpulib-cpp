@@ -173,7 +173,7 @@ extern "C" __global__ void image_to_one_channel (
     
     int2 size = make_int2(channel_w,channel_h);
     
-    _channel_tr_ color; color.vec = bicubic_sampled_color(source, size, gid);
+    _channel_tr_ color; color.vec = sampled_color(source, size, gid);
 
     _channel_tr_ eColor; eColor.vec = has_mask ? sampled_color(mask, size, gid) : make_float4(1.0f);
 
