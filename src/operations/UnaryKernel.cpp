@@ -387,8 +387,10 @@ namespace dehancer {
     void UnaryKernel::set_transform (const ChannelDesc::Transform &transform) {
       impl_->transform_ = transform;
       impl_->recompute_kernel();
-      impl_->channels_transformer->set_transform(transform);
-      impl_->channels_finalizer->set_transform(impl_->get_output_transform());
+      if (impl_->channels_transformer)
+        impl_->channels_transformer->set_transform(transform);
+      if (impl_->channels_finalizer)
+        impl_->channels_finalizer->set_transform(impl_->get_output_transform());
     }
     
     void UnaryKernel::set_options (const UnaryKernel::Options &options) {
