@@ -16,15 +16,19 @@ namespace dehancer {
         UnaryKernel::Options options_;
         ChannelDesc::Transform transform_ {};
         std::array<dehancer::Memory,4> row_weights;
+        
         std::array<int,4> row_sizes{};
-        std::array<dehancer::Memory,4> col_weights;
         std::array<int,4> col_sizes{};
+        
+        std::array<dehancer::Memory,4> col_weights;
         std::shared_ptr<ChannelsInput>  channels_transformer;
         std::shared_ptr<ChannelsOutput> channels_finalizer;
         Channels channels_unary_ops;
         std::array<float,4> channels_scale;
+        
         bool has_mask_;
         Texture mask_;
+        
         std::string library_path;
         
         UnaryKernelImpl(
@@ -50,7 +54,10 @@ namespace dehancer {
         void recompute_kernel();
         
         void set_source(const Texture& source);
+        
         void set_destination(const Texture& destination);
+        
+        void reset_unary_ops();
     };
     
     UnaryKernelImpl::UnaryKernelImpl (UnaryKernel *root,
@@ -95,15 +102,20 @@ namespace dehancer {
         
         if (options_.row && options_.user_data) {
           
-          options_.row(i, buf, options_.user_data);
+          float scale = options_.row(i, buf, options_.user_data);
+          
           row_sizes[i] = buf.size();
           
-          if (buf.empty())
+          if (buf.empty()) {
             row_weights[i] = nullptr;
-          else
+            channels_scale.at(i) = 1.0f;
+          }
+          else {
             row_weights[i] = dehancer::MemoryHolder::Make(root_->get_command_queue(),
                                                           buf.data(),
                                                           buf.size() * sizeof(float));
+            channels_scale.at(i) = scale;
+          }
         }
         if (options_.col && options_.user_data) {
           buf.clear();
@@ -119,6 +131,40 @@ namespace dehancer {
                                                           buf.size() * sizeof(float));
         }
       }
+      
+      if (channels_transformer) {
+        channels_transformer->set_scale(channels_scale);
+        //channels_transformer->process();
+//        auto s = channels_transformer->get_source();
+//        channels_transformer = std::make_shared<ChannelsInput>(
+//                root_->get_command_queue(),
+//                s,
+//                transform_,
+//                channels_scale,
+//                root_->get_wait_completed(), library_path
+//        );
+      }
+      
+      reset_unary_ops();
+    }
+    
+    void UnaryKernelImpl::reset_unary_ops () {
+      
+      if (!channels_transformer || !channels_transformer->get_channels()) return;
+      
+      if (channels_unary_ops){
+    
+        for (int i = 0; i < channels_unary_ops->size(); ++i) {
+          if (channels_unary_ops->get_height(i) != channels_transformer->get_channels()->get_height(i)
+              ||
+              channels_unary_ops->get_width(i) != channels_transformer->get_channels()->get_width(i)) {
+            channels_unary_ops = nullptr;
+            break;
+          }
+        }
+      }
+      if (!channels_unary_ops && channels_transformer->get_channels())
+        channels_unary_ops = channels_transformer->get_channels()->get_desc().make(root_->get_command_queue());
     }
     
     void UnaryKernelImpl::set_source (const Texture &source) {
@@ -140,19 +186,7 @@ namespace dehancer {
         channels_transformer->set_destination(nullptr);
       }
       
-      if (channels_unary_ops){
-        
-        for (int i = 0; i < channels_unary_ops->size(); ++i) {
-          if (channels_unary_ops->get_height(i) != channels_transformer->get_channels()->get_height(i)
-              ||
-              channels_unary_ops->get_width(i) != channels_transformer->get_channels()->get_width(i)) {
-            channels_unary_ops = nullptr;
-            break;
-          }
-        }
-      }
-      if (!channels_unary_ops)
-        channels_unary_ops = channels_transformer->get_channels()->get_desc().make(root_->get_command_queue());
+      reset_unary_ops();
     }
     
     void UnaryKernelImpl::set_destination (const Texture& destination) {
@@ -216,6 +250,8 @@ namespace dehancer {
       if(!impl_->channels_finalizer) return;
       
       impl_->channels_transformer->process();
+      
+      impl_->reset_unary_ops();
       
       #if  __TEST_NOT_SKIP__ == 1
       auto horizontal_kernel = Function(get_command_queue(),
@@ -301,6 +337,7 @@ namespace dehancer {
       
       #endif
       
+      impl_->set_destination(get_destination());
       impl_->channels_finalizer->process();
     }
     

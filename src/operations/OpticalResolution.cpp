@@ -8,7 +8,7 @@
 
 namespace dehancer {
     
-    struct DeresolutiOptions {
+    struct DeresolutionOptions {
         std::array<float, 4> radius_array;
     };
     
@@ -16,12 +16,12 @@ namespace dehancer {
         
         data.clear();
     
-        if (!user_data.has_value()) return ;
+        if (!user_data.has_value()) return 1.0f;
     
-        auto options = std::any_cast<DeresolutiOptions>(user_data.value());
+        auto options = std::any_cast<DeresolutionOptions>(user_data.value());
         auto radius = options.radius_array.at(index);
     
-        if (radius==0) return;
+        if (radius==0) return 1.0f;
         dehancer::math::magic_resampler(radius,data);
         
         std::vector<float> gaus;
@@ -39,6 +39,7 @@ namespace dehancer {
           i /= sum;
         }
         
+        return 1.0f;
     };
     
     OpticalResolution::OpticalResolution (const void *command_queue,
@@ -52,7 +53,7 @@ namespace dehancer {
             UnaryKernel(command_queue,s,d,{
                                 .row = kernel_resolution,
                                 .col = kernel_resolution,
-                                .user_data = (DeresolutiOptions){radius},
+                                .user_data = (DeresolutionOptions){radius},
                                 .edge_mode = edge_mode
                         },
                         transform,
@@ -82,7 +83,7 @@ namespace dehancer {
     }
     
     void OpticalResolution::set_radius (std::array<float, 4> radius) {
-      set_user_data((DeresolutiOptions){radius});
+      set_user_data((DeresolutionOptions){radius});
     }
     
     OpticalResolution::OpticalResolution (const void *command_queue,

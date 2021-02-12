@@ -54,9 +54,11 @@ namespace dehancer {
          *       for (int i = 0; i < radius; ++i) {
          *         data.push_back(1.0f/(float)radius);
          *       }
+         *
+         *       return 1.0f; // return scale factor to increase convolution perform
          *   };
          */
-        using KernelFunction = std::function<void (int channel_index, std::vector<float>& line, const UserData& user_data)>;
+        using KernelFunction = std::function<float (int channel_index, std::vector<float>& line, const UserData& user_data)>;
         
         /***
          * A structure defines options to process convolve with UnaryKernel class

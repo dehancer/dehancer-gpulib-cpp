@@ -115,7 +115,8 @@ namespace dehancer {
         virtual const ChannelDesc::Transform& get_transform() const;
         
     private:
-        std::array<float,4> scale_;
+        //std::array<float,4> scale_;
+        ChannelDesc desc_;
         Channels channels_;
         ChannelDesc::Transform transform_;
         bool has_mask_;
