@@ -49,9 +49,9 @@ namespace dehancer {
                            ? std::sqrt(sigma*sigma/(float)(reduceBy*reduceBy) - 1.f/3.f - 1.f/4.f)
                            : sigma;
     
-        std::cout << " kernel_blur["<<index<<"]:        radius = " << kRadius << "  maxRadius = " << maxRadius << std::endl;
-        std::cout << " kernel_blur["<<index<<"]: doDownscaling = " << doDownscaling << "  reduceBy = " << reduceBy << std::endl;
-        std::cout << " kernel_blur["<<index<<"]:    real_sigma = " << real_sigma << std::endl;
+//        std::cout << " kernel_blur["<<index<<"]:        radius = " << kRadius << "  maxRadius = " << maxRadius << std::endl;
+//        std::cout << " kernel_blur["<<index<<"]: doDownscaling = " << doDownscaling << "  reduceBy = " << reduceBy << std::endl;
+//        std::cout << " kernel_blur["<<index<<"]:    real_sigma = " << real_sigma << std::endl;
 
         size = size/reduceBy;
     
