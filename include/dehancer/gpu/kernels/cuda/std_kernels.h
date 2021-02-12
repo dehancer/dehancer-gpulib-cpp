@@ -26,8 +26,8 @@ inline __device__ __host__ float4 __attribute__((overloadable)) sampled_color(
     return read_image(source, gid);
   else {
     float2 coords = (float2){(float)gid.x / (float)(destination_size.x - 1),
-                             (float)gid.y / (float)(destination_size.y- 1)};
-    coords = coords * make_float2(size);
+                             (float)gid.y / (float)(destination_size.y - 1)};
+    coords = coords * (make_float2(size)-1.0f);
     return tex2D_bilinear(source, coords.x, coords.y);
   }
 }
@@ -70,7 +70,7 @@ inline __device__ __host__ float4 __attribute__((overloadable))  bicubic_sampled
   else {
     float2 coords = (float2){(float)gid.x / (float)(destination_size.x - 1),
                              (float)gid.y / (float)(destination_size.y- 1)};
-    coords = coords * make_float2(size);
+    coords = coords * (make_float2(size)-1.0f);
     return tex2D_bicubic(source, coords.x, coords.y);
   }
 }
@@ -113,7 +113,7 @@ inline __device__ __host__ float4 __attribute__((overloadable)) box_average_samp
   else {
     float2 coords = (float2){(float)gid.x / (float)(destination_size.x - 1),
                              (float)gid.y / (float)(destination_size.y- 1)};
-    coords = coords * make_float2(size);
+    coords = coords * (make_float2(size)-1.0f);
     return tex2D_box_average(source, coords.x, coords.y);
   }
 }

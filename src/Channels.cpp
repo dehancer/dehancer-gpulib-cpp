@@ -25,8 +25,10 @@ namespace dehancer {
         
         struct ChannelsHolder: public dehancer::ChannelsHolder, public dehancer::Command {
             
-            typedef std::shared_ptr<std::array<Memory,4>> Array;
-            
+            std::shared_ptr<std::array<Memory,4>> channels_;
+            ChannelDesc desc_;
+            std::shared_ptr<std::array<ChannelDesc,4>> channel_descs_;
+    
             size_t get_width(int index) const override { return channel_descs_->at(index).width; };
             size_t get_height(int index) const override {return channel_descs_->at(index).height;};
             
@@ -61,9 +63,6 @@ namespace dehancer {
                 c = MemoryHolder::Make(get_command_queue(),size);
               }
             }
-            std::shared_ptr<std::array<Memory,4>> channels_;
-            ChannelDesc desc_;
-            std::shared_ptr<std::array<ChannelDesc,4>> channel_descs_;
         };
       
     }
@@ -127,14 +126,21 @@ namespace dehancer {
             encoder.set(get_source(),0);
             
             encoder.set(channels->at(j),1);
-            encoder.set(j, 2);
+    
+            int cw = channels->get_width(j);
+            int ch = channels->get_height(j);
+    
+            encoder.set(cw, 2);
+            encoder.set(ch, 3);
+    
+            encoder.set(j, 4);
             
-            encoder.set(transform_.slope[j],3);
-            encoder.set(transform_.offset[j],4);
-            encoder.set(transform_.enabled[j],5);
-            encoder.set(transform_.direction ,6);
-            encoder.set(has_mask_ , 7);
-            encoder.set(mask_ , 8);
+            encoder.set(transform_.slope[j],5);
+            encoder.set(transform_.offset[j],6);
+            encoder.set(transform_.enabled[j],7);
+            encoder.set(transform_.direction ,8);
+            encoder.set(has_mask_ , 9);
+            encoder.set(mask_ , 10);
             
             CommandEncoder::Size size = {
                     .width = channels->get_width(j),
@@ -260,6 +266,7 @@ namespace dehancer {
             
             int cw = channels->get_width(j);
             int ch = channels->get_height(j);
+            
             encoder.set(cw, 3);
             encoder.set(ch, 4);
             
@@ -272,13 +279,10 @@ namespace dehancer {
             encoder.set(has_mask_ , 10);
             encoder.set(mask_ , 11);
             
-            //CommandEncoder::Size size = {
-            //        .width = channels->get_width(),
-            //        .height = channels->get_height(),
-            //        .depth = 1
-            //};
+            auto size = CommandEncoder::Size::From(get_destination());
             
-            return CommandEncoder::Size::From(get_destination());
+            return size;
+            //return (CommandEncoder::Size){(size_t)cw, (size_t)ch,1};
         });
       }
     }
