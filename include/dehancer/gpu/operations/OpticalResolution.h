@@ -28,7 +28,7 @@ namespace dehancer {
                           const Texture&    s,
                           const Texture&    d,
                           std::array<float ,4> radius,
-                          const ChannelDesc::Transform& transform = {},
+                          const ChannelsDesc::Transform& transform = {},
                           DHCR_EdgeMode       edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP,
                           bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                           const std::string& library_path = ""
@@ -36,7 +36,7 @@ namespace dehancer {
     
         OpticalResolution(const void* command_queue,
                           std::array<float ,4> radius,
-                          const ChannelDesc::Transform& transform = {},
+                          const ChannelsDesc::Transform& transform = {},
                           DHCR_EdgeMode       edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP,
                           bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                           const std::string& library_path = ""
@@ -49,7 +49,7 @@ namespace dehancer {
                           const Texture&    s,
                           const Texture&    d,
                           float radius = 0,
-                          const ChannelDesc::Transform& transform = {},
+                          const ChannelsDesc::Transform& transform = {},
                           DHCR_EdgeMode       edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP,
                           bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                           const std::string& library_path = ""
@@ -57,7 +57,7 @@ namespace dehancer {
     
         explicit OpticalResolution(const void* command_queue,
                                    float radius = 0,
-                                   const ChannelDesc::Transform& transform = {},
+                                   const ChannelsDesc::Transform& transform = {},
                                    DHCR_EdgeMode       edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP,
                                    bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                                    const std::string& library_path = ""

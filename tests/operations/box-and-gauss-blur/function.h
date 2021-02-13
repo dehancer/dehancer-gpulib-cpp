@@ -8,11 +8,11 @@
 #include "dehancer/gpu/Lib.h"
 #include "tests/test_config.h"
 
-static dehancer::ChannelDesc::Transform options_one = {
+static dehancer::ChannelsDesc::Transform options_one = {
         .slope   = {8.0f,  8.0f, 8,0},
         .offset  = {16.0f, 16.0f, 16,0},
-        .enabled = {true,false,false,false},
-        .direction = dehancer::ChannelDesc::TransformDirection::forward
+        .enabled = {true,true,false,false},
+        .direction = dehancer::ChannelsDesc::TransformDirection::forward
 };
 
 
@@ -74,7 +74,7 @@ auto gaussian_test =  [] (int dev_num,
                    kernel.set_destination(output);
                    kernel.set_accuracy(0.000001);
                    kernel.set_transform(options_one);
-                   kernel.set_radius({90,0,0,0});
+                   kernel.set_radius({90,20,0,0});
                    kernel.set_edge_mode(DHCR_ADDRESS_CLAMP);
     
                    kernel.process();

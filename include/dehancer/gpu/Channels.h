@@ -23,42 +23,110 @@ namespace dehancer {
         class ChannelsHolder;
     }
     
-    struct ChannelDesc {
+    /***
+     * Channels Description
+     */
+    struct ChannelsDesc {
         
+        /***
+         * Channel values transformation type
+         */
         enum TransformType:int {
+            /***
+             * direction == DHCR_forward
+             *   y = 2^(x*slope)-offset
+             *
+             * direction == DHCR_reverse
+             *   y = (log2(x) + offset) / slope, slope!=0
+             */
             log_linear = 0
         };
-    
+        
+        /***
+         * Channel transformation direction
+         */
         enum TransformDirection:int {
             forward = 0,
             inverse,
             none
         };
+        
+        struct Scale {
+            float x = 1.0f;
+            float y = 1.0f;
+        };
     
+        using Scale2D = std::array<Scale,4>;
+        
+        /***
+         * Transformation description
+         */
         struct Transform {
+            /***
+             * Type
+             */
             TransformType            type = log_linear;
+            
+            /***
+             * Channels (must be 4: RGBA) log slope
+             */
             dehancer::math::float4  slope = { 0.f,0.f,0.f,0.f };
+            /***
+             * Channels (must be 4: RGBA) log offset
+             */
             dehancer::math::float4 offset = { 1.0f,1.0f,1.0f,1.0f };
+            /***
+             * Transformation applies for the channels by index
+             */
             dehancer::math::bool4 enabled = {false,false,false,false};
+            
+            /***
+             * Direction
+             */
             TransformDirection  direction = none;
+            
+            /***
+             * Opacity mask applies for channels transformation
+             */
             Texture                  mask = nullptr;
             
+            /***
+             * Make default transformation
+             * @param type
+             * @param slope
+             * @param offset
+             * @param direction
+             * @param enabled
+             * @return
+             */
             static Transform make(TransformType type, float slope, float offset, TransformDirection direction, bool enabled = true) {
               return {
-                .type = type,
-                .slope =  { slope,slope,slope,0.f },
-                .offset = { offset,offset,offset,0.f },
-                .enabled = {enabled,enabled,enabled,false},
-                .direction = direction
+                      .type = type,
+                      .slope =  { slope,slope,slope,0.f },
+                      .offset = { offset,offset,offset,1.f },
+                      .enabled = {enabled,enabled,enabled,false},
+                      .direction = direction
               };
             };
         };
         
+        /***
+         * 2D mapping dimension width
+         */
         size_t  width     = 0;
+        /***
+         * 2D mapping dimension height
+         */
         size_t  height    = 0;
-        std::array<float,4> scale = {1.0f, 1.0f, 1.0f, 1.0f};
-        Channels make(const void *command_queue) const;
       
+        /***
+         * Scale channels instead of origin texture size
+         */
+        Scale2D scale;
+      
+        Channels make(const void *command_queue) const;
+        
+        static Scale2D default_scale;
     };
     
     struct ChannelsHolder: public std::enable_shared_from_this<ChannelsHolder> {
@@ -66,15 +134,15 @@ namespace dehancer {
     public:
         
         static Channels Make(const void *command_queue, size_t width, size_t height);
-        static Channels Make(const void *command_queue, const ChannelDesc& desc);
+        static Channels Make(const void *command_queue, const ChannelsDesc& desc);
         
         virtual size_t get_width(int index) const = 0;
         virtual size_t get_height(int index) const = 0;
-    
-        virtual float get_scale(int index) const = 0;
-    
-        virtual ChannelDesc get_desc() const = 0;
-    
+        
+        virtual ChannelsDesc::Scale get_scale(int index) const = 0;
+        
+        virtual ChannelsDesc get_desc() const = 0;
+        
         virtual Memory& at(int index) = 0;
         virtual const Memory& at(int index) const = 0;
         [[nodiscard]] virtual inline size_t size() const = 0;
@@ -90,35 +158,33 @@ namespace dehancer {
     class ChannelsInput: public Kernel {
     
     public:
-    
+        
         using Kernel::Kernel;
         
         explicit ChannelsInput(const void *command_queue,
                                const Texture& source = nullptr,
-                               const ChannelDesc::Transform& transform = {},
-                               std::array<float,4> scale = {1.0f,1.0f,1.0f,1.0f},
+                               const ChannelsDesc::Transform& transform = {},
+                               ChannelsDesc::Scale2D scale = ChannelsDesc::default_scale,
                                bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                                const std::string& library_path = ""
         );
         
         [[nodiscard]] const Channels& get_channels() const { return channels_;}
-        //void setup(CommandEncoder &encode) override;
         
         void process() override;
         void process(const Texture &source, const Texture &destination) override;
-    
-        void set_scale(std::array<float,4> scale);
+        
+        void set_scale(ChannelsDesc::Scale2D scale);
         void set_source(const Texture& source) override;
         void set_destination(const Texture& destination) override;
-    
-        virtual void set_transform(const ChannelDesc::Transform& transform);
-        virtual const ChannelDesc::Transform& get_transform() const;
         
+        virtual void set_transform(const ChannelsDesc::Transform& transform);
+        virtual const ChannelsDesc::Transform& get_transform() const;
+    
     private:
-        //std::array<float,4> scale_;
-        ChannelDesc desc_;
+        ChannelsDesc desc_;
         Channels channels_;
-        ChannelDesc::Transform transform_;
+        ChannelsDesc::Transform transform_;
         bool has_mask_;
         Texture mask_;
     };
@@ -132,26 +198,25 @@ namespace dehancer {
         explicit ChannelsOutput(const void *command_queue,
                                 const Texture& destination,
                                 const Channels& channels,
-                                const ChannelDesc::Transform& transform = {},
+                                const ChannelsDesc::Transform& transform = {},
                                 bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                                 const std::string& library_path = ""
         );
-    
+        
         void process() override;
         void process(const Texture &source, const Texture &destination) override;
         
-        //void setup(CommandEncoder &encode) override;
         void set_source(const Texture& source) override;
         void set_destination(const Texture& destination) override;
-        virtual void set_transform(const ChannelDesc::Transform& transform);
+        virtual void set_transform(const ChannelsDesc::Transform& transform);
         virtual void set_channels(const Channels& channels);
-        virtual const ChannelDesc::Transform& get_transform() const;
+        virtual const ChannelsDesc::Transform& get_transform() const;
+    
     private:
         Channels channels_;
-        ChannelDesc::Transform transform_;
+        ChannelsDesc::Transform transform_;
         bool has_mask_;
         Texture mask_;
-        Texture resapled_destination_;
     };
 }
 

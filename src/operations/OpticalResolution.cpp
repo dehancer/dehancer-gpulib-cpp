@@ -46,7 +46,7 @@ namespace dehancer {
                                           const Texture &s,
                                           const Texture &d,
                                           std::array<float, 4> radius,
-                                          const ChannelDesc::Transform& transform,
+                                          const ChannelsDesc::Transform& transform,
                                           DHCR_EdgeMode    edge_mode,
                                           bool wait_until_completed,
                                           const std::string &library_path):
@@ -66,7 +66,7 @@ namespace dehancer {
                                           const Texture &s,
                                           const Texture &d,
                                           float radius,
-                                          const ChannelDesc::Transform& transform,
+                                          const ChannelsDesc::Transform& transform,
                                           DHCR_EdgeMode address_mode,
                                           bool wait_until_completed,
                                           const std::string &library_path):
@@ -88,7 +88,7 @@ namespace dehancer {
     
     OpticalResolution::OpticalResolution (const void *command_queue,
                                           std::array<float, 4> radius,
-                                          const ChannelDesc::Transform& transform,
+                                          const ChannelsDesc::Transform& transform,
                                           DHCR_EdgeMode edge_mode,
                                           bool wait_until_completed,
                                           const std::string &library_path):
@@ -98,7 +98,7 @@ namespace dehancer {
     
     OpticalResolution::OpticalResolution (const void *command_queue,
                                           float radius,
-                                          const ChannelDesc::Transform& transform,
+                                          const ChannelsDesc::Transform& transform,
                                           DHCR_EdgeMode edge_mode,
                                           bool wait_until_completed, const std::string &library_path):
             OpticalResolution(command_queue, {radius, radius, radius, 0}, transform, edge_mode, wait_until_completed, library_path){

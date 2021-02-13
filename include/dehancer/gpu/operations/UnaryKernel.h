@@ -117,14 +117,14 @@ namespace dehancer {
                     const Texture& s,
                     const Texture& d,
                     const Options& options,
-                    const ChannelDesc::Transform& transform = {},
+                    const ChannelsDesc::Transform& transform = {},
                     bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                     const std::string& library_path = ""
         );
         
         UnaryKernel(const void* command_queue,
                     const Options& options,
-                    const ChannelDesc::Transform& transform = {},
+                    const ChannelsDesc::Transform& transform = {},
                     bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                     const std::string& library_path = ""
         );
@@ -163,7 +163,7 @@ namespace dehancer {
          * Set channel colors transformation
          * @param transform
          */
-        [[maybe_unused]] void set_transform(const ChannelDesc::Transform &transform);
+        [[maybe_unused]] void set_transform(const ChannelsDesc::Transform &transform);
         
         /***
          * Set unary mask
@@ -175,7 +175,7 @@ namespace dehancer {
          * Get current channel colors transformation
          * @return
          */
-        const ChannelDesc::Transform & get_transform() const;
+        const ChannelsDesc::Transform & get_transform() const;
         
     protected:
         

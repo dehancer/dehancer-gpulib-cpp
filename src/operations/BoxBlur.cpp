@@ -36,7 +36,7 @@ namespace dehancer {
                       const Texture &s,
                       const Texture &d,
                       std::array<size_t, 4> radius,
-                      const ChannelDesc::Transform& transform,
+                      const ChannelsDesc::Transform& transform,
                       DHCR_EdgeMode    edge_mode,
                       bool wait_until_completed,
                       const std::string &library_path):
@@ -56,7 +56,7 @@ namespace dehancer {
                       const Texture &s,
                       const Texture &d,
                       size_t radius,
-                      const ChannelDesc::Transform& transform,
+                      const ChannelsDesc::Transform& transform,
                       DHCR_EdgeMode edge_mode,
                       bool wait_until_completed,
                       const std::string &library_path):
@@ -71,7 +71,7 @@ namespace dehancer {
     
     BoxBlur::BoxBlur (const void *command_queue,
                       std::array<size_t, 4> radius,
-                      const ChannelDesc::Transform& transform,
+                      const ChannelsDesc::Transform& transform,
                       DHCR_EdgeMode edge_mode,
                       bool wait_until_completed,
                       const std::string &library_path):
@@ -82,7 +82,7 @@ namespace dehancer {
     
     BoxBlur::BoxBlur (const void *command_queue,
                       size_t radius,
-                      const ChannelDesc::Transform& transform,
+                      const ChannelsDesc::Transform& transform,
                       DHCR_EdgeMode edge_mode,
                       bool wait_until_completed,
                       const std::string &library_path):

@@ -14,7 +14,7 @@ namespace dehancer {
         
         UnaryKernel* root_;
         UnaryKernel::Options options_;
-        ChannelDesc::Transform transform_ {};
+        ChannelsDesc::Transform transform_ {};
         std::array<dehancer::Memory,4> row_weights;
         
         std::array<int,4> row_sizes{};
@@ -24,7 +24,7 @@ namespace dehancer {
         std::shared_ptr<ChannelsInput>  channels_transformer;
         std::shared_ptr<ChannelsOutput> channels_finalizer;
         Channels channels_unary_ops;
-        std::array<float,4> channels_scale;
+        ChannelsDesc::Scale2D channels_scale;
         
         bool has_mask_;
         Texture mask_;
@@ -36,17 +36,17 @@ namespace dehancer {
                 const Texture& s,
                 const Texture& d,
                 const UnaryKernel::Options& options,
-                const ChannelDesc::Transform& transform,
+                const ChannelsDesc::Transform& transform,
                 const std::string& library_path
         );
         
-        [[nodiscard]] ChannelDesc::Transform get_output_transform() const {
-          ChannelDesc::Transform t = transform_;
-          if (t.direction == ChannelDesc::TransformDirection::forward) {
-            t.direction = ChannelDesc::TransformDirection::inverse;
+        [[nodiscard]] ChannelsDesc::Transform get_output_transform() const {
+          ChannelsDesc::Transform t = transform_;
+          if (t.direction == ChannelsDesc::TransformDirection::forward) {
+            t.direction = ChannelsDesc::TransformDirection::inverse;
           }
-          else if (t.direction == ChannelDesc::TransformDirection::inverse) {
-            t.direction = ChannelDesc::TransformDirection::forward;
+          else if (t.direction == ChannelsDesc::TransformDirection::inverse) {
+            t.direction = ChannelsDesc::TransformDirection::forward;
           }
           return t;
         }
@@ -64,7 +64,7 @@ namespace dehancer {
                                       const Texture &s,
                                       const Texture &d,
                                       const UnaryKernel::Options& options,
-                                      const ChannelDesc::Transform& transform,
+                                      const ChannelsDesc::Transform& transform,
                                       const std::string& library_path
     ) :
             root_(root),
@@ -108,41 +108,36 @@ namespace dehancer {
           
           if (buf.empty()) {
             row_weights[i] = nullptr;
-            channels_scale.at(i) = 1.0f;
+            channels_scale.at(i).x = 1.0f;
           }
           else {
             row_weights[i] = dehancer::MemoryHolder::Make(root_->get_command_queue(),
                                                           buf.data(),
                                                           buf.size() * sizeof(float));
-            channels_scale.at(i) = scale;
+            channels_scale.at(i).x = scale;
           }
         }
         if (options_.col && options_.user_data) {
           buf.clear();
-          
-          options_.col(i, buf, options_.user_data);
+  
+          float scale = options_.col(i, buf, options_.user_data);
           col_sizes[i] = buf.size();
           
-          if (buf.empty())
+          if (buf.empty()) {
             col_weights[i] = nullptr;
-          else
+            channels_scale.at(i).y = 1.0f;
+          }
+          else {
             col_weights[i] = dehancer::MemoryHolder::Make(root_->get_command_queue(),
                                                           buf.data(),
                                                           buf.size() * sizeof(float));
+            channels_scale.at(i).y = scale;
+          }
         }
       }
       
       if (channels_transformer) {
         channels_transformer->set_scale(channels_scale);
-        //channels_transformer->process();
-//        auto s = channels_transformer->get_source();
-//        channels_transformer = std::make_shared<ChannelsInput>(
-//                root_->get_command_queue(),
-//                s,
-//                transform_,
-//                channels_scale,
-//                root_->get_wait_completed(), library_path
-//        );
       }
       
       reset_unary_ops();
@@ -226,7 +221,7 @@ namespace dehancer {
                              const Texture& s,
                              const Texture& d,
                              const Options& options,
-                             const ChannelDesc::Transform& transform,
+                             const ChannelsDesc::Transform& transform,
                              bool wait_until_completed,
                              const std::string& library_path
     ):
@@ -368,7 +363,7 @@ namespace dehancer {
     
     UnaryKernel::UnaryKernel (const void *command_queue,
                               const UnaryKernel::Options &options,
-                              const ChannelDesc::Transform& transform,
+                              const ChannelsDesc::Transform& transform,
                               bool wait_until_completed,
                               const std::string &library_path):
             UnaryKernel(command_queue, nullptr, nullptr, options, transform, wait_until_completed, library_path)
@@ -384,7 +379,7 @@ namespace dehancer {
       impl_->recompute_kernel();
     }
     
-    void UnaryKernel::set_transform (const ChannelDesc::Transform &transform) {
+    void UnaryKernel::set_transform (const ChannelsDesc::Transform &transform) {
       impl_->transform_ = transform;
       impl_->recompute_kernel();
       if (impl_->channels_transformer)
@@ -434,7 +429,7 @@ namespace dehancer {
       return impl_->options_;
     }
     
-    const ChannelDesc::Transform &UnaryKernel::get_transform () const {
+    const ChannelsDesc::Transform &UnaryKernel::get_transform () const {
       return impl_->transform_;
     }
     

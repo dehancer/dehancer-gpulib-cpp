@@ -48,14 +48,12 @@ namespace dehancer {
         float real_sigma = doDownscaling
                            ? std::sqrt(sigma*sigma/(float)(reduceBy*reduceBy) - 1.f/3.f - 1.f/4.f)
                            : sigma;
-    
-//        std::cout << " kernel_blur["<<index<<"]:        radius = " << kRadius << "  maxRadius = " << maxRadius << std::endl;
-//        std::cout << " kernel_blur["<<index<<"]: doDownscaling = " << doDownscaling << "  reduceBy = " << reduceBy << std::endl;
-//        std::cout << " kernel_blur["<<index<<"]:    real_sigma = " << real_sigma << std::endl;
 
-        size = size/reduceBy;
+        int new_size = size/reduceBy;
     
-        dehancer::math::make_gaussian_kernel(data, size, real_sigma);
+        dehancer::math::make_gaussian_kernel(data, new_size, real_sigma);
+        
+        //std::cout << " GAUSSIAN KERNEL["<<index<<"] SIZE = " << data.size() << ", origin size: " << size << " reduce: "<< reduceBy << " sigma: "<< sigma << " real sigma: "<< real_sigma<< std::endl;
         
         return 1.0f/(float)reduceBy;
     };
@@ -64,7 +62,7 @@ namespace dehancer {
                                 const Texture &s,
                                 const Texture &d,
                                 std::array<float, 4> radius,
-                                const ChannelDesc::Transform& transform,
+                                const ChannelsDesc::Transform& transform,
                                 DHCR_EdgeMode    edge_mode,
                                 float             accuracy_,
                                 bool wait_until_completed,
@@ -85,7 +83,7 @@ namespace dehancer {
                                 const Texture &s,
                                 const Texture &d,
                                 float radius,
-                                const ChannelDesc::Transform& transform,
+                                const ChannelsDesc::Transform& transform,
                                 DHCR_EdgeMode edge_mode,
                                 float accuracy_,
                                 bool wait_until_completed,
@@ -101,7 +99,7 @@ namespace dehancer {
     
     GaussianBlur::GaussianBlur (const void *command_queue,
                                 std::array<float, 4> radius,
-                                const ChannelDesc::Transform& transform,
+                                const ChannelsDesc::Transform& transform,
                                 DHCR_EdgeMode edge_mode,
                                 float accuracy_,
                                 bool wait_until_completed,
@@ -113,7 +111,7 @@ namespace dehancer {
     
     GaussianBlur::GaussianBlur (const void *command_queue,
                                 float radius,
-                                const ChannelDesc::Transform& transform,
+                                const ChannelsDesc::Transform& transform,
                                 DHCR_EdgeMode edge_mode,
                                 float accuracy_,
                                 bool wait_until_completed,
@@ -135,7 +133,6 @@ namespace dehancer {
                   ? std::any_cast<GaussianBlurOptions>(options.user_data.value())
                   : (GaussianBlurOptions){radius,GaussianBlur::accuracy};
       data.radius_array = radius;
-      //set_user_data(data);
       options.user_data = data;
       set_options(options);
     }
@@ -147,7 +144,6 @@ namespace dehancer {
                   : (GaussianBlurOptions){{0,0,0,0},accuracy_};
       data.accuracy = accuracy_;
       options.user_data = data;
-      //set_user_data(data);
       set_options(options);
     }
     

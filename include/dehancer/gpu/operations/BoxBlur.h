@@ -27,7 +27,7 @@ namespace dehancer {
                 const Texture&    s,
                 const Texture&    d,
                 std::array<size_t ,4> radius,
-                const ChannelDesc::Transform& transform = {},
+                const ChannelsDesc::Transform& transform = {},
                 DHCR_EdgeMode       edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP,
                 bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                 const std::string& library_path = ""
@@ -35,7 +35,7 @@ namespace dehancer {
         
         BoxBlur(const void* command_queue,
                 std::array<size_t ,4> radius,
-                const ChannelDesc::Transform& transform = {},
+                const ChannelsDesc::Transform& transform = {},
                 DHCR_EdgeMode       edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP,
                 bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                 const std::string& library_path = ""
@@ -48,7 +48,7 @@ namespace dehancer {
                 const Texture&    s,
                 const Texture&    d,
                 size_t radius,
-                const ChannelDesc::Transform& transform = {},
+                const ChannelsDesc::Transform& transform = {},
                 DHCR_EdgeMode       edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP,
                 bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                 const std::string& library_path = ""
@@ -56,7 +56,7 @@ namespace dehancer {
         
         explicit BoxBlur(const void* command_queue,
                          size_t radius = 0,
-                         const ChannelDesc::Transform& transform = {},
+                         const ChannelsDesc::Transform& transform = {},
                          DHCR_EdgeMode       edge_mode = DHCR_EdgeMode::DHCR_ADDRESS_CLAMP,
                          bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                          const std::string& library_path = ""
