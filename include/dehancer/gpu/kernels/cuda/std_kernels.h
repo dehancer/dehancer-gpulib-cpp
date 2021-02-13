@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "dehancer/gpu/kernels/cuda/common.h"
 #include "dehancer/gpu/kernels/resample.h"
 
 /***
@@ -32,24 +31,6 @@ inline __device__ __host__ float4 __attribute__((overloadable)) sampled_color(
   }
 }
 
-//inline __device__ __host__ float4 __attribute__((overloadable)) sampled_color(
-//        __read_only image2d_t source,
-//        __write_only image2d_t destination,
-//        int2 gid
-//){
-//
-//  int2 size = (int2){source.get_width(), source.get_height()};
-//
-//  if (size.y==destination.get_height() && destination.get_width()==size.x)
-//    return read_image(source, gid);
-//  else {
-//    float2 coords = (float2){(float)gid.x / (float)(destination.get_width() - 1),
-//                             (float)gid.y / (float)(destination.get_height()- 1)};
-//    coords = coords * make_float2(size);
-//    return tex2D_bilinear(source, coords.x, coords.y);
-//  }
-//}
-
 /***
  * Bicubic sampler
  * @param source
@@ -75,24 +56,6 @@ inline __device__ __host__ float4 __attribute__((overloadable))  bicubic_sampled
   }
 }
 
-//inline __device__ __host__ float4 __attribute__((overloadable))  bicubic_sampled_color(
-//        __read_only image2d_t source,
-//        __write_only image2d_t destination,
-//        int2 gid
-//){
-//
-//  int2 size = (int2){source.get_width(), source.get_height()};
-//
-//  if (size.y==destination.get_height() && destination.get_width()==size.x)
-//    return read_image(source, gid);
-//  else {
-//    float2 coords = (float2){(float)gid.x / (float)(destination.get_width() - 1),
-//                             (float)gid.y / (float)(destination.get_height()- 1)};
-//    coords = coords * make_float2(size);
-//    return tex2D_bicubic(source, coords.x, coords.y);
-//  }
-//}
-
 /***
  * Box average sampler
  * @param source
@@ -117,24 +80,6 @@ inline __device__ __host__ float4 __attribute__((overloadable)) box_average_samp
     return tex2D_box_average(source, coords.x, coords.y);
   }
 }
-
-//inline __device__ __host__ float4 __attribute__((overloadable)) box_average_sampled_color(
-//        __read_only image2d_t source,
-//        __write_only image2d_t destination,
-//        int2 gid
-//){
-//
-//  int2 size = (int2){source.get_width(), source.get_height()};
-//
-//  if (size.y==destination.get_height() && destination.get_width()==size.x)
-//    return read_image(source, gid);
-//  else {
-//    float2 coords = (float2){(float)gid.x / (float)(destination.get_width() - 1),
-//                             (float)gid.y / (float)(destination.get_height()- 1)};
-//    coords = coords * make_float2(size);
-//    return tex2D_box_average(source, coords.x, coords.y);
-//  }
-//}
 
 /***
  * Pass kernel

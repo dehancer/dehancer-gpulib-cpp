@@ -6,6 +6,7 @@
 #define DEHANCER_GPULIB_RESAMPLE_H
 
 #include "dehancer/gpu/kernels/common.h"
+#include "dehancer/gpu/kernels/types.h"
 
 /***
  * Bilinear interpolation

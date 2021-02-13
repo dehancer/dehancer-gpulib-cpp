@@ -2,8 +2,8 @@
 // Created by denn nevera on 30/11/2020.
 //
 
-#ifndef DEHANCER_GPULIB_COMMON_H
-#define DEHANCER_GPULIB_COMMON_H
+#ifndef DEHANCER_GPULIB_OPENCL_COMMON_H
+#define DEHANCER_GPULIB_OPENCL_COMMON_H
 
 #include "dehancer/gpu/kernels/constants.h"
 #include "dehancer/gpu/kernels/types.h"
@@ -182,4 +182,4 @@ static inline  float3 compress(float3 rgb, float2 compression) {
 }
 
 
-#endif //DEHANCER_GPULIB_COMMON_H
+#endif //DEHANCER_GPULIB_OPENCL_COMMON_H

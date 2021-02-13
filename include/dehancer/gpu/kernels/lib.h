@@ -11,5 +11,6 @@
 #include "dehancer/gpu/kernels/resample_kernels.h"
 #include "dehancer/gpu/kernels/gamma_kernels.h"
 #include "dehancer/gpu/kernels/morph_kernels.h"
+#include "dehancer/gpu/kernels/channel_utils.h"
 
 #endif // DEHANCER_GPULIB_LIB_H
