@@ -25,6 +25,10 @@ inline DHCR_DEVICE_FUNC float __attribute__((overloadable)) log2f(float a) {
   return log2(a);
 }
 
+inline DHCR_DEVICE_FUNC float __attribute__((overloadable)) log10f(float a) {
+  return log10(a);
+}
+
 #endif
 
 inline DHCR_DEVICE_FUNC float  __attribute__((overloadable)) permute(float x)
@@ -89,6 +93,21 @@ inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) log2f(float3 a) {
 
 inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) log2f(float4 a) {
   return make_float4(log2f(a.x),log2f(a.y),log2f(a.z),log2f(a.w));
+}
+
+/***
+ * log10f
+ */
+inline DHCR_DEVICE_FUNC float2 __attribute__((overloadable)) log10f(float2 a) {
+  return make_float2(log10f(a.x),log10f(a.y));
+}
+
+inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) log10f(float3 a) {
+  return make_float3(log10f(a.x),log10f(a.y),log10f(a.z));
+}
+
+inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) log10f(float4 a) {
+  return make_float4(log10f(a.x),log10f(a.y),log10f(a.z),log10f(a.w));
 }
 
 /***
