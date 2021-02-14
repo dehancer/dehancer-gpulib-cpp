@@ -39,16 +39,17 @@ namespace dehancer {
              * direction == DHCR_reverse
              *   y = (log2(x) + offset) / slope, slope!=0
              */
-            log_linear = 0
+            log_linear = DHCR_log_linear,
+            pow_linear = DHCR_pow_linear
         };
         
         /***
          * Channel transformation direction
          */
         enum TransformDirection:int {
-            forward = 0,
-            inverse,
-            none
+            forward = DHCR_TransformDirection::DHCR_Forward,
+            inverse = DHCR_TransformDirection::DHCR_Inverse,
+            none    = DHCR_TransformDirection::DHCR_None
         };
         
         struct Scale {
@@ -62,6 +63,12 @@ namespace dehancer {
          * Transformation description
          */
         struct Transform {
+    
+            struct Flags {
+                bool  in_enabled;
+                bool out_enabled;
+            };
+            
             /***
              * Type
              */
@@ -88,7 +95,12 @@ namespace dehancer {
             /***
              * Opacity mask applies for channels transformation
              */
-            Texture                  mask = nullptr;
+            Texture              mask = nullptr;
+    
+            Flags                flags = {
+                    .in_enabled = true,
+                    .out_enabled = true
+            };
             
             /***
              * Make default transformation

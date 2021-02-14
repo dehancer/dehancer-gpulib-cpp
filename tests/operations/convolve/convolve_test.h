@@ -14,7 +14,7 @@ const float TEST_RADIUS[]     = {30,0,0,0};
 const int TEST_BOX_RADIUS[]   = {4,4,4,0};
 const float TEST_RESOLURION[] = {3.8,3.8,3.8,0};
 
-static dehancer::ChannelsDesc::Transform options_one = {
+static dehancer::ChannelsDesc::Transform transform_channels = {
         .slope   = {8.0f,  8.0f, 8,0},
         .offset  = {16.0f, 16.0f, 16,0},
         .enabled = {true,false,false,false},
@@ -266,7 +266,7 @@ int run_on_device(int num, const void* device, std::string patform) {
   
   //options_one.mask = grad_text;
   
-  line_kernel.set_transform(options_one);
+  line_kernel.set_transform(transform_channels);
   //line_kernel.set_mask(grad_text);
   
   for (auto kf: kernels) {

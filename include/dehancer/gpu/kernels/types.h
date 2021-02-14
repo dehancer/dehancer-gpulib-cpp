@@ -126,4 +126,9 @@ typedef enum {
 } DHCR_TransformDirection;
 
 
+typedef enum  {
+    DHCR_log_linear = 0,
+    DHCR_pow_linear
+} DHCR_TransformType;
+
 #endif //DEHANCER_GPULIB_TYPES_H

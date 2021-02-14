@@ -42,12 +42,16 @@ namespace dehancer {
         
         [[nodiscard]] ChannelsDesc::Transform get_output_transform() const {
           ChannelsDesc::Transform t = transform_;
+          
           if (t.direction == ChannelsDesc::TransformDirection::forward) {
             t.direction = ChannelsDesc::TransformDirection::inverse;
           }
           else if (t.direction == ChannelsDesc::TransformDirection::inverse) {
             t.direction = ChannelsDesc::TransformDirection::forward;
           }
+          else
+            t.direction = ChannelsDesc::TransformDirection::none;
+          
           return t;
         }
         
@@ -381,9 +385,13 @@ namespace dehancer {
     
     void UnaryKernel::set_transform (const ChannelsDesc::Transform &transform) {
       impl_->transform_ = transform;
+      
+      ChannelsDesc::Transform real_transform = transform;
+      
       impl_->recompute_kernel();
       if (impl_->channels_transformer)
-        impl_->channels_transformer->set_transform(transform);
+        impl_->channels_transformer->set_transform(real_transform);
+      
       if (impl_->channels_finalizer)
         impl_->channels_finalizer->set_transform(impl_->get_output_transform());
     }
@@ -402,7 +410,7 @@ namespace dehancer {
       }
       else
         impl_->mask_ = impl_->options_.mask;
-      
+  
       impl_->recompute_kernel();
     }
     

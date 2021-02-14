@@ -39,9 +39,10 @@ DHCR_KERNEL void image_to_one_channel (
         DHCR_CONST_ARG float_ref_t       slope DHCR_BIND_BUFFER(5),
         DHCR_CONST_ARG float_ref_t      offset DHCR_BIND_BUFFER(6),
         DHCR_CONST_ARG bool_ref_t    transform DHCR_BIND_BUFFER(7),
-        DHCR_CONST_ARG TransformDirection direction DHCR_BIND_BUFFER(8),
-        DHCR_CONST_ARG bool_ref_t     has_mask DHCR_BIND_BUFFER(9),
-        texture2d_read_t                  mask DHCR_BIND_TEXTURE(10)
+        DHCR_CONST_ARG DHCR_TransformDirection direction DHCR_BIND_BUFFER(8),
+        DHCR_CONST_ARG DHCR_TransformType trtype DHCR_BIND_BUFFER(9),
+        DHCR_CONST_ARG bool_ref_t     has_mask DHCR_BIND_BUFFER(10),
+        texture2d_read_t                  mask DHCR_BIND_TEXTURE(11)
         
         DHCR_KERNEL_GID_2D
 )
@@ -62,8 +63,17 @@ DHCR_KERNEL void image_to_one_channel (
     channel_tr_ eColor; eColor.vec = has_mask ? sampled_color(mask, size, gid) : make_float4(1.0f);
 
     if (transform)
-      color.arr[channel_index] = linearlog( color.arr[channel_index], slope, offset, direction, eColor.arr[channel_index]);
-
+      switch (trtype) {
+        case DHCR_log_linear:
+          color.arr[channel_index] = linear_log(color.arr[channel_index], slope, offset, direction,
+                                                eColor.arr[channel_index]);
+          break;
+        case DHCR_pow_linear:
+          color.arr[channel_index] = linear_pow(color.arr[channel_index], slope, offset, direction,
+                                                eColor.arr[channel_index]);
+          break;
+      }
+    
     channel[index]   = color.arr[channel_index];
   }
 }
@@ -78,9 +88,10 @@ DHCR_KERNEL void one_channel_to_image (
         DHCR_CONST_ARG float_ref_t       slope DHCR_BIND_BUFFER(6),
         DHCR_CONST_ARG float_ref_t      offset DHCR_BIND_BUFFER(7),
         DHCR_CONST_ARG bool_ref_t    transform DHCR_BIND_BUFFER(8),
-        DHCR_CONST_ARG TransformDirection direction DHCR_BIND_BUFFER(9),
-        DHCR_CONST_ARG bool_ref_t     has_mask DHCR_BIND_BUFFER(10),
-        texture2d_read_t                  mask DHCR_BIND_TEXTURE(11)
+        DHCR_CONST_ARG DHCR_TransformDirection direction DHCR_BIND_BUFFER(9),
+        DHCR_CONST_ARG DHCR_TransformType trtype DHCR_BIND_BUFFER(10),
+        DHCR_CONST_ARG bool_ref_t     has_mask DHCR_BIND_BUFFER(11),
+        texture2d_read_t                  mask DHCR_BIND_TEXTURE(12)
         
         DHCR_KERNEL_GID_2D
 
@@ -111,9 +122,16 @@ DHCR_KERNEL void one_channel_to_image (
     }
 
     channel_tr_ eColor; eColor.vec = has_mask ? sampled_color(mask, destination_size, gid) : make_float4(1.0f);
-
+  
     if (transform)
-      color.arr[channel_index] = linearlog( color.arr[channel_index], slope, offset, direction, eColor.arr[channel_index]);
+      switch (trtype) {
+        case DHCR_log_linear:
+          color.arr[channel_index] = linear_log( color.arr[channel_index], slope, offset, direction, eColor.arr[channel_index]);
+          break;
+        case DHCR_pow_linear:
+          color.arr[channel_index] = linear_pow( color.arr[channel_index], slope, offset, direction, eColor.arr[channel_index]);
+          break;
+      }
 
     write_image(destination, color.vec, gid);
   }

@@ -9,6 +9,7 @@
 #include "dehancer/gpu/kernels/cuda/texture2d.h"
 #include "dehancer/gpu/kernels/cuda/texture3d.h"
 #include "dehancer/gpu/kernels/cuda/cmatrix.h"
+
 #include "dehancer/gpu/kernels/constants.h"
 #include "dehancer/gpu/kernels/types.h"
 #include "dehancer/gpu/kernels/type_cast.h"

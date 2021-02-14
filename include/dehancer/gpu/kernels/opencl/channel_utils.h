@@ -59,16 +59,16 @@ __kernel void image_to_channels (
     float4  eColor = has_mask ? sampled_color(mask, destination_size, gid) : make_float4(1.0f);
   
     if (transform.x)
-      color.x = linearlog( color.x, slope.x, offset.x, direction, eColor.x);
+      color.x = linear_log(color.x, slope.x, offset.x, direction, eColor.x);
   
     if (transform.y)
-      color.y = linearlog( color.y, slope.y, offset.y, direction, eColor.y);
+      color.y = linear_log(color.y, slope.y, offset.y, direction, eColor.y);
   
     if (transform.z)
-      color.z = linearlog( color.z, slope.z, offset.z, direction, eColor.z);
+      color.z = linear_log(color.z, slope.z, offset.z, direction, eColor.z);
   
     if (transform.w)
-      color.w = linearlog( color.w, slope.w, offset.w, direction, eColor.w);
+      color.w = linear_log(color.w, slope.w, offset.w, direction, eColor.w);
     
     reds[index] = color.x;
     greens[index] = color.y;
@@ -113,16 +113,16 @@ __kernel void channels_to_image (
     float4  eColor = has_mask ? sampled_color(mask, destination_size, gid) : make_float4(1.0f);
   
     if (transform.x)
-      color.x = linearlog( color.x, slope.x, offset.x, direction, eColor.x);
+      color.x = linear_log(color.x, slope.x, offset.x, direction, eColor.x);
   
     if (transform.y)
-      color.y = linearlog( color.y, slope.y, offset.y, direction, eColor.y);
+      color.y = linear_log(color.y, slope.y, offset.y, direction, eColor.y);
   
     if (transform.z)
-      color.z = linearlog( color.z, slope.z, offset.z, direction, eColor.z);
+      color.z = linear_log(color.z, slope.z, offset.z, direction, eColor.z);
   
     if (transform.w)
-      color.w = linearlog( color.w, slope.w, offset.w, direction, eColor.w);
+      color.w = linear_log(color.w, slope.w, offset.w, direction, eColor.w);
     
     write_imagef(destination, gid, color);
   }

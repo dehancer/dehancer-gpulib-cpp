@@ -8,13 +8,19 @@
 #include "dehancer/gpu/Lib.h"
 #include "tests/test_config.h"
 
-static dehancer::ChannelsDesc::Transform options_one = {
-        .slope   = {8.0f,  8.0f, 8,0},
-        .offset  = {16.0f, 16.0f, 16,0},
-        .enabled = {true,true,false,false},
-        .direction = dehancer::ChannelsDesc::TransformDirection::forward
+static dehancer::ChannelsDesc::Transform transform_channels = {
+        .type    = dehancer::ChannelsDesc::TransformType::pow_linear,
+        .slope   = {2.5f, 2.5f, 2.5f,   0},
+        .offset  = {0.0f, 0.0f, 0.0f,   0},
+        .enabled = {true,true,true,false},
+        .direction = dehancer::ChannelsDesc::TransformDirection::forward,
+        .flags ={
+                .in_enabled = true,
+                .out_enabled = false
+        }
 };
 
+static std::array<float,4> transform_radiuses = {40.0f,40.0f,40.0f,0.0f};
 
 static void run_kernel(int dev_num,
                        const void* command_queue,
@@ -36,7 +42,7 @@ static void run_kernel(int dev_num,
     
     auto output_text = dehancer::TextureOutput(command_queue, input_text.get_texture(), {
             .type = test::type,
-            .compression = test::compression
+            .compression = test::compression,
     });
     
     auto func_type=block(input_text.get_texture(), output_text.get_texture());
@@ -68,13 +74,14 @@ auto gaussian_test =  [] (int dev_num,
     
     run_kernel(dev_num,command_queue,platform,input_image,output_image,image_index,
                [command_queue](const dehancer::Texture& input, const dehancer::Texture& output){
+       
                    auto kernel = dehancer::GaussianBlur(command_queue);
     
                    kernel.set_source(input);
                    kernel.set_destination(output);
                    kernel.set_accuracy(0.000001);
-                   kernel.set_transform(options_one);
-                   kernel.set_radius({90,20,0,0});
+                   kernel.set_transform(transform_channels);
+                   kernel.set_radius(transform_radiuses);
                    kernel.set_edge_mode(DHCR_ADDRESS_CLAMP);
     
                    kernel.process();
@@ -90,7 +97,7 @@ auto box_test =  [] (int dev_num,
                           const std::string& input_image,
                           const std::string& output_image,
                           int image_index) {
-    
+  
     run_kernel(dev_num,command_queue,platform,input_image,output_image,image_index,
                [command_queue](const dehancer::Texture& input, const dehancer::Texture& output){
                    auto kernel = dehancer::BoxBlur(command_queue);

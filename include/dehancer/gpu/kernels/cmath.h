@@ -5,6 +5,7 @@
 #ifndef DEHANCER_GPULIB_CMATH_H
 #define DEHANCER_GPULIB_CMATH_H
 
+#include "dehancer/gpu/kernels/types.h"
 #include "dehancer/gpu/kernels/constants.h"
 
 #if defined(__CUDA_ARCH__)
@@ -25,16 +26,6 @@ inline DHCR_DEVICE_FUNC float __attribute__((overloadable)) log2f(float a) {
 }
 
 #endif
-
-typedef enum  {
-    DHCR_log_linear
-} TransformType;
-
-typedef enum {
-    DHCR_forward = 0,
-    DHCR_inverse,
-    DHCR_none
-} TransformDirection;
 
 inline DHCR_DEVICE_FUNC float  __attribute__((overloadable)) permute(float x)
 {
@@ -107,12 +98,21 @@ static inline DHCR_DEVICE_FUNC float __attribute__((overloadable)) lum(float3 c)
   return dot(c, kIMP_Y_YCbCr_factor);
 }
 
-static inline DHCR_DEVICE_FUNC float __attribute__((overloadable))  linearlog(float in, float slope, float offset, TransformDirection direction, float opacity) {
+/***
+ * Linear -> log and log -> linear
+ * @param in
+ * @param slope
+ * @param offset
+ * @param direction
+ * @param opacity
+ * @return
+ */
+static inline DHCR_DEVICE_FUNC float __attribute__((overloadable))  linear_log(float in, float slope, float offset, DHCR_TransformDirection direction, float opacity) {
   float result = in;
-  
+  if (direction == DHCR_None) return result;
   if (slope==0.0f) return result;
   
-  if (direction == DHCR_forward) {
+  if (direction == DHCR_Forward) {
     result = powf( 2.0f, result*slope-offset);
   }
   else {
@@ -124,10 +124,11 @@ static inline DHCR_DEVICE_FUNC float __attribute__((overloadable))  linearlog(fl
   return result;
 }
 
-static inline DHCR_DEVICE_FUNC float __attribute__((overloadable))  linearlog(float in, float slope, float offset, TransformDirection direction) {
+static inline DHCR_DEVICE_FUNC float __attribute__((overloadable))  linear_log(float in, float slope, float offset, DHCR_TransformDirection direction) {
   float result = in;
+  if (direction == DHCR_None) return result;
   if (slope==0.0f) return result;
-  if (direction == DHCR_forward) {
+  if (direction == DHCR_Forward) {
     result = powf( 2.0f, result*slope-offset);
   }
   else {
@@ -136,10 +137,11 @@ static inline DHCR_DEVICE_FUNC float __attribute__((overloadable))  linearlog(fl
   return result;
 }
 
-static inline DHCR_DEVICE_FUNC float2 __attribute__((overloadable))  linearlog(float2 in, float slope, float offset, TransformDirection direction) {
+static inline DHCR_DEVICE_FUNC float2 __attribute__((overloadable))  linear_log(float2 in, float slope, float offset, DHCR_TransformDirection direction) {
   float2 result = in;
+  if (direction == DHCR_None) return result;
   if (slope==0.0f) return result;
-  if (direction == DHCR_forward) {
+  if (direction == DHCR_Forward) {
     result = powf( make_float2(2.0f), result*make_float2(slope)-make_float2(offset));
   }
   else {
@@ -148,10 +150,11 @@ static inline DHCR_DEVICE_FUNC float2 __attribute__((overloadable))  linearlog(f
   return result;
 }
 
-static inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable))  linearlog(float3 in, float slope, float offset, TransformDirection direction) {
+static inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable))  linear_log(float3 in, float slope, float offset, DHCR_TransformDirection direction) {
   float3 result = in;
+  if (direction == DHCR_None) return result;
   if (slope==0.0f) return result;
-  if (direction == DHCR_forward) {
+  if (direction == DHCR_Forward) {
     result = powf( make_float3(2.0f), result*make_float3(slope)-make_float3(offset));
   }
   else {
@@ -160,15 +163,101 @@ static inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable))  linearlog(f
   return result;
 }
 
-inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) linearlog(float4 in, float slope, float offset, TransformDirection direction) {
+inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) linear_log(float4 in, float slope, float offset, DHCR_TransformDirection direction) {
   float4 result = in;
+  if (direction == DHCR_None) return result;
   if (slope==0.0f) return result;
-  if (direction == DHCR_forward) {
+  if (direction == DHCR_Forward) {
     result = powf( make_float4(2.0f), result*make_float4(slope)-make_float4(offset));
   }
   else {
     result = (log2f(result) + make_float4(offset)) / make_float4(slope);
   }
+  return result;
+}
+
+/***
+ * Linear -> power and power -> linear
+ * @param in
+ * @param slope
+ * @param offset
+ * @param direction
+ * @param opacity
+ * @return
+ */
+static inline DHCR_DEVICE_FUNC float __attribute__((overloadable))  linear_pow(float in, float slope, float offset, DHCR_TransformDirection direction, float opacity) {
+  float result = in;
+
+  if (direction == DHCR_None) return result;
+  
+  if (direction == DHCR_Forward) {
+    result = powf( result, slope) ;
+  }
+  else {
+    result =  powf( result, 1.0f/slope) ;
+  }
+  
+  result = mix (in, result, smoothstep(0.0f,1.0f, opacity));
+  
+  return result;
+}
+
+static inline DHCR_DEVICE_FUNC float __attribute__((overloadable))  linear_pow(float in, float slope, float offset, DHCR_TransformDirection direction) {
+  float result = in;
+  
+  if (direction == DHCR_None) return result;
+  
+  if (direction == DHCR_Forward) {
+    result = powf( result, slope) ;
+  }
+  else {
+    result =  powf( result, 1.0f/slope) ;
+  }
+  
+  return result;
+}
+
+static inline DHCR_DEVICE_FUNC float2 __attribute__((overloadable))  linear_pow(float2 in, float slope, float offset, DHCR_TransformDirection direction) {
+  float2 result = in;
+  if (direction == DHCR_None) return result;
+
+  if (direction == DHCR_Forward) {
+    result = powf( result, make_float2(slope)) ;
+  }
+  else {
+    result =  powf( result, make_float2(1.0f/slope)) ;
+  }
+
+  return result;
+}
+
+static inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable))  linear_pow(float3 in, float slope, float offset, DHCR_TransformDirection direction) {
+  float3 result = in;
+  
+  if (direction == DHCR_None) return result;
+  
+  if (direction == DHCR_Forward) {
+    result = powf( result, make_float3(slope)) ;
+  }
+  else {
+    result =  powf( result, make_float3(1.0f/slope));
+  }
+  
+  return result;
+}
+
+inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) linear_pow(float4 in, float slope, float offset, DHCR_TransformDirection direction) {
+  float4 result = in;
+  
+  if (direction == DHCR_None) return result;
+  
+  if (direction == DHCR_Forward) {
+    result = powf( result, make_float4(slope));
+  }
+  else {
+    result =  powf( result, make_float4(1.0f/slope));
+  }
+  
   return result;
 }
 

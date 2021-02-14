@@ -2,9 +2,6 @@
 // Created by denn on 10.02.2021.
 //
 
-//#ifndef DEHANCER_GPULIB_CUDA_TYPES_H
-//#define DEHANCER_GPULIB_CUDA_TYPES_H
-
 #pragma once
 
 typedef  unsigned int uint;
@@ -63,5 +60,3 @@ typedef struct  {
     int3 gid;
     int3 size;
 } Texel3d;
-
-//#endif //DEHANCER_GPULIB_CUDA_TYPES_H

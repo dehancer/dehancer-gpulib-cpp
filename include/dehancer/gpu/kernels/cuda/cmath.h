@@ -1381,6 +1381,21 @@ inline __device__ __host__ float4 smoothstep(float4 a, float4 b, float4 x) {
   return (y * y * (make_float4(3.0f) - (make_float4(2.0f) * y)));
 }
 
+inline __device__ __host__ float2 smoothstep(float a, float b, float2 x) {
+  float2 y = clamp((x - make_float2(a)) / (make_float2(b) - make_float2(a)), 0.0f, 1.0f);
+  return (y * y * (make_float2(3.0f) - (make_float2(2.0f) * y)));
+}
+
+inline __device__ __host__ float3 smoothstep(float a, float b, float3 x) {
+  float3 y = clamp((x - make_float3(a)) / (make_float3(b) - make_float3(a)), 0.0f, 1.0f);
+  return (y * y * (make_float3(3.0f) - (make_float3(2.0f) * y)));
+}
+
+inline __device__ __host__ float4 smoothstep(float a, float b, float4 x) {
+  float4 y = clamp((x - make_float4(a)) / (make_float4(b) - make_float4(a)), 0.0f, 1.0f);
+  return (y * y * (make_float4(3.0f) - (make_float4(2.0f) * y)));
+}
+
 template<class T>
 __device__ __host__ T mix(T x, T y, T a) {
   return x + (y - x) * a;
@@ -1403,3 +1418,26 @@ __device__ __host__ T step(T edge, T x) {
   return x < edge ? (T)0.0 : (T)1.0;
 }
 
+inline __host__ __device__ float2 step(float2 edge, float2 x) {
+  return make_float2(step(edge.x, x.x),step(edge.y, x.y));
+}
+
+inline __host__ __device__ float3 step(float3 edge, float3 x) {
+  return make_float3(step(edge.x, x.x),step(edge.y, x.y),step(edge.z, x.z));
+}
+
+inline __host__ __device__ float4 step(float4 edge, float4 x) {
+  return make_float4(step(edge.x, x.x),step(edge.y, x.y),step(edge.z, x.z),step(edge.w, x.w));
+}
+
+inline __host__ __device__ float2 step(float edge, float2 x) {
+  return make_float2(step(edge, x.x),step(edge, x.y));
+}
+
+inline __host__ __device__ float3 step(float edge, float3 x) {
+  return make_float3(step(edge, x.x),step(edge, x.y),step(edge, x.z));
+}
+
+inline __host__ __device__ float4 step(float edge, float4 x) {
+  return make_float4(step(edge, x.x),step(edge, x.y),step(edge, x.z),step(edge, x.w));
+}

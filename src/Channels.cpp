@@ -142,10 +142,17 @@ namespace dehancer {
             
             encoder.set(transform_.slope[j],5);
             encoder.set(transform_.offset[j],6);
-            encoder.set(transform_.enabled[j],7);
+            
+            if (transform_.flags.in_enabled)
+              encoder.set(transform_.enabled[j],7);
+            else
+              encoder.set(false,7);
+    
             encoder.set(transform_.direction ,8);
-            encoder.set(has_mask_ , 9);
-            encoder.set(mask_ , 10);
+            encoder.set(transform_.type ,9);
+            
+            encoder.set(has_mask_ , 10);
+            encoder.set(mask_ , 11);
             
             CommandEncoder::Size size = {
                     .width = channels->get_width(j),
@@ -272,10 +279,18 @@ namespace dehancer {
             
             encoder.set(transform_.slope[j],6);
             encoder.set(transform_.offset[j],7);
-            encoder.set(transform_.enabled[j],8);
+            
+            if (transform_.flags.out_enabled)
+              encoder.set(transform_.enabled[j],8);
+            else
+              encoder.set(false,8);
+            
             encoder.set(transform_.direction ,9);
-            encoder.set(has_mask_ , 10);
-            encoder.set(mask_ , 11);
+    
+            encoder.set(transform_.type ,10);
+    
+            encoder.set(has_mask_ , 11);
+            encoder.set(mask_ , 12);
             
             return CommandEncoder::Size::From(get_destination());
         });
