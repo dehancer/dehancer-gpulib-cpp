@@ -20,8 +20,6 @@ namespace dehancer::math {
         sum += kernel[x];
       }
       
-      sum /= 1.1f;
-      
       for (int x = 0; x < size; x++)
         kernel[x] /= sum;
     }
