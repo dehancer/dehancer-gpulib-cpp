@@ -55,8 +55,8 @@ float read_channel(const float* source, int2 size, int2 gid){
 inline DHCR_DEVICE_FUNC
 float channel_bilinear(const float* source, int2 size, float x, float y)
 {
-  x -= 0.5f;
-  y -= 0.5f;
+  //x -= 0.5f;
+  //y -= 0.5f;
   
   float  u = floor(x);
   float  v = floor(y);
@@ -172,8 +172,8 @@ float4 tex2D_bicubic(texture2d_read_t tex, float x, float y)
 inline DHCR_DEVICE_FUNC
 float channel_bicubic(const float* source, int2 size, float x, float y)
 {
-  x -= 0.5f;
-  y -= 0.5f;
+  //x -= 0.5f;
+  //y -= 0.5f;
   float px = floor(x);
   float py = floor(y);
   float fx = x - px;

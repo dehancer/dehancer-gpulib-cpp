@@ -10,15 +10,22 @@
 
 #include "tests/test_config.h"
 
-const float TEST_RADIUS[]     = {30,0,0,0};
-const int TEST_BOX_RADIUS[]   = {4,4,4,0};
+//const float TEST_RADIUS[]     = {30,0,0,0};
+const float TEST_RADIUS[]     = {20,20,20, 0};
+
+const int TEST_BOX_RADIUS[]   = {20,20,20,0};
 const float TEST_RESOLURION[] = {3.8,3.8,3.8,0};
 
 static dehancer::ChannelsDesc::Transform transform_channels = {
-        .slope   = {8.0f,  8.0f, 8,0},
-        .offset  = {16.0f, 16.0f, 16,0},
-        .enabled = {true,false,false,false},
-        .direction = dehancer::ChannelsDesc::TransformDirection::forward
+        .type = dehancer::ChannelsDesc::TransformType::pow_linear,
+        .slope   = {2.0f, 2.0f, 2.0f, 0},
+        .offset  = {0.0f, 0.0f, 0,   0},
+        .enabled = {true, true, true,false},
+        .direction = dehancer::ChannelsDesc::TransformDirection::forward,
+        .flags = {
+                .in_enabled = true,
+                .out_enabled = false
+        }
 };
 
 namespace test {
@@ -123,21 +130,56 @@ int run_on_device(int num, const void* device, std::string patform) {
   
   auto kernel_blur = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
       
+      data.clear();
+      
+      if (!user_data.has_value()) return 1.0f;
+    
+      auto radius = TEST_RADIUS[index];
+      
+      if (radius==0) return 1.0f;
+      
+      float sigma = radius/2.0f;
+      
+      int kRadius = (int)std::ceil(sigma*std::sqrt(-2.0f*std::log(000001)))+1;
+      int maxRadius = (int)std::ceil(radius/2+1) * 4 - 1;
+      
+      kRadius = std::max(kRadius,maxRadius);
+      
+      auto size = kRadius;
+      if (size%2==0) size+=1;
+      if (size<3) size=3;
+      
+      bool doDownscaling = sigma > 2.0f*4.0 + 0.5f;
+      
+      int reduceBy = doDownscaling
+                     ? std::min((int)std::floor(sigma/4.0), size)
+                     : 1;
+      
+      float real_sigma = doDownscaling
+                         ? std::sqrt(sigma*sigma/(float)(reduceBy*reduceBy) - 1.f/3.f - 1.f/4.f)
+                         : sigma;
+      
+      int new_size = size/reduceBy;
+      
+      dehancer::math::make_gaussian_kernel(data, new_size, real_sigma);
+      
+      //std::cout << " GAUSSIAN KERNEL["<<index<<"] SIZE = " << data.size() << ", origin size: " << size << " reduce: "<< reduceBy << " sigma: "<< sigma << " real sigma: "<< real_sigma<< std::endl;
+      
+      return 1.0f/(float)reduceBy;
+  };
+  
+  auto kernel_glare = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
       
       data.clear();
       
       if (!user_data.has_value()) return 1.0f;
       
-      //auto options = std::any_cast<GaussianBlurOptions>(user_data.value());
-      
-      //auto radius = options.radius_array.at(index);
       auto radius = TEST_RADIUS[index];
-    
-    
+      
       if (radius==0) return 1.0f;
       
       float sigma = radius/2.0f;
-      int kRadius = (int)std::ceil(sigma*std::sqrt(-2.0f*std::log(0.0001)))+1;
+      int kRadius = (int)std::ceil(sigma*std::sqrt(-2.0f*std::log(0.000001)))+1;
       int maxRadius = (int)std::ceil(radius/2+1) * 4 - 1;
       
       kRadius = std::min(kRadius,maxRadius);
@@ -146,9 +188,28 @@ int run_on_device(int num, const void* device, std::string patform) {
       if (size%2==0) size+=1;
       if (size<3) size=3;
       
-      dehancer::math::make_gaussian_kernel(data, size, radius/2.0f);
+      data.resize(size);
+    
+      int mean = floor((float )size / 2);
+      float sum = 0; // For accumulating the kernel values
+      for (int x = 0; x < size; x++)  {
+        float rx = fabs((float )x - (float )mean);
+        rx = rx == 0.0f ? 1.0f : rx;
+        data[x] = 1.0f/powf(rx,1.87f);//2.0f/powf((float )(x - mean),2.0f) ;//expf(-0.5f * powf((float )(x - mean) / sigma, 2.0));
+        // Accumulate the kernel values
+        sum += data[x];
+      }
+    
+      sum /= 1.8f;
       
-      return 1.0f;
+      for (int x = 0; x < size; x++)
+        data[x] /= sum;
+
+      for (int i = 0; i < data.size(); ++i) {
+        std::cout << " Glare kernel["<<index<<":"<<i<<"] = " << data[i] << std::endl;
+      }
+      
+      return 0.5f;
   };
   
   auto kernel_blur2 = [](int index, std::vector<float>& data, const std::optional<std::any>& user_data) {
@@ -216,6 +277,11 @@ int run_on_device(int num, const void* device, std::string patform) {
                   .row = kernel_blur,
                   .col = kernel_blur,
                   .name = "blur"
+          },
+          {
+                  .row = kernel_glare,
+                  .col = kernel_glare,
+                  .name = "glare"
           }
 //          ,
 //          {
@@ -266,7 +332,7 @@ int run_on_device(int num, const void* device, std::string patform) {
   
   //options_one.mask = grad_text;
   
-  line_kernel.set_transform(transform_channels);
+  //line_kernel.set_transform(transform_channels);
   //line_kernel.set_mask(grad_text);
   
   for (auto kf: kernels) {
@@ -291,7 +357,8 @@ int run_on_device(int num, const void* device, std::string patform) {
               .row = kf.row,
               .col = kf.col,
               .user_data = kf.name,
-              .edge_mode = DHCR_EdgeMode ::DHCR_ADDRESS_CLAMP,
+              .edge_mode = DHCR_EdgeMode ::DHCR_ADDRESS_CLAMP
+              ,
               .mask = grad_text
       };
       
@@ -362,20 +429,6 @@ int run_on_device(int num, const void* device, std::string patform) {
 
 void run(std::string platform) {
   try {
-    
-    std::vector<float> g_kernel;
-    
-    float radius = 0.5;
-    float sigma  = radius/2.0;
-    int size = (int)ceilf(6 * sigma);
-    if (size<=2) size = 3;
-    if (size % 2 == 0) size++;
-    
-    dehancer::math::make_gaussian_kernel(g_kernel, size, sigma);
-    
-    for (int i = 0; i < g_kernel.size(); ++i) {
-      std::cout << " kernel weight["<<i<<"] = " << g_kernel[i] << std::endl;
-    }
     
     auto devices = dehancer::DeviceCache::Instance().get_device_list(dehancer::device::Type::gpu);
     assert(!devices.empty());
