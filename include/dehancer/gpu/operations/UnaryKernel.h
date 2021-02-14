@@ -80,6 +80,8 @@ namespace dehancer {
              */
             UserData       user_data = std::nullopt;
             
+            float          amplify = 1.0f;
+            
             /***
              * The edge mode to use when texture reads stray off the edge of an image.
              * Most kernel objects can read off the edge of a source image.
@@ -171,6 +173,13 @@ namespace dehancer {
          */
         [[maybe_unused]] void set_mask(const Texture &mask);
     
+        /***
+        * Set unary amplify
+        * @param amplify
+        */
+        [[maybe_unused]] void set_amplify(float amplify);
+    
+        
         /***
          * Get current channel colors transformation
          * @return

@@ -115,6 +115,7 @@ namespace dehancer {
             channels_scale.at(i).x = 1.0f;
           }
           else {
+            for (auto& d: buf ) d *= options_.amplify;
             row_weights[i] = dehancer::MemoryHolder::Make(root_->get_command_queue(),
                                                           buf.data(),
                                                           buf.size() * sizeof(float));
@@ -132,6 +133,7 @@ namespace dehancer {
             channels_scale.at(i).y = 1.0f;
           }
           else {
+            for (auto& d: buf ) d *= options_.amplify;
             col_weights[i] = dehancer::MemoryHolder::Make(root_->get_command_queue(),
                                                           buf.data(),
                                                           buf.size() * sizeof(float));
@@ -414,6 +416,11 @@ namespace dehancer {
       impl_->recompute_kernel();
     }
     
+    void UnaryKernel::set_amplify (float amplify) {
+      impl_->options_.amplify = amplify;
+      impl_->recompute_kernel();
+    }
+    
     void UnaryKernel::set_mask(const Texture &mask) {
       impl_->options_.mask = mask;
       impl_->has_mask_ = impl_->options_.mask != nullptr;
@@ -444,5 +451,6 @@ namespace dehancer {
     void UnaryKernel::process (const Texture &source, const Texture &destination) {
       Kernel::process(source, destination);
     }
+    
   
 }

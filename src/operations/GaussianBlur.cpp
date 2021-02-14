@@ -154,20 +154,4 @@ namespace dehancer {
       else
         return {};
     }
-    
-//    void GaussianBlur::set_mask (const Texture &mask) {
-//      UnaryKernel::set_mask(mask);
-//    }
-//
-//    const Texture &GaussianBlur::get_mask () const {
-//      return <#initializer#>;
-//    }
-
-//    void GaussianBlur::set_options (const UnaryKernel::Options &options) {
-//      UnaryKernel::set_options(options);
-//    }
-//
-//    const UnaryKernel::Options &GaussianBlur::get_options () const {
-//      return UnaryKernel::get_options();
-//    }
 }

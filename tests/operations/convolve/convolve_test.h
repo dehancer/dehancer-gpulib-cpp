@@ -364,7 +364,7 @@ int run_on_device(int num, const void* device, std::string patform) {
       
       
       line_kernel.set_options(options);
-      
+      line_kernel.set_amplify(2.0f);
       line_kernel.set_source(text);
       line_kernel.set_destination(output_text.get_texture());
       line_kernel.process();
