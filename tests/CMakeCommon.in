@@ -59,10 +59,10 @@ target_link_libraries(
         ${CMAKE_DL_LIBS}
 )
 
-if (COMMON_DEPENDECIES)
+if (COMMON_DEPENDENCIES)
     add_dependencies(
             ${TEST}
-            ${COMMON_DEPENDECIES}
+            ${COMMON_DEPENDENCIES}
     )
 endif ()
 

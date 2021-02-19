@@ -50,41 +50,45 @@ __constant sampler_t nearest_sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS
   tex.size = (int3){get_image_width(destination), get_image_height(destination), get_image_depth(destination)}; \
 }
 
-static inline  int __attribute__((overloadable)) get_texture_width(image1d_t source) {
-  return (int)get_image_width(source);
-}
+#define get_texture_width(image) get_image_width(image)
+#define get_texture_height(image) get_image_height(image)
+#define get_texture_depth(image) get_image_depth(image)
 
-static inline  int __attribute__((overloadable)) get_texture_height(image1d_t source) {
-  return (int)1;
-}
-
-static inline  int __attribute__((overloadable)) get_texture_depth(image1d_t source) {
-  return (int)1;
-}
-
-static inline  int __attribute__((overloadable)) get_texture_width(image2d_t source) {
-  return (int)get_image_width(source);
-}
-
-static inline  int __attribute__((overloadable)) get_texture_height(image2d_t source) {
-  return (int)get_image_height(source);
-}
-
-static inline  int __attribute__((overloadable)) get_texture_depth(image2d_t source) {
-  return (int)1;
-}
-
-static inline  int __attribute__((overloadable)) get_texture_width(image3d_t source) {
-  return (int)get_image_width(source);
-}
-
-static inline  int __attribute__((overloadable)) get_texture_height(image3d_t source) {
-  return (int)get_image_height(source);
-}
-
-static inline  int __attribute__((overloadable)) get_texture_depth(image3d_t source) {
-  return (int)get_image_depth(source);
-}
+//static inline  int __attribute__((overloadable)) get_texture_width(image1d_t source) {
+//  return (int)get_image_width(source);
+//}
+//
+//static inline  int __attribute__((overloadable)) get_texture_height(image1d_t source) {
+//  return (int)1;
+//}
+//
+//static inline  int __attribute__((overloadable)) get_texture_depth(image1d_t source) {
+//  return (int)1;
+//}
+//
+//static inline  int __attribute__((overloadable)) get_texture_width(image2d_t source) {
+//  return (int)get_image_width(source);
+//}
+//
+//static inline  int __attribute__((overloadable)) get_texture_height(image2d_t source) {
+//  return (int)get_image_height(source);
+//}
+//
+//static inline  int __attribute__((overloadable)) get_texture_depth(image2d_t source) {
+//  return (int)1;
+//}
+//
+//static inline  int __attribute__((overloadable)) get_texture_width(image3d_t source) {
+//  return (int)get_image_width(source);
+//}
+//
+//static inline  int __attribute__((overloadable)) get_texture_height(image3d_t source) {
+//  return (int)get_image_height(source);
+//}
+//
+//static inline  int __attribute__((overloadable)) get_texture_depth(image3d_t source) {
+//  return (int)get_image_depth(source);
+//}
 
 static inline  bool __attribute__((overloadable)) get_texel_boundary(Texel1d tex) {
   if (tex.gid >= tex.size) {

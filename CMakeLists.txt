@@ -16,6 +16,16 @@ option (DEHANCER_GPU_METAL "Dehancer GPU Layer is Metal" ON)
 option (DEHANCER_GPU_OPENCL "Dehancer GPU Layer is OpenCL" ON)
 option (DEHANCER_GPU_CUDA "Dehancer GPU Layer is CUDA" ON)
 
+if (DEHANCER_TARGET_ARCH)
+    #
+    # x86_64-apple-macos10.13
+    # or
+    # arm64-apple-macos11
+    #
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -target ${DEHANCER_TARGET_ARCH}")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target ${DEHANCER_TARGET_ARCH}")
+endif ()
+
 #
 #
 # C++
@@ -26,7 +36,7 @@ set(CMAKE_CXX_STANDARD 17)
 set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
 set (EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
 set (EXTERNAL_INCLUDE_DIR ${EXTERNAL_INSTALL_LOCATION}/include)
-set (COMMON_DEPENDECIES ${CURRENT_METAL_TARGET_NAME})
+set (COMMON_DEPENDENCIES ${CURRENT_METAL_TARGET_NAME})
 set (COMMON_LIBRARIES)
 
 if (NOT CMAKE_INSTALL_LIBDIR)
@@ -47,22 +57,67 @@ if(CCACHE_FOUND)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
 endif(CCACHE_FOUND)
 
+
+if(UNIX AND NOT APPLE)
+    set(LINUX TRUE)
+endif()
+
+if(LINUX)
+    set(STATIC_LINKING OFF)
+    message(STATUS "Linux configuration...")
+    if (DEHANCER_GPU_METAL)
+        message(FATAL_ERROR "Linux GPU Layer does not suppor Metal SDK")
+    endif ()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -W -Wall -Wextra -Wno-ignored-qualifiers -Wvariadic-macros")
+    set(CMAKE_CXX_FLAGS "-fvisibility=hidden -Wno-pedantic -Wunused-function -Wunused-command-line-argument")
+elseif(APPLE)
+    set(STATIC_LINKING ON)
+    message(STATUS "Apple configuration...")
+    if (DEHANCER_GPU_METAL)
+        message(STATUS "Apple uses Metal...")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -fvisibility=hidden -Wno-unused-command-line-argument -F/Library/Frameworks ")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Metal")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework MetalKit")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework MetalPerformanceShaders")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework CoreImage")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework AppKit")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework ServiceManagement")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Foundation ")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Cocoa")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Security")
+        set_target_properties(${CURRENT_TARGET_NAME} PROPERTIES LINK_FLAGS "-Xlinker,-rpath,@loader_path/../Frameworks")
+    elseif(DEHANCER_GPU_OPENCL)
+        message(STATUS "Apple uses OpenCL...")
+    endif()
+endif()
+
 #
 # Packages
 #
 set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
 set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib64/pkgconfig)
 set(ENV{PKG_CONFIG_PATH} $ENV{SYSROOT}/usr/local/dehancer/lib/pkgconfig)
+
+if (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
+elseif (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
+endif()
+
 find_package (PkgConfig REQUIRED)
 find_package (Threads REQUIRED)
 find_package (PkgConfig REQUIRED)
 find_package (BLAS REQUIRED)
 find_package (LAPACK REQUIRED)
 find_package (ZLIB REQUIRED)
-find_package (OpenCV REQUIRED)
 
-find_package(CUDA 9.0)
+if (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
+    find_package (OpenCV REQUIRED PATHS /usr/local/arm64)
+elseif (${DEHANCER_TARGET_ARCH} MATCHES "x86_64.*")
+    find_package (OpenCV REQUIRED PATHS /usr/local/x86_64)
+endif()
 
+if (LINUX)
+    find_package(CUDA 9.0)
+endif ()
 
 #
 # GPU Platforms
@@ -116,39 +171,6 @@ endif ()
 #
 include(ExternalProject)
 
-if(UNIX AND NOT APPLE)
-    set(LINUX TRUE)
-endif()
-
-if(LINUX)
-    set(STATIC_LINKING OFF)
-    message(STATUS "Linux configuration...")
-    if (DEHANCER_GPU_METAL)
-        message(FATAL_ERROR "Linux GPU Layer does not suppor Metal SDK")
-    endif ()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -W -Wall -Wextra -Wno-ignored-qualifiers -Wvariadic-macros")
-    set(CMAKE_CXX_FLAGS "-fvisibility=hidden -Wno-pedantic -Wunused-function -Wunused-command-line-argument")
-elseif(APPLE)
-    set(STATIC_LINKING ON)
-    message(STATUS "Apple configuration...")
-    if (DEHANCER_GPU_METAL)
-        message(STATUS "Apple uses Metal...")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -fvisibility=hidden -Wno-unused-command-line-argument -F/Library/Frameworks ")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Metal")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework MetalKit")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework MetalPerformanceShaders")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework CoreImage")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework AppKit")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework ServiceManagement")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Foundation ")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Cocoa")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Security")
-        set_target_properties(${CURRENT_TARGET_NAME} PROPERTIES LINK_FLAGS "-Xlinker,-rpath,@loader_path/../Frameworks")
-    elseif(DEHANCER_GPU_OPENCL)
-        message(STATUS "Apple uses OpenCL...")
-    endif()
-endif()
-
 #
 # Global setttings
 #
@@ -199,11 +221,25 @@ if (NOT GTEST_FOUND)
     ExternalProject_Add(googletest
             GIT_REPOSITORY https://github.com/google/googletest
             CMAKE_ARGS
-            -DCMAKE_CXX_STANDARD=${DCMAKE_CXX_STANDARD}
+            -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
             -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+            -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
+            -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
             )
-    set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};googletest)
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};googletest)
+
+    include_directories(
+            ./
+            ../include
+            ${CMAKE_BINARY_DIR}/external/include
+    )
+
+    link_directories(
+            ${CMAKE_BINARY_DIR}/external/lib
+    )
+
 endif()
 
 if (DEHANCER_GPU_OPENCL)
@@ -220,7 +256,7 @@ if (DEHANCER_GPU_OPENCL)
             -DBUILD_TESTING=OFF
             -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
             )
-    set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};dehancer_opencl_helper;)
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_opencl_helper;)
     set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};clHelperLib;${OpenCL_LIBRARIES};)
 endif ()
 
@@ -248,7 +284,7 @@ else()
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
             )
-    set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};ed25519cpplib)
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};ed25519cpplib)
     set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};ed25519cpp)
 endif()
 
@@ -277,7 +313,7 @@ else()
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
             )
-    set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};base64cpplib)
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};base64cpplib)
     set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};base64cpp)
 endif()
 
@@ -306,7 +342,7 @@ else()
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
             )
-    set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};dehancer_common_cpplib)
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_common_cpplib)
     set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};dehancer_common_cpp)
 endif()
 
@@ -337,7 +373,7 @@ else()
             -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
             )
 
-    set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};armadillo-lib)
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};armadillo-lib)
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};armadillo)
 
 endif()
@@ -368,7 +404,7 @@ else()
             -DBUILD_TESTING=OFF
             -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
             )
-    set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES};dehancer_maths_cpplib)
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_maths_cpplib)
     set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};dehancer_maths_cpp)
 endif()
 
@@ -400,7 +436,7 @@ ExternalProject_Add(OpenColorIO
         -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
         -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
         )
-set(COMMON_DEPENDECIES ${COMMON_DEPENDECIES}; OpenColorIO)
+set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES}; OpenColorIO)
 set(COMMON_LIBRARIES  ${COMMON_LIBRARIES}; libOpenColorIO.a; libOpenColorIOapphelpers.a)
 
 set(clHelper_DIR ${CMAKE_SOURCE_DIR}/lib/cmake)

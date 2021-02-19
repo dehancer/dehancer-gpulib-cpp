@@ -43,11 +43,20 @@ OpenCV from sources
 
     git clone -b 4.5.0 https://github.com/opencv/opencv.git    
     cd opencv
-    mkdir build_opencv && cd build_opencv
-    cmake -DBUILD_SHARED_LIBS=OFF -DWITH_FFMPEG=OFF -DWITH_V4L=OFF \
+
+    # To make opencv on M1 for x86 copy Terminal.app to Intel Terminal.app
+    # open "Get Info", choose "Open using Rosetta"  
+    # mkdir build_opencv_x86_64 && cd build_opencv_x86_64
+    # cmake -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_INSTALL_PREFIX:PATH=/usr/local/x86_64
+    # ...
+    
+    mkdir build_opencv_arm64 && cd build_opencv_arm64
+    cmake -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_INSTALL_PREFIX:PATH=/usr/local/arm64 \
+    -DBUILD_SHARED_LIBS=OFF -DWITH_FFMPEG=OFF -DWITH_V4L=OFF \
     -DVIDEOIO_ENABLE_PLUGINS=OFF -DOPENCV_GENERATE_PKGCONFIG=ON \
     -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DCMAKE_FIND_LIBRARY_SUFFIXES=".a" ..
     # on centos add -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+        
     make -j7 && make install
 
 Cuda
