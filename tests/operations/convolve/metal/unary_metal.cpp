@@ -3,17 +3,16 @@
 //
 
 #include "gtest/gtest.h"
-#include "../function.h"
-#include "tests/include/run_test.h"
+#include "../convolve_test.h"
 #include "tests/metal/paths_config.h"
 
-TEST(TEST, CUDA_GAMMA) {
-
+TEST(TEST, METAL_CONVOLVE) {
+  
   std::cout << std::endl;
   std::cerr << std::endl;
-
-  run_images("cuda", function_test);
-
+  
+  run("metal");
+  
 }
 
 namespace dehancer::device {

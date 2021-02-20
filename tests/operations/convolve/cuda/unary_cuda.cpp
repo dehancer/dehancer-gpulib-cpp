@@ -7,7 +7,7 @@
 #include "tests/cuda/paths_config.h"
 #include "../convolve_test.h"
 
-TEST(TEST, AOBENCH_CUDA) {
+TEST(TEST, CUDA_CONVOLVE) {
   
   std::cout << std::endl;
   std::cerr << std::endl;

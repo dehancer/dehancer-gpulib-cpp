@@ -6,7 +6,7 @@
 #include "gtest/gtest.h"
 #include "../convolve_test.h"
 
-TEST(TEST, AOBENCH_OpenCL) {
+TEST(TEST, OPENCL_CONVOLVE) {
 
   std::cout << std::endl;
   std::cerr << std::endl;
