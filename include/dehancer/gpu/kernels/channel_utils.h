@@ -39,8 +39,8 @@ DHCR_KERNEL void image_to_one_channel (
         DHCR_CONST_ARG float_ref_t       slope DHCR_BIND_BUFFER(5),
         DHCR_CONST_ARG float_ref_t      offset DHCR_BIND_BUFFER(6),
         DHCR_CONST_ARG bool_ref_t    transform DHCR_BIND_BUFFER(7),
-        DHCR_CONST_ARG DHCR_TransformDirection direction DHCR_BIND_BUFFER(8),
-        DHCR_CONST_ARG DHCR_TransformType trtype DHCR_BIND_BUFFER(9),
+        DHCR_CONST_ARG_REF (DHCR_TransformDirection) direction DHCR_BIND_BUFFER(8),
+        DHCR_CONST_ARG_REF (DHCR_TransformType) trtype DHCR_BIND_BUFFER(9),
         DHCR_CONST_ARG bool_ref_t     has_mask DHCR_BIND_BUFFER(10),
         texture2d_read_t                  mask DHCR_BIND_TEXTURE(11)
         
@@ -48,9 +48,6 @@ DHCR_KERNEL void image_to_one_channel (
 )
 {
   int2 gid; get_kernel_tid2d(gid);
-  
-  int w = get_texture_width(source);
-  int h = get_texture_height(source);
   
   if ((gid.x < channel_w) && (gid.y < channel_h) && channel_index<4) {
     
@@ -88,8 +85,8 @@ DHCR_KERNEL void one_channel_to_image (
         DHCR_CONST_ARG float_ref_t       slope DHCR_BIND_BUFFER(6),
         DHCR_CONST_ARG float_ref_t      offset DHCR_BIND_BUFFER(7),
         DHCR_CONST_ARG bool_ref_t    transform DHCR_BIND_BUFFER(8),
-        DHCR_CONST_ARG DHCR_TransformDirection direction DHCR_BIND_BUFFER(9),
-        DHCR_CONST_ARG DHCR_TransformType trtype DHCR_BIND_BUFFER(10),
+        DHCR_CONST_ARG_REF (DHCR_TransformDirection) direction DHCR_BIND_BUFFER(9),
+        DHCR_CONST_ARG_REF (DHCR_TransformType) trtype DHCR_BIND_BUFFER(10),
         DHCR_CONST_ARG bool_ref_t     has_mask DHCR_BIND_BUFFER(11),
         texture2d_read_t                  mask DHCR_BIND_TEXTURE(12)
         

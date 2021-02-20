@@ -14,7 +14,7 @@ DHCR_KERNEL void kernel_vec_add(
         DHCR_DEVICE_ARG   float* B DHCR_BIND_BUFFER(1) ,
         DHCR_DEVICE_ARG   float* C DHCR_BIND_BUFFER(2) ,
         DHCR_CONST_ARG int_ref_t N DHCR_BIND_BUFFER(3),
-        DHCR_CONST_ARG TestStruct data DHCR_BIND_BUFFER(4)
+        DHCR_CONST_ARG_REF (TestStruct) data DHCR_BIND_BUFFER(4)
         DHCR_KERNEL_GID_1D
 )
 {
@@ -25,8 +25,9 @@ DHCR_KERNEL void kernel_vec_add(
 
 DHCR_KERNEL void kernel_vec_dev(
         DHCR_DEVICE_ARG    float* C DHCR_BIND_BUFFER(0),
-        DHCR_CONST_ARG  int_ref_t N DHCR_BIND_BUFFER(1))
-        DHCR_KERNEL_GID_2D
+        DHCR_CONST_ARG  int_ref_t N DHCR_BIND_BUFFER(1)
+        DHCR_KERNEL_GID_1D
+)
 {
   int tid; get_kernel_tid1d(tid);
   if (tid < N)
@@ -44,8 +45,6 @@ DHCR_KERNEL void kernel_test_simple_transform(
   
   if (!get_texel_boundary(tex)) return;
   
-  float2 coords = get_texel_coords(tex);
-  
   float4 color = sampled_color(source, tex.size, tex.gid); color.x = 0;
   
   write_image(destination, color, tex.gid);
@@ -53,17 +52,18 @@ DHCR_KERNEL void kernel_test_simple_transform(
 
 DHCR_KERNEL void kernel_make1DLut_transform(
         texture1d_write_t  d1DLut      DHCR_BIND_TEXTURE(0),
-        DHCR_CONST_ARG float2_ref_t compression DHCR_BIND_BUFFER(1))
+        DHCR_CONST_ARG float2_ref_t compression DHCR_BIND_BUFFER(1)
         DHCR_KERNEL_GID_1D
+)
 {
   
   Texel1d tex; get_kernel_texel1d(d1DLut,tex);
   
   if (!get_texel_boundary(tex)) return;
   
-  float3 denom = (float3){tex.size, tex.size, tex.size};
+  float3 denom = make_float3(tex.size, tex.size, tex.size);
   
-  float x = (float)tex.gid;
+  float x = (float)(tex.gid);
   
   float3 c = compress((float3){x, x, x}/denom, compression);
   
@@ -104,8 +104,6 @@ DHCR_KERNEL void kernel_test_transform(
   Texel2d tex; get_kernel_texel2d(destination,tex);
   
   if (!get_texel_boundary(tex)) return;
-  
-  float2 coords = get_texel_coords(tex);
   
   float4 color = sampled_color(source, tex.size, tex.gid);
   
@@ -149,8 +147,6 @@ DHCR_KERNEL void blend_kernel(
   
   float4 inColor = read_image(source, coords);
   
-  float luma = lum(make_float3(inColor));
-  
   float3        c = (float3){inColor.x,inColor.y,inColor.z};
   float luminance = dot(c, kIMP_Y_YUV_factor);
   int       index = clamp((int)(luminance*(float)(levels-1)),(int)(0),(int)(levels-1));
@@ -192,8 +188,6 @@ DHCR_KERNEL void kernel_fast_convolve(
   if (!get_texel_boundary(tex)) return;
   
   float2 coords = get_texel_coords(tex);
-  
-  float4 base = read_image(source, coords);
   
   U4 result;
   float2 pixel_size = {direction.x/(float)tex.size.x,direction.y/(float)tex.size.y};

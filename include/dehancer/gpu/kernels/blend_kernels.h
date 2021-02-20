@@ -26,8 +26,6 @@ DHCR_KERNEL void  kernel_blend(
   
   Texel2d tex_src;  get_kernel_texel2d(source,tex_src);
   
-  float2 coords = get_texel_coords(tex) * make_float2(tex_src.size);
-  
   float4  base ;
   float4  overlay_color;
   

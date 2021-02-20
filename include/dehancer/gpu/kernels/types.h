@@ -9,9 +9,31 @@
 
 #include "dehancer/gpu/kernels/cuda/cuda_types.h"
 
+#define texture1d_read_t DHCR_READ_ONLY image1d_t
+#define texture1d_write_t DHCR_WRITE_ONLY image1d_t
+
+#define texture2d_read_t DHCR_READ_ONLY image2d_t
+#define texture2d_write_t DHCR_WRITE_ONLY image2d_t
+
+#define texture3d_read_t DHCR_READ_ONLY image3d_t
+#define texture3d_write_t DHCR_WRITE_ONLY image3d_t
+
+#elif defined(__METAL_VERSION__)
+
+#include "dehancer/gpu/kernels/metal/metal_types.h"
+
 #elif defined(CL_VERSION_1_2)
 
 #include "dehancer/gpu/kernels/opencl/opencl_types.h"
+
+#define texture1d_read_t DHCR_READ_ONLY image1d_t
+#define texture1d_write_t DHCR_WRITE_ONLY image1d_t
+
+#define texture2d_read_t DHCR_READ_ONLY image2d_t
+#define texture2d_write_t DHCR_WRITE_ONLY image2d_t
+
+#define texture3d_read_t DHCR_READ_ONLY image3d_t
+#define texture3d_write_t DHCR_WRITE_ONLY image3d_t
 
 #else
 
@@ -29,6 +51,10 @@ typedef  unsigned int uint;
 
 #define DHCR_BIND_TEXTURE(N)
 #define DHCR_BIND_BUFFER(N)
+
+#define DHCR_KERNEL_GID_1D
+#define DHCR_KERNEL_GID_2D
+#define DHCR_KERNEL_GID_3D
 
 #define DHCR_KERNEL
 #define DHCR_DEVICE_FUNC
@@ -56,20 +82,21 @@ typedef  unsigned int uint;
 #define bool3_ref_t bool3
 #define bool4_ref_t bool4
 
+
 #endif
 
 #define DHCR_READ_ONLY  __read_only
 #define DHCR_WRITE_ONLY __write_only
 #define DHCR_READ_WRITE __read_write
 
-#define texture1d_read_t DHCR_READ_ONLY image1d_t
-#define texture1d_write_t DHCR_WRITE_ONLY image1d_t
-
-#define texture2d_read_t DHCR_READ_ONLY image2d_t
-#define texture2d_write_t DHCR_WRITE_ONLY image2d_t
-
-#define texture3d_read_t DHCR_READ_ONLY image3d_t
-#define texture3d_write_t DHCR_WRITE_ONLY image3d_t
+//#define texture1d_read_t DHCR_READ_ONLY image1d_t
+//#define texture1d_write_t DHCR_WRITE_ONLY image1d_t
+//
+//#define texture2d_read_t DHCR_READ_ONLY image2d_t
+//#define texture2d_write_t DHCR_WRITE_ONLY image2d_t
+//
+//#define texture3d_read_t DHCR_READ_ONLY image3d_t
+//#define texture3d_write_t DHCR_WRITE_ONLY image3d_t
 
 typedef enum {
     DHCR_ADDRESS_CLAMP,

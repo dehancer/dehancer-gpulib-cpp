@@ -7,7 +7,6 @@
 typedef  unsigned int uint;
 
 #define __constant const
-#define __constant const
 #define __read_only const
 #define __write_only
 #define __read_write
@@ -20,6 +19,7 @@ typedef  unsigned int uint;
 #define DHCR_DEVICE_ARG
 #define DHCR_THREAD_ARG
 #define DHCR_CONST_ARG
+#define DHCR_CONST_ARG_REF(T) DHCR_CONST_ARG T
 
 #define DHCR_KERNEL_GID_1D
 #define DHCR_KERNEL_GID_2D

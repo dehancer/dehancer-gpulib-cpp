@@ -12,10 +12,11 @@
          )
 
  add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CURRENT_KERNEL_TARGET_NAME}.air
-         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.metal ${DEPENDS_SOURCES}
+         DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.metal ${DEPENDS_SOURCES} ${COMMON_DEPENDENCIES}
          COMMAND xcrun -v -sdk macosx metal
          ${METAL_FLAGS}
          -I ${CMAKE_CURRENT_SOURCE_DIR}
+         -I ${CMAKE_SOURCE_DIR}/include
          -I ${CMAKE_SOURCE_DIR}/tests/shaders
          -c ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.metal
          -o ${CMAKE_CURRENT_BINARY_DIR}/${CURRENT_KERNEL_TARGET_NAME}.air
@@ -25,7 +26,7 @@
 
  add_custom_target(
          ${CURRENT_TARGET_NAME}
-         DEPENDS
+         DEPENDS ${DEPENDS_SOURCES}
          ${CMAKE_CURRENT_BINARY_DIR}/${CURRENT_KERNEL_TARGET_NAME}.air
          COMMAND xcrun -sdk macosx metallib
          ${CMAKE_CURRENT_BINARY_DIR}/*.air

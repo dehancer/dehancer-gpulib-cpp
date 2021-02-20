@@ -1,66 +1,47 @@
-/*
- * Copyright 1993-2010 NVIDIA Corporation.  All rights reserved.
- *
- * Please refer to the NVIDIA end user license agreement (EULA) associated
- * with this source code for terms and conditions that govern your use of
- * this software. Any use, reproduction, disclosure, or distribution of
- * this software and related documentation outside the terms of the EULA
- * is strictly prohibited.
- *
- */
+#pragma once
 
-/*
-    This file implements common mathematical operations on vector types
-    (float3, float4 etc.) since these are not provided as standard by CUDA.
+#include <metal_stdlib>
 
-    The syntax is modelled on the Cg standard library.
-
-    This is part of the CUTIL library and is not supported by NVIDIA.
-
-    Thanks to Linh Hah for additions and fixes.
-*/
-
-
-#ifndef DEHANCER_GPULIB_CMATH_OPENCL_H
+using namespace metal;
 
 ////////////////////////////////////////////////////////////////////////////////
 // constructors
 ////////////////////////////////////////////////////////////////////////////////
 
 inline static  float2 __attribute__((overloadable)) make_float2(float x, float y) {
-  return (float2)(x, y);
+  return (float2){x, y};
 }
 
 inline static  float3 __attribute__((overloadable)) make_float3(float x, float y, float z) {
-  return (float3)(x, y, z);
+  return (float3){x, y, z};
 }
 
 inline static  float4 __attribute__((overloadable)) make_float4(float x, float y, float z, float w) {
-  return (float4)(x, y, z, w);
+  return (float4){x, y, z, w};
 }
 
 inline static  int2 __attribute__((overloadable)) make_int2(int x, int y) {
-  return (int2)(x, y);
+  return (int2){x, y};
 }
 
 inline static  int3 __attribute__((overloadable)) make_int3(int x, int y, int z) {
-  return (int3)(x, y, z);
+  return (int3){x, y, z};
 }
 
 inline static  int4 __attribute__((overloadable)) make_int4(int x, int y, int z, int w) {
-  return (int4)(x, y, z, w);
+  return (int4){x, y, z, w};
 }
 
 inline static  uint2 __attribute__((overloadable)) make_uint2(uint x, uint y) {
-  return (uint2)(x, y);
+  return (uint2){x, y};
 }
 
 inline static  uint3 __attribute__((overloadable)) make_uint3(uint x, uint y, uint z) {
-  return (uint3)(x, y, z);
+  return (uint3){x, y, z};
 }
 
 inline static  uint4 __attribute__((overloadable)) make_uint4(uint x, uint y, uint z, uint w) {
-  return (uint4)(x, y, z, w);
+  return (uint4){x, y, z, w};
 }
 
 
@@ -77,11 +58,11 @@ inline static  float2 __attribute__((overloadable)) make_float2(float4 a) {
 }
 
 inline static  float2 __attribute__((overloadable)) make_float2(int2 a) {
-  return make_float2((float)(a.x), (float)(a.y));
+  return make_float2(float(a.x), float(a.y));
 }
 
 inline static  float2 __attribute__((overloadable)) make_float2(uint2 a) {
-  return make_float2((float)(a.x), (float)(a.y));
+  return make_float2(float(a.x), float(a.y));
 }
 
 inline static  int2 __attribute__((overloadable)) make_int2(int s) {
@@ -93,11 +74,11 @@ inline static  int2 __attribute__((overloadable)) make_int2(int3 a) {
 }
 
 inline static  int2 __attribute__((overloadable)) make_int2(uint2 a) {
-  return make_int2((int)(a.x), (int)(a.y));
+  return make_int2(int(a.x), int(a.y));
 }
 
 inline static  int2 __attribute__((overloadable)) make_int2(float2 a) {
-  return make_int2((int)(a.x), (int)(a.y));
+  return make_int2(int(a.x), int(a.y));
 }
 
 inline static  uint2 __attribute__((overloadable)) make_uint2(uint s) {
@@ -109,7 +90,7 @@ inline static  uint2 __attribute__((overloadable)) make_uint2(uint3 a) {
 }
 
 inline static  uint2 __attribute__((overloadable)) make_uint2(int2 a) {
-  return make_uint2((uint)(a.x), (uint)(a.y));
+  return make_uint2(uint(a.x), uint(a.y));
 }
 
 inline static  float3 __attribute__((overloadable)) make_float3(float s) {
@@ -129,7 +110,7 @@ inline static  float3 __attribute__((overloadable)) make_float3(float4 a) {
 }
 
 inline static  float3 __attribute__((overloadable)) make_float3(int3 a) {
-  return make_float3((float)(a.x), (float)(a.y), (float)(a.z));
+  return make_float3(float(a.x), float(a.y), float(a.z));
 }
 
 inline static  float3 __attribute__((overloadable)) make_float3(uint3 a) {
@@ -366,4 +347,7 @@ inline static  float3 __attribute__((overloadable)) reflect(float3 i, float3 n) 
   return i - 2.0f * n * dot(n, i);
 }
 
-#endif
+#define powf pow
+#define log2f log2
+#define log2f log2
+

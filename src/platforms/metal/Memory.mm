@@ -73,4 +73,25 @@ namespace dehancer::metal {
       memcpy(buffer.data(), memobj_.contents, get_length());
       return Error(CommonError::OK);
     }
+    
+    Error MemoryHolder::get_contents (void *buffer, size_t length) const {
+      if (memobj_.contents == nullptr)
+        return Error(CommonError::PERMISSIONS_ERROR, error_string("Device memory object is private"));
+      if (memobj_.length>length)
+        return Error(CommonError::OUT_OF_RANGE, error_string("Device memory length greater then buffer allocated"));
+      memcpy(buffer, memobj_.contents, length);
+      return Error(CommonError::OK);
+    }
+    
+    const void *MemoryHolder::get_pointer () const {
+      if (memobj_) return &memobj_;
+      return nullptr;
+    }
+    
+    void *MemoryHolder::get_pointer () {
+      if (memobj_) return &memobj_;
+      return nullptr;
+    }
+    
+   
 }

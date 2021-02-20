@@ -12,6 +12,11 @@
 #include <cmath>
 #include "dehancer/gpu/kernels/cuda/cuda.h"
 #include "dehancer/gpu/kernels/cuda/cmath.h"
+
+#elif defined(__METAL_VERSION__)
+
+#include "dehancer/gpu/kernels/metal/cmath.h"
+
 #elif defined(CL_VERSION_1_2)
 
 #include "dehancer/gpu/kernels/opencl/opencl.h"
@@ -46,6 +51,7 @@ inline DHCR_DEVICE_FUNC float taylor_inv_sqrt(float r)
  * @param v
  * @return
  */
+#if defined(__CUDA_ARCH__) || defined(CL_VERSION_1_2)
 inline DHCR_DEVICE_FUNC float __attribute__((overloadable)) fract(float v) {
   return fracf(v);
 }
@@ -109,6 +115,9 @@ inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) log10f(float3 a) {
 inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) log10f(float4 a) {
   return make_float4(log10f(a.x),log10f(a.y),log10f(a.z),log10f(a.w));
 }
+
+#endif
+
 
 /***
  * lum

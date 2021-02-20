@@ -13,6 +13,7 @@
 #define DHCR_DEVICE_ARG __global
 #define DHCR_THREAD_ARG
 #define DHCR_CONST_ARG
+#define DHCR_CONST_ARG_REF(T) DHCR_CONST_ARG T
 
 #define DHCR_KERNEL_GID_1D
 #define DHCR_KERNEL_GID_2D
