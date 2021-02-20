@@ -76,8 +76,23 @@ int function_test_blend (int dev_num,
         
         return dehancer::CommandEncoder::Size::From(grid_text);
     });
-  
-  
+    
+    {
+      std::string outp = opt.mode_name; outp += "-"; outp+="grid.png";
+      std::ofstream os(outp, std::ostream::binary | std::ostream::trunc);
+      if (os.is_open()) {
+        os << dehancer::TextureOutput(command_queue, grid_text, {
+                .type = dehancer::TextureIO::Options::Type::png,
+                .compression = test::compression
+        }) << std::flush;
+      
+        std::cout << "Save to: " << outp << std::endl;
+      
+      } else {
+        std::cerr << "File: " << outp << " could not been opened..." << std::endl;
+      }
+    }
+    
     auto grad_kernel = dehancer::Function(command_queue,"kernel_gradient");
     auto grad_text = grad_kernel.make_texture(800, 400);
   
@@ -87,6 +102,21 @@ int function_test_blend (int dev_num,
         return dehancer::CommandEncoder::Size::From(grad_text);
     });
   
+    {
+      std::string outp = opt.mode_name; outp += "-"; outp+="gradient.png";
+      std::ofstream os(outp, std::ostream::binary | std::ostream::trunc);
+      if (os.is_open()) {
+        os << dehancer::TextureOutput(command_queue, grad_text, {
+                .type = dehancer::TextureIO::Options::Type::png,
+                .compression = test::compression
+        }) << std::flush;
+      
+        std::cout << "Save to: " << outp << std::endl;
+      
+      } else {
+        std::cerr << "File: " << outp << " could not been opened..." << std::endl;
+      }
+    }
   
     std::cout << "Load file: " << input_image << std::endl;
     

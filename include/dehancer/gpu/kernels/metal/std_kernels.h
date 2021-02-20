@@ -105,34 +105,3 @@ kernel void kernel_dehancer_pass(
   
   destination.write(color,tid);
 }
-
-kernel void kernel_grid(
-        constant int& levels,
-        texture2d_write_t destination,
-        uint2 tid [[thread_position_in_grid]]
-        )
-{
-  
-  int w = destination.get_width();
-  int h = destination.get_height();
-  
-  int x = tid.x;
-  int y = tid.y;
-  
-  int2 gid(x, y);
-  
-  float2 coords((float)gid.x / (float)(w - 1),
-                (float)gid.y / (float)(h - 1));
-  
-  int num = levels*2;
-  int index_x = (int)(coords.x*(num));
-  int index_y = (int)(coords.y*(num));
-  
-  int index = clamp((index_y+index_x)%2,(int)(0),(int)(num));
-  
-  float ret = float(index);
-  
-  float4 color = {ret*coords.x,ret*coords.y,ret,1.0} ;
-  
-  destination.write(color,tid);
-}

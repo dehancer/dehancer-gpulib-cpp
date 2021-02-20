@@ -8,7 +8,7 @@
 #include "dehancer/gpu/Lib.h"
 #include "tests/test_config.h"
 
-float scale = 0.2f;
+float scale = 1.5f;
 auto  interpolation = dehancer::ResampleKernel::Mode::bilinear;
 
 auto function_test =  [] (int dev_num,

@@ -9,18 +9,19 @@
 #include "tests/test_config.h"
 
 static dehancer::ChannelsDesc::Transform transform_channels = {
-        .type    = dehancer::ChannelsDesc::TransformType::pow_linear,
-        .slope   = {2.5f, 2.5f, 2.5f,   0},
-        .offset  = {0.0f, 0.0f, 0.0f,   0},
+        .type    = dehancer::ChannelsDesc::TransformType::log_linear,
+        .slope   = {6.5f, 4.5f, 2.5f,   0},
+        .offset  = {1.0f, 1.0f, 1.0f,   0},
         .enabled = {true,true,true,false},
         .direction = dehancer::ChannelsDesc::TransformDirection::forward,
         .flags ={
                 .in_enabled = true,
-                .out_enabled = false
+                .out_enabled = true
         }
 };
 
-static std::array<float,4> transform_radiuses = {20.0f,20.0f,20.0f,0.0f};
+//static std::array<float,4> transform_radiuses = {20.0f,20.0f,20.0f,0.0f};
+static std::array<float,4> transform_radiuses = {90.0f,20.0f,00.0f,0.0f};
 
 static void run_kernel(int dev_num,
                        const void* command_queue,
@@ -80,7 +81,7 @@ auto gaussian_test =  [] (int dev_num,
                    kernel.set_source(input);
                    kernel.set_destination(output);
                    kernel.set_accuracy(0.000001);
-                   //kernel.set_transform(transform_channels);
+                   kernel.set_transform(transform_channels);
                    kernel.set_radius(transform_radiuses);
                    kernel.set_edge_mode(DHCR_ADDRESS_CLAMP);
     

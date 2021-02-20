@@ -59,4 +59,38 @@ DHCR_KERNEL void  kernel_blend(
   write_image(destination, result, tex.gid);
 }
 
+
+DHCR_KERNEL void kernel_grid(
+        DHCR_CONST_ARG      int_ref_t levels DHCR_BIND_BUFFER(0),
+        texture2d_write_t destination DHCR_BIND_TEXTURE(1)
+        DHCR_KERNEL_GID_2D
+        )
+{
+  
+  Texel2d tex; get_kernel_texel2d(destination,tex);
+  if (!get_texel_boundary(tex)) return;
+  
+  int w = tex.size.x;
+  int h = tex.size.y;
+  
+  int2 gid = tex.gid;
+
+  float2 coords = make_float2(
+          (float)gid.x / (float)(w - 1),
+          (float)gid.y / (float)(h - 1)
+          );
+
+  int num = 6*2;
+  int index_x = (int)(coords.x*(num));
+  int index_y = (int)(coords.y*(num));
+  
+  int index = clamp((index_y+index_x)%2,(int)(0),(int)(num));
+  
+  float ret = (float)(index);
+  
+  float4 color = make_float4(ret*coords.x, ret*coords.y, ret, 1.0);
+  
+  write_image(destination, color, tex.gid);
+}
+
 #endif //DEHANCER_GPULIB_BLEND_KERNELS_H

@@ -80,7 +80,7 @@ namespace dehancer::metal {
   
       auto command_buffer = [get_command_queue() commandBuffer];
       id<MTLBlitCommandEncoder> blitEncoder = [command_buffer blitCommandEncoder];
-      [blitEncoder synchronizeResource:memobj_ slice:0 level:0];
+      [blitEncoder synchronizeResource:memobj_];
       [blitEncoder endEncoding];
       [command_buffer waitUntilCompleted];
   
