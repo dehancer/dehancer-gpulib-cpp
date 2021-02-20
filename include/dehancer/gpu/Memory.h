@@ -106,12 +106,23 @@ namespace dehancer {
          */
         virtual Error get_contents(std::vector<uint8_t>& buffer) const = 0;
         virtual Error get_contents(void *buffer, size_t length) const = 0;
-        
+    
+        template<class T>
+        Error get_contents(std::vector<T>& buffer) {
+          if (get_length()==0) {
+            buffer.clear();
+            return Error(CommonError::OK);
+          }
+          size_t length = get_length();
+          size_t size = length / sizeof(T);
+          buffer.resize(size);
+          return get_contents(buffer.data(), length);
+        };
+    
         virtual ~MemoryHolder() = default;
     
     protected:
         MemoryHolder() = default;
     };
     
-    //using Memory::Make = MemoryHolder::Make;
 }

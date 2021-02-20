@@ -5,10 +5,8 @@
 #include "gtest/gtest.h"
 #include "../memory_test.h"
 #include "../../include/run_test.h"
-#include "tests/cuda/paths_config.h"
 
-
-TEST(TEST, CUDA_FUNCTUON) {
+TEST(TEST, OPENCL_FUNCTUON) {
 
   std::cout << std::endl;
   std::cerr << std::endl;

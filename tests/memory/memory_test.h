@@ -9,8 +9,6 @@
 #include "tests/test_config.h"
 #include "tests/shaders/test_struct.h"
 
-#include <cuda.h>
-
 auto memory_test =  [] (int dev_num,
                         const void* command_queue,
                         const std::string& platform) {
@@ -29,7 +27,7 @@ auto memory_test =  [] (int dev_num,
       h_B[i] = i%2;
     }
 
-    auto kernel = dehancer::Function(command_queue, "kernel_vec_add");
+    auto kernel = dehancer::Function(command_queue, "kernel_vec_add", false);
 
     auto A = dehancer::MemoryDesc({
                                           .length = size
@@ -63,7 +61,9 @@ auto memory_test =  [] (int dev_num,
 
     std::vector<float> result; result.resize(N);
 
-    C->get_contents(result.data(), result.size()*sizeof(float ));
+    auto error = C->get_contents(result.data(), result.size()*sizeof(float ));
+    if (error)
+      std::cerr << "Memory error: " << error << std::endl;
 
     std::cout << "summ: " << std::endl;
     for (auto v: result) {
@@ -71,18 +71,22 @@ auto memory_test =  [] (int dev_num,
     }
     std::cout << std::endl;
 
-    auto kernel_dev = dehancer::Function(command_queue, "kernel_vec_dev");
+    auto kernel_dev = dehancer::Function(command_queue, "kernel_vec_dev", false);
 
     kernel_dev.execute([N, &D](dehancer::CommandEncoder& command_encoder){
         command_encoder.set(D,0);
         command_encoder.set(N, 1);
         return dehancer::CommandEncoder::Size{(size_t)N,1,1};
     });
-
-    D->get_contents(result.data(), result.size()*sizeof(float ));
-
-    std::cout << "dev: " << std::endl;
-    for (auto v: result) {
+    
+    std::vector<float> result_d;
+    
+    error = D->get_contents(result_d);
+    if (error)
+      std::cerr << "Memory error: " << error << std::endl;
+    
+    std::cout << "dev: size = "<< result_d.size() << std::endl;
+    for (auto v: result_d) {
       std::cout << v << " ";
     }
     std::cout << std::endl;
