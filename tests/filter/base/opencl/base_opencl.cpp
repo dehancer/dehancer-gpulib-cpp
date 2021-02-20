@@ -6,7 +6,7 @@
 #include "gtest/gtest.h"
 #include "tests/filter/filter_test.h"
 
-TEST(TEST, AOBENCH_OpenCL) {
+TEST(TEST, FILTER_BASE_OpenCL) {
   
   std::cout << std::endl;
   std::cerr << std::endl;

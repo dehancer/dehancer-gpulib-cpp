@@ -6,6 +6,11 @@
          .
  )
 
+ set(METAL_KERNELS_LIBRARY ${CMAKE_BINARY_DIR}/tests/shaders/metal/${CURRENT_TARGET_LIB})
+
+ set(_IMAGE_DIR ${CMAKE_SOURCE_DIR}/tests/images)
+ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/paths_config.h.in ${CMAKE_BINARY_DIR}/generated/tests/metal/paths_config.h)
+
  file (GLOB DEPENDS_SOURCES ${DEPENDS_PLUGIN_SOURCES}
          ${CMAKE_CURRENT_SOURCE_DIR}/*.h
          ${CMAKE_SOURCE_DIR}/tests/shaders/*.h
