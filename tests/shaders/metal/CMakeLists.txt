@@ -18,14 +18,33 @@
          ${CMAKE_SOURCE_DIR}/include/dehancer/gpu/kernels/*.h
          )
 
+ set(METAL_TARGET_FLAGS)
+ if (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
+  #
+  # arm64-apple-macos11
+  #
+  set(METAL_TARGET_FLAGS "air64-apple-macos11.0")
+ else()
+  #
+  # x86_64-apple-macos10.13
+  #
+  set(METAL_TARGET_FLAGS "air64-apple-macos10.14")
+ endif ()
+
+ string(STRIP METAL_TARGET_FLAGS ${METAL_TARGET_FLAGS})
+
  add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CURRENT_KERNEL_TARGET_NAME}.air
          DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.metal ${DEPENDS_SOURCES} ${COMMON_DEPENDENCIES}
          COMMAND xcrun -v -sdk macosx metal
          ${METAL_FLAGS}
+         -I .
          -I ${CMAKE_CURRENT_SOURCE_DIR}
          -I ${CMAKE_SOURCE_DIR}/include
          -I ${CMAKE_SOURCE_DIR}/tests/shaders
-         -c ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.metal
+         -O3 -ffast-math
+         -c
+         -target ${METAL_TARGET_FLAGS}
+         ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.metal
          -o ${CMAKE_CURRENT_BINARY_DIR}/${CURRENT_KERNEL_TARGET_NAME}.air
          VERBATIM
          WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}

@@ -27,7 +27,7 @@ auto memory_test =  [] (int dev_num,
       h_B[i] = i%2;
     }
 
-    auto kernel = dehancer::Function(command_queue, "kernel_vec_add", false);
+    auto kernel = dehancer::Function(command_queue, "kernel_vec_add", true);
 
     auto A = dehancer::MemoryDesc({
                                           .length = size
@@ -71,7 +71,7 @@ auto memory_test =  [] (int dev_num,
     }
     std::cout << std::endl;
 
-    auto kernel_dev = dehancer::Function(command_queue, "kernel_vec_dev", false);
+    auto kernel_dev = dehancer::Function(command_queue, "kernel_vec_dev", true);
 
     kernel_dev.execute([N, &D](dehancer::CommandEncoder& command_encoder){
         command_encoder.set(D,0);

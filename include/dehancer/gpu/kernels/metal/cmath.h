@@ -349,5 +349,5 @@ inline static  float3 __attribute__((overloadable)) reflect(float3 i, float3 n) 
 
 #define powf pow
 #define log2f log2
-#define log2f log2
+#define log10f log10
 

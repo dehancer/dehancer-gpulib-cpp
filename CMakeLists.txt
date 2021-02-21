@@ -15,6 +15,7 @@ option (BUILD_TESTING "Enable creation of  tests." OFF)
 option (DEHANCER_GPU_METAL "Dehancer GPU Layer is Metal" ON)
 option (DEHANCER_GPU_OPENCL "Dehancer GPU Layer is OpenCL" ON)
 option (DEHANCER_GPU_CUDA "Dehancer GPU Layer is CUDA" ON)
+option (DEHANCER_TARGET_ARCH "Dehancer platoform arch" "")
 
 if (DEHANCER_TARGET_ARCH)
     #
@@ -98,10 +99,6 @@ set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
 set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib64/pkgconfig)
 set(ENV{PKG_CONFIG_PATH} $ENV{SYSROOT}/usr/local/dehancer/lib/pkgconfig)
 
-if (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
-elseif (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
-endif()
-
 find_package (PkgConfig REQUIRED)
 find_package (Threads REQUIRED)
 find_package (PkgConfig REQUIRED)
@@ -113,6 +110,8 @@ if (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
     find_package (OpenCV REQUIRED PATHS /usr/local/arm64)
 elseif (${DEHANCER_TARGET_ARCH} MATCHES "x86_64.*")
     find_package (OpenCV REQUIRED PATHS /usr/local/x86_64)
+else()
+    find_package (OpenCV REQUIRED )
 endif()
 
 if (LINUX)
