@@ -259,7 +259,7 @@ inline static   float4 __attribute__((overloadable)) fminf(float4 a, float4 b) {
 //////////////////////////////////////////////////////////////////////////////////
 
 inline static  float __attribute__((overloadable)) fmaxf(float a, float b) {
-  return fmaxf(a, b), fmaxf(a, b);
+  return fmax(a, b);
 }
 
 inline static  float2 __attribute__((overloadable)) fmaxf(float2 a, float2 b) {

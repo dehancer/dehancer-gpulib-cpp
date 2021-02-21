@@ -220,7 +220,7 @@ inline static  uint4 __attribute__((overloadable)) make_uint4(int4 a) {
 //////////////////////////////////////////////////////////////////////////////////
 
 inline static float __attribute__((overloadable)) fminf(float a, float b) {
-  return fmin(a, b);
+  return metal::min(a, b);
 }
 
 inline static   float2 __attribute__((overloadable)) fminf(float2 a, float2 b) {
@@ -240,7 +240,7 @@ inline static   float4 __attribute__((overloadable)) fminf(float4 a, float4 b) {
 //////////////////////////////////////////////////////////////////////////////////
 
 inline static  float __attribute__((overloadable)) fmaxf(float a, float b) {
-  return fmaxf(a, b), fmaxf(a, b);
+  return metal::max(a, b);
 }
 
 inline static  float2 __attribute__((overloadable)) fmaxf(float2 a, float2 b) {
