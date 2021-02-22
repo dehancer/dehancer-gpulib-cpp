@@ -22,11 +22,9 @@ namespace dehancer {
       return std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::TextureHolder>(command_queue,desc,from_memory);
     }
     
-    TextureHolder::~TextureHolder () {
-      auto t = (dehancer::DEHANCER_GPU_PLATFORM::TextureHolder*)(this);
-    }
+    TextureHolder::~TextureHolder () = default;
     
-    Texture TextureDesc::make(const void *command_queue, const float *from_memory) {
+    Texture TextureDesc::make(const void *command_queue, const float *from_memory) const {
       return dehancer::TextureHolder::Make(command_queue, *this, from_memory);
     }
     

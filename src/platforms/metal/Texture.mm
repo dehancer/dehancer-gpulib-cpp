@@ -101,6 +101,11 @@ namespace dehancer::metal {
                     bytesPerRow: bytes_per_pixel * region.size.width
                   bytesPerImage: bytes_per_pixel * region.size.width * region.size.height];
       }
+  
+      #ifdef PRINT_DEBUG
+      dehancer::log::print(" ### New TextureHolder(Metal): %p: %ix%ix%i", texture_, desc_.width, desc_.height, desc_.depth);
+      #endif
+  
     }
 
 
@@ -153,8 +158,6 @@ namespace dehancer::metal {
       }
 
       NSUInteger bytes_per_pixel = desc_.channels * componentBytes;
-
-      //buffer.resize(desc_.width*desc_.depth*desc_.height*desc_.channels);
 
       [texture_ getBytes: buffer
              bytesPerRow: bytes_per_pixel * region.size.width
@@ -221,8 +224,12 @@ namespace dehancer::metal {
     }
 
     TextureHolder::~TextureHolder() {
-      if (texture_)
+      if (texture_) {
+        #ifdef PRINT_DEBUG
+        dehancer::log::print(" ### ~TextureHolder(Metal): %p", texture_);
+        #endif
         [texture_ release];
+      }
     }
 
 }

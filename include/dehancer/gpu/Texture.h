@@ -90,7 +90,7 @@ namespace dehancer {
          */
         std::string label;
         
-        Texture make(const void *command_queue, const float *from_memory = nullptr);
+        Texture make(const void *command_queue, const float *from_memory = nullptr) const;
     };
     
     bool operator==(const TextureDesc& lhs, const TextureDesc& rhs);
