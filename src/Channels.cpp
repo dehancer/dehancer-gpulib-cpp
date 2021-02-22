@@ -3,6 +3,7 @@
 //
 
 #include "dehancer/gpu/Channels.h"
+#include "dehancer/gpu/Log.h"
 
 #include <cmath>
 
@@ -66,8 +67,13 @@ namespace dehancer {
                 ++i;
               }
             }
+    
+            ~ChannelsHolder() override {
+              #ifdef PRINT_DEBUG
+              dehancer::log::print(" ### ~ChannelsHolder(base): %p: %ix%i", this, desc_.width, desc_.height);
+              #endif
+            }
         };
-      
     }
     
     Channels ChannelsHolder::Make(const void *command_queue,

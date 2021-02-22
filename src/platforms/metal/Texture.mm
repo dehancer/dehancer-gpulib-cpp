@@ -7,21 +7,42 @@
 #include "cache/cache.hpp"
 #include "cache/lru_cache_policy.hpp"
 
-#include <cstring>
-
-template <typename Key, typename Value>
-using lru_cache_t =
-typename caches::fixed_sized_cache<Key, Value, caches::LRUCachePolicy<Key>>;
-
-
 namespace dehancer::metal {
+    
+    namespace text {
+        template<typename Key, typename Value>
+        using lru_cache_t = typename caches::fixed_sized_cache<Key, Value, caches::LRUCachePolicy<Key>>;
+    }
     
     using texture_pool_t = std::vector<std::shared_ptr<TextureItem>>;
     
-    using texture_cache_t = lru_cache_t<size_t, std::shared_ptr<texture_pool_t>>;
-    using device_texture_cache_t = lru_cache_t<size_t, std::shared_ptr<texture_cache_t>>;
+    using texture_cache_t = text::lru_cache_t<size_t, std::shared_ptr<texture_pool_t>>;
+    using device_texture_cache_t = text::lru_cache_t<size_t, std::shared_ptr<texture_cache_t>>;
     
     static device_texture_cache_t device_texture_cache(4);
+    
+    template<typename Hashable>
+    class ObjectPool {
+    public:
+        using hashable_pool_t = std::vector<std::shared_ptr<Hashable>>;
+        using hashable_cache_t = text::lru_cache_t<size_t, std::shared_ptr<hashable_pool_t>>;
+        using cache_t = text::lru_cache_t<size_t, std::shared_ptr<hashable_pool_t>>;
+        
+        void put(void* command_queue, size_t hash, std::shared_ptr<Hashable>&) {
+        
+        }
+    
+        std::shared_ptr<Hashable> acquire(void* command_queue, size_t hash) {
+          return nullptr;
+        }
+    
+        void release(std::shared_ptr<Hashable>&) {
+        
+        }
+
+    private:
+        cache_t device_texture_cache;
+    };
     
     TextureItem::~TextureItem(){
       if (texture) {
@@ -125,11 +146,14 @@ namespace dehancer::metal {
       bool is_cached = false;
       
       if (text_cache->Cached(text_hash) && !text_cache->Get(text_hash)->empty()) {
+      
         auto q = text_cache->Get(text_hash);
         texture_item_ = q->back(); q->pop_back();
         is_cached = true;
+    
       }
       else {
+        
         id <MTLTexture> texture = [get_command_queue().device newTextureWithDescriptor:descriptor];
         
         if (!texture)
@@ -142,7 +166,9 @@ namespace dehancer::metal {
         
         if (!text_cache->Cached(text_hash))
           text_cache->Put(text_hash, std::make_shared<texture_pool_t>());
+       
         text_cache->Get(text_hash)->push_back(texture_item_);
+        
       }
       
       if (buffer) {
@@ -282,7 +308,9 @@ namespace dehancer::metal {
     }
     
     TextureHolder::~TextureHolder() {
+      
       if (texture_item_ && texture_item_->texture) {
+        
         auto dev_hash  = reinterpret_cast<size_t>(get_command_queue());
         
         std::shared_ptr<texture_cache_t> text_cache;
