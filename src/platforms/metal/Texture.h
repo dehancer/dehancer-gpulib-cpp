@@ -10,6 +10,14 @@
 
 namespace dehancer::metal {
 
+    
+    struct TextureItem {
+        size_t         hash = 0;
+        id<MTLTexture> texture = nullptr;
+    
+        ~TextureItem();
+    };
+    
     struct TextureHolder: public dehancer::TextureHolder, public Context {
         TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory);
         ~TextureHolder() override ;
@@ -29,7 +37,8 @@ namespace dehancer::metal {
         TextureDesc get_desc() const override { return desc_;}
         
     private:
-        TextureDesc desc_;
-        id<MTLTexture> texture_;
+        TextureDesc  desc_;
+        std::shared_ptr<TextureItem> texture_item_;
+        //id<MTLTexture> texture_;
     };
 }

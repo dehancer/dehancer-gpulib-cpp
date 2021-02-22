@@ -28,6 +28,23 @@ namespace dehancer {
       return dehancer::TextureHolder::Make(command_queue, *this, from_memory);
     }
     
+    size_t TextureDesc::get_hash () const {
+      return
+              10000000000 * depth
+              +
+              10000000 * width
+              +
+              10000 * height
+              +
+              1000 * static_cast<size_t>(type)
+              +
+              100 * static_cast<size_t>(pixel_format)
+              +
+              10 * mem_flags
+              +
+              channels;
+    }
+    
     bool operator==(const TextureDesc& lhs, const TextureDesc& rhs){
       return
               lhs.type == rhs.type

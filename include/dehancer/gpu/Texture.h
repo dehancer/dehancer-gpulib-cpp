@@ -90,6 +90,8 @@ namespace dehancer {
          */
         std::string label;
         
+        [[nodiscard]] size_t get_hash() const ;
+        
         Texture make(const void *command_queue, const float *from_memory = nullptr) const;
     };
     

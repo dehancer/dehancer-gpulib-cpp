@@ -11,6 +11,10 @@ file (GLOB COMMON_SRC ${COMMON_SRC}
         ${CMAKE_SOURCE_DIR}/src/math/*.cpp
         )
 
+include_directories(
+        ${CMAKE_SOURCE_DIR}/src
+)
+
 if (DEHANCER_GPU_METAL)
     add_subdirectory(metal)
 endif()
