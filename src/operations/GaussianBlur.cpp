@@ -9,7 +9,7 @@
 
 namespace dehancer {
     
-    static constexpr float MIN_DOWNSCALED_SIGMA = 2.0f;
+    static constexpr float MIN_DOWNSCALED_SIGMA = 4.0f;
     
     struct GaussianBlurOptions {
         std::array<float, 4> radius_array;
@@ -33,7 +33,7 @@ namespace dehancer {
         int kRadius = (int)std::ceil(sigma*std::sqrt(-2.0f*std::log(options.accuracy)))+1;
         int maxRadius = (int)std::ceil(radius/2+1) * 4 - 1;
 
-        kRadius = std::min(kRadius,maxRadius);
+        kRadius = std::max(kRadius,maxRadius);
 
         auto size = kRadius;
         if (size%2==0) size+=1;
@@ -56,7 +56,7 @@ namespace dehancer {
         //std::cout << " GAUSSIAN KERNEL["<<index<<"] SIZE = " << data.size() << ", origin size: " << size << " reduce: "<< reduceBy << " sigma: "<< sigma << " real sigma: "<< real_sigma<< std::endl;
     
         #ifdef PRINT_DEBUG
-        dehancer::log::print(" ### #kernel_blur(base): kernel size = %i, origin size: %i, sigma: %f, reduceBy: %i", data.size(),size,sigma,reduceBy);
+        dehancer::log::print(" ### #kernel_blur(base): kernel index:%i size = %i, origin size: %i, sigma: %f, reduceBy: %i", index, data.size(),size,sigma,reduceBy);
         #endif
         
         return 1.0f/(float)reduceBy;

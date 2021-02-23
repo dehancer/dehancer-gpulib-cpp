@@ -3,7 +3,7 @@
 //
 
 #include "dehancer/gpu/operations/UnaryKernel.h"
-
+#include "dehancer/gpu/Log.h"
 #include <utility>
 
 #define __TEST_NOT_SKIP__ 1
@@ -278,7 +278,20 @@ namespace dehancer {
               command.set(in, 0);
               command.set(out, 1);
               
-              int w = impl_->channels_unary_ops->get_width(i), h = impl_->channels_unary_ops->get_height(i);
+              int
+              w = impl_->channels_unary_ops->get_width(i),
+              h = impl_->channels_unary_ops->get_height(i);
+    
+              #ifdef PRINT_DEBUG
+              dehancer::log::print(" ### UnaryKernel::process(base[%i]): rows size=%ix%i, origin size=%ix%i",
+                                   i,
+                                   w,h,
+                                   impl_->channels_unary_ops->get_desc().width,
+                                   impl_->channels_unary_ops->get_desc().height
+                                   );
+              #endif
+    
+    
               command.set(w, 2);
               command.set(h, 3);
               
@@ -309,12 +322,23 @@ namespace dehancer {
               
               command.set(in, 0);
               command.set(out, 1);
-              
-              int w = impl_->channels_transformer->get_channels()->get_width(i),
+    
+              int
+                      w = impl_->channels_transformer->get_channels()->get_width(i),
                       h = impl_->channels_transformer->get_channels()->get_height(i);
+    
+              #ifdef PRINT_DEBUG
+              dehancer::log::print(" ### UnaryKernel::process(base[%i]): cols size=%ix%i, origin size=%ix%i",
+                                   i,
+                                   w,h,
+                                   impl_->channels_unary_ops->get_desc().width,
+                                   impl_->channels_unary_ops->get_desc().height
+              );
+              #endif
+              
               command.set(w, 2);
               command.set(h, 3);
-              
+    
               command.set(impl_->col_weights.at(i), 4);
               command.set(impl_->col_sizes[i], 5);
               
