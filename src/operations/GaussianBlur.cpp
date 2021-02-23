@@ -3,9 +3,9 @@
 //
 
 #include "dehancer/gpu/operations/GaussianBlur.h"
-
-#include <cmath>
 #include "dehancer/gpu/math/ConvolveUtils.h"
+#include "dehancer/gpu/Log.h"
+#include <cmath>
 
 namespace dehancer {
     
@@ -54,6 +54,10 @@ namespace dehancer {
         dehancer::math::make_gaussian_kernel(data, new_size, real_sigma);
         
         //std::cout << " GAUSSIAN KERNEL["<<index<<"] SIZE = " << data.size() << ", origin size: " << size << " reduce: "<< reduceBy << " sigma: "<< sigma << " real sigma: "<< real_sigma<< std::endl;
+    
+        #ifdef PRINT_DEBUG
+        dehancer::log::print(" ### #kernel_blur(base): kernel size = %i, origin size: %i, sigma: %f, reduceBy: %i", data.size(),size,sigma,reduceBy);
+        #endif
         
         return 1.0f/(float)reduceBy;
     };

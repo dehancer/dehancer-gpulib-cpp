@@ -52,9 +52,6 @@ namespace dehancer::metal {
 
     MemoryHolder::~MemoryHolder() {
       if (memobj_ && is_self_allocated_) {
-        #ifdef PRINT_DEBUG
-        dehancer::log::print(" ### ~MemoryHolder(Metal): %p: %li", memobj_, memobj_.length);
-        #endif
         [memobj_ release];
       }
     }

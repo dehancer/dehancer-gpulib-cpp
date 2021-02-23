@@ -40,12 +40,6 @@ namespace dehancer {
         struct ChannelItem {
             size_t                                hash;
             std::shared_ptr<std::array<Memory,4>> channels = std::make_shared<std::array<Memory,4>>();
-            
-            ~ChannelItem() {
-              #ifdef PRINT_DEBUG
-              dehancer::log::print(" ### ~ChannelItem(base): %p: %li", this, hash);
-              #endif
-            }
         };
         
         struct ChannelsHolder: public dehancer::ChannelsHolder, public dehancer::Command {
@@ -94,11 +88,7 @@ namespace dehancer {
               }
             }
             
-            ~ChannelsHolder() override {
-              #ifdef PRINT_DEBUG
-              dehancer::log::print(" ### RETURN ~ChannelsHolder(base): %p: %ix%i", this, desc_.width, desc_.height);
-              #endif
-            }
+            ~ChannelsHolder() override  = default;
         };
     }
     

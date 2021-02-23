@@ -9,9 +9,6 @@ namespace dehancer::metal {
     
     TextureItem::~TextureItem(){
       if (texture) {
-        #ifdef PRINT_DEBUG
-        dehancer::log::print(" ### ~TextureItem(Metal): %p: %li", texture, hash);
-        #endif
         [texture release];
       }
     }
@@ -233,11 +230,7 @@ namespace dehancer::metal {
       return desc_.type;
     }
     
-    TextureHolder::~TextureHolder() {
-        #ifdef PRINT_DEBUG
-        dehancer::log::print(" ### RETURN TextureItem(Metal): %p: %li", texture_item_->texture, texture_item_->hash);
-        #endif
-    }
+    TextureHolder::~TextureHolder() = default;
 //    {
 //      if (texture_item_->texture) {
 //        #ifdef PRINT_DEBUG
