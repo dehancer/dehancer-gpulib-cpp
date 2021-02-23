@@ -4,8 +4,6 @@
 
 #include "dehancer/gpu/Channels.h"
 #include "dehancer/gpu/Log.h"
-#include "cache/cache.hpp"
-#include "cache/lru_cache_policy.hpp"
 #include <cmath>
 
 namespace dehancer {
@@ -30,11 +28,11 @@ namespace dehancer {
         cx += static_cast<size_t>( scale[i].x * 10000 + scale[i].y * 100 ) << i;
       }
       return
-      1000000000 * width
-      +
-      10000000 * height
-      +
-      cx;
+              1000000000 * width
+              +
+              10000000 * height
+              +
+              cx;
     }
     
     namespace impl {
@@ -42,37 +40,23 @@ namespace dehancer {
         struct ChannelItem {
             size_t                                hash;
             std::shared_ptr<std::array<Memory,4>> channels = std::make_shared<std::array<Memory,4>>();
-    
+            
             ~ChannelItem() {
               #ifdef PRINT_DEBUG
               dehancer::log::print(" ### ~ChannelItem(base): %p: %li", this, hash);
               #endif
             }
         };
-    
-        namespace text {
-            template<typename Key, typename Value>
-            using lru_cache_t = typename caches::fixed_sized_cache<Key, Value, caches::LRUCachePolicy<Key>>;
-        }
-    
-        using channels_pool_t = std::vector<std::shared_ptr<ChannelItem>>;
-    
-        using channels_cache_t = text::lru_cache_t<size_t, std::shared_ptr<channels_pool_t>>;
-        using device_channels_cache_t = text::lru_cache_t<size_t, std::shared_ptr<channels_cache_t>>;
-    
-        static device_channels_cache_t device_channels_cache(4);
-    
-    
+        
         struct ChannelsHolder: public dehancer::ChannelsHolder, public dehancer::Command {
             
-            //std::shared_ptr<std::array<Memory,4>> channels_;
             std::shared_ptr<ChannelItem> item_;
             ChannelsDesc desc_;
             std::shared_ptr<std::array<ChannelsDesc,4>> channel_descs_;
             
             size_t get_width(int index) const override { return channel_descs_->at(index).width; };
             size_t get_height(int index) const override {return channel_descs_->at(index).height;};
-    
+            
             ChannelsDesc::Scale get_scale(int index) const override { return desc_.scale.at(index);}
             
             ChannelsDesc get_desc() const override { return desc_;}
@@ -83,16 +67,12 @@ namespace dehancer {
             
             ChannelsHolder(const void *command_queue, const ChannelsDesc& desc):
                     Command(command_queue),
-                    //channels_(std::make_shared<std::array<Memory,4>>()),
                     item_(std::make_shared<ChannelItem>()),
                     desc_(desc),
                     channel_descs_({
                                            std::make_shared<std::array<ChannelsDesc,4>>()
                                    })
             {
-  
-              auto hash = desc_.get_hash();
-              auto dev_hash  = reinterpret_cast<size_t>(command_queue);
               
               int i = 0;
               for(auto& c: *channel_descs_){
@@ -104,72 +84,20 @@ namespace dehancer {
               
               i = 0;
               
-              item_->hash = hash;
-  
-              std::shared_ptr<channels_cache_t> c_cache;
+              item_->hash = desc_.get_hash();
               
-              try {
-                c_cache = device_channels_cache.Get(dev_hash);
+              for (auto &c : *item_->channels) {
+                auto size = sizeof(float) * channel_descs_->at(i).width * channel_descs_->at(i).height;
+                if (size == 0) continue;
+                c = MemoryHolder::Make(get_command_queue(), size);
+                ++i;
               }
-              catch (...) {
-                c_cache = std::make_shared<channels_cache_t>(16);
-                device_channels_cache.Put(dev_hash,c_cache);
-              }
-              bool is_cached = false;
-  
-              if (c_cache->Cached(hash) && !c_cache->Get(hash)->empty()) {
-    
-                auto& q = c_cache->Get(hash);
-                item_ = q->back(); q->pop_back();
-  
-                is_cached = true;
-  
-              }
-              else {
-                for (auto &c : *item_->channels) {
-                  auto size = sizeof(float) * channel_descs_->at(i).width * channel_descs_->at(i).height;
-                  if (size == 0) continue;
-                  c = MemoryHolder::Make(get_command_queue(), size);
-                  ++i;
-                }
-  
-                if (!c_cache->Cached(hash))
-                  c_cache->Put(hash, std::make_shared<channels_pool_t>());
-  
-                c_cache->Get(hash)->push_back(item_);
-              }
-  
-              #ifdef PRINT_DEBUG
-              dehancer::log::print(" ### %s ChannelsHolder(base): %p: %li  : %ix%i",
-                                   is_cached ? "Cached" : "New",
-                                   item_->channels.get(), item_->hash,
-                                   desc_.width, desc_.height);
-              #endif
             }
-    
+            
             ~ChannelsHolder() override {
-             
-              auto hash = desc_.get_hash();
-              auto dev_hash  = reinterpret_cast<size_t>(get_command_queue());
-  
-              std::shared_ptr<channels_cache_t> c_cache;
-  
-              try {
-                c_cache = device_channels_cache.Get(dev_hash);
-              }
-              catch (...) {
-                c_cache = std::make_shared<channels_cache_t>(16);
-                device_channels_cache.Put(dev_hash,c_cache);
-              }
-  
-              if (c_cache->Cached(hash) && !c_cache->Get(hash)->empty()) {
-  
-                #ifdef PRINT_DEBUG
-                dehancer::log::print(" ### RETURN ~ChannelsHolder(base): %p: %ix%i", this, desc_.width, desc_.height);
-                #endif
-  
-                c_cache->Get(hash)->push_back(item_);
-              }
+              #ifdef PRINT_DEBUG
+              dehancer::log::print(" ### RETURN ~ChannelsHolder(base): %p: %ix%i", this, desc_.width, desc_.height);
+              #endif
             }
         };
     }
@@ -251,7 +179,7 @@ namespace dehancer {
               encoder.set(transform_.enabled[j],7);
             else
               encoder.set(false,7);
-    
+            
             encoder.set(transform_.direction ,8);
             encoder.set(transform_.type ,9);
             
@@ -357,7 +285,7 @@ namespace dehancer {
     }
     
     void ChannelsOutput::process () {
-     
+      
       auto *channels = dynamic_cast<impl::ChannelsHolder *>(channels_.get());
       
       
@@ -390,9 +318,9 @@ namespace dehancer {
               encoder.set(false,8);
             
             encoder.set(transform_.direction ,9);
-    
+            
             encoder.set(transform_.type ,10);
-    
+            
             encoder.set(has_mask_ , 11);
             encoder.set(mask_ , 12);
             

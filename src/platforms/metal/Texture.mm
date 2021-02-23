@@ -4,45 +4,8 @@
 
 #include "Texture.h"
 #include "dehancer/gpu/Log.h"
-#include "cache/cache.hpp"
-#include "cache/lru_cache_policy.hpp"
 
 namespace dehancer::metal {
-    
-    namespace text {
-        template<typename Key, typename Value>
-        using lru_cache_t = typename caches::fixed_sized_cache<Key, Value, caches::LRUCachePolicy<Key>>;
-    }
-    
-    using texture_pool_t = std::vector<std::shared_ptr<TextureItem>>;
-    
-    using texture_cache_t = text::lru_cache_t<size_t, std::shared_ptr<texture_pool_t>>;
-    using device_texture_cache_t = text::lru_cache_t<size_t, std::shared_ptr<texture_cache_t>>;
-    
-    static device_texture_cache_t device_texture_cache(4);
-    
-    template<typename Hashable>
-    class ObjectPool {
-    public:
-        using hashable_pool_t = std::vector<std::shared_ptr<Hashable>>;
-        using hashable_cache_t = text::lru_cache_t<size_t, std::shared_ptr<hashable_pool_t>>;
-        using cache_t = text::lru_cache_t<size_t, std::shared_ptr<hashable_pool_t>>;
-        
-        void put(void* command_queue, size_t hash, std::shared_ptr<Hashable>&) {
-        
-        }
-    
-        std::shared_ptr<Hashable> acquire(void* command_queue, size_t hash) {
-          return nullptr;
-        }
-    
-        void release(std::shared_ptr<Hashable>&) {
-        
-        }
-
-    private:
-        cache_t device_texture_cache;
-    };
     
     TextureItem::~TextureItem(){
       if (texture) {
@@ -133,43 +96,15 @@ namespace dehancer::metal {
         buffer = reinterpret_cast<unsigned char *>((void *)from_memory);
       }
       
-      std::shared_ptr<texture_cache_t> text_cache;
+      id <MTLTexture> texture = [get_command_queue().device newTextureWithDescriptor:descriptor];
       
-      try {
-        text_cache = device_texture_cache.Get(dev_hash);
-      }
-      catch (...) {
-        text_cache = std::make_shared<texture_cache_t>(16);
-        device_texture_cache.Put(dev_hash,text_cache);
-      }
+      if (!texture)
+        throw std::runtime_error("Unable to create texture");
       
-      bool is_cached = false;
+      texture_item_ = std::make_shared<TextureItem>();
       
-      if (text_cache->Cached(text_hash) && !text_cache->Get(text_hash)->empty()) {
-      
-        auto& q = text_cache->Get(text_hash);
-        texture_item_ = q->back(); q->pop_back();
-        is_cached = true;
-    
-      }
-      else {
-        
-        id <MTLTexture> texture = [get_command_queue().device newTextureWithDescriptor:descriptor];
-        
-        if (!texture)
-          throw std::runtime_error("Unable to create texture");
-        
-        texture_item_ = std::make_shared<TextureItem>();
-        
-        texture_item_->hash = text_hash;
-        texture_item_->texture = static_cast<id <MTLTexture>>(texture);
-        
-        if (!text_cache->Cached(text_hash))
-          text_cache->Put(text_hash, std::make_shared<texture_pool_t>());
-       
-        text_cache->Get(text_hash)->push_back(texture_item_);
-        
-      }
+      texture_item_->hash = text_hash;
+      texture_item_->texture = static_cast<id <MTLTexture>>(texture);
       
       if (buffer) {
         
@@ -182,16 +117,7 @@ namespace dehancer::metal {
                                   bytesPerRow: bytes_per_pixel * region.size.width
                                 bytesPerImage: bytes_per_pixel * region.size.width * region.size.height];
       }
-      
-      #ifdef PRINT_DEBUG
-      dehancer::log::print(" ### %s TextureHolder(Metal): %p: %li  : %ix%ix%i",
-                           is_cached ? "Cached" : "New",
-                           texture_item_->texture, texture_item_->hash,
-                           desc_.width, desc_.height, desc_.depth);
-      #endif
-      
     }
-    
     
     dehancer::Error TextureHolder::get_contents(std::vector<float>& buffer) const {
       buffer.resize( get_length());
@@ -308,32 +234,9 @@ namespace dehancer::metal {
     }
     
     TextureHolder::~TextureHolder() {
-      
-      if (texture_item_ && texture_item_->texture) {
-        
-        auto dev_hash  = reinterpret_cast<size_t>(get_command_queue());
-        
-        std::shared_ptr<texture_cache_t> text_cache;
-        
-        try {
-          text_cache = device_texture_cache.Get(dev_hash);
-        }
-        catch (...) {
-          text_cache = std::make_shared<texture_cache_t>(16);
-          device_texture_cache.Put(dev_hash,text_cache);
-        }
-        
-        auto text_hash = desc_.get_hash();
-        
-        if (!text_cache->Cached(text_hash))
-          text_cache->Put(text_hash, std::make_shared<texture_pool_t>());
-        
-        text_cache->Get(text_hash)->push_back(texture_item_);
-  
         #ifdef PRINT_DEBUG
         dehancer::log::print(" ### RETURN TextureItem(Metal): %p: %li", texture_item_->texture, texture_item_->hash);
         #endif
-      }
     }
 //    {
 //      if (texture_item_->texture) {
