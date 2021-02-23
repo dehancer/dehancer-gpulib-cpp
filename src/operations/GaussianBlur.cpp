@@ -9,7 +9,7 @@
 
 namespace dehancer {
     
-    static constexpr float MIN_DOWNSCALED_SIGMA = 4.0f;
+    static constexpr float MIN_DOWNSCALED_SIGMA = 2.0f;
     
     struct GaussianBlurOptions {
         std::array<float, 4> radius_array;
