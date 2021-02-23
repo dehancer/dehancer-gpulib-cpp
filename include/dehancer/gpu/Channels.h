@@ -135,7 +135,9 @@ namespace dehancer {
          * Scale channels instead of origin texture size
          */
         Scale2D scale;
-      
+    
+        size_t get_hash() const;
+    
         Channels make(const void *command_queue) const;
         
         static Scale2D default_scale;
