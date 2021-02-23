@@ -47,7 +47,7 @@ namespace dehancer::metal {
     TextureItem::~TextureItem(){
       if (texture) {
         #ifdef PRINT_DEBUG
-        dehancer::log::print(" ### ~TextureHolder(Metal): %p: %li", texture, hash);
+        dehancer::log::print(" ### ~TextureItem(Metal): %p: %li", texture, hash);
         #endif
         [texture release];
       }
@@ -147,7 +147,7 @@ namespace dehancer::metal {
       
       if (text_cache->Cached(text_hash) && !text_cache->Get(text_hash)->empty()) {
       
-        auto q = text_cache->Get(text_hash);
+        auto& q = text_cache->Get(text_hash);
         texture_item_ = q->back(); q->pop_back();
         is_cached = true;
     
@@ -327,8 +327,12 @@ namespace dehancer::metal {
         
         if (!text_cache->Cached(text_hash))
           text_cache->Put(text_hash, std::make_shared<texture_pool_t>());
-        text_cache->Get(text_hash)->push_back(texture_item_);
         
+        text_cache->Get(text_hash)->push_back(texture_item_);
+  
+        #ifdef PRINT_DEBUG
+        dehancer::log::print(" ### RETURN TextureItem(Metal): %p: %li", texture_item_->texture, texture_item_->hash);
+        #endif
       }
     }
 //    {
