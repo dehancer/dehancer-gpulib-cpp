@@ -251,7 +251,7 @@ static DHCR_DEVICE_FUNC inline float ambient_occlusion(DHCR_THREAD_ARG struct Is
       struct Isect occIsect;
       
       float theta = sqrt(rng_getFloat(rngstate));
-      float phi   = 2.0f * M_PI_F * rng_getFloat(rngstate);
+      float phi   = 2.0f * M_PI * rng_getFloat(rngstate);
       float x = cos(phi) * theta;
       float y = sin(phi) * theta;
       float z = sqrt(1.0f - theta * theta);
