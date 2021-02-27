@@ -1,3 +1,18 @@
+Build M1
+==========
+    mkdir build-arm64 && cd build-arm64
+    cmake -DPRINT_DEBUG=ON -DBUILD_TESTING=ON -DCMAKE_OSX_ARCHITECTURES=arm64 \
+    -DDEHANCER_TARGET_ARCH=arm64-apple-macos11 -DDEHANCER_GPU_OPENCL=ON \
+    -DDEHANCER_GPU_METAL=OFF -DDEHANCER_GPU_CUDA=OFF ..
+
+Build Intel
+==========
+    mkdir build-x86_64 && cd build-x86_64
+    cmake -DPRINT_DEBUG=ON -DBUILD_TESTING=ON \
+    -DCMAKE_OSX_ARCHITECTURES=x86_64 -DDEHANCER_TARGET_ARCH=x86_64-apple-macos10.14 \
+    -DDEHANCER_GPU_OPENCL=OFF -DDEHANCER_GPU_METAL=ON -DDEHANCER_GPU_CUDA=OFF ..
+
+
 Requirements
 ===========
     Nasm:
@@ -10,7 +25,7 @@ LibJPEG Turbo
 
     git clone https://github.com/libjpeg-turbo/libjpeg-turbo
     cd libjpeg-turbo && mkdir build && cd build
-    cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFI  X=/usr/local ..
+    cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local ..
     make -j4 && make install 
 
 Centos7 (based for DaVinci Resolve 16) 
@@ -43,9 +58,38 @@ OpenCV from sources
 
     git clone -b 4.5.0 https://github.com/opencv/opencv.git    
     cd opencv
-    mkdir build_opencv && cd build_opencv
-    cmake -DBUILD_SHARED_LIBS=OFF -DWITH_FFMPEG=OFF -DWITH_V4L=OFF \
+
+    # To make opencv on M1 for x86 copy Terminal.app to Intel Terminal.app
+    # open "Get Info", choose "Open using Rosetta"  
+    # mkdir build_opencv_x86_64 && cd build_opencv_x86_64
+    # cmake -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_INSTALL_PREFIX:PATH=/usr/local/x86_64
+    # ...
+    
+    mkdir build_opencv_arm64 && cd build_opencv_arm64
+    cmake -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_INSTALL_PREFIX:PATH=/usr/local/arm64 \
+    -DBUILD_SHARED_LIBS=OFF -DWITH_FFMPEG=OFF -DWITH_V4L=OFF \
     -DVIDEOIO_ENABLE_PLUGINS=OFF -DOPENCV_GENERATE_PKGCONFIG=ON \
     -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DCMAKE_FIND_LIBRARY_SUFFIXES=".a" ..
     # on centos add -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+        
     make -j7 && make install
+
+Cuda
+=======
+Source: https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=2004&target_type=debnetwork
+
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
+    sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600
+    sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub
+    sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /"
+    sudo apt-get update
+    sudo apt-get -y install cuda
+
+    -   PATH includes /usr/local/cuda-11.1/bin
+    -   LD_LIBRARY_PATH includes /usr/local/cuda-11.1/lib64, or, add /usr/local/cuda-11.1/lib64 to /etc/ld.so.conf and run ldconfig as root
+    
+    To uninstall the CUDA Toolkit, run cuda-uninstaller in /usr/local/cuda-11.1/bin
+    ***WARNING: Incomplete installation! This installation did not install the CUDA Driver. A driver of version at least 455.00 is required for CUDA 11.1 functionality to work.
+    To install the driver using this installer, run the following command, replacing <CudaInstaller> with the name of this run file:
+    sudo <CudaInstaller>.run --silent --driver
+

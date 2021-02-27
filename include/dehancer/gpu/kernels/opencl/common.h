@@ -2,71 +2,152 @@
 // Created by denn nevera on 30/11/2020.
 //
 
-#ifndef DEHANCER_GPULIB_COMMON_H
-#define DEHANCER_GPULIB_COMMON_H
+#ifndef DEHANCER_GPULIB_OPENCL_COMMON_H
+#define DEHANCER_GPULIB_OPENCL_COMMON_H
 
-static __constant float3 kIMP_Y_YUV_factor = {0.2125, 0.7154, 0.0721};
+#include "dehancer/gpu/kernels/constants.h"
+#include "dehancer/gpu/kernels/types.h"
+#include "dehancer/gpu/kernels/type_cast.h"
+#include "dehancer/gpu/kernels/hash_utils.h"
+#include "dehancer/gpu/kernels/cmath.h"
 
-__constant sampler_t linear_normalized_sampler = CLK_NORMALIZED_COORDS_TRUE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_LINEAR;
-__constant sampler_t nearest_sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
+__constant sampler_t linear_normalized_sampler = CLK_NORMALIZED_COORDS_TRUE | CLK_ADDRESS_MIRRORED_REPEAT | CLK_FILTER_LINEAR;
+__constant sampler_t nearest_sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_MIRRORED_REPEAT | CLK_FILTER_NEAREST;
 
-static inline float4 sampledColor(
-        __read_only image2d_t inTexture,
-        __write_only image2d_t outTexture,
-        int2 gid
-){
-  int w = get_image_width (outTexture);
-  int h = get_image_height (outTexture);
+#define texture1d_read_t DHCR_READ_ONLY image1d_t
+#define texture1d_write_t DHCR_WRITE_ONLY image1d_t
 
-  float2 coords = (float2)((float)gid.x / (w - 1),
-                           (float)gid.y / (h - 1));
+#define texture2d_read_t DHCR_READ_ONLY image2d_t
+#define texture2d_write_t DHCR_WRITE_ONLY image2d_t
 
-  float4 color = read_imagef(inTexture, linear_normalized_sampler, coords);
+#define texture3d_read_t DHCR_READ_ONLY image3d_t
+#define texture3d_write_t DHCR_WRITE_ONLY image3d_t
 
+#define  get_kernel_tid1d(tid) { \
+  tid = (int)get_global_id(0);\
+}
+
+#define  get_kernel_tid2d(tid) { \
+  tid = (int2){get_global_id(0), get_global_id(1)};\
+}
+
+#define  get_kernel_tid3d(tid) { \
+  tid = (int3){get_global_id(0), get_global_id(1), get_global_id(2)};  \
+}
+
+#define get_kernel_texel1d(destination, tex) { \
+  tex.gid =  (int)get_global_id(0); \
+  tex.size = (int)get_image_width(destination); \
+}
+
+#define get_kernel_texel2d(destination, tex) { \
+  tex.gid =  (int2){get_global_id(0), get_global_id(1)}; \
+  tex.size = (int2){get_image_width(destination), get_image_height(destination)}; \
+}
+
+#define get_kernel_texel3d(destination, tex) { \
+  tex.gid =  (int3){get_global_id(0), get_global_id(1), get_global_id(2)}; \
+  tex.size = (int3){get_image_width(destination), get_image_height(destination), get_image_depth(destination)}; \
+}
+
+#define get_texture_width(image) get_image_width(image)
+#define get_texture_height(image) get_image_height(image)
+#define get_texture_depth(image) get_image_depth(image)
+
+static inline  bool __attribute__((overloadable)) get_texel_boundary(Texel1d tex) {
+  if (tex.gid >= tex.size) {
+    return false;
+  }
+  return true;
+}
+
+static inline  bool __attribute__((overloadable)) get_texel_boundary(Texel2d tex) {
+  if (tex.gid.x >= tex.size.x || tex.gid.y >= tex.size.y) {
+    return false;
+  }
+  return true;
+}
+
+static inline  bool __attribute__((overloadable)) get_texel_boundary(Texel3d tex) {
+  if (tex.gid.x >= tex.size.x || tex.gid.y >= tex.size.y || tex.gid.z >= tex.size.z) {
+    return false;
+  }
+  return true;
+}
+
+static inline  float __attribute__((overloadable)) get_texel_coords(Texel1d tex) {
+  return (float)tex.gid / (float)(tex.size - 1);
+}
+
+static inline  float2 __attribute__((overloadable)) get_texel_coords(Texel2d tex) {
+  return (float2){(float)tex.gid.x / (float)(tex.size.x - 1),
+                  (float)tex.gid.y / (float)(tex.size.y - 1)};
+}
+
+static inline  float3 __attribute__((overloadable)) get_texel_coords(Texel3d tex) {
+  return (float3){
+          (float)tex.gid.x / (float)(tex.size.x - 1),
+          (float)tex.gid.y / (float)(tex.size.y - 1),
+          (float)tex.gid.z / (float)(tex.size.z - 1),
+  };
+}
+
+// 1D
+static inline float4 __attribute__((overloadable)) read_image(__read_only image1d_t source, int gid) {
+  return read_imagef(source, nearest_sampler, gid);
+}
+
+static inline float4 __attribute__((overloadable)) read_image(__read_only image1d_t source, float coords) {
+  return read_imagef(source, linear_normalized_sampler, coords);
+}
+
+static inline float4 __attribute__((overloadable)) read_image(__read_only image1d_t source, float4 coords) {
+  float4 color = coords;
+  color.x = read_imagef(source, linear_normalized_sampler, color.x).x;
+  color.y = read_imagef(source, linear_normalized_sampler, color.y).y;
+  color.z = read_imagef(source, linear_normalized_sampler, color.z).z;
   return color;
 }
 
-__kernel void kernel_dehancer_pass(
-        __read_only image2d_t  source,
-        __write_only image2d_t destination
-){
-
-  int x = get_global_id(0);
-  int y = get_global_id(1);
-
-  int2 gid = (int2)(x, y);
-
-  float4  color = sampledColor(source, destination, gid);
-
+static inline void __attribute__((overloadable)) write_image(__write_only image1d_t destination, float4 color, int gid) {
   write_imagef(destination, gid, color);
 }
 
-__kernel void grid_kernel(int levels, __write_only image2d_t destination )
-{
 
-  int w = get_image_width (destination);
-  int h = get_image_height (destination);
-
-  int x = get_global_id(0);
-  int y = get_global_id(1);
-
-  int2 gid = (int2)(x, y);
-
-  float2 coords = (float2)((float)gid.x / (float)(w - 1),
-                           (float)gid.y / (float)(h - 1));
-
-  int num = levels*2;
-  int index_x = (int)(coords.x*(num));
-  int index_y = (int)(coords.y*(num));
-
-  int index = clamp((index_y+index_x)%2,(int)(0),(int)(num));
-
-  float ret = (float)(index);
-
-  float4 color = {ret*coords.x,ret*coords.y,ret,1.0} ;
-
-  write_imagef(destination, gid, color);
-
+// 2D
+static inline float4 __attribute__((overloadable)) read_image(__read_only image2d_t source, int2 gid) {
+  return read_imagef(source, nearest_sampler, gid);
 }
 
-#endif //DEHANCER_GPULIB_COMMON_H
+static inline float4 __attribute__((overloadable)) read_image(__read_only image2d_t source, float2 coords) {
+  return read_imagef(source, linear_normalized_sampler, coords);
+}
+
+static inline void __attribute__((overloadable)) write_image(__write_only image2d_t destination, float4 color, int2 gid) {
+  write_imagef(destination, gid, color);
+}
+
+// 3D
+static inline float4 __attribute__((overloadable)) read_image(__read_only image3d_t source, int3 gid) {
+  return read_imagef(source, nearest_sampler, (int4){gid.x, gid.y, gid.z, 0});
+}
+
+static inline float4 __attribute__((overloadable)) read_image(__read_only image3d_t source, float3 coords) {
+  return read_imagef(source, linear_normalized_sampler, (float4){coords.x,coords.y,coords.z,0});
+}
+
+static inline float4 __attribute__((overloadable)) read_image(__read_only image3d_t source, float4 coords) {
+  return read_imagef(source, linear_normalized_sampler, coords);
+}
+
+static inline void __attribute__((overloadable)) write_image(__write_only image3d_t destination, float4 color, int3 gid) {
+  write_imagef(destination, (int4){gid.x,gid.y,gid.z,0}, color);
+}
+
+
+static inline  float3 compress(float3 rgb, float2 compression) {
+  return  compression.x*rgb + compression.y;
+}
+
+
+#endif //DEHANCER_GPULIB_OPENCL_COMMON_H

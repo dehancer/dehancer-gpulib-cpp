@@ -5,14 +5,21 @@
 
 #include <string>
 
+#include "dehancer/gpu/Paths.h"
+
 extern char TestKernels_cl[];
 extern int  TestKernels_cl_len;
 
 namespace dehancer::device {
 
     extern std::string get_lib_path() {
-      auto p = TestKernels_cl;
-      return "TestKernels.cl";
+      return "";
+    }
+
+    extern std::size_t get_lib_source(std::string& source) {
+      source.clear();
+      source.append(TestKernels_cl,TestKernels_cl_len);
+      return std::hash<std::string>{}(source);
     }
 
 }

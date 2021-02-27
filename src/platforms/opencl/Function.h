@@ -16,7 +16,7 @@ namespace dehancer::opencl {
                  const std::string& kernel_name,
                  const std::string &library_path
                  );
-        void execute(const dehancer::Function::FunctionHandler& block);
+        void execute(const dehancer::Function::EncodeHandler& block);
 
         [[nodiscard]] const std::string& get_name() const;
         [[nodiscard]] const std::vector<dehancer::Function::ArgInfo>& get_arg_info_list() const ;
@@ -33,7 +33,7 @@ namespace dehancer::opencl {
         mutable std::vector<dehancer::Function::ArgInfo> arg_list_;
 
         typedef std::unordered_map<std::string, cl_kernel> KernelMap;
-        typedef std::unordered_map<std::string, cl_program> ProgamMap;
+        typedef std::unordered_map<std::size_t, cl_program> ProgamMap;
 
         static std::unordered_map<cl_command_queue, KernelMap> kernel_map_;
         static std::unordered_map<cl_command_queue, ProgamMap> program_map_;

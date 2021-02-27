@@ -64,12 +64,12 @@ namespace test {
 
     private:
         Memory color_map_;
-        uint   levels_;
+        int    levels_;
         float3 opacity_;
     };
 }
 
-int run_bench(int num, const void* device, std::string patform) {
+int run_on_device(int num, const void* device, std::string patform) {
 
   dehancer::TextureIO::Options::Type type = dehancer::TextureIO::Options::Type::png;
   std::string ext = dehancer::TextureIO::extention_for(type);
@@ -177,9 +177,17 @@ int run_bench(int num, const void* device, std::string patform) {
   return 0;
 }
 
-void test_bench(std::string platform) {
+void test_bench(const std::string& platform) {
   try {
-    auto devices = dehancer::DeviceCache::Instance().get_device_list();
+#if __APPLE__
+    auto devices = dehancer::DeviceCache::Instance().get_device_list(
+            dehancer::device::Type::gpu
+            );
+#else
+    auto devices = dehancer::DeviceCache::Instance().get_device_list(
+            dehancer::device::Type::gpu
+            );
+#endif
     assert(!devices.empty());
 
     int dev_num = 0;
@@ -193,10 +201,7 @@ void test_bench(std::string platform) {
     dev_num = 0;
 
     for (auto d: devices) {
-#if __APPLE__
-      if (dehancer::device::get_type(d) == dehancer::device::Type::cpu) continue;
-#endif
-      if (run_bench(dev_num++, d, platform)!=0) return;
+      if (run_on_device(dev_num++, d, platform) != 0) return;
     }
 
   }

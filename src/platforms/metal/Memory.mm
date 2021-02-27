@@ -3,6 +3,7 @@
 //
 
 #include "Memory.h"
+#include "dehancer/gpu/Log.h"
 
 namespace dehancer::metal {
 
@@ -19,9 +20,9 @@ namespace dehancer::metal {
       }
 
       if (buffer)
-        memobj_ = [get_device() newBufferWithBytes: buffer length: length options:MTLResourceStorageModeManaged];
+        memobj_ = [get_device() newBufferWithBytes: buffer length: length options:MTLResourceStorageModeShared];
       else
-        memobj_ = [get_device() newBufferWithLength:length options:MTLResourceStorageModeManaged];
+        memobj_ = [get_device() newBufferWithLength:length options:MTLResourceStorageModeShared];
 
       if ( !memobj_ ) {
         throw std::runtime_error("Device memory could not be allocated with size: " + std::to_string(length));
@@ -50,8 +51,9 @@ namespace dehancer::metal {
     }
 
     MemoryHolder::~MemoryHolder() {
-      if (memobj_ && is_self_allocated_)
+      if (memobj_ && is_self_allocated_) {
         [memobj_ release];
+      }
     }
 
     size_t MemoryHolder::get_length() const {
@@ -67,10 +69,37 @@ namespace dehancer::metal {
     }
 
     Error MemoryHolder::get_contents(std::vector<uint8_t> &buffer) const {
+      return  get_contents(buffer.data(),memobj_.length);
+    }
+    
+    Error MemoryHolder::get_contents (void *buffer, size_t length) const {
+    
       if (memobj_.contents == nullptr)
         return Error(CommonError::PERMISSIONS_ERROR, error_string("Device memory object is private"));
-      buffer.resize(get_length());
-      memcpy(buffer.data(), memobj_.contents, get_length());
+    
+      if (memobj_.length>length)
+        return Error(CommonError::OUT_OF_RANGE, error_string("Device memory length greater then buffer allocated"));
+  
+      //auto command_buffer = [get_command_queue() commandBuffer];
+      //id<MTLBlitCommandEncoder> blitEncoder = [command_buffer blitCommandEncoder];
+      //[blitEncoder synchronizeResource:memobj_];
+      //[blitEncoder endEncoding];
+      //[command_buffer waitUntilCompleted];
+  
+      memcpy(buffer, memobj_.contents, length);
+      
       return Error(CommonError::OK);
     }
+    
+    const void *MemoryHolder::get_pointer () const {
+      if (memobj_) return &memobj_;
+      return nullptr;
+    }
+    
+    void *MemoryHolder::get_pointer () {
+      if (memobj_) return &memobj_;
+      return nullptr;
+    }
+    
+   
 }

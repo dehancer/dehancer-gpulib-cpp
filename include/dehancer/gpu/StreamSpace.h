@@ -6,7 +6,7 @@
 
 #include "dehancer/gpu/DeviceConfig.h"
 #include "dehancer/gpu/ocio/LogParams.h"
-#include "dehancer/gpu/ocio/GamaParams.h"
+#include "dehancer/gpu/ocio/GammaParams.h"
 #include "dehancer/gpu/ocio/LutParams.h"
 
 namespace dehancer {

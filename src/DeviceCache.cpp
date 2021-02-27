@@ -3,15 +3,18 @@
 //
 
 #include "dehancer/gpu/DeviceCache.h"
-
 #include "dehancer/gpu/Command.h"
 #include "platforms/PlatformConfig.h"
 
 #if defined(DEHANCER_GPU_METAL)
 #include "src/platforms/metal/DeviceCache.h"
+#elif defined(DEHANCER_GPU_CUDA)
+#include "src/platforms/cuda//DeviceCache.h"
 #elif defined(DEHANCER_GPU_OPENCL)
 #include "src/platforms/opencl/DeviceCache.h"
 #endif
+
+#ifdef DEHANCER_GPU_PLATFORM
 
 namespace dehancer {
 
@@ -46,8 +49,8 @@ namespace dehancer {
       impl_->return_command_queue(q);
     }
 
-    std::vector<void *> gpu_device_cache::get_device_list() {
-      return impl_->get_device_list();
+    std::vector<void *> gpu_device_cache::get_device_list(int filter) {
+      return impl_->get_device_list(filter);
     }
 
     uint64_t device::get_id(const void *device) {
@@ -62,3 +65,5 @@ namespace dehancer {
       return DEHANCER_GPU_PLATFORM::device::get_type(device);
     }
 }
+
+#endif

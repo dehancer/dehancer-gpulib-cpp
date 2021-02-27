@@ -4,7 +4,9 @@
 
 #pragma once
 
-#include "Params.h"
+
+#include "dehancer/gpu/kernels/types.h"
+#include "dehancer/gpu/Typedefs.h"
 
 namespace dehancer {
 

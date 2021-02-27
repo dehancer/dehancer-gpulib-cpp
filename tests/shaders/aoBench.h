@@ -5,6 +5,9 @@
 #ifndef CLHELPER_TOOLS_AOBENCH_H
 #define CLHELPER_TOOLS_AOBENCH_H
 
+#include "dehancer/gpu/kernels/types.h"
+#include "dehancer/gpu/kernels/constants.h"
+
 #ifdef __METAL_VERSION__
 
 #include <metal_stdlib>
@@ -18,7 +21,10 @@ using namespace metal;
 #endif
 
 #define NAO_SAMPLES		8
-#define M_PI 3.1415926535f
+
+#ifndef M_PI
+//#define M_PI 3.1415926535f
+#endif
 
 /* random number generator, taken from the ospray project, http://www.ospray.org
 

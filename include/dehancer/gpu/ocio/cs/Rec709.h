@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "dehancer/gpu/ocio/GamaParams.h"
+#include "dehancer/gpu/ocio/GammaParams.h"
 
 namespace dehancer{
     namespace ocio {

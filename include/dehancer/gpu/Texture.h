@@ -9,6 +9,13 @@
 
 namespace dehancer {
 
+    struct TextureHolder;
+
+    /***
+     * Texture pointer object
+     */
+    using Texture = std::shared_ptr<TextureHolder>;
+
     /***
      * Texture description
      */
@@ -77,15 +84,20 @@ namespace dehancer {
          * Texture memory flags options
          */
         MemFlags mem_flags = MemFlags::read_write;
+
+        /***
+         * Debug info
+         */
+        std::string label;
+        
+        [[nodiscard]] size_t get_hash() const ;
+        
+        Texture make(const void *command_queue, const float *from_memory = nullptr) const;
     };
-
-    struct TextureHolder;
-
-    /***
-     * Texture pointer object
-     */
-    using Texture = std::shared_ptr<TextureHolder>;
-
+    
+    bool operator==(const TextureDesc& lhs, const TextureDesc& rhs);
+    bool operator!=(const TextureDesc& lhs, const TextureDesc& rhs);
+    
     /***
      * Texture object holder. U must use only Texture pointer object.
      */
@@ -106,7 +118,7 @@ namespace dehancer {
          */
         Texture get_ptr() { return shared_from_this(); }
 
-        virtual ~TextureHolder() = default;
+        virtual ~TextureHolder();
 
         /***
          * Get platform specific handler of texture placed in device memory.
@@ -125,6 +137,8 @@ namespace dehancer {
          * @return expected Error object descriptor or Error::OK
          */
         virtual Error get_contents(std::vector<float>& buffer) const = 0;
+
+        virtual Error get_contents(void* buffer, size_t length) const = 0;
 
         /***
          * Get texture width.
@@ -167,7 +181,9 @@ namespace dehancer {
          * @return
          */
         [[nodiscard]] virtual TextureDesc::Type get_type() const = 0;
-
+    
+        virtual TextureDesc get_desc() const = 0;
+        
         TextureHolder(const TextureHolder&) = delete;
         TextureHolder(TextureHolder&&) = delete;
         TextureHolder& operator=(const TextureHolder&) = delete;

@@ -35,7 +35,7 @@ namespace dehancer::impl {
 
         friend std::ostream& operator<<(std::ostream& os, const TextureOutput& dt);
 
-        ~TextureOutput();
+        ~TextureOutput() override;
 
     private:
         Texture source_;

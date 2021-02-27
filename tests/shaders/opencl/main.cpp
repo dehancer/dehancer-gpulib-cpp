@@ -12,7 +12,7 @@ int main() {
 
   try {
     auto q = dehancer::DeviceCache::Instance().get_default_command_queue();
-    auto function = dehancer::Function(q, "kernel_dehancer_pass");
+    auto function = dehancer::Function(q, "kernel_test_transform");
   }
   catch (const std::runtime_error &e) {
     std::cerr << "Error: " << e.what() << std::endl;
@@ -20,13 +20,3 @@ int main() {
   return 0;
 }
 
-
-extern char TestKernels_cl[];
-extern int  TestKernels_cl_len;
-
-namespace dehancer::device {
-    extern std::string get_lib_path() {
-      auto p = TestKernels_cl;
-      return "TestKernels.cl";
-    }
-}

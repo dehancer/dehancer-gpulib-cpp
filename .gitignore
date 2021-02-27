@@ -66,3 +66,4 @@ xcuserdata
 
 .env
 canon-c200-canon_log.clut
+*.fatbin

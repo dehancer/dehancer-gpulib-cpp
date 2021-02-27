@@ -7,9 +7,13 @@
 
 #if defined(DEHANCER_GPU_METAL)
 #include "platforms/metal/Memory.h"
+#elif defined(DEHANCER_GPU_CUDA)
+#include "platforms/cuda/Memory.h"
 #elif defined(DEHANCER_GPU_OPENCL)
 #include "platforms/opencl/Memory.h"
 #endif
+
+#ifdef DEHANCER_GPU_PLATFORM
 
 namespace dehancer {
 
@@ -32,4 +36,12 @@ namespace dehancer {
     Memory MemoryHolder::Make(const void *command_queue, size_t length) {
       return MemoryHolder::Make(command_queue, nullptr, length);
     }
+
+    Memory MemoryDesc::make(const void *command_queue, const void* from_memory) {
+      if (type == MemType::host)
+        return dehancer::MemoryHolder::Make(command_queue, from_memory, length);
+      return dehancer::MemoryHolder::Make(command_queue, from_memory);
+    }
 }
+
+#endif

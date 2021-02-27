@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "dehancer/opencl/buffer.h"
 #include "dehancer/opencl/embeddedProgram.h"
 
 namespace dehancer::opencl {

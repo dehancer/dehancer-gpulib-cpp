@@ -18,9 +18,16 @@ include_directories(
         ${CMAKE_BINARY_DIR}/external/include
 )
 
+set(EXTERNAL_LIBS "")
+
 if (DEHANCER_CURRENT_PLATFORM_METAL)
 
     set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_metal)
+    add_executable(${TEST} ${TESTS_SOURCES})
+
+elseif (DEHANCER_CURRENT_PLATFORM_CUDA)
+
+    set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_cuda)
     add_executable(${TEST} ${TESTS_SOURCES})
 
 elseif(DEHANCER_CURRENT_PLATFORM_OPENCL)
@@ -37,6 +44,8 @@ elseif(DEHANCER_CURRENT_PLATFORM_OPENCL)
     message("OPENCL KERNELS: ${CURRENT_KERNEL_TARGET_NAME} ${REGESTRY_SOURCES}")
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES}; ${CURRENT_KERNEL_TARGET_NAME}_opencl)
 
+    set(EXTERNAL_LIBS "${EXTERNAL_LIBS};clHelperLib")
+
     add_executable(${TEST}
             ${TESTS_SOURCES}
             ${REGESTRY_SOURCES}
@@ -48,16 +57,16 @@ endif ()
 target_link_libraries(
         ${TEST}
         ${PROJECT_LIB_PLATFORM}
-        clHelperLib
+        ${EXTERNAL_LIBS}
         ${COMMON_LIBRARIES}
         ${TEST_LIBRARIES}
         ${CMAKE_DL_LIBS}
 )
 
-if (COMMON_DEPENDECIES)
+if (COMMON_DEPENDENCIES)
     add_dependencies(
             ${TEST}
-            ${COMMON_DEPENDECIES}
+            ${COMMON_DEPENDENCIES}
     )
 endif ()
 
@@ -72,6 +81,13 @@ if(DEHANCER_GPU_OPENCL)
     add_dependencies(
             ${TEST}
             ${CURRENT_KERNEL_TARGET_NAME}_opencl
+    )
+endif()
+
+if(DEHANCER_GPU_CUDA)
+    add_dependencies(
+            ${TEST}
+            ${CURRENT_KERNEL_TARGET_NAME}_cuda
     )
 endif()
 

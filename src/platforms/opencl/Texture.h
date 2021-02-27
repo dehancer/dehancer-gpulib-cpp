@@ -16,6 +16,7 @@ namespace dehancer::opencl {
         [[nodiscard]] const void*  get_memory() const override;
         [[nodiscard]] void*  get_memory() override;
         dehancer::Error get_contents(std::vector<float>& buffer) const override;
+        dehancer::Error get_contents(void* buffer, size_t length) const override;
         [[nodiscard]] size_t get_width() const override;
         [[nodiscard]] size_t get_height() const override;
         [[nodiscard]] size_t get_depth() const override;
@@ -24,6 +25,8 @@ namespace dehancer::opencl {
         [[nodiscard]] TextureDesc::PixelFormat get_pixel_format() const override;
         [[nodiscard]] TextureDesc::Type get_type() const override;
 
+        TextureDesc get_desc() const override { return desc_;}
+        
     private:
         TextureDesc desc_;
         cl_mem memobj_;

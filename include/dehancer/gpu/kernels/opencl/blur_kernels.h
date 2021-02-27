@@ -5,7 +5,6 @@
 #ifndef DEHANCER_GPULIB_BLUR_KERNELS_H
 #define DEHANCER_GPULIB_BLUR_KERNELS_H
 
-
 __kernel void box_blur_horizontal_kernel (__global float* scl,
                                           __global float* tcl,
                                           int w,

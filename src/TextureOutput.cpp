@@ -47,6 +47,11 @@ namespace dehancer{
         os<<*dt.impl_;
       return os;
     }
-
+    
+    TextureOutput::TextureOutput (const void *command_queue, size_t width, size_t height,
+                                  const TextureIO::Options &options):TextureOutput(command_queue,width,height, nullptr, options) {
+      
+    }
+    
     TextureOutput::~TextureOutput() = default;
 }

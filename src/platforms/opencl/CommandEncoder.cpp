@@ -45,7 +45,7 @@ namespace dehancer::opencl {
       }
     }
 
-    void opencl::CommandEncoder::set(const float4 &p, int index) {
+    void CommandEncoder::set(const float4 &p, int index) {
       cl_float4 buf = { p.x(), p.y(), p.z(), p.w()};
       set(&buf, sizeof(buf), index);
     }
@@ -75,10 +75,62 @@ namespace dehancer::opencl {
       for (int i = 0; i < m.size(); ++i) mat.s[i]=m[i];
       set(&mat, sizeof(mat), index);
     };
-
+    
+    void CommandEncoder::set(const float3x3& m, int index){
+      cl_float3 mat;
+      for (int i = 0; i < m.size(); ++i) mat.s[i]=m[i];
+      set(&mat, sizeof(mat), index);
+    };
+    
     void CommandEncoder::set(const float4x4& m, int index){
       cl_float16 mat;
       for (int i = 0; i < m.size(); ++i) mat.s[i]=m[i];
       set(&mat, sizeof(mat), index);
     };
+    
+    void CommandEncoder::set(const math::uint4 &p, int index) {
+      cl_uint4 buf = { p.x(), p.y(), p.z(), p.w()};
+      set(&buf, sizeof(buf), index);
+    }
+    
+    void CommandEncoder::set(const math::uint3 &p, int index) {
+      cl_uint3 buf = { p.x(), p.y(), p.z()};
+      set(&buf, sizeof(buf), index);
+    }
+    
+    void CommandEncoder::set(const math::uint2 &p, int index) {
+      cl_uint2 buf = { p.x(), p.y()};
+      set(&buf, sizeof(buf), index);
+    }
+    
+    void CommandEncoder::set(const math::int4 &p, int index) {
+      cl_int4 buf = { p.x(), p.y(), p.z(), p.w()};
+      set(&buf, sizeof(buf), index);
+    }
+    
+    void CommandEncoder::set(const math::int3 &p, int index) {
+      cl_int3 buf = { p.x(), p.y(), p.z()};
+      set(&buf, sizeof(buf), index);
+    }
+    
+    void CommandEncoder::set(const math::int2 &p, int index) {
+      cl_int2 buf = { p.x(), p.y()};
+      set(&buf, sizeof(buf), index);
+    }
+    
+    void CommandEncoder::set(const math::bool4 &p, int index) {
+      cl_uint4 buf = { p.x(), p.y(), p.z(), p.w()};
+      set(&buf, sizeof(buf), index);
+    }
+    
+    void CommandEncoder::set(const math::bool3 &p, int index) {
+      cl_uint3 buf = { p.x(), p.y(), p.z()};
+      set(&buf, sizeof(buf), index);
+    }
+    
+    void CommandEncoder::set(const math::bool2 &p, int index) {
+      cl_uint2 buf = { p.x(), p.y()};
+      set(&buf, sizeof(buf), index);
+    }
+  
 }

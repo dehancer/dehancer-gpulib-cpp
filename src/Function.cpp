@@ -10,11 +10,16 @@
 #if defined(DEHANCER_GPU_METAL)
 #include "platforms/metal/Function.h"
 #include "src/platforms/metal/Command.h"
+#elif defined(DEHANCER_GPU_CUDA)
+#include "platforms/cuda/Function.h"
+#include "src/platforms/cuda/Command.h"
 #elif defined(DEHANCER_GPU_OPENCL)
 #include "platforms/opencl/Function.h"
 #include "src/platforms/opencl/Command.h"
 #endif
 
+
+#ifdef DEHANCER_GPU_PLATFORM
 
 namespace dehancer {
 
@@ -40,7 +45,7 @@ namespace dehancer {
     {
     }
 
-    void Function::execute(const Function::FunctionHandler &block) {
+    void Function::execute(const Function::EncodeHandler &block) {
       impl_->execute(block);
     }
 
@@ -51,4 +56,7 @@ namespace dehancer {
     const std::string& Function::get_name() const {
       return impl_->get_name();
     }
+
 }
+
+#endif

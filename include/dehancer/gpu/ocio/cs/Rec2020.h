@@ -4,11 +4,10 @@
 
 #pragma once
 
-#include "dehancer/gpu/ocio/GamaParams.h"
+#include "dehancer/gpu/ocio/GammaParams.h"
 
 namespace dehancer{
     namespace ocio {
-
         namespace REC2020_22 {
             static const ocio::GammaParameters gamma_parameters = {
                     .lin_side_break  = 0.0181f,

@@ -7,10 +7,14 @@
 
 #if defined(DEHANCER_GPU_METAL)
 #include "src/platforms/metal/Command.h"
+#elif defined(DEHANCER_GPU_CUDA)
+#include "src/platforms/cuda/Command.h"
 #elif defined(DEHANCER_GPU_OPENCL)
 #include "src/platforms/opencl/Command.h"
 #endif
 
+
+#ifdef DEHANCER_GPU_PLATFORM
 
 namespace dehancer {
 
@@ -50,3 +54,5 @@ namespace dehancer {
 
     Command::~Command() = default;
 }
+
+#endif

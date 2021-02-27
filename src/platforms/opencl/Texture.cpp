@@ -3,6 +3,7 @@
 //
 
 #include "Texture.h"
+#include "dehancer/gpu/Log.h"
 #include <cstring>
 
 namespace dehancer::opencl {
@@ -87,40 +88,6 @@ namespace dehancer::opencl {
         throw std::runtime_error("Unable to create texture: " + std::to_string(last_error_));
     }
 
-    dehancer::Error TextureHolder::get_contents(std::vector<float> &buffer) const {
-
-      size_t originst[3];
-      size_t regionst[3];
-      size_t  rowPitch = 0;
-      size_t  slicePitch = 0;
-      originst[0] = 0; originst[1] = 0; originst[2] = 0;
-      regionst[0] = get_width();
-      regionst[1] = get_height();
-      regionst[2] = get_depth();
-
-      buffer.resize( get_length());
-
-      auto ret = clEnqueueReadImage(
-              get_command_queue(),
-              memobj_,
-              CL_TRUE,
-              originst,
-              regionst,
-              rowPitch,
-              slicePitch,
-              buffer.data(),
-              0,
-              nullptr,
-              nullptr );
-
-      if (ret != CL_SUCCESS) {
-        return Error(CommonError::EXCEPTION, "Texture could not be read");
-      }
-
-      return Error(CommonError::OK);
-
-    }
-
     const void *TextureHolder::get_memory() const {
       return memobj_;
     }
@@ -179,6 +146,45 @@ namespace dehancer::opencl {
     TextureHolder::~TextureHolder() {
       if(memobj_)
         clReleaseMemObject(memobj_);
+    }
+
+    dehancer::Error TextureHolder::get_contents(std::vector<float> &buffer) const {
+      buffer.resize( get_length());
+      return get_contents(buffer.data(), get_length());
+    }
+
+    dehancer::Error TextureHolder::get_contents(void *buffer, size_t length) const {
+      size_t originst[3];
+      size_t regionst[3];
+      size_t  rowPitch = 0;
+      size_t  slicePitch = 0;
+      originst[0] = 0; originst[1] = 0; originst[2] = 0;
+      regionst[0] = get_width();
+      regionst[1] = get_height();
+      regionst[2] = get_depth();
+
+      if (length < this->get_length()) {
+        return Error(CommonError::OUT_OF_RANGE, "Texture length greater then buffer length");
+      }
+
+      auto ret = clEnqueueReadImage(
+              get_command_queue(),
+              memobj_,
+              CL_TRUE,
+              originst,
+              regionst,
+              rowPitch,
+              slicePitch,
+              buffer,
+              0,
+              nullptr,
+              nullptr );
+
+      if (ret != CL_SUCCESS) {
+        return Error(CommonError::EXCEPTION, "Texture could not be read");
+      }
+
+      return Error(CommonError::OK);
     }
 
 }

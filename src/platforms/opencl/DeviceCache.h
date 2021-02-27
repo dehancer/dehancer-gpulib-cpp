@@ -5,8 +5,8 @@
 #pragma once
 
 #include "dehancer/Common.h"
-#include "dehancer/opencl/buffer.h"
-#include "dehancer/opencl/embeddedProgram.h"
+#include "dehancer/opencl/common.h"
+#include "dehancer/opencl/device.h"
 #include "dehancer/gpu/DeviceCache.h"
 
 #include <mutex>
@@ -48,7 +48,7 @@ namespace dehancer::opencl {
     public:
         gpu_device_cache();
 
-       std::vector<void *> get_device_list();
+       std::vector<void *> get_device_list(dehancer::device::TypeFilter filter);
        void* get_device(uint64_t id) ;
        void* get_default_device() ;
        void* get_command_queue(uint64_t id) ;

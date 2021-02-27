@@ -17,10 +17,13 @@ namespace dehancer::metal {
 
         size_t get_length() const override;
         [[nodiscard]] const void*  get_memory() const override;
-
         [[nodiscard]] void*  get_memory() override;
-
+    
+        const void * get_pointer() const override;
+        void * get_pointer() override;
+        
         Error get_contents(std::vector<uint8_t>& buffer) const override;
+        Error get_contents(void *buffer, size_t length) const override;
 
     private:
         id<MTLBuffer> memobj_;

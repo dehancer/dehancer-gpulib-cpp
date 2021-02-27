@@ -89,6 +89,45 @@ namespace dehancer::opencl {
     }
 
     Error MemoryHolder::get_contents(std::vector<uint8_t> &buffer) const {
-      return Error(CommonError::NOT_SUPPORTED);
+      buffer.resize( get_length());
+      return get_contents(buffer.data(), get_length());
     }
+
+    Error MemoryHolder::get_contents(void *buffer, size_t length) const {
+
+      if (!memobj_)
+        return Error(CommonError::OUT_OF_RANGE, "Memory object is null");
+
+      if (length<get_length())
+        return Error(CommonError::OUT_OF_RANGE, "Buffer length not enough to copy memory object");
+
+      auto ret = clEnqueueReadBuffer(get_command_queue(),
+                                     memobj_,
+                                     CL_TRUE,
+                                     0,
+                                     get_length(),
+                                     buffer,
+                                     0,
+                                     nullptr,
+                                     nullptr);
+
+      if (ret != CL_SUCCESS) {
+        return Error(CommonError::EXCEPTION, "Memory could not be read");
+      }
+
+      return Error(CommonError::OK);
+    }
+
+    const void *MemoryHolder::get_pointer() const {
+      if (memobj_)
+        return &memobj_;
+      return nullptr;
+    }
+
+    void *MemoryHolder::get_pointer() {
+      if (memobj_)
+        return &memobj_;
+      return nullptr;
+    }
+
 }

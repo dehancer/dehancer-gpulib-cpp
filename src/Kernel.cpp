@@ -34,21 +34,27 @@ namespace dehancer {
     void Kernel::process() {
       execute([this](CommandEncoder& command){
           int count = 0;
-          if (this->get_source())
-            command.set(this->get_source(),count++);
-          if (this->get_destination())
-            command.set(this->get_destination(), count++);
+          if (impl_->source_)
+            command.set(impl_->source_,count++);
+          if (impl_->destination_)
+            command.set(impl_->destination_, count++);
           this->setup(command);
-          auto t = this->get_destination() ? this->get_destination() : this->get_source();
+          auto t  = impl_->destination_ ? impl_->destination_ : impl_->source_;
           if (t)
-            return (CommandEncoder::Size){t->get_width(),t->get_height(),t->get_depth()};
+            return CommandEncoder::Size::From(t);
           return get_encoder_size();
       });
     }
-
+    
+    void Kernel::process (const Texture &source, const Texture &destination) {
+      set_source(source);
+      set_destination(destination);
+      process();
+    }
+    
     void Kernel::setup(CommandEncoder &commandEncoder) {
-      if (optionsHandler) {
-        optionsHandler(commandEncoder);
+      if (encode_handler) {
+        encode_handler(commandEncoder);
       }
     }
 
@@ -61,12 +67,18 @@ namespace dehancer {
     const Texture& Kernel::get_destination() const {
       return impl_->destination_;
     }
-
-    void Kernel::set_destination(Texture &dest) {
+    
+    void Kernel::set_source (const Texture &src) {
+      impl_->source_ = src;
+    }
+    
+    void Kernel::set_destination(const Texture &dest) {
       impl_->destination_ = dest;
     }
 
     CommandEncoder::Size Kernel::get_encoder_size() const {
       throw std::runtime_error("get_encoder_size must be defined for kernel: " + get_name());
     }
+    
+  
 }

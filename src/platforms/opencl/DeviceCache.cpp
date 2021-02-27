@@ -55,10 +55,11 @@ namespace dehancer::opencl {
       }
     }
 
-    std::vector<void *> gpu_device_cache::get_device_list() {
+    std::vector<void *> gpu_device_cache::get_device_list(dehancer::device::TypeFilter filter) {
       std::vector<void *> list;
       for(const auto& d: devices_){
-        list.push_back(d.get());
+        if (filter & device::get_type(d.get()))
+         list.push_back(d.get());
       }
       return list;
     }
