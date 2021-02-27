@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 3.12)
-cmake_minimum_required(VERSION 3.12)
 
 #
 # Project
 #
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 0.0.1)
+project(${PROJECT_LIB} VERSION 0.5.1)
 
 #
 # Options
@@ -15,7 +14,7 @@ option (BUILD_TESTING "Enable creation of  tests." OFF)
 option (DEHANCER_GPU_METAL "Dehancer GPU Layer is Metal" ON)
 option (DEHANCER_GPU_OPENCL "Dehancer GPU Layer is OpenCL" ON)
 option (DEHANCER_GPU_CUDA "Dehancer GPU Layer is CUDA" ON)
-option (DEHANCER_TARGET_ARCH "Dehancer platoform arch" "")
+option (DEHANCER_TARGET_ARCH "Dehancer platform arch" "")
 
 if (DEHANCER_TARGET_ARCH)
     #
@@ -45,7 +44,7 @@ if (NOT CMAKE_INSTALL_LIBDIR)
 endif ()
 
 #
-# Programms
+# Programs
 #
 find_program(CCACHE_FOUND ccache)
 find_program(MAKE_EXE NAMES gmake nmake make)
