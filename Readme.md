@@ -1,3 +1,18 @@
+Build M1
+==========
+    mkdir build-arm64 && cd build-arm64
+    cmake -DPRINT_DEBUG=ON -DBUILD_TESTING=ON -DCMAKE_OSX_ARCHITECTURES=arm64 \
+    -DDEHANCER_TARGET_ARCH=arm64-apple-macos11 -DDEHANCER_GPU_OPENCL=ON \
+    -DDEHANCER_GPU_METAL=OFF -DDEHANCER_GPU_CUDA=OFF ..
+
+Build Intel
+==========
+    mkdir build-x86_64 && cd build-x86_64
+    cmake -DPRINT_DEBUG=ON -DBUILD_TESTING=ON \
+    -DCMAKE_OSX_ARCHITECTURES=x86_64 -DDEHANCER_TARGET_ARCH=x86_64-apple-macos10.14 \
+    -DDEHANCER_GPU_OPENCL=OFF -DDEHANCER_GPU_METAL=ON -DDEHANCER_GPU_CUDA=OFF ..
+
+
 Requirements
 ===========
     Nasm:
