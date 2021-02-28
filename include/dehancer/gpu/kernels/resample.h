@@ -8,6 +8,8 @@
 #include "dehancer/gpu/kernels/common.h"
 #include "dehancer/gpu/kernels/types.h"
 
+#define DHCR_AXIS_OFFSET 0.5f
+
 /***
  * Bilinear interpolation
  * @param source - source texture
@@ -18,8 +20,8 @@
 inline DHCR_DEVICE_FUNC
 float4 tex2D_bilinear(texture2d_read_t source, float x, float y)
 {
-  //x -= 0.5f;
-  //y -= 0.5f;
+  x += DHCR_AXIS_OFFSET;
+  y += DHCR_AXIS_OFFSET;
   
   float  u = floor(x);
   float  v = floor(y);
@@ -55,8 +57,8 @@ float read_channel(DHCR_DEVICE_ARG float* source, int2 size, int2 gid){
 inline DHCR_DEVICE_FUNC
 float channel_bilinear(DHCR_DEVICE_ARG float* source, int2 size, float x, float y)
 {
-  //x -= 0.5f;
-  //y -= 0.5f;
+  x += DHCR_AXIS_OFFSET;
+  y += DHCR_AXIS_OFFSET;
   
   float  u = floor(x);
   float  v = floor(y);
@@ -136,8 +138,9 @@ float __attribute__((overloadable))  cubicFilter(float x, float c0, float  c1, f
 inline DHCR_DEVICE_FUNC
 float4 tex2D_bicubic(texture2d_read_t tex, float x, float y)
 {
-  //x -= 0.5f;
-  //y -= 0.5f;
+  x += DHCR_AXIS_OFFSET;
+  y += DHCR_AXIS_OFFSET;
+
   float px = floor(x);
   float py = floor(y);
   float fx = x - px;
@@ -172,8 +175,8 @@ float4 tex2D_bicubic(texture2d_read_t tex, float x, float y)
 inline DHCR_DEVICE_FUNC
 float channel_bicubic(DHCR_DEVICE_ARG float* source, int2 size, float x, float y)
 {
-  //x -= 0.5f;
-  //y -= 0.5f;
+  x += DHCR_AXIS_OFFSET;
+  y += DHCR_AXIS_OFFSET;
   
   float px = floor(x);
   float py = floor(y);
@@ -210,8 +213,8 @@ float channel_bicubic(DHCR_DEVICE_ARG float* source, int2 size, float x, float y
 inline DHCR_DEVICE_FUNC
 float4 tex2D_box_average(texture2d_read_t tex, float x, float y)
 {
-  //x -= 0.5f;
-  //y -= 0.5f;
+  x += DHCR_AXIS_OFFSET;
+  y += DHCR_AXIS_OFFSET;
   
   float px = floor(x);
   float py = floor(y);
