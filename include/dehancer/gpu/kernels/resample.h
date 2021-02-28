@@ -8,7 +8,7 @@
 #include "dehancer/gpu/kernels/common.h"
 #include "dehancer/gpu/kernels/types.h"
 
-#define DHCR_AXIS_OFFSET -0.5f
+#define DHCR_AXIS_OFFSET 0.5f
 
 /***
  * Bilinear interpolation
