@@ -23,7 +23,7 @@ using namespace metal;
 #define NAO_SAMPLES		8
 
 #ifndef M_PI
-//#define M_PI 3.1415926535f
+#define M_PI 3.1415926535f
 #endif
 
 /* random number generator, taken from the ospray project, http://www.ospray.org

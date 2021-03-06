@@ -136,12 +136,6 @@ inline __device__   float3 get_texel_coords(Texel3d tex) {
   };
 }
 
-template<class T>
-__device__ const T& clamp(const T& v, const T& lo, const T& hi )
-{
-  return (v < lo) ? lo : (hi < v) ? hi : v;
-}
-
 // 1D
 inline __device__ float4 __attribute__((overloadable)) read_image( const image1d_t& source, int gid) {
   return source.read_pixel(gid);
