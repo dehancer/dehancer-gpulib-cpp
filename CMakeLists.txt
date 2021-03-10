@@ -99,7 +99,6 @@ set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
 set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib64/pkgconfig)
 set(ENV{PKG_CONFIG_PATH} $ENV{SYSROOT}/usr/local/dehancer/lib/pkgconfig)
 
-find_package (PkgConfig REQUIRED)
 find_package (Threads REQUIRED)
 find_package (PkgConfig REQUIRED)
 find_package (BLAS REQUIRED)
@@ -174,7 +173,6 @@ include(ExternalProject)
 # Global setttings
 #
 set(VERSION_FILE "version.txt")
-set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
