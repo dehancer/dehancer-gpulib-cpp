@@ -28,6 +28,6 @@ if(DEHANCER_GPU_CUDA)
 endif ()
 
 install(DIRECTORY ${PUBLIC_INCLUDE_FILES}
-        DESTINATION include/dehancer
+        DESTINATION include
         FILES_MATCHING PATTERN "*.h"
         )
