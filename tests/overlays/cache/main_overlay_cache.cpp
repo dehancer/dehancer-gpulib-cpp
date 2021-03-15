@@ -7,54 +7,17 @@
 
 #include <iostream>
 
-struct watermark_buff {
-    std::string name;
-    uint8_t* buffer;
-    size_t   length;
-    dehancer::overlay::Resolution resolution;
-};
-
-extern unsigned char dehancer_watermark_1K[];
-extern unsigned int dehancer_watermark_1K_len;
-
-extern unsigned char dehancer_watermark_4K[];
-extern unsigned int dehancer_watermark_4K_len;
-
-extern unsigned char dehancer_watermark_8K[];
-extern unsigned int dehancer_watermark_8K_len;
-
-std::vector<watermark_buff> watermarks = {
-        {
-                .name = "watermark_1k",
-                .buffer = (uint8_t*)dehancer_watermark_1K,
-                .length = (size_t) dehancer_watermark_1K_len,
-                .resolution = dehancer::overlay::Resolution::R1K
-        },
-        {
-                .name = "watermark_4k",
-                .buffer = (uint8_t*)dehancer_watermark_4K,
-                .length = (size_t) dehancer_watermark_4K_len,
-                .resolution = dehancer::overlay::Resolution::R4K
-        },
-        {
-                .name = "watermark_8k",
-                .buffer = (uint8_t*)dehancer_watermark_8K,
-                .length = (size_t) dehancer_watermark_8K_len,
-                .resolution = dehancer::overlay::Resolution::R8K
-        },
-};
-
 auto io_texture_test = [] (int num,
                            const void* command_queue,
                            const std::string& platform) {
     
-    dehancer::overlay::image_cache cache(0);
+    using WCache = dehancer::overlay::WatermarkImageCache;
     
-    for (auto& v: watermarks) {
-      std::cout << "image: " << v.length << std::endl;
-      auto t = cache.get(command_queue,
-                         v.resolution,
-                         v.buffer, v.length);
+    for (auto& v: WCache::Instance().available()) {
+      
+      std::cout << "image["<<v.name<<"]: " << static_cast<int>(v.resolution) << " : " << v.length << std::endl;
+      
+      auto t = WCache::Instance().get(command_queue, v.resolution);
       
       auto output_text = dehancer::TextureOutput(command_queue, t, {
               .type = test::type,

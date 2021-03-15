@@ -11,79 +11,89 @@
 #include <mutex>
 
 namespace dehancer::overlay {
-        
-        enum class Resolution : int {
-            Default = 2,
-            R1K = 1,
-            R4K = 2,
-            R8K = 3
-        };
-        
-        static inline Resolution make_from (const Texture &source) {
-          
-          Resolution resolution;
-          
-          if (source->get_width() > 4096) {
-            resolution = Resolution::R8K;
-          } else if (source->get_width() > 1024) {
-            resolution = Resolution::R4K;
-          } else {
-            resolution = Resolution::R1K;
-          }
-          
-          return resolution;
-        }
-        
-        class image_cache {
-        public:
-            
-            typedef std::unordered_map<size_t, std::shared_ptr<dehancer::TextureInput>> OverlayImages;
-        
-            Texture get(const void *command_queue,
-                        overlay::Resolution resolution,
-                        const std::string &file,
-                        const StreamSpace &space = StreamSpace());
-
-            Texture get(const void *command_queue,
-                        overlay::Resolution resolution,
-                        const uint8_t *image_buffer,
-                        size_t length,
-                        const StreamSpace &space = StreamSpace());
     
-            Texture get(const void *command_queue,
-                        overlay::Resolution resolution,
-                        const std::vector<uint8_t>& buffer,
-                        const StreamSpace &space = StreamSpace());
-            
-            explicit image_cache(size_t cache_index);
-            
-            ~image_cache();
+    enum class Resolution : int {
+        Default = 0,
+        R1K = 0,
+        R4K = 1,
+        R8K = 2
+    };
+    
+    struct ItemInfo {
+        Resolution  resolution;
+        std::string name;
+        uint8_t*    buffer;
+        size_t      length;
+    };
+    
+    Resolution resolution_from (const Texture &source);
+    
+    class image_cache {
+    
+    public:
         
-        private:
-            OverlayImages cache_;
-            mutable std::mutex mutex_;
-            size_t cache_index_;
-        };
+        typedef std::unordered_map<size_t, std::shared_ptr<dehancer::TextureInput>> OverlayImages;
+    
+        virtual const std::vector<ItemInfo>& available() const = 0;
         
-        /***
-         * Common singleton interface
-         * @tparam T
-         */
-        template<typename T, size_t N>
-        class ImageCache {
-        public:
-            static T &Instance() {
-              static T instance(N);
-              return instance;
-            }
+        virtual Texture get(const void *command_queue,
+                            overlay::Resolution resolution,
+                            const StreamSpace &space) const = 0;
         
-        protected:
-            ImageCache() = default;
-            ~ImageCache() = default;
+        virtual Texture get(const void *command_queue,
+                            overlay::Resolution resolution) const;
         
-        public:
-            ImageCache(ImageCache const &) = delete;
-            ImageCache &operator=(ImageCache const &) = delete;
-        };
-      
-    }
+        virtual Texture get(const void *command_queue) const;
+    
+        explicit image_cache(size_t cache_index);
+
+    protected:
+        
+        
+        Texture get(const void *command_queue,
+                    overlay::Resolution resolution,
+                    const std::string &file,
+                    const StreamSpace &space = StreamSpace()) const ;
+        
+        Texture get(const void *command_queue,
+                    overlay::Resolution resolution,
+                    const uint8_t *image_buffer,
+                    size_t length,
+                    const StreamSpace &space = StreamSpace()) const;
+        
+        Texture get(const void *command_queue,
+                    overlay::Resolution resolution,
+                    const std::vector<uint8_t>& buffer,
+                    const StreamSpace &space = StreamSpace()) const;
+        
+        ~image_cache();
+    
+    private:
+        mutable OverlayImages cache_;
+        mutable std::mutex mutex_;
+        size_t cache_index_;
+    };
+    
+    /***
+     * Common singleton interface
+     * @tparam T
+     */
+    template<typename T, size_t N>
+    class ImageCache {
+    public:
+        
+        static T &Instance() {
+          static T instance(N);
+          return instance;
+        }
+    
+    protected:
+        ImageCache() = default;
+        ~ImageCache() = default;
+    
+    public:
+        ImageCache(ImageCache const &) = delete;
+        ImageCache &operator=(ImageCache const &) = delete;
+    };
+  
+}
