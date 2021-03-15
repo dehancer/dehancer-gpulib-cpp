@@ -33,8 +33,8 @@ DHCR_KERNEL void  kernel_overlay_image(
   uint p_Width = tex.size.x;
   uint p_Height = tex.size.y;
   
-  float w = (float)tex_ovr.size.x;//get_texture_width(overlay);
-  float h = (float)tex_ovr.size.y;//get_texture_height(overlay);
+  float w = (float)tex_ovr.size.x;
+  float h = (float)tex_ovr.size.y;
   float2 sz = make_float2(w,h);
   
   float scale   = fmaxf(w/(float)(p_Width), h/(float)(p_Height));
@@ -63,8 +63,6 @@ DHCR_KERNEL void  kernel_overlay_image(
       break;
   }
 
-  //overlay_color = read_image(overlay, pos+transl);
-  
   float4 result = mix(base, overlay_color, overlay_color.w);
 
   float4 mask_rgba = make_float4(opacity);
