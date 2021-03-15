@@ -31,3 +31,5 @@
 #include "dehancer/gpu/operations/ErodeKernel.h"
 
 #include "dehancer/gpu/math/ConvolveUtils.h"
+
+#include "dehancer/gpu/overlays/OverlayImageCache.h"

@@ -11,6 +11,7 @@ endif()
 file(GLOB TESTS_SOURCES ${TESTS_SOURCES}
         ./*.cpp
         ./*.mm
+        ${EMBEDDED_OVERLAYS}
         )
 
 include_directories(
@@ -38,17 +39,16 @@ elseif(DEHANCER_CURRENT_PLATFORM_OPENCL)
 
     set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_opencl)
 
-    file (GLOB REGESTRY_SOURCES ${REGESTRY_SOURCES}
-            ${CMAKE_SOURCE_DIR}/tests/shaders/opencl/Regestry.cpp
+    file (GLOB REGISTRY_SOURCES ${REGISTRY_SOURCES}
+            ${CMAKE_SOURCE_DIR}/tests/shaders/opencl/Registry.cpp
             )
-    message("OPENCL KERNELS: ${CURRENT_KERNEL_TARGET_NAME} ${REGESTRY_SOURCES}")
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES}; ${CURRENT_KERNEL_TARGET_NAME}_opencl)
 
     set(EXTERNAL_LIBS "${EXTERNAL_LIBS};clHelperLib")
 
     add_executable(${TEST}
             ${TESTS_SOURCES}
-            ${REGESTRY_SOURCES}
+            ${REGISTRY_SOURCES}
             ${EMBEDDED_OPENCL_KERNELS}
             ${DEPENDS_OPENCL_SOURCES}
             )

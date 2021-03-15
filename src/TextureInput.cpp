@@ -19,7 +19,11 @@ namespace dehancer {
     const Texture TextureInput::get_texture() const {
       return impl_->get_texture();
     }
-
+    
+    Error TextureInput::load_from_image (const uint8_t *buffer, size_t length) {
+      return impl_->load_from_image(std::vector<uint8_t>(buffer,buffer+length));
+    }
+    
     Error TextureInput::load_from_image(const std::vector<uint8_t> &buffer) {
       return impl_->load_from_image(buffer);
     }
@@ -37,7 +41,9 @@ namespace dehancer {
         is>>*dt.impl_;
       return is;
     }
-
+    
+ 
+    
     TextureInput::~TextureInput() = default;
 
 }

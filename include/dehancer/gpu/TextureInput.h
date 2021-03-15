@@ -43,7 +43,15 @@ namespace dehancer {
          * @return
          */
         Error load_from_image(const std::vector<uint8_t>& buffer);
-
+        
+        /***
+         * Load texture from Image buffer. Buffer can contain data with one of defined image codec.
+         * @param buffer
+         * @param length
+         * @return
+         */
+        Error load_from_image(const uint8_t* buffer, size_t length);
+        
         /***
          * Load texture raw data packed as rgba32float
          * @param buffer
