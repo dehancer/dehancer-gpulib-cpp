@@ -14,9 +14,12 @@ namespace dehancer::overlay {
     
     enum class Resolution : int {
         Default = 0,
-        R1K = 0,
-        R4K = 1,
-        R8K = 2
+        LandscapeR1K = 0,
+        LandscapeR4K = 1,
+        LandscapeR8K = 2,
+        PortraitR1K = 3,
+        PortraitR4K = 4,
+        PortraitR8K = 5
     };
     
     struct ItemInfo {

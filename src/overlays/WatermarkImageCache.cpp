@@ -5,35 +5,35 @@
 #include "dehancer/gpu/overlays/WatermarkImageCache.h"
 
 
-extern unsigned char dehancer_watermark_1K[];
-extern unsigned int dehancer_watermark_1K_len;
+extern unsigned char dehancer_watermark_16x9_1K[];
+extern unsigned int dehancer_watermark_16x9_1K_len;
 
-extern unsigned char dehancer_watermark_4K[];
-extern unsigned int dehancer_watermark_4K_len;
+extern unsigned char dehancer_watermark_16x9_4K[];
+extern unsigned int dehancer_watermark_16x9_4K_len;
 
-extern unsigned char dehancer_watermark_8K[];
-extern unsigned int dehancer_watermark_8K_len;
+extern unsigned char dehancer_watermark_16x9_8K[];
+extern unsigned int dehancer_watermark_16x9_8K_len;
 
 namespace dehancer::overlay {
     
     static std::vector<ItemInfo> watermarks = {
             {
-                    .resolution = Resolution::R1K,
-                    .name = "watermark_1k",
-                    .buffer = (uint8_t*)dehancer_watermark_1K,
-                    .length = (size_t) dehancer_watermark_1K_len
+                    .resolution = Resolution::LandscapeR1K,
+                    .name = "watermark_16x9_1k",
+                    .buffer = (uint8_t*)dehancer_watermark_16x9_1K,
+                    .length = (size_t) dehancer_watermark_16x9_1K_len
             },
             {
-                    .resolution = Resolution::R4K,
-                    .name = "watermark_4k",
-                    .buffer = (uint8_t*)dehancer_watermark_4K,
-                    .length = (size_t) dehancer_watermark_4K_len,
+                    .resolution = Resolution::LandscapeR4K,
+                    .name = "watermark_16x9_4k",
+                    .buffer = (uint8_t*)dehancer_watermark_16x9_4K,
+                    .length = (size_t) dehancer_watermark_16x9_4K_len,
             },
             {
-                    .resolution = Resolution::R8K,
-                    .name = "watermark_8k",
-                    .buffer = (uint8_t*)dehancer_watermark_8K,
-                    .length = (size_t) dehancer_watermark_8K_len,
+                    .resolution = Resolution::LandscapeR8K,
+                    .name = "watermark_16x9_8k",
+                    .buffer = (uint8_t*)dehancer_watermark_16x9_8K,
+                    .length = (size_t) dehancer_watermark_16x9_8K_len,
             }
     };
     
@@ -45,10 +45,11 @@ namespace dehancer::overlay {
         for (auto& w: watermarks) {
           if (w.resolution==resolution){
             t = image_cache::get(command_queue, resolution, w.buffer, w.length, space);
+            break;
           }
         }
-        assert(t);
       }
+      assert(t);
       return t;
     }
     

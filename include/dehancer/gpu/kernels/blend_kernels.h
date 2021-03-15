@@ -54,6 +54,8 @@ DHCR_KERNEL void  kernel_blend(
   else
     mask_rgba = mask_rgba * make_float4(opacity);
   
+  overlay_color = mix(base,overlay_color,overlay_color.w);
+  
   float4 result = blend(base, overlay_color, (DHCR_BlendingMode)mode, mask_rgba);
 
   write_image(destination, result, tex.gid);

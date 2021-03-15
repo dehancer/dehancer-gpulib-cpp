@@ -17,15 +17,15 @@ namespace dehancer::overlay {
       
       if (source->get_width() > 4096) {
         
-        resolution = Resolution::R8K;
+        resolution = Resolution::LandscapeR8K;
         
       } else if (source->get_width() > 1024) {
         
-        resolution = Resolution::R4K;
+        resolution = Resolution::LandscapeR4K;
         
       } else {
         
-        resolution = Resolution::R1K;
+        resolution = Resolution::LandscapeR1K;
         
       }
       

@@ -18,7 +18,7 @@ namespace dehancer {
             overlay_(overlay),
             opacity_(opacity),
             interpolation_mode_(interpolation),
-            vertical_flipped_(false)
+            vertical_flipped_(true)
     {
     }
     
@@ -54,7 +54,7 @@ namespace dehancer {
       encoder.set(overlay_,2);
       encoder.set(opacity_,3);
       encoder.set(interpolation_mode_,4);
-      encoder.set(vertical_flipped_,4);
+      encoder.set(vertical_flipped_,5);
     }
     
     void OverlayKernel::set_interpolation (ResampleKernel::Mode mode) {

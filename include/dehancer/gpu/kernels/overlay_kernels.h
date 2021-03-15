@@ -24,16 +24,18 @@ DHCR_KERNEL void  kernel_overlay_image(
   Texel2d tex; get_kernel_texel2d(destination,tex);
   if (!get_texel_boundary(tex)) return;
   
-  Texel2d tex_src;  get_kernel_texel2d(source,tex_src);
+  Texel2d tex_src; get_kernel_texel2d(source,tex_src);
+  Texel2d tex_ovr; get_kernel_texel2d(overlay,tex_ovr);
   
   float4  base ;
-  //float4  overlay_color;
+  float4  overlay_color ;
   
-  uint p_Width = tex_src.size.x;
-  uint p_Height = tex_src.size.y;
+  uint p_Width = tex.size.x;
+  uint p_Height = tex.size.y;
   
-  float w = (float)get_texture_width(overlay);
-  float h = (float)get_texture_height(overlay);
+  float w = (float)tex_ovr.size.x;//get_texture_width(overlay);
+  float h = (float)tex_ovr.size.y;//get_texture_height(overlay);
+  float2 sz = make_float2(w,h);
   
   float scale   = fmaxf(w/(float)(p_Width), h/(float)(p_Height));
   
@@ -42,24 +44,26 @@ DHCR_KERNEL void  kernel_overlay_image(
   float2 size_i = make_float2(p_Width, p_Height) * make_float2(1.0f/w, 1.0f/h) * scale;
   float2 transl = make_float2(0.5f - size_i.x/2.0f, 0.5f - size_i.y/2.0f);
   
+  int2 ogid =  make_int2(sz * (pos + transl));
+  
   switch ((DHCR_InterpolationMode)int_mode) {
     case DHCR_Bilinear:
       base          = sampled_color(source, tex.size, tex.gid);
-      //overlay_color = sampled_color(overlay, tex.size, tex.gid);
+      overlay_color = sampled_color(overlay, tex_ovr.size, ogid);
       break;
   
     case DHCR_Bicubic:
       base          = bicubic_sampled_color(source, tex.size, tex.gid);
-      //overlay_color = bicubic_sampled_color(overlay, tex.size, tex.gid);
+      overlay_color = bicubic_sampled_color(overlay, tex_ovr.size, ogid);
       break;
   
     case DHCR_BoxAverage:
       base          = box_average_sampled_color(source, tex.size, tex.gid);
-      //overlay_color = box_average_sampled_color(overlay, tex.size, tex.gid);
+      overlay_color = box_average_sampled_color(overlay, tex_ovr.size, ogid);
       break;
   }
 
-  float4 overlay_color = read_image(overlay, pos+transl);
+  //overlay_color = read_image(overlay, pos+transl);
   
   float4 result = mix(base, overlay_color, overlay_color.w);
 
