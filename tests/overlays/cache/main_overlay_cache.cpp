@@ -11,6 +11,7 @@ struct watermark_buff {
     std::string name;
     uint8_t* buffer;
     size_t   length;
+    dehancer::overlay::Resolution resolution;
 };
 
 extern unsigned char dehancer_watermark_1K[];
@@ -26,17 +27,20 @@ std::vector<watermark_buff> watermarks = {
         {
                 .name = "watermark_1k",
                 .buffer = (uint8_t*)dehancer_watermark_1K,
-                .length = (size_t) dehancer_watermark_1K_len
+                .length = (size_t) dehancer_watermark_1K_len,
+                .resolution = dehancer::overlay::Resolution::R1K
         },
         {
                 .name = "watermark_4k",
                 .buffer = (uint8_t*)dehancer_watermark_4K,
-                .length = (size_t) dehancer_watermark_4K_len
+                .length = (size_t) dehancer_watermark_4K_len,
+                .resolution = dehancer::overlay::Resolution::R4K
         },
         {
                 .name = "watermark_8k",
                 .buffer = (uint8_t*)dehancer_watermark_8K,
-                .length = (size_t) dehancer_watermark_8K_len
+                .length = (size_t) dehancer_watermark_8K_len,
+                .resolution = dehancer::overlay::Resolution::R8K
         },
 };
 
@@ -48,7 +52,9 @@ auto io_texture_test = [] (int num,
     
     for (auto& v: watermarks) {
       std::cout << "image: " << v.length << std::endl;
-      auto t = cache.get(command_queue, dehancer::overlay::Resolution::Default, v.buffer, v.length);
+      auto t = cache.get(command_queue,
+                         v.resolution,
+                         v.buffer, v.length);
       
       auto output_text = dehancer::TextureOutput(command_queue, t, {
               .type = test::type,
