@@ -16,7 +16,8 @@ DHCR_KERNEL void  kernel_overlay_image(
         texture2d_read_t      overlay DHCR_BIND_TEXTURE(2),
         DHCR_CONST_ARG    float_ref_t  opacity DHCR_BIND_BUFFER(3),
         DHCR_CONST_ARG      int_ref_t int_mode DHCR_BIND_BUFFER(4),
-        DHCR_CONST_ARG     bool_ref_t is_flipped DHCR_BIND_BUFFER(5)
+        DHCR_CONST_ARG     bool_ref_t is_h_flipped DHCR_BIND_BUFFER(5),
+        DHCR_CONST_ARG     bool_ref_t is_v_flipped DHCR_BIND_BUFFER(6)
 
         DHCR_KERNEL_GID_2D
 ){
@@ -40,12 +41,11 @@ DHCR_KERNEL void  kernel_overlay_image(
   float scale   = fmaxf(w/(float)(p_Width), h/(float)(p_Height));
   
   int2  id = tex.gid;
-  float2 pos    = make_float2(id.x, is_flipped ? id.y : p_Height-id.y) * make_float2(1.0f/w, 1.0f/h) * scale;
+  float2 pos    = make_float2(is_h_flipped ? p_Width-id.x : id.x , is_v_flipped ?  p_Height-id.y : id.y) * make_float2(1.0f/w, 1.0f/h) * scale;
   float2 size_i = make_float2(p_Width, p_Height) * make_float2(1.0f/w, 1.0f/h) * scale;
   float2 transl = make_float2(0.5f - size_i.x/2.0f, 0.5f - size_i.y/2.0f);
   
   int2 ogid =  make_int2(sz * (pos + transl));
-  
  
   switch ((DHCR_InterpolationMode)int_mode) {
     case DHCR_Bilinear:
