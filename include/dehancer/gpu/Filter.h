@@ -53,6 +53,8 @@ namespace dehancer {
         );
     
         virtual ~Filter() = default;
+    
+        [[nodiscard]] const void* get_command_queue() const;
         
         /***
          * Add GPU Kernel instance
