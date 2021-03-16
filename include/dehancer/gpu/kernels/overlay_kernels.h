@@ -46,6 +46,7 @@ DHCR_KERNEL void  kernel_overlay_image(
   
   int2 ogid =  make_int2(sz * (pos + transl));
   
+ 
   switch ((DHCR_InterpolationMode)int_mode) {
     case DHCR_Bilinear:
       base          = sampled_color(source, tex.size, tex.gid);
@@ -62,7 +63,12 @@ DHCR_KERNEL void  kernel_overlay_image(
       overlay_color = box_average_sampled_color(overlay, tex_ovr.size, ogid);
       break;
   }
-
+  
+  if (ogid.x>=tex_ovr.size.x || ogid.y>=tex_ovr.size.y || ogid.x<0 || ogid.y<0){
+    write_image(destination, base, tex.gid);
+    return;
+  }
+  
   float4 result = mix(base, overlay_color, overlay_color.w);
 
   float4 mask_rgba = make_float4(opacity);
