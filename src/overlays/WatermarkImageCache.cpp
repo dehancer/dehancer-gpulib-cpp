@@ -4,15 +4,14 @@
 
 #include "dehancer/gpu/overlays/WatermarkImageCache.h"
 
+extern "C" unsigned char dehancer_watermark_16x9_1K[];
+extern "C" unsigned int dehancer_watermark_16x9_1K_len;
 
-extern unsigned char dehancer_watermark_16x9_1K[];
-extern unsigned int dehancer_watermark_16x9_1K_len;
+extern "C" unsigned char dehancer_watermark_16x9_4K[];
+extern "C" unsigned int dehancer_watermark_16x9_4K_len;
 
-extern unsigned char dehancer_watermark_16x9_4K[];
-extern unsigned int dehancer_watermark_16x9_4K_len;
-
-extern unsigned char dehancer_watermark_16x9_8K[];
-extern unsigned int dehancer_watermark_16x9_8K_len;
+extern "C" unsigned char dehancer_watermark_16x9_8K[];
+extern "C" unsigned int dehancer_watermark_16x9_8K_len;
 
 namespace dehancer::overlay {
     

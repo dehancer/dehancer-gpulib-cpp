@@ -7,6 +7,6 @@ if (DEHANCER_GPU_OPENCL)
 endif ()
 
 if (DEHANCER_GPU_CUDA)
-    add_subdirectory(cuda)
+    #add_subdirectory(cuda)
 endif ()
 

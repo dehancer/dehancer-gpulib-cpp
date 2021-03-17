@@ -1,3 +1,4 @@
 add_subdirectory(wcache)
-add_subdirectory(fc_cache)
+add_subdirectory(fc_scale_cache)
+add_subdirectory(fc_gradient_cache)
 add_subdirectory(watermark)

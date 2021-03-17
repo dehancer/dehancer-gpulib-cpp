@@ -92,6 +92,23 @@ elseif(APPLE)
     endif()
 endif()
 
+set(BUILD_SHARED_LIBS OFF)
+
+if (WIN32)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -EHsc -Wno-deprecated-declarations")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
+    add_definitions(/MT /DWIN32=1 /D_ITERATOR_DEBUG_LEVEL=0)
+    string(TOLOWER  ${CMAKE_BUILD_TYPE} BUILD_TYPE)
+    if (${BUILD_TYPE} STREQUAL "debug")
+        add_definitions(/MTd)
+    endif()
+else()
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -rdynamic")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument")
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+endif ()
+
 #
 # Packages
 #
@@ -115,7 +132,41 @@ endif()
 
 if (LINUX)
     find_package(CUDA 9.0)
+    set(CUDA_LIBS ${CUDA_LIB_FILE};${CUDART_LIB_FILE})
+elseif(WIN32)
+    if (NOT CUDAToolkit_ROOT)
+        set(CUDAToolkit_ROOT "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v10.2")
+    endif ()
+
+    if (NOT CUDA_BIN_COMPILER)
+        set(CUDA_BIN_COMPILER "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.28.29333\\bin\\HostX86\\x64")
+    endif ()
+
+    find_package(CUDAToolkit REQUIRED)
+    set(CUDA_FOUND ${CUDAToolkit_FOUND})
+    set(CUDA_TOOLKIT_ROOT_DIR ${CUDAToolkit_ROOT})
+    include_directories(${CUDAToolkit_INCLUDE_DIRS})
+    #link_directories(${CUDAToolkit_LIBRARY_DIR})
+
+    set(DEHANCER_GPU_OPENCL OFF)
+    set(CMAKE_CUDA_COMPILER ${CUDAToolkit_NVCC_EXECUTABLE})
+    #set(CUDA_LIB_FILE ${CUDAToolkit_LIBRARY_DIR}/../Win32/cuda.lib)
+    #set(CUDART_STATIC_LIB_FILE ${CUDAToolkit_LIBRARY_DIR}/../Win32/cudart_static.lib)
+    #set(CUDART_LIB_FILE ${CUDAToolkit_LIBRARY_DIR}/../Win32/cudart.lib)
+    #set(CUDA_LIBS ${CUDA_LIB_FILE};${CUDART_STATIC_LIB_FILE};${CUDART_LIB_FILE})
+
+    set(CUDA_LIB_FILE CUDA::cudart)
+    set(CUDART_STATIC_LIB_FILE CUDA::cudart_static)
+    set(CUDART_LIB_FILE CUDA::cuda_driver)
+    set(CUDA_LIBS ${CUDA_LIB_FILE};${CUDART_STATIC_LIB_FILE};${CUDART_LIB_FILE})
+
+    message("CMAKE_CUDA_COMPILER ${CMAKE_CUDA_COMPILER}")
+    message("CUDAToolkit_BIN_DIR ${CUDAToolkit_BIN_DIR}")
+    message("CUDAToolkit_LIBRARY_DIR ${CUDAToolkit_LIBRARY_DIR}")
+    message("CUDAToolkit_LIBRARY_ROOT ${CUDAToolkit_LIBRARY_ROOT}")
+
 endif ()
+
 
 #
 # GPU Platforms
@@ -174,12 +225,6 @@ include(ExternalProject)
 #
 set(VERSION_FILE "version.txt")
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -rdynamic")
-set(BUILD_SHARED_LIBS OFF)
-
 # determine, whether we want a static binary
 SET(STATIC_LINKING FALSE CACHE BOOL "Build a static binary?")
 
@@ -209,21 +254,26 @@ set(CMAKE_MACOSX_RPATH TRUE)
 file (WRITE "${VERSION_FILE}" "${PROJECT_NAME} ${PROJECT_VERSION}")
 configure_file(include/dehancer/gpulib_version.h.in ${CMAKE_BINARY_DIR}/generated/gpulib_version.h)
 
+string(STRIP "${CMAKE_CXX_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" CXX_FLAGS)
+string(STRIP "${CMAKE_C_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" C_FLAGS)
 
 #
 # Google TEST
 #
 find_package(GTest)
 if (NOT GTEST_FOUND)
+
     ExternalProject_Add(googletest
             GIT_REPOSITORY https://github.com/google/googletest
             CMAKE_ARGS
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
             -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-            -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
-            -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
+            -DCMAKE_C_FLAGS=${C_FLAGS}
+            -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
             )
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};googletest)
 
@@ -250,69 +300,85 @@ if (DEHANCER_GPU_OPENCL)
             -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-            -DBUILD_TESTING=OFF
             -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+            -DBUILD_TESTING=OFF
+            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
+            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
+            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+            PREFIX ${DEHANCER_COMMON_DIR}
             )
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_opencl_helper;)
     set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};clHelperLib;${OpenCL_LIBRARIES};)
 endif ()
 
+##
+## Ed25519
+##
+#pkg_check_modules(ed25519cpp ed25519cpp)
+#if (ed25519cpp_FOUND)
 #
-# Ed25519
+#    include_directories(
+#            ${ed25519cpp_INCLUDE_DIRS}
+#    )
+#    link_directories(
+#            ${ed25519cpp_LIBRARY_DIRS}
+#    )
+#    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${ed25519cpp_LIBRARIES})
 #
-pkg_check_modules(ed25519cpp ed25519cpp)
-if (ed25519cpp_FOUND)
-
-    include_directories(
-            ${ed25519cpp_INCLUDE_DIRS}
-    )
-    link_directories(
-            ${ed25519cpp_LIBRARY_DIRS}
-    )
-    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${ed25519cpp_LIBRARIES})
-
-else()
-    ExternalProject_Add(ed25519cpplib
-            GIT_REPOSITORY https://github.com/dnevera/ed25519cpp
-            CMAKE_ARGS
-            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-            )
-    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};ed25519cpplib)
-    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};ed25519cpp)
-endif()
-
+#else()
+#    ExternalProject_Add(ed25519cpplib
+#            GIT_REPOSITORY https://github.com/dnevera/ed25519cpp
+#            CMAKE_ARGS
+#            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+#            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+#            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+#            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+#            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+#            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+#            -DBUILD_TESTING=OFF
+#            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
+#            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
+#            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+#            PREFIX ${DEHANCER_COMMON_DIR}
+#            )
+#    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};ed25519cpplib)
+#    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};ed25519cpp)
+#endif()
 #
-# Base64
+##
+## Base64
+##
+#pkg_check_modules(base64cpp base64cpp)
+#if (base64cpp_FOUND)
 #
-pkg_check_modules(base64cpp base64cpp)
-if (base64cpp_FOUND)
-
-    message(STATUS "base64cpp: ${base64cpp_LIBRARIES}, ${base64cpp_LIBRARY_DIRS} ${base64cpp_INCLUDE_DIRS}")
-    include_directories(
-            ${base64cpp_INCLUDE_DIRS}
-    )
-    link_directories(
-            ${base64cpp_LIBRARY_DIRS}
-    )
-    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${base64cpp_LIBRARIES})
-
-else()
-    ExternalProject_Add(base64cpplib
-            GIT_REPOSITORY https://github.com/dnevera/base64cpp
-            CMAKE_ARGS
-            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-            )
-    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};base64cpplib)
-    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};base64cpp)
-endif()
+#    message(STATUS "base64cpp: ${base64cpp_LIBRARIES}, ${base64cpp_LIBRARY_DIRS} ${base64cpp_INCLUDE_DIRS}")
+#    include_directories(
+#            ${base64cpp_INCLUDE_DIRS}
+#    )
+#    link_directories(
+#            ${base64cpp_LIBRARY_DIRS}
+#    )
+#    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${base64cpp_LIBRARIES})
+#
+#else()
+#    ExternalProject_Add(base64cpplib
+#            GIT_REPOSITORY https://github.com/dnevera/base64cpp
+#            CMAKE_ARGS
+#            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+#            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+#            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+#            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+#            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+#            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+#            -DBUILD_TESTING=OFF
+#            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
+#            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
+#            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+#            PREFIX ${DEHANCER_COMMON_DIR}
+#            )
+#    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};base64cpplib)
+#    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};base64cpp)
+#endif()
 
 #
 # Common
@@ -330,50 +396,64 @@ if (dehancer_common_cpp_FOUND)
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${dehancer_common_cpp_LIBRARIES})
 
 else()
-    ExternalProject_Add(dehancer_common_cpplib
+    ExternalProject_Add(dcmcpp
             GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
             CMAKE_ARGS
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_C_FLAGS=${C_FLAGS}
+            -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
             -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
             -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+            -DBUILD_TESTING=OFF
+            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
+            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
+            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+            PREFIX ${DEHANCER_COMMON_DIR}
+            BUILD_ALWAYS OFF
             )
-    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_common_cpplib)
-    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};dehancer_common_cpp)
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dcmcpp;)
+    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cpp)
 endif()
 
 #
 # Math SDKs
 #
-pkg_check_modules(armadillo armadillo)
-if (armadillo_FOUND)
-
-    include_directories(
-            ${armadillo_INCLUDE_DIRS}
-    )
-    link_directories(
-            ${armadillo_LIBRARY_DIRS}
-    )
-    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${armadillo_LIBRARIES})
-
-else()
-
-    ExternalProject_Add(armadillo-lib
-            GIT_REPOSITORY https://github.com/dehancer/armadillo-code
-            GIT_TAG 9.700.x
-            CMAKE_ARGS
-            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-            -DBUILD_TESTING=OFF
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-            )
-
-    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};armadillo-lib)
-    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};armadillo)
-
-endif()
+#pkg_check_modules(armadillo armadillo)
+#if (armadillo_FOUND)
+#
+#    include_directories(
+#            ${armadillo_INCLUDE_DIRS}
+#    )
+#    link_directories(
+#            ${armadillo_LIBRARY_DIRS}
+#    )
+#    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${armadillo_LIBRARIES})
+#
+#else()
+#
+#    ExternalProject_Add(armadillo-lib
+#            GIT_REPOSITORY https://github.com/dehancer/armadillo-code
+#            GIT_TAG 9.700.x
+#            CMAKE_ARGS
+#            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+#            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+#            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+#            -DCMAKE_BUILD_TYPE=Release
+#            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+#            -DBUILD_TESTING=OFF
+#            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
+#            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
+#            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+#            PREFIX ${DEHANCER_COMMON_DIR}
+#            )
+#
+#    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};armadillo-lib)
+#    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};armadillo)
+#
+#endif()
 
 #
 # Maths
@@ -391,50 +471,65 @@ if (dehancer_maths_cpp_FOUND)
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${dehancer_maths_cpp_LIBRARIES})
 else()
 
-    ExternalProject_Add(dehancer_maths_cpplib
+    ExternalProject_Add(dmcpp
             GIT_REPOSITORY https://github.com/dehancer/dehancer-maths-cpp
             CMAKE_ARGS
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_C_FLAGS=${C_FLAGS}
+            -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
             -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
             -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DBUILD_TESTING=OFF
             -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+            -DBUILD_TESTING=OFF
+            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
+            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
+            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+            PREFIX ${DEHANCER_COMMON_DIR}
             )
-    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_maths_cpplib)
-    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};dehancer_maths_cpp)
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dmcpp)
+    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};dehancer_maths_cpp;armadillo)
 endif()
 
-#
-# AcademySoftwareFoundation OpenColorIO. ACES and etc...
-# https://github.com/AcademySoftwareFoundation/OpenColorIO
-#
-ExternalProject_Add(OpenColorIO
-        #GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/OpenColorIO
-        SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/OpenColorIO
-        INSTALL_DIR ${EXTERNAL_INSTALL_LOCATION}
-        PREFIX OpenColorIO
-        CMAKE_ARGS
-        -Wno-error=dev -Wno-dev
-        -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-        -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-        -DCMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}
-        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-        -DOCIO_BUILD_TESTS=OFF
-        -DOCIO_USE_SSE=${DEHANCER_USE_SSE}
-        -DOCIO_BUILD_GPU_TESTS=OFF
-        -DBUILD_SHARED_LIBS=OFF
-        -DOCIO_BUILD_APPS=OFF
-        -DOCIO_BUILD_PYTHON=OFF
-        -DILMBASE_STATIC_LIBRARY=ON
-        -DPYSTRING_STATIC_LIBRARY=ON
-        -DYAMLCPP_STATIC_LIBRARY=ON
-        -DOCIO_INSTALL_EXT_PACKAGES=ALL
-        -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
-        -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-        )
-set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES}; OpenColorIO)
-set(COMMON_LIBRARIES  ${COMMON_LIBRARIES}; libOpenColorIO.a; libOpenColorIOapphelpers.a)
+if(DEHANCER_USE_OPENCOLOR)
+    #
+    # AcademySoftwareFoundation OpenColorIO. ACES and etc...
+    # https://github.com/AcademySoftwareFoundation/OpenColorIO
+    #
+    ExternalProject_Add(OpenColorIO
+            #GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/OpenColorIO
+            SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/OpenColorIO
+            INSTALL_DIR ${EXTERNAL_INSTALL_LOCATION}
+            PREFIX OpenColorIO
+            CMAKE_ARGS
+            -Wno-error=dev -Wno-dev
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+            -DCMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DOCIO_BUILD_TESTS=OFF
+            -DOCIO_USE_SSE=${DEHANCER_USE_SSE}
+            -DOCIO_BUILD_GPU_TESTS=OFF
+            -DBUILD_SHARED_LIBS=OFF
+            -DOCIO_BUILD_APPS=OFF
+            -DOCIO_BUILD_PYTHON=OFF
+            -DILMBASE_STATIC_LIBRARY=ON
+            -DPYSTRING_STATIC_LIBRARY=ON
+            -DYAMLCPP_STATIC_LIBRARY=ON
+            -DOCIO_INSTALL_EXT_PACKAGES=ALL
+            -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
+            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
+            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
+            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+            PREFIX ${DEHANCER_COMMON_DIR}
+            )
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES}; OpenColorIO)
+    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES}; libOpenColorIO.a; libOpenColorIOapphelpers.a)
+endif()
 
 set(clHelper_DIR ${CMAKE_SOURCE_DIR}/lib/cmake)
 
@@ -443,9 +538,9 @@ link_directories(
 )
 
 if (DEHANCER_GPU_CUDA)
-    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};cuda;cudart_static)
+    #set(COMMON_LIBRARIES ${COMMON_LIBRARIES};cuda;cudart_static)
     link_directories(
-            ${CUDA_TOOLKIT_ROOT_DIR}/lib64
+            "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.2/lib/Win32"
     )
 endif ()
 
@@ -462,6 +557,10 @@ if (DEHANCER_GPU_CUDA)
     include_directories(
             ${CUDA_INCLUDE_DIRS}
     )
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${CUDA_LIBS})
+    link_directories(
+            ${CUDA_TOOLKIT_ROOT_DIR}/Win32
+    )
 endif ()
 
 set(COMMON_LIBRARIES
@@ -473,6 +572,8 @@ set(COMMON_LIBRARIES
 
 message("COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
 message("OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}")
+message("OpenCV_LIBRARIES: ${OpenCV_LIBRARIES}")
+message("OpenCV_DIR: ${OpenCV_DIR}")
 add_subdirectory(lib)
 
 if(BUILD_TESTING)

@@ -89,6 +89,7 @@ namespace dehancer::impl {
         );
 
       }
+      catch (const cv::Exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
       catch (const std::exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
     }
 
