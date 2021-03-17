@@ -10,5 +10,5 @@ if (DEHANCER_GPU_OPENCL)
     set (DEHANCER_CURRENT_PLATFORM_OPENCL ON)
 endif ()
 
-set (TEST common-fc-cache-test)
+set (TEST common-fc-gradient-cache-test)
 include(${CMAKE_SOURCE_DIR}/tests/CMakeCommon.in)
