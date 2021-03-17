@@ -33,6 +33,7 @@
 #include "dehancer/gpu/math/ConvolveUtils.h"
 
 #include "dehancer/gpu/overlays/WatermarkImageCache.h"
+#include "dehancer/gpu/overlays/FalsecolorScaleImageCache.h"
 #include "dehancer/gpu/overlays/OverlayImageCache.h"
 #include "dehancer/gpu/overlays/OverlayKernel.h"
 

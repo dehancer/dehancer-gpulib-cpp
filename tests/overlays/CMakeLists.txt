@@ -1,2 +1,3 @@
-add_subdirectory(cache)
+add_subdirectory(wcache)
+add_subdirectory(fc_cache)
 add_subdirectory(watermark)

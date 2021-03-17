@@ -42,7 +42,7 @@ auto io_texture_test = [] (int num,
     return 0;
 };
 
-TEST(TEST, CUDA_OVERLAY_CACHE) {
+TEST(TEST, CUDA_WATERMARK_IMAGES_CACHE) {
   
   std::cout << std::endl;
   std::cerr << std::endl;

@@ -1,0 +1,9 @@
+set (EMBEDDED_OVERLAYS_C_TARGET EmbeddedWatermarks${PROJECT_LIB_PLATFORM_SUFFIX})
+set (EMBEDDED_CURRENT_C_TARGET ${EMBEDDED_OVERLAYS_C_TARGET})
+
+file (GLOB EMBEDDED_IMAGE_FILES ${EMBEDDED_IMAGE_FILES}
+        ${CMAKE_SOURCE_DIR}/src/rc/watermarks/*.png
+        ${CMAKE_SOURCE_DIR}/src/rc/false_color/*.png
+        )
+
+include(${CMAKE_SOURCE_DIR}/lib/CMakeEmbedded.in)
