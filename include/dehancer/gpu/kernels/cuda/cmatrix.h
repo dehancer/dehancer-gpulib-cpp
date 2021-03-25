@@ -1,21 +1,25 @@
-#pragma once
+//#pragma once
 // Adapted from https://github.com/niessner/VoxelHashing/blob/master/DepthSensingCUDA/Source/cuda_SimpleMatrixUtil.h
+
+#pragma once
+
+#include "dehancer/gpu/kernels/cuda/cmath.h"
 
 #define MINF __int_as_float(0xff800000)
 #define INF  __int_as_float(0x7f800000)
 
 #include <iostream>
 #include <algorithm>
-
-#include "dehancer/gpu/kernels/cuda/cmath.h"
+#include <cuda.h>
 
 #if defined(__CUDA_ARCH__)
 #define __CONDITIONAL_UNROLL__ #pragma unroll
+#define cudaAssert(condition)
 #else
 #define __CONDITIONAL_UNROLL__
+#define cudaAssert(condition) if (!(condition)) { printf("ASSERT: %s %s\n", #condition, __FILE__); }
 #endif
 
-#define cudaAssert(condition) if (!(condition)) { printf("ASSERT: %s %s\n", #condition, __FILE__); }
 
 class float2x2
 {

@@ -22,13 +22,13 @@
 
 #pragma once
 
-#include "cuda_runtime.h"
+#include <cuda.h>
+#include <cmath>
 
 typedef unsigned int uint;
 typedef unsigned short ushort;
 
 #ifndef __CUDACC__
-#include <cmath>
 
 ////////////////////////////////////////////////////////////////////////////////
 // host implementations of CUDA functions

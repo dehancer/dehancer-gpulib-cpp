@@ -7,6 +7,7 @@
 
 #include "dehancer/gpu/kernels/type_cast.h"
 
+
 // A single iteration of Bob Jenkins' One-At-A-Time hashing algorithm.
 inline DHCR_DEVICE_FUNC uint __attribute__((overloadable)) hash( uint x ) {
   x += ( x << 10 );

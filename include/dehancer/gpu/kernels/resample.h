@@ -23,8 +23,8 @@ float4 tex2D_bilinear(texture2d_read_t source, float x, float y)
   x += DHCR_AXIS_OFFSET;
   y += DHCR_AXIS_OFFSET;
   
-  float  u = floor(x);
-  float  v = floor(y);
+  float  u = floorf(x);
+  float  v = floorf(y);
   
   float  px = x - u;
   float  py = y - v;
@@ -60,8 +60,8 @@ float channel_bilinear(DHCR_DEVICE_ARG float* source, int2 size, float x, float 
   x += DHCR_AXIS_OFFSET;
   y += DHCR_AXIS_OFFSET;
   
-  float  u = floor(x);
-  float  v = floor(y);
+  float  u = floorf(x);
+  float  v = floorf(y);
   
   float  px = x - u;
   float  py = y - v;
@@ -141,8 +141,8 @@ float4 tex2D_bicubic(texture2d_read_t tex, float x, float y)
   x += DHCR_AXIS_OFFSET;
   y += DHCR_AXIS_OFFSET;
 
-  float px = floor(x);
-  float py = floor(y);
+  float px = floorf(x);
+  float py = floorf(y);
   float fx = x - px;
   float fy = y - py;
   
@@ -178,8 +178,8 @@ float channel_bicubic(DHCR_DEVICE_ARG float* source, int2 size, float x, float y
   x += DHCR_AXIS_OFFSET;
   y += DHCR_AXIS_OFFSET;
   
-  float px = floor(x);
-  float py = floor(y);
+  float px = floorf(x);
+  float py = floorf(y);
   float fx = x - px;
   float fy = y - py;
   
@@ -216,8 +216,8 @@ float4 tex2D_box_average(texture2d_read_t tex, float x, float y)
   x += DHCR_AXIS_OFFSET;
   y += DHCR_AXIS_OFFSET;
   
-  float px = floor(x);
-  float py = floor(y);
+  float px = floorf(x);
+  float py = floorf(y);
 
   int2 gid = make_int2(px,py);
   

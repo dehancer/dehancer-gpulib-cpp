@@ -337,7 +337,7 @@ inline DHCR_DEVICE_FUNC float4 ao_bench(int nsubsamples, int x, int y, int w, in
 #ifdef __METAL_VERSION__
   return  {ret,ret,ret,1};
 #else
-  return  (float4){ret,ret,ret,1};
+  return  {ret,ret,ret,1};
 #endif
 }
 

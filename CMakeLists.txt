@@ -139,8 +139,14 @@ elseif(WIN32)
     endif ()
 
     if (NOT CUDA_BIN_COMPILER)
-        set(CUDA_BIN_COMPILER "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\MSVC\\14.28.29333\\bin\\HostX86\\x64")
+        set(CUDA_BIN_COMPILER "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\Llvm\\x64\\bin")
+        #get_filename_component(CUDA_BIN_COMPILER ${CMAKE_CXX_COMPILER} DIRECTORY)
+        #set(CUDA_BIN_COMPILER ${CMAKE_CXX_COMPILER})
+        #set(CUDA_BIN_COMPILER "C:\\msys64\\mingw64")
+        #set(CUDA_BIN_COMPILER "C:\\Program Files\\LLVM\\bin")
     endif ()
+
+    set(CMAKE_CUDA_STANDARD 14)
 
     find_package(CUDAToolkit REQUIRED)
     set(CUDA_FOUND ${CUDAToolkit_FOUND})
@@ -150,20 +156,22 @@ elseif(WIN32)
 
     set(DEHANCER_GPU_OPENCL OFF)
     set(CMAKE_CUDA_COMPILER ${CUDAToolkit_NVCC_EXECUTABLE})
-    #set(CUDA_LIB_FILE ${CUDAToolkit_LIBRARY_DIR}/../Win32/cuda.lib)
-    #set(CUDART_STATIC_LIB_FILE ${CUDAToolkit_LIBRARY_DIR}/../Win32/cudart_static.lib)
-    #set(CUDART_LIB_FILE ${CUDAToolkit_LIBRARY_DIR}/../Win32/cudart.lib)
-    #set(CUDA_LIBS ${CUDA_LIB_FILE};${CUDART_STATIC_LIB_FILE};${CUDART_LIB_FILE})
 
     set(CUDA_LIB_FILE CUDA::cudart)
     set(CUDART_STATIC_LIB_FILE CUDA::cudart_static)
     set(CUDART_LIB_FILE CUDA::cuda_driver)
     set(CUDA_LIBS ${CUDA_LIB_FILE};${CUDART_STATIC_LIB_FILE};${CUDART_LIB_FILE})
+    set(CUDA_LIBRARY_FLAGS  "--cudart=static")
+    #set(CMAKE_CUDA_COMPILER_FLAGS  "-D__clang__ -DWIN32 -DWIN64 -D_CONSOLE -D_MBCS /EHsc")
+    set(CMAKE_CUDA_COMPILER_FLAGS  "-DWIN32 -DWIN64 -D_CONSOLE -D_MBCS /EHsc")
 
     message("CMAKE_CUDA_COMPILER ${CMAKE_CUDA_COMPILER}")
     message("CUDAToolkit_BIN_DIR ${CUDAToolkit_BIN_DIR}")
     message("CUDAToolkit_LIBRARY_DIR ${CUDAToolkit_LIBRARY_DIR}")
     message("CUDAToolkit_LIBRARY_ROOT ${CUDAToolkit_LIBRARY_ROOT}")
+    message("CUDAToolkit_TARGET_DIR ${CUDAToolkit_TARGET_DIR}")
+    message("NVCC BIN: ${CMAKE_CXX_COMPILER}")
+    message("CUDA_BIN_COMPILER ${CUDA_BIN_COMPILER}")
 
 endif ()
 
@@ -199,14 +207,19 @@ if (DEHANCER_GPU_CUDA)
         if (CUDA_FOUND)
             message(STATUS "Found CUDA ${CUDA_VERSION_STRING} at ${CUDA_TOOLKIT_ROOT_DIR}")
             set(CMAKE_CUDA_COMPILER ${CUDA_TOOLKIT_ROOT_DIR}/bin/nvcc)
-            set(CMAKE_CUDA_COMPILER_FLAGS  "")
+
             #
             # TODO: check gcc/clang version
             #
             # clang <=9.0 for cuda 10.1
             #
-            set(CUDA_BIN_COMPILER g++) # supports only gcc for cuda toolkit 10.1
-            set(CUDA_LIBRARY_FLAGS  "--compiler-options=-fPIC --cudart=static")
+            if (NOT CUDA_BIN_COMPILER)
+                set(CUDA_BIN_COMPILER g++) # supports only gcc for cuda toolkit 10.1
+                set(CUDA_LIBRARY_FLAGS  "--compiler-options=-fPIC --cudart=static")
+                set(CMAKE_CUDA_COMPILER_FLAGS  "")
+            endif ()
+
+            string(STRIP "${CMAKE_CUDA_COMPILER_FLAGS}" CMAKE_CUDA_COMPILER_FLAGS)
 
         else()
             message(WARNING "CUDA NOT FOUND")
@@ -311,78 +324,6 @@ if (DEHANCER_GPU_OPENCL)
     set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};clHelperLib;${OpenCL_LIBRARIES};)
 endif ()
 
-##
-## Ed25519
-##
-#pkg_check_modules(ed25519cpp ed25519cpp)
-#if (ed25519cpp_FOUND)
-#
-#    include_directories(
-#            ${ed25519cpp_INCLUDE_DIRS}
-#    )
-#    link_directories(
-#            ${ed25519cpp_LIBRARY_DIRS}
-#    )
-#    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${ed25519cpp_LIBRARIES})
-#
-#else()
-#    ExternalProject_Add(ed25519cpplib
-#            GIT_REPOSITORY https://github.com/dnevera/ed25519cpp
-#            CMAKE_ARGS
-#            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-#            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-#            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-#            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-#            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-#            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-#            -DBUILD_TESTING=OFF
-#            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
-#            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
-#            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-#            PREFIX ${DEHANCER_COMMON_DIR}
-#            )
-#    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};ed25519cpplib)
-#    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};ed25519cpp)
-#endif()
-#
-##
-## Base64
-##
-#pkg_check_modules(base64cpp base64cpp)
-#if (base64cpp_FOUND)
-#
-#    message(STATUS "base64cpp: ${base64cpp_LIBRARIES}, ${base64cpp_LIBRARY_DIRS} ${base64cpp_INCLUDE_DIRS}")
-#    include_directories(
-#            ${base64cpp_INCLUDE_DIRS}
-#    )
-#    link_directories(
-#            ${base64cpp_LIBRARY_DIRS}
-#    )
-#    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${base64cpp_LIBRARIES})
-#
-#else()
-#    ExternalProject_Add(base64cpplib
-#            GIT_REPOSITORY https://github.com/dnevera/base64cpp
-#            CMAKE_ARGS
-#            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-#            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-#            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-#            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-#            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-#            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-#            -DBUILD_TESTING=OFF
-#            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
-#            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
-#            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-#            PREFIX ${DEHANCER_COMMON_DIR}
-#            )
-#    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};base64cpplib)
-#    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};base64cpp)
-#endif()
-
-#
-# Common
-#
 pkg_check_modules(dehancer_common_cpp dehancer-common-cpp)
 if (dehancer_common_cpp_FOUND)
 
@@ -417,43 +358,6 @@ else()
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dcmcpp;)
     set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cpp)
 endif()
-
-#
-# Math SDKs
-#
-#pkg_check_modules(armadillo armadillo)
-#if (armadillo_FOUND)
-#
-#    include_directories(
-#            ${armadillo_INCLUDE_DIRS}
-#    )
-#    link_directories(
-#            ${armadillo_LIBRARY_DIRS}
-#    )
-#    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${armadillo_LIBRARIES})
-#
-#else()
-#
-#    ExternalProject_Add(armadillo-lib
-#            GIT_REPOSITORY https://github.com/dehancer/armadillo-code
-#            GIT_TAG 9.700.x
-#            CMAKE_ARGS
-#            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-#            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-#            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-#            -DCMAKE_BUILD_TYPE=Release
-#            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-#            -DBUILD_TESTING=OFF
-#            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
-#            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
-#            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-#            PREFIX ${DEHANCER_COMMON_DIR}
-#            )
-#
-#    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};armadillo-lib)
-#    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};armadillo)
-#
-#endif()
 
 #
 # Maths

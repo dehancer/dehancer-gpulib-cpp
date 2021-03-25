@@ -4,11 +4,11 @@
 
 #pragma once
 
-#include <cmath>
+//#include <cmath>
 #include "dehancer/gpu/kernels/cuda/texture1d.h"
 #include "dehancer/gpu/kernels/cuda/texture2d.h"
 #include "dehancer/gpu/kernels/cuda/texture3d.h"
-#include "dehancer/gpu/kernels/cuda/cmatrix.h"
+//#include "dehancer/gpu/kernels/cuda/cmatrix.h"
 
 #include "dehancer/gpu/kernels/constants.h"
 #include "dehancer/gpu/kernels/types.h"
@@ -124,12 +124,12 @@ inline __device__   float get_texel_coords(Texel1d tex) {
 }
 
 inline __device__   float2 get_texel_coords(Texel2d tex) {
-  return (float2){(float)tex.gid.x / (float)(tex.size.x - 1),
+  return {(float)tex.gid.x / (float)(tex.size.x - 1),
                   (float)tex.gid.y / (float)(tex.size.y - 1)};
 }
 
 inline __device__   float3 get_texel_coords(Texel3d tex) {
-  return (float3){
+  return {
           (float)tex.gid.x / (float)(tex.size.x - 1),
           (float)tex.gid.y / (float)(tex.size.y - 1),
           (float)tex.gid.z / (float)(tex.size.z - 1)
@@ -181,7 +181,7 @@ inline __device__  float4 __attribute__((overloadable)) read_image( const image3
 }
 
 inline __device__  float4 __attribute__((overloadable)) read_image( const image3d_t& source, float4 coords) {
-  return source.read((float3){coords.x,coords.y,coords.z});
+  return source.read(make_float3(coords.x,coords.y,coords.z));
 }
 
 inline __device__  void __attribute__((overloadable)) write_image(  image3d_t& destination, float4 color, int3 gid) {
