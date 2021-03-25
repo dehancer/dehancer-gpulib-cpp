@@ -4,15 +4,14 @@
 
 #include "dehancer/gpu/overlays/FalsecolorScaleImageCache.h"
 
+extern "C" unsigned char dehancer_falsecolor_scale_1K[];
+extern "C" unsigned int dehancer_falsecolor_scale_1K_len;
 
-extern unsigned char dehancer_falsecolor_scale_1K[];
-extern unsigned int dehancer_falsecolor_scale_1K_len;
+extern "C" unsigned char dehancer_falsecolor_scale_4K[];
+extern "C" unsigned int dehancer_falsecolor_scale_4K_len;
 
-extern unsigned char dehancer_falsecolor_scale_4K[];
-extern unsigned int dehancer_falsecolor_scale_4K_len;
-
-extern unsigned char dehancer_falsecolor_scale_8K[];
-extern unsigned int dehancer_falsecolor_scale_8K_len;
+extern "C" unsigned char dehancer_falsecolor_scale_8K[];
+extern "C" unsigned int dehancer_falsecolor_scale_8K_len;
 
 namespace dehancer::overlay {
     

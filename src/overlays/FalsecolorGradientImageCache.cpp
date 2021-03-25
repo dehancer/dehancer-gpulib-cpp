@@ -5,14 +5,14 @@
 #include "dehancer/gpu/overlays/FalsecolorGradientImageCache.h"
 
 
-extern unsigned char dehancer_falsecolor_gradient_1K[];
-extern unsigned int dehancer_falsecolor_gradient_1K_len;
+extern "C" unsigned char dehancer_falsecolor_gradient_1K[];
+extern "C" unsigned int dehancer_falsecolor_gradient_1K_len;
 
-extern unsigned char dehancer_falsecolor_gradient_4K[];
-extern unsigned int dehancer_falsecolor_gradient_4K_len;
+extern "C" unsigned char dehancer_falsecolor_gradient_4K[];
+extern "C" unsigned int dehancer_falsecolor_gradient_4K_len;
 
-extern unsigned char dehancer_falsecolor_gradient_8K[];
-extern unsigned int dehancer_falsecolor_gradient_8K_len;
+extern "C" unsigned char dehancer_falsecolor_gradient_8K[];
+extern "C" unsigned int dehancer_falsecolor_gradient_8K_len;
 
 namespace dehancer::overlay {
     
