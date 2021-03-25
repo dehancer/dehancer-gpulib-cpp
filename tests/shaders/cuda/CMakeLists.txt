@@ -24,9 +24,6 @@ add_custom_target(
         DEPENDS ${DEPENDS_SOURCES}
         COMMAND ${CMAKE_CUDA_COMPILER}
         -Xcompiler ${CMAKE_CUDA_COMPILER_FLAGS}
-        #-std=c++14
-        #--cubin=clang-cl.exe
-        -x cu
         -ccbin ${CUDA_BIN_COMPILER} -m64 -gencode arch=compute_35,code=compute_35
         -o ${CURRENT_TARGET_LIB}
         -fatbin ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.cu
