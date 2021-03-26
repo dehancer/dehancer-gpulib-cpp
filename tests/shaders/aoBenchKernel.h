@@ -334,11 +334,7 @@ inline DHCR_DEVICE_FUNC float4 ao_bench(int nsubsamples, int x, int y, int w, in
   
   ret *= (invSamples * invSamples);
 
-#ifdef __METAL_VERSION__
-  return  {ret,ret,ret,1};
-#else
-  return  {ret,ret,ret,1};
-#endif
+  return  make_float4(ret,ret,ret,1);
 }
 
 #endif //DEHANCER_OPENCL_HELPER_AOBENCHKERNEL_H

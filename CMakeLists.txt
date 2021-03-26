@@ -140,10 +140,6 @@ elseif(WIN32)
 
     if (NOT CUDA_BIN_COMPILER)
         set(CUDA_BIN_COMPILER "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\Llvm\\x64\\bin")
-        #get_filename_component(CUDA_BIN_COMPILER ${CMAKE_CXX_COMPILER} DIRECTORY)
-        #set(CUDA_BIN_COMPILER ${CMAKE_CXX_COMPILER})
-        #set(CUDA_BIN_COMPILER "C:\\msys64\\mingw64")
-        #set(CUDA_BIN_COMPILER "C:\\Program Files\\LLVM\\bin")
     endif ()
 
     set(CMAKE_CUDA_STANDARD 14)
@@ -152,7 +148,7 @@ elseif(WIN32)
     set(CUDA_FOUND ${CUDAToolkit_FOUND})
     set(CUDA_TOOLKIT_ROOT_DIR ${CUDAToolkit_ROOT})
     include_directories(${CUDAToolkit_INCLUDE_DIRS})
-    #link_directories(${CUDAToolkit_LIBRARY_DIR})
+    link_directories(${CUDAToolkit_LIBRARY_DIR})
 
     set(DEHANCER_GPU_OPENCL OFF)
     set(CMAKE_CUDA_COMPILER ${CUDAToolkit_NVCC_EXECUTABLE})
@@ -441,13 +437,6 @@ link_directories(
         ${CMAKE_BINARY_DIR}/external/lib
 )
 
-if (DEHANCER_GPU_CUDA)
-    #set(COMMON_LIBRARIES ${COMMON_LIBRARIES};cuda;cudart_static)
-    link_directories(
-            "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA/v10.2/lib/Win32"
-    )
-endif ()
-
 include_directories(
         ${CMAKE_BINARY_DIR}/generated
         ${CMAKE_BINARY_DIR}/external/include
@@ -458,13 +447,7 @@ include_directories(
 )
 
 if (DEHANCER_GPU_CUDA)
-    include_directories(
-            ${CUDA_INCLUDE_DIRS}
-    )
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${CUDA_LIBS})
-    link_directories(
-            ${CUDA_TOOLKIT_ROOT_DIR}/Win32
-    )
 endif ()
 
 set(COMMON_LIBRARIES
