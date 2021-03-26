@@ -1,5 +1,14 @@
 set (EMBEDDED_EMBEDDED_IMAGE_C_FILES "")
 
+
+if (NOT CMAKE_INSTALL_LIBDIR)
+    set(CMAKE_INSTALL_LIBDIR lib)
+endif ()
+
+if (NOT CMAKE_INSTALL_INCLUDEDIR)
+    set(CMAKE_INSTALL_INCLUDEDIR include)
+endif ()
+
 include(${CMAKE_SOURCE_DIR}/lib/CMakeOverlays.in)
 
 add_library(${PROJECT_LIB_PLATFORM}
@@ -32,3 +41,22 @@ configure_package_config_file(
 install(TARGETS ${PROJECT_LIB_PLATFORM}   DESTINATION lib)
 install(FILES   ${project_config} ${version_config} DESTINATION lib/cmake/${PROJECT_LIB_PLATFORM})
 install(FILES cmake/${PROJECT_LIB_PLATFORM}.cmake DESTINATION lib/cmake/${PROJECT_LIB_PLATFORM})
+
+install(DIRECTORY
+        ${EXTERNAL_INSTALL_LOCATION}/include
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/..
+        FILES_MATCHING
+        PATTERN *.h
+        PATTERN *.hpp
+        PATTERN gtest* EXCLUDE
+        PATTERN gmock* EXCLUDE
+        )
+
+install(DIRECTORY
+        ${EXTERNAL_INSTALL_LOCATION}/lib
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/..
+        FILES_MATCHING
+        PATTERN *dehancer_math*.*
+        PATTERN *gtest* EXCLUDE
+        PATTERN *gmock* EXCLUDE
+        )
