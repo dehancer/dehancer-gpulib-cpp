@@ -4,6 +4,10 @@
 
 #pragma once
 
+#if WIN32
+#define __attribute__(x)
+#endif
+
 typedef  unsigned int uint;
 
 #define __constant const

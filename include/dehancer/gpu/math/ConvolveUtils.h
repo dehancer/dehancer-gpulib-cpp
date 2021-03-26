@@ -3,7 +3,9 @@
 //
 
 #pragma once
-
+#if WIN32
+#define _USE_MATH_DEFINES // for C++
+#endif
 #include <vector>
 #include <set>
 #include <cmath>

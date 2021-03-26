@@ -20,6 +20,10 @@ Requirements
     or
     yum install nasm
     
+Windows
+=======
+    xxd from msys2 
+
 LibJPEG Turbo
 =============
 

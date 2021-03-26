@@ -8,6 +8,17 @@ add_custom_command(
         COMMENT "Created output directory"
 )
 
+find_program(
+        EMBEDDING_EXEC
+        NAMES xxd
+        REQUIRED)
+
+if (NOT EMBEDDING_EXEC)
+    message(FATAL_ERROR "EMBEDDING_EXEC not found")
+else()
+    message("EMBEDDING_EXEC ${EMBEDDING_EXEC}")
+endif ()
+
 foreach(image ${EMBEDDED_IMAGE_FILES})
 
     get_filename_component(fname ${image} NAME_WE)
@@ -19,7 +30,9 @@ foreach(image ${EMBEDDED_IMAGE_FILES})
     set(src_file dehancer_${fname})
     set(embedded_file dehancer_${fname}.c)
 
-    message("IMAGE:  ${embedded_file}   ${fname} ${abs_path} ${rel_path}")
+    if(CMAKE_DEBUG_MESSAGE)
+        message("IMAGE:  ${embedded_file}   ${fname} ${abs_path} ${rel_path}")
+    endif()
 
     set(embedded_files "")
 
@@ -33,7 +46,7 @@ foreach(image ${EMBEDDED_IMAGE_FILES})
     add_custom_command(
             TARGET ${EMBEDDED_CURRENT_C_TARGET} PRE_BUILD
             WORKING_DIRECTORY  ${EMBEDDED_IMAGES_DIR}
-            COMMAND xxd
+            COMMAND ${EMBEDDING_EXEC}
             -i ${src_file}
             ${embedded_file}
             DEPENDS ${image}
@@ -44,6 +57,8 @@ foreach(image ${EMBEDDED_IMAGE_FILES})
 
 endforeach()
 
-message("EMBEDDED_EMBEDDED_IMAGE_C_FILES ${EMBEDDED_EMBEDDED_IMAGE_C_FILES}")
+if(CMAKE_DEBUG_MESSAGE)
+    message("EMBEDDED_EMBEDDED_IMAGE_C_FILES ${EMBEDDED_EMBEDDED_IMAGE_C_FILES}")
+endif()
 
 set_source_files_properties(${EMBEDDED_EMBEDDED_IMAGE_C_FILES} PROPERTIES GENERATED TRUE)

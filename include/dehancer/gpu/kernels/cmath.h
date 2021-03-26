@@ -68,7 +68,7 @@ inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) fract(float3 v) {
  * abs
  */
 inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) abs(float3 v) {
-  return (float3){fabs(v.x),fabs(v.y),fabs(v.z)};
+  return make_float3(fabs(v.x),fabs(v.y),fabs(v.z));
 }
 
 /***
