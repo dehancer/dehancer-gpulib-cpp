@@ -15,6 +15,7 @@ option (DEHANCER_GPU_METAL "Dehancer GPU Layer is Metal" ON)
 option (DEHANCER_GPU_OPENCL "Dehancer GPU Layer is OpenCL" ON)
 option (DEHANCER_GPU_CUDA "Dehancer GPU Layer is CUDA" ON)
 option (DEHANCER_TARGET_ARCH "Dehancer platform arch" "")
+option(VCPKG_TARGET_TRIPLET "")
 
 if (DEHANCER_TARGET_ARCH)
     #
