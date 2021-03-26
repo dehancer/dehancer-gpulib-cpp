@@ -46,6 +46,7 @@ install(DIRECTORY
         ${EXTERNAL_INSTALL_LOCATION}/include
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/..
         FILES_MATCHING
+        PATTERN armadillo
         PATTERN *.h
         PATTERN *.hpp
         PATTERN gtest* EXCLUDE
