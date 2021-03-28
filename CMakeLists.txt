@@ -131,11 +131,6 @@ else()
     find_package (OpenCV REQUIRED )
 endif()
 
-#if (LINUX)
-
-#    find_package(CUDA 9.0)
-#    set(CUDA_LIBS ${CUDA_LIB_FILE};${CUDART_LIB_FILE})
-
 if (DEHANCER_GPU_CUDA)
 
     if(WIN32)
