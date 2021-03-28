@@ -17,7 +17,8 @@ DHCR_KERNEL void  kernel_overlay_image(
         DHCR_CONST_ARG    float_ref_t  opacity DHCR_BIND_BUFFER(3),
         DHCR_CONST_ARG      int_ref_t int_mode DHCR_BIND_BUFFER(4),
         DHCR_CONST_ARG     bool_ref_t is_h_flipped DHCR_BIND_BUFFER(5),
-        DHCR_CONST_ARG     bool_ref_t is_v_flipped DHCR_BIND_BUFFER(6)
+        DHCR_CONST_ARG     bool_ref_t is_v_flipped DHCR_BIND_BUFFER(6),
+        DHCR_CONST_ARG    float2_ref_t  offset DHCR_BIND_BUFFER(7)
 
         DHCR_KERNEL_GID_2D
 ){
@@ -46,36 +47,42 @@ DHCR_KERNEL void  kernel_overlay_image(
   float2 transl = make_float2(0.5f - size_i.x/2.0f, 0.5f - size_i.y/2.0f);
   
   int2 ogid =  make_int2(sz * (pos + transl));
- 
-  switch ((DHCR_InterpolationMode)int_mode) {
-    case DHCR_Bilinear:
-      base          = sampled_color(source, tex.size, tex.gid);
-      overlay_color = sampled_color(overlay, tex_ovr.size, ogid);
-      break;
   
-    case DHCR_Bicubic:
-      base          = bicubic_sampled_color(source, tex.size, tex.gid);
-      overlay_color = bicubic_sampled_color(overlay, tex_ovr.size, ogid);
-      break;
+  base          = sampled_color(source, tex.size, tex.gid);
   
-    case DHCR_BoxAverage:
-      base          = box_average_sampled_color(source, tex.size, tex.gid);
-      overlay_color = box_average_sampled_color(overlay, tex_ovr.size, ogid);
-      break;
-  }
+  float2 coords = get_texel_coords(tex);
+  overlay_color = read_image(overlay, coords); //sampled_color(overlay, tex_ovr.size, tex.gid-make_int2(offset));
   
-  if (ogid.x>=tex_ovr.size.x || ogid.y>=tex_ovr.size.y || ogid.x<0 || ogid.y<0){
-    write_image(destination, base, tex.gid);
-    return;
-  }
+//  switch ((DHCR_InterpolationMode)int_mode) {
+//    case DHCR_Bilinear:
+//      base          = sampled_color(source, tex.size, tex.gid);
+//      overlay_color = sampled_color(overlay, tex_ovr.size, ogid);
+//      break;
+//
+//    case DHCR_Bicubic:
+//      base          = bicubic_sampled_color(source, tex.size, tex.gid);
+//      overlay_color = bicubic_sampled_color(overlay, tex_ovr.size, ogid);
+//      break;
+//
+//    case DHCR_BoxAverage:
+//      base          = box_average_sampled_color(source, tex.size, tex.gid);
+//      overlay_color = box_average_sampled_color(overlay, tex_ovr.size, ogid);
+//      break;
+//  }
+//
+//  if (ogid.x>=tex_ovr.size.x || ogid.y>=tex_ovr.size.y || ogid.x<0 || ogid.y<0){
+//    write_image(destination, base, tex.gid);
+//    return;
+//  }
   
   float4 result = mix(base, overlay_color, overlay_color.w);
 
   float4 mask_rgba = make_float4(opacity);
   
   result = blend(base, result, DHCR_Normal, mask_rgba);
-
-  write_image(destination, result, tex.gid);
+  
+  overlay_color.w = 1.0f;
+  write_image(destination, overlay_color, tex.gid);
 }
 
 #endif //DEHANCER_GPULIB_OVERLAY_KERNELS_H

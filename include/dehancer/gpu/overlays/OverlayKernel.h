@@ -48,12 +48,15 @@ namespace dehancer {
         void set_overlay(const Texture &overlay);
         void set_options(Options options);
         void set_interpolation(ResampleKernel::Mode mode);
-        
+        void set_destination(const Texture &destination) override;
         void setup(CommandEncoder &encoder) override;
-    
+        
     private:
         Texture overlay_;
         ResampleKernel::Mode interpolation_mode_;
         Options options_;
+        float2 overlay_offset_;
+        
+        void resize_overlay();
     };
 }
