@@ -131,11 +131,6 @@ else()
     find_package (OpenCV REQUIRED )
 endif()
 
-#if (LINUX)
-
-#    find_package(CUDA 9.0)
-#    set(CUDA_LIBS ${CUDA_LIB_FILE};${CUDART_LIB_FILE})
-
 if (DEHANCER_GPU_CUDA)
 
     if(WIN32)
@@ -162,38 +157,45 @@ if (DEHANCER_GPU_CUDA)
 
     set(CMAKE_CUDA_STANDARD 14)
 
-    find_package(CUDAToolkit REQUIRED)
-
+    find_package(CUDAToolkit)
     set(CUDA_FOUND ${CUDAToolkit_FOUND})
-    set(CUDA_TOOLKIT_ROOT_DIR ${CUDAToolkit_ROOT})
-    include_directories(${CUDAToolkit_INCLUDE_DIRS})
-    link_directories(${CUDAToolkit_LIBRARY_DIR})
 
-    set(CMAKE_CUDA_COMPILER ${CUDAToolkit_NVCC_EXECUTABLE})
+    if (CUDAToolkit_FOUND)
 
-    set(CUDA_LIB_FILE CUDA::cudart)
-    set(CUDART_STATIC_LIB_FILE CUDA::cudart_static)
-    set(CUDART_LIB_FILE CUDA::cuda_driver)
-    set(CUDA_LIBS ${CUDA_LIB_FILE};${CUDART_STATIC_LIB_FILE};${CUDART_LIB_FILE})
-    set(CUDA_LIBRARY_FLAGS  "--cudart=static")
+        set(CUDA_TOOLKIT_ROOT_DIR ${CUDAToolkit_ROOT})
+        include_directories(${CUDAToolkit_INCLUDE_DIRS})
+        link_directories(${CUDAToolkit_LIBRARY_DIR})
 
-    message("CMAKE_CUDA_COMPILER ${CMAKE_CUDA_COMPILER}")
-    message("CUDAToolkit_BIN_DIR ${CUDAToolkit_BIN_DIR}")
-    message("CUDAToolkit_LIBRARY_DIR ${CUDAToolkit_LIBRARY_DIR}")
-    message("CUDAToolkit_LIBRARY_ROOT ${CUDAToolkit_LIBRARY_ROOT}")
-    message("CUDAToolkit_TARGET_DIR ${CUDAToolkit_TARGET_DIR}")
-    message("NVCC BIN: ${CMAKE_CXX_COMPILER}")
+        set(CMAKE_CUDA_COMPILER ${CUDAToolkit_NVCC_EXECUTABLE})
 
-    #
-    # TODO: check gcc/clang version
-    #
-    # clang <=9.0 for cuda 10.1
-    #
-    if (NOT CUDA_BIN_COMPILER)
-        set(CUDA_BIN_COMPILER g++)
+        set(CUDA_LIB_FILE CUDA::cudart)
+        set(CUDART_STATIC_LIB_FILE CUDA::cudart_static)
+        set(CUDART_LIB_FILE CUDA::cuda_driver)
+        set(CUDA_LIBS ${CUDA_LIB_FILE};${CUDART_STATIC_LIB_FILE};${CUDART_LIB_FILE})
+        set(CUDA_LIBRARY_FLAGS  "--cudart=static")
+
+        message("CMAKE_CUDA_COMPILER ${CMAKE_CUDA_COMPILER}")
+        message("CUDAToolkit_BIN_DIR ${CUDAToolkit_BIN_DIR}")
+        message("CUDAToolkit_LIBRARY_DIR ${CUDAToolkit_LIBRARY_DIR}")
+        message("CUDAToolkit_LIBRARY_ROOT ${CUDAToolkit_LIBRARY_ROOT}")
+        message("CUDAToolkit_TARGET_DIR ${CUDAToolkit_TARGET_DIR}")
+        message("NVCC BIN: ${CMAKE_CXX_COMPILER}")
+
+        #
+        # TODO: check gcc/clang version
+        #
+        # clang <=9.0 for cuda 10.1
+        #
+        if (NOT CUDA_BIN_COMPILER)
+            set(CUDA_BIN_COMPILER g++)
+        endif ()
+
+        message("CUDA_BIN_COMPILER ${CUDA_BIN_COMPILER}")
+
+    else()
+        message(WARNING "CUDA Toolkit is not found...")
+        set(DEHANCER_GPU_CUDA OFF)
     endif ()
-
-    message("CUDA_BIN_COMPILER ${CUDA_BIN_COMPILER}")
 
 endif ()
 
