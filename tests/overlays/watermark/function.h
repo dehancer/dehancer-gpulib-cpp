@@ -39,6 +39,7 @@ auto function_test =  [] (int dev_num,
   
       auto kernel = dehancer::OverlayKernel(command_queue);
   
+      kernel.set_interpolation(dehancer::ResampleKernel::Mode::bilinear);
       kernel.set_overlay(overlay);
       kernel.set_source(input_text.get_texture());
       kernel.set_destination(output_text.get_texture());
