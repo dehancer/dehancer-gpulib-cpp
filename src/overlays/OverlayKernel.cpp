@@ -52,14 +52,14 @@ namespace dehancer {
     }
     
     void OverlayKernel::set_overlay (const Texture &overlay) {
-        overlay_src_ = overlay;
-        overlay_base_ = nullptr;
-        resize_overlay();
+      overlay_src_ = overlay;
+      overlay_base_ = nullptr;
+      resize_overlay();
     }
     
     void OverlayKernel::setup (CommandEncoder &encoder) {
       if (!overlay_base_) {
-          return;
+        return;
       }
       encoder.set(overlay_base_,2);
       encoder.set(options_.opacity,3);
@@ -74,6 +74,7 @@ namespace dehancer {
     
     void OverlayKernel::set_destination (const Texture &destination) {
       Kernel::set_destination(destination);
+      //overlay_base_ = nullptr;
       resize_overlay();
     }
     
@@ -95,28 +96,28 @@ namespace dehancer {
           desc_o.width = std::floor((float) desc_o.width * scale);
           
           auto desc_s = overlay_src_->get_desc();
-  
-          if (desc_s != desc_o || !overlay_base_) {
-            
-            overlay_base_ = desc_o.make(get_command_queue());
-            
-            ResampleKernel(get_command_queue(),
-                           overlay_src_, overlay_base_,
-                           interpolation_mode_,
-                           get_wait_completed()).process();
-            
-            if (dest->get_width() != overlay_base_->get_width()) {
-              overlay_offset_.x() =
-                      static_cast<float>(dest->get_width()) - static_cast<float>(overlay_base_->get_width());
-            } else {
-              overlay_offset_.y() =
-                      static_cast<float>(dest->get_height()) - static_cast<float>(overlay_base_->get_height());
-            }
-            
-            overlay_offset_ *= 0.5f;
-
+          
+          // if (desc_s != desc_o || !overlay_base_) {
+          
+          overlay_base_ = desc_o.make(get_command_queue());
+          
+          ResampleKernel(get_command_queue(),
+                         overlay_src_, overlay_base_,
+                         interpolation_mode_,
+                         get_wait_completed()).process();
+          
+          if (dest->get_width() != overlay_base_->get_width()) {
+            overlay_offset_.x() =
+                    static_cast<float>(dest->get_width()) - static_cast<float>(overlay_base_->get_width());
+          } else {
+            overlay_offset_.y() =
+                    static_cast<float>(dest->get_height()) - static_cast<float>(overlay_base_->get_height());
           }
+          
+          overlay_offset_ *= 0.5f;
+          
         }
+        //}
       }
     }
   
