@@ -6,6 +6,8 @@
 
 #include <cmath>
 
+#include "dehancer/gpu/Log.h"
+
 namespace dehancer {
     
     OverlayKernel::OverlayKernel (const void *command_queue,
@@ -50,11 +52,28 @@ namespace dehancer {
     }
     
     void OverlayKernel::set_overlay (const Texture &overlay) {
-      overlay_src_ = overlay;
-      resize_overlay();
+      if (overlay_src_!=overlay || overlay_src_ == nullptr) {
+        if (overlay) {
+          dehancer::log::print(" *** set_overlay  src: %ix%i", overlay->get_width(), overlay->get_height());
+        }
+        if (overlay_base_) {
+          dehancer::log::print(" *** set_overlay base: %ix%i", overlay_base_->get_width(), overlay_base_->get_height());
+        }
+        overlay_src_ = overlay;
+        overlay_base_ = nullptr;
+        resize_overlay();
+      } else {
+        dehancer::log::print(" *** set_overlay OLD src: %ix%i", overlay_src_->get_width(), overlay_src_->get_height());
+      }
     }
     
     void OverlayKernel::setup (CommandEncoder &encoder) {
+      if (overlay_src_) {
+        dehancer::log::print(" *** setup  src: %ix%i", overlay_src_->get_width(), overlay_src_->get_height());
+      }
+      if (overlay_base_) {
+        dehancer::log::print(" *** setup base: %ix%i", overlay_base_->get_width(), overlay_base_->get_height());
+      }
       if (!overlay_base_) return;
       encoder.set(overlay_base_,2);
       encoder.set(options_.opacity,3);
@@ -112,12 +131,12 @@ namespace dehancer {
     
               overlay_offset_ *= 0.5f;
     
-              std::cout << " RESIZE OVERLAY = " << scale << std::endl
-                        << "       offset: " << overlay_offset_.x() << " : " << overlay_offset_.y() << std::endl
-                        << " overlay size: " << overlay_base_->get_width() << " : " << overlay_base_->get_height()
-                        << std::endl
-                        << "         size: " << dest->get_width() << " : " << dest->get_height() << std::endl
-                        << std::endl;
+//              std::cout << " RESIZE OVERLAY = " << scale << std::endl
+//                        << "       offset: " << overlay_offset_.x() << " : " << overlay_offset_.y() << std::endl
+//                        << " overlay size: " << overlay_base_->get_width() << " : " << overlay_base_->get_height()
+//                        << std::endl
+//                        << "         size: " << dest->get_width() << " : " << dest->get_height() << std::endl
+//                        << std::endl;
     
             }
           }
