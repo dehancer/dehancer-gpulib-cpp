@@ -50,8 +50,14 @@ DHCR_KERNEL void  kernel_overlay_image(
   
   base          = sampled_color(source, tex.size, tex.gid);
   
-  float2 coords = get_texel_coords(tex);
-  overlay_color = read_image(overlay, coords); //sampled_color(overlay, tex_ovr.size, tex.gid-make_int2(offset));
+  //float2 coords = get_texel_coords(tex_ovr) - offset;
+  int2 coords = tex.gid-make_int2(offset);
+  if (coords.x>=0 && coords.y>=0)
+    //overlay_color = read_image(overlay, coords);
+    overlay_color = sampled_color(overlay, tex_ovr.size, coords);
+  else
+    overlay_color = make_float4(0.0f);
+  //sampled_color(overlay, tex_ovr.size, tex.gid-make_int2(offset));
   
 //  switch ((DHCR_InterpolationMode)int_mode) {
 //    case DHCR_Bilinear:
@@ -81,8 +87,8 @@ DHCR_KERNEL void  kernel_overlay_image(
   
   result = blend(base, result, DHCR_Normal, mask_rgba);
   
-  overlay_color.w = 1.0f;
-  write_image(destination, overlay_color, tex.gid);
+  //overlay_color.w = 1.0f;
+  write_image(destination, result, tex.gid);
 }
 
 #endif //DEHANCER_GPULIB_OVERLAY_KERNELS_H

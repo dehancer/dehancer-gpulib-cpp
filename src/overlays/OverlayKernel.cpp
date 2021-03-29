@@ -77,27 +77,36 @@ namespace dehancer {
       if (dest){
         auto desc = dest->get_desc();
         if (overlay_) {
+          
           auto desc_o = overlay_->get_desc();
+          
           float scale = std::fmin((float)desc.width/(float)desc_o.width, (float)desc.height/(float)desc_o.height);
+          
           if (scale<1 || scale > 1) {
             
             desc_o.height = std::floor((float )desc_o.height*scale);
             desc_o.width = std::floor((float )desc_o.width*scale);
             
             auto overlay_tmp = desc_o.make(get_command_queue());
+            
             ResampleKernel(get_command_queue(),
                            overlay_, overlay_tmp,
                            interpolation_mode_,
                            get_wait_completed()).process();
+            
             overlay_ = overlay_tmp;
             
-            //overlay_offset_.x() =
-            if (abs(desc_o.width-desc.width)>0) {
-              //overlay_offset_.x() = (float)(desc_o.width-desc.width)/2;
+            if (dest->get_width()!=overlay_->get_width()) {
+              overlay_offset_.x() = static_cast<float>(dest->get_width())-static_cast<float>(overlay_->get_width());
             }
             else {
-              //overlay_offset_.y() = (float)(desc_o.height-desc.height)/2;
+              overlay_offset_.y() = static_cast<float>(dest->get_height())-static_cast<float>(overlay_->get_height());
             }
+            
+            overlay_offset_ *= 0.5f;
+            
+//            overlay_offset_ /= float2 ({static_cast<float>(dest->get_width()),
+//                                        static_cast<float>(dest->get_height())});
             
             std::cout << " RESIZE OVERLAY = " << scale << std::endl
                       << "       offset: " << overlay_offset_.x() << " : " << overlay_offset_.y() << std::endl
