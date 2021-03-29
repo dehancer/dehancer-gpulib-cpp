@@ -52,31 +52,13 @@ namespace dehancer {
     }
     
     void OverlayKernel::set_overlay (const Texture &overlay) {
-      //if (overlay_src_!=overlay || overlay_src_ == nullptr) {
-        if (overlay) {
-          dehancer::log::print(" *** set_overlay  src: %ix%i", overlay->get_width(), overlay->get_height());
-        }
-        if (overlay_base_) {
-          dehancer::log::print(" *** set_overlay base: %ix%i", overlay_base_->get_width(), overlay_base_->get_height());
-        }
         overlay_src_ = overlay;
         overlay_base_ = nullptr;
         resize_overlay();
-      //} else {
-      //  dehancer::log::print(" *** set_overlay OLD src: %ix%i", overlay_src_->get_width(), overlay_src_->get_height());
-      //}
     }
     
     void OverlayKernel::setup (CommandEncoder &encoder) {
-      if (overlay_src_) {
-        dehancer::log::print(" *** setup  src: %ix%i", overlay_src_->get_width(), overlay_src_->get_height());
-      }
-      if (overlay_base_) {
-        dehancer::log::print(" *** setup base: %ix%i", overlay_base_->get_width(), overlay_base_->get_height());
-      }
       if (!overlay_base_) {
-       // resize_overlay();
-       // if (!overlay_base_)
           return;
       }
       encoder.set(overlay_base_,2);
@@ -113,8 +95,6 @@ namespace dehancer {
           desc_o.width = std::floor((float) desc_o.width * scale);
           
           auto desc_s = overlay_src_->get_desc();
-  
-          dehancer::log::print(" *** resize_overlay: scale: %f, base: %ix%i dest: %ix%i", scale, desc_o.width , desc_o.height, desc.width, desc.height);
   
           if (desc_s != desc_o || !overlay_base_) {
             
