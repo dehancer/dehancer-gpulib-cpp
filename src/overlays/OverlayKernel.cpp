@@ -17,7 +17,8 @@ namespace dehancer {
                                   bool wait_until_completed,
                                   const std::string &library_path):
             Kernel(command_queue, "kernel_overlay_image", base, destination, wait_until_completed, library_path),
-            overlay_(nullptr),
+            overlay_src_(nullptr),
+            overlay_base_(nullptr),
             interpolation_mode_(interpolation),
             options_(options),
             overlay_offset_({0.0f,0.0f})
@@ -49,14 +50,13 @@ namespace dehancer {
     }
     
     void OverlayKernel::set_overlay (const Texture &overlay) {
-      overlay_ = overlay;
+      overlay_src_ = overlay;
       resize_overlay();
     }
     
     void OverlayKernel::setup (CommandEncoder &encoder) {
-      if (!overlay_) return;
-      resize_overlay();
-      encoder.set(overlay_,2);
+      if (!overlay_base_) return;
+      encoder.set(overlay_base_,2);
       encoder.set(options_.opacity,3);
       encoder.set(options_.horizontal_flipped,4);
       encoder.set(options_.vertical_flipped,5);
@@ -80,41 +80,46 @@ namespace dehancer {
         
         auto desc = dest->get_desc();
         
-        if (overlay_) {
+        if (overlay_src_) {
           
-          auto desc_o = overlay_->get_desc();
+          auto desc_o = overlay_base_->get_desc();
           
           float scale = std::fmin((float)desc.width/(float)desc_o.width, (float)desc.height/(float)desc_o.height);
           
           if (scale<1 || scale > 1) {
-            
-            desc_o.height = std::floor((float )desc_o.height*scale);
-            desc_o.width = std::floor((float )desc_o.width*scale);
-            
-            auto overlay_tmp = desc_o.make(get_command_queue());
-            
-            ResampleKernel(get_command_queue(),
-                           overlay_, overlay_tmp,
-                           interpolation_mode_,
-                           get_wait_completed()).process();
-            
-            overlay_ = overlay_tmp;
-            
-            if (dest->get_width()!=overlay_->get_width()) {
-              overlay_offset_.x() = static_cast<float>(dest->get_width())-static_cast<float>(overlay_->get_width());
+  
+            desc_o.height = std::floor((float) desc_o.height * scale);
+            desc_o.width = std::floor((float) desc_o.width * scale);
+  
+            auto desc_s = overlay_src_->get_desc();
+  
+            if (desc_s != desc_o || !overlay_base_) {
+    
+              overlay_base_ = desc_o.make(get_command_queue());
+    
+              ResampleKernel(get_command_queue(),
+                             overlay_src_, overlay_base_,
+                             interpolation_mode_,
+                             get_wait_completed()).process();
+    
+              if (dest->get_width() != overlay_base_->get_width()) {
+                overlay_offset_.x() =
+                        static_cast<float>(dest->get_width()) - static_cast<float>(overlay_base_->get_width());
+              } else {
+                overlay_offset_.y() =
+                        static_cast<float>(dest->get_height()) - static_cast<float>(overlay_base_->get_height());
+              }
+    
+              overlay_offset_ *= 0.5f;
+    
+              std::cout << " RESIZE OVERLAY = " << scale << std::endl
+                        << "       offset: " << overlay_offset_.x() << " : " << overlay_offset_.y() << std::endl
+                        << " overlay size: " << overlay_base_->get_width() << " : " << overlay_base_->get_height()
+                        << std::endl
+                        << "         size: " << dest->get_width() << " : " << dest->get_height() << std::endl
+                        << std::endl;
+    
             }
-            else {
-              overlay_offset_.y() = static_cast<float>(dest->get_height())-static_cast<float>(overlay_->get_height());
-            }
-            
-            overlay_offset_ *= 0.5f;
-            
-            std::cout << " RESIZE OVERLAY = " << scale << std::endl
-                      << "       offset: " << overlay_offset_.x() << " : " << overlay_offset_.y() << std::endl
-                      << " overlay size: " << overlay_->get_width() << " : " << overlay_->get_height() << std::endl
-                      << "         size: " << dest->get_width() << " : " << dest->get_height() << std::endl
-                      << std::endl;
-            
           }
         }
       }

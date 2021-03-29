@@ -52,7 +52,8 @@ namespace dehancer {
         void setup(CommandEncoder &encoder) override;
         
     private:
-        Texture overlay_;
+        Texture overlay_src_;
+        Texture overlay_base_;
         ResampleKernel::Mode interpolation_mode_;
         Options options_;
         float2 overlay_offset_;
