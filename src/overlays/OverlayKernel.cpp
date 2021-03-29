@@ -55,12 +55,12 @@ namespace dehancer {
     
     void OverlayKernel::setup (CommandEncoder &encoder) {
       if (!overlay_) return;
+      resize_overlay();
       encoder.set(overlay_,2);
       encoder.set(options_.opacity,3);
-      encoder.set(interpolation_mode_,4);
-      encoder.set(options_.horizontal_flipped,5);
-      encoder.set(options_.vertical_flipped,6);
-      encoder.set(overlay_offset_,7);
+      encoder.set(options_.horizontal_flipped,4);
+      encoder.set(options_.vertical_flipped,5);
+      encoder.set(overlay_offset_,6);
     }
     
     void OverlayKernel::set_interpolation (ResampleKernel::Mode mode) {
@@ -73,9 +73,13 @@ namespace dehancer {
     }
     
     void OverlayKernel::resize_overlay () {
+      
       auto dest = get_destination();
+      
       if (dest){
+        
         auto desc = dest->get_desc();
+        
         if (overlay_) {
           
           auto desc_o = overlay_->get_desc();
@@ -104,9 +108,6 @@ namespace dehancer {
             }
             
             overlay_offset_ *= 0.5f;
-            
-//            overlay_offset_ /= float2 ({static_cast<float>(dest->get_width()),
-//                                        static_cast<float>(dest->get_height())});
             
             std::cout << " RESIZE OVERLAY = " << scale << std::endl
                       << "       offset: " << overlay_offset_.x() << " : " << overlay_offset_.y() << std::endl
