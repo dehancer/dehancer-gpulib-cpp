@@ -113,7 +113,9 @@ namespace dehancer {
           desc_o.width = std::floor((float) desc_o.width * scale);
           
           auto desc_s = overlay_src_->get_desc();
-          
+  
+          dehancer::log::print(" *** resize_overlay: scale: %f, base: %ix%i dest: %ix%i", scale, desc_o.width , desc_o.height, desc.width, desc.height);
+  
           if (desc_s != desc_o || !overlay_base_) {
             
             overlay_base_ = desc_o.make(get_command_queue());
