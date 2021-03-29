@@ -28,20 +28,20 @@ namespace dehancer {
                                const Texture &destination,
                                const Texture &overlay,
                                Options options = Options({1.0f,false, false}),
-                               ResampleKernel::Mode interpolation = ResampleKernel::Mode::bicubic,
+                               ResampleKernel::Mode interpolation = ResampleKernel::Mode::bilinear,
                                bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                                const std::string &library_path = "");
         
         explicit OverlayKernel(const void *command_queue,
                                const Texture &overlay,
                                Options options = Options({1.0f,false, false}),
-                               ResampleKernel::Mode interpolation = ResampleKernel::Mode::bicubic,
+                               ResampleKernel::Mode interpolation = ResampleKernel::Mode::bilinear,
                                bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                                const std::string &library_path = "");
         
         explicit OverlayKernel(const void *command_queue,
                                Options options = Options({1.0f,false, false}),
-                               ResampleKernel::Mode interpolation = ResampleKernel::Mode::bicubic,
+                               ResampleKernel::Mode interpolation = ResampleKernel::Mode::bilinear,
                                bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                                const std::string &library_path = "");
         
