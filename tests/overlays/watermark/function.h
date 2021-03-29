@@ -27,41 +27,55 @@ auto function_test =  [] (int dev_num,
       ifs >> input_text;
       
       using WCache = dehancer::overlay::WatermarkImageCache;
-  
+      
       auto resolution = dehancer::overlay::resolution_from(input_text.get_texture());
       
-      auto overlay = WCache::Instance().get(command_queue, resolution);
-  
-      auto output_text = dehancer::TextureOutput(command_queue, input_text.get_texture(), {
-              .type = test::type,
-              .compression = test::compression
-      });
-  
-      auto kernel = dehancer::OverlayKernel(command_queue);
-  
-      kernel.set_interpolation(dehancer::ResampleKernel::Mode::bilinear);
-      kernel.set_overlay(overlay);
-      kernel.set_source(input_text.get_texture());
-      kernel.set_destination(output_text.get_texture());
+      std::cout << " ### Resolution for image: " << static_cast<int>(resolution) << std::endl;
       
-      kernel.process();
+      std::vector<dehancer::overlay::Resolution> rs = {
+              dehancer::overlay::Resolution::LandscapeR1K,
+              dehancer::overlay::Resolution::LandscapeR4K,
+              dehancer::overlay::Resolution::LandscapeR8K
+      };
       
-      
-      {
-        std::ofstream os(output_image, std::ostream::binary | std::ostream::trunc);
-        if (os.is_open()) {
-          os << output_text << std::flush;
+      for (auto r: rs) {
+        
+        auto overlay = WCache::Instance().get(command_queue, r);
+        
+        auto output_text = dehancer::TextureOutput(command_queue, input_text.get_texture(), {
+                .type = test::type,
+                .compression = test::compression
+        });
+        
+        auto kernel = dehancer::OverlayKernel(command_queue);
+        
+        kernel.set_interpolation(dehancer::ResampleKernel::Mode::bilinear);
+        kernel.set_overlay(overlay);
+        kernel.set_source(input_text.get_texture());
+        kernel.set_destination(output_text.get_texture());
+        
+        kernel.process();
+        
+        {
           
-          std::cout << "Save to: " << output_image << std::endl;
+          std::ostringstream osss; osss << static_cast<int>(r) << "-" << output_image;
           
-        } else {
-          std::cerr << "File: " << output_image << " could not been opened..." << std::endl;
+          std::ofstream os(osss.str(), std::ostream::binary | std::ostream::trunc);
+          
+          if (os.is_open()) {
+            os << output_text << std::flush;
+            
+            std::cout << "Save to: " << osss.str() << std::endl;
+            
+          } else {
+            std::cerr << "File: " << osss.str() << " could not been opened..." << std::endl;
+          }
         }
       }
-      
     }
     catch (const std::runtime_error &e) {
       std::cerr << "Kernel error: " << e.what() << std::endl;
     }
+    
     return 0;
 };
