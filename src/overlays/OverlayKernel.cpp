@@ -74,7 +74,6 @@ namespace dehancer {
     
     void OverlayKernel::set_destination (const Texture &destination) {
       Kernel::set_destination(destination);
-      //overlay_base_ = nullptr;
       resize_overlay();
     }
     
@@ -96,8 +95,10 @@ namespace dehancer {
           desc_o.width = std::floor((float) desc_o.width * scale);
           
           auto desc_s = overlay_src_->get_desc();
-          
-          // if (desc_s != desc_o || !overlay_base_) {
+       
+          /***
+           * TODO: optimize and cache
+           */
           
           overlay_base_ = desc_o.make(get_command_queue());
           
@@ -117,7 +118,6 @@ namespace dehancer {
           overlay_offset_ *= 0.5f;
           
         }
-        //}
       }
     }
   
