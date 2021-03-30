@@ -83,8 +83,6 @@ namespace dehancer {
         /** @brief Opens the log file, returns whether this was sucessful or not. */
         bool open()
         {
-          std::cout << " dehancer::log::open: " << gLogFileName << std::endl;
-
 #ifdef PRINT_DEBUG
           if (use_console) {
                 gLogFP = stderr;
@@ -132,8 +130,6 @@ namespace dehancer {
         /** @brief Prints to the log file. */
         void print(const char *format, ...)
         {
-          std::cout << " dehancer::log::print: " << gLogFileName << std::endl;
-
 #if PRINT_DEBUG
           if(open()) {
                 doIndent();
