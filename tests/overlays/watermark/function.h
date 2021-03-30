@@ -3,9 +3,12 @@
 //
 
 #pragma once
+
 #include <string>
+#include <fstream>
 
 #include "dehancer/gpu/Lib.h"
+#include "dehancer/gpu/Log.h"
 #include "tests/test_config.h"
 
 
@@ -17,6 +20,8 @@ auto function_test =  [] (int dev_num,
                           int image_index) {
     
     try {
+      dehancer::log::print(" *** Test: %s -> %s", input_image.c_str(), output_image.c_str());
+      
       std::cout << "Load file: " << input_image << std::endl;
       
       /***
