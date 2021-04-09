@@ -37,10 +37,14 @@ inline static int run_on_device(int num,
   for (auto& file: images) {
     std::string path = IMAGES_DIR; path.append("/"); path.append(file);
     
-    std::string out_file_cv = "texture-io-";
+    std::string out_file_cv = "texture-io-[";
+    out_file_cv.append(dehancer::device::get_name(device)); out_file_cv.append("]-");
     out_file_cv.append(platform);
-    out_file_cv.append("-["); out_file_cv.append(std::to_string(num)); out_file_cv.append("]-");
-    out_file_cv.append(std::to_string(i)); out_file_cv.append(test::ext);
+    out_file_cv.append("-[");
+    out_file_cv.append(std::to_string(num));
+    out_file_cv.append("]-");
+    out_file_cv.append(std::to_string(i));
+    out_file_cv.append(test::ext);
     
     auto r = block (num, command_queue, platform, path, out_file_cv, i++);
     if (r!=0) return r;

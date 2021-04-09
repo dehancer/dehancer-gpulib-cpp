@@ -3,7 +3,6 @@
 //
 
 #include "DeviceCache.h"
-
 #include <utility>
 
 namespace dehancer::opencl {
@@ -141,6 +140,8 @@ namespace dehancer::opencl {
       for (int i = 0; i < kMaxCommandQueues; ++i) {
 
 #ifdef __APPLE__
+        auto q = clCreateCommandQueue(context, device_id, 0, &ret);
+#elif WIN32
         auto q = clCreateCommandQueue(context, device_id, 0, &ret);
 #else
         cl_queue_properties devQueueProps[] = { 0 };

@@ -155,7 +155,7 @@ if (DEHANCER_GPU_CUDA)
         #
         # TODO: OpenCL on WIN!
         #
-        set(DEHANCER_GPU_OPENCL OFF)
+        # set(DEHANCER_GPU_OPENCL OFF)
 
     else()
 
@@ -218,6 +218,22 @@ if (DEHANCER_GPU_OPENCL)
     else()
         set(DEHANCER_GPU_OPENCL OFF)
         message("OpenCL is not found on this platform")
+    endif ()
+endif ()
+
+
+if (DEHANCER_GPU_OPENCL)
+
+    if (WIN32)
+        find_package(dlfcn-win32 REQUIRED)
+
+        set(CMAKE_DL_LIBS dlfcn-win32::dl)
+
+        include_directories(
+                ${dlfcn-win32_INCLUDE_DIRS}
+        )
+    else()
+        set(CMAKE_DL_LIBS dl)
     endif ()
 endif ()
 
@@ -351,6 +367,7 @@ if (DEHANCER_GPU_OPENCL)
             -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
             -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+            -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}
             PREFIX ${DEHANCER_COMMON_DIR}
             )
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_opencl_helper;)
@@ -431,7 +448,7 @@ else()
     set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};dehancer_maths_cpp;armadillo)
 endif()
 
-if(DEHANCER_USE_OPENCOLOR)
+if(DEHANCER_USE_OPEN_COLOR)
     #
     # AcademySoftwareFoundation OpenColorIO. ACES and etc...
     # https://github.com/AcademySoftwareFoundation/OpenColorIO
@@ -489,11 +506,19 @@ if (DEHANCER_GPU_CUDA)
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${CUDA_LIBS})
 endif ()
 
+if (DEHANCER_GPU_OPENCL)
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${OpenCL_LIBRARY})
+    include_directories(
+            ${OpenCL_INCLUDE_DIRS}
+    )
+endif ()
+
 set(COMMON_LIBRARIES
         ${COMMON_LIBRARIES};
         ${BLAS_LIBRARIES};
         ${LAPACK_LIBRARIES};
         ${OpenCV_LIBS};
+        ${CMAKE_DL_LIBS};
         )
 
 message("COMMON_LIBRARIES: ${COMMON_LIBRARIES}")

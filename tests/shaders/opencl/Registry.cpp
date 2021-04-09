@@ -7,8 +7,8 @@
 
 #include "dehancer/gpu/Paths.h"
 
-extern char TestKernels_cl[];
-extern int  TestKernels_cl_len;
+extern "C" char TestKernels_cl[];
+extern  "C" int  TestKernels_cl_len;
 
 namespace dehancer::device {
 
