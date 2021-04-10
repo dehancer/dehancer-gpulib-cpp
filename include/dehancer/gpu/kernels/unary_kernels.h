@@ -36,7 +36,8 @@ DHCR_KERNEL void kernel_convolve_horizontal(
     int half_size = size/2;
 
 #pragma unroll
-    for (int i = -half_size; i < half_size; ++i) {
+    //for (int i = -half_size; i < half_size; ++i) {
+    for (int i = 0; i < half_size; ++i) {
       int jx =  tid.x+i;
 /**
  * CLAMP address supports now
@@ -57,7 +58,8 @@ DHCR_KERNEL void kernel_convolve_horizontal(
           break;
       }
       const int j = ((tid.y * w) + jx);
-      val += scl[j] * weights[i+half_size] * f;
+      const int j2 = ((tid.y * w) + jx-half_size);
+      val += scl[j] * weights[i+half_size] * f + scl[j2] * weights[i] * f;
     }
     
     if (has_mask){
@@ -104,7 +106,8 @@ DHCR_KERNEL void kernel_convolve_vertical (
     int half_size = size/2;
 
 #pragma unroll
-    for (int i = -half_size; i < half_size; ++i) {
+    //for (int i = -half_size; i < half_size; ++i) {
+    for (int i = 0; i < half_size; ++i) {
       int jy =  tid.y+i;
 /**
  * CLAMP address supports now
@@ -125,7 +128,8 @@ DHCR_KERNEL void kernel_convolve_vertical (
           break;
       }
       const int j = ((jy * w) + tid.x);
-      val += scl[j] * weights[i+half_size] * f;
+      const int j2 = (((jy-half_size) * w) + tid.x);
+      val += scl[j] * weights[i+half_size] * f + scl[j2] * weights[i] * f;
     }
     
     if (has_mask){
