@@ -17,7 +17,7 @@ namespace dehancer::cuda {
 
     void Function::execute(const dehancer::Function::EncodeHandler &block) {
 
-      std::unique_lock<std::mutex> lock(Function::mutex_);
+      //std::unique_lock<std::mutex> lock(Function::mutex_);
 
       auto encoder = std::make_shared<cuda::CommandEncoder>(kernel_, this);
 
@@ -102,7 +102,6 @@ namespace dehancer::cuda {
             current_context_(nullptr),
             max_device_threads_(8)
     {
-      std::unique_lock<std::mutex> lock(Function::mutex_);
 
       CHECK_CUDA(cuCtxGetCurrent(&current_context_));
 
@@ -128,7 +127,9 @@ namespace dehancer::cuda {
       }
       
       max_device_threads_ = props.maxThreadsPerBlock;
-
+  
+      std::unique_lock<std::mutex> lock(Function::mutex_);
+  
       if (kernel_map_.find(command_->get_command_queue()) != kernel_map_.end())
       {
         auto& km =  kernel_map_[command_->get_command_queue()];
