@@ -19,7 +19,8 @@ namespace dehancer::cuda {
       
       //std::unique_lock<std::mutex> lock(Function::mutex_);
       
-      CHECK_CUDA(cuCtxPushCurrent(function_context_));
+      //CHECK_CUDA(cuCtxPushCurrent(function_context_));
+      command_->push();
       
       auto encoder = std::make_shared<cuda::CommandEncoder>(kernel_, this);
       
@@ -90,7 +91,8 @@ namespace dehancer::cuda {
         CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventSynchronize(stop));
       }
       
-      CHECK_CUDA(cuCtxPopCurrent(&function_context_));
+      //CHECK_CUDA(cuCtxPopCurrent(&function_context_));
+      command_->pop();
     }
     
     Function::Function(
@@ -102,13 +104,15 @@ namespace dehancer::cuda {
             library_path_(library_path),
             kernel_(nullptr),
             arg_list_({}),
-            function_context_(nullptr),
+            //function_context_(nullptr),
             max_device_threads_(8)
     {
       
-      CHECK_CUDA(cuStreamGetCtx(command_->get_command_queue(), &function_context_));
+      //CHECK_CUDA(cuStreamGetCtx(command_->get_command_queue(), &function_context_));
       
-      CHECK_CUDA(cuCtxPushCurrent(function_context_));
+      //CHECK_CUDA(cuCtxPushCurrent(function_context_));
+      
+      command_->push();
       
       CUdevice cUdevice_0 = -1;
       
@@ -136,7 +140,8 @@ namespace dehancer::cuda {
         auto& km =  kernel_map_[command_->get_command_queue()];
         if (km.find(kernel_name_) != km.end()) {
           kernel_ = km[kernel_name_];
-          CHECK_CUDA(cuCtxPopCurrent(&function_context_));
+          //CHECK_CUDA(cuCtxPopCurrent(&function_context_));
+          command_->pop();
           return;
         }
       }
@@ -150,7 +155,8 @@ namespace dehancer::cuda {
       std::size_t p_path_hash = std::hash<std::string>{}(p_path);
       
       if (p_path.empty()) {
-        CHECK_CUDA(cuCtxPopCurrent(&function_context_));
+        //CHECK_CUDA(cuCtxPopCurrent(&function_context_));
+        command_->pop();
         throw std::runtime_error("Could not find path to CUDA module for '" + kernel_name + "'");
       }
       
@@ -170,7 +176,8 @@ namespace dehancer::cuda {
           CHECK_CUDA(cuModuleLoad(&module, p_path.c_str()));
         }
         catch (const std::runtime_error &e) {
-          CHECK_CUDA(cuCtxPopCurrent(&function_context_));
+          //CHECK_CUDA(cuCtxPopCurrent(&function_context_));
+          command_->pop();
           throw std::runtime_error(e.what() + std::string(" module: ") + p_path);
         }
         module_map_[command_->get_command_queue()][p_path_hash] = module ;
@@ -181,12 +188,14 @@ namespace dehancer::cuda {
         CHECK_CUDA(cuModuleGetFunction(&kernel_, module, kernel_name_.c_str()));
       }
       catch (const std::runtime_error &e) {
-        CHECK_CUDA(cuCtxPopCurrent(&function_context_));
+        //CHECK_CUDA(cuCtxPopCurrent(&function_context_));
+        command_->pop();
         throw std::runtime_error(e.what() + std::string(" kernel: ") + kernel_name_);
       }
       
       kernel_map_[command_->get_command_queue()][kernel_name_]=kernel_;
-      CHECK_CUDA(cuCtxPopCurrent(&function_context_));
+      //CHECK_CUDA(cuCtxPopCurrent(&function_context_));
+      command_->pop();
     }
     
     Function::~Function() = default;

@@ -14,8 +14,15 @@ namespace dehancer::cuda {
             length_(length),
             is_self_allocated_(false)
     {
-
+  
+      //CHECK_CUDA(cuStreamGetCtx(get_command_queue(), &function_context_));
+  
+      //CHECK_CUDA(cuCtxPushCurrent(function_context_));
+  
+      push();
+      
       if (length == 0) {
+        pop();
         throw std::runtime_error("Device memory could not be allocated with size: " + std::to_string(length));
       }
       is_self_allocated_ = true;
@@ -25,6 +32,7 @@ namespace dehancer::cuda {
         auto *p = static_cast<uint8_t*>((void*)buffer);
         CHECK_CUDA(cudaMemcpyAsync((void*)memobj_, p, length, cudaMemcpyHostToDevice, get_command_queue()));
       }
+      pop();
     }
 
     MemoryHolder::MemoryHolder(const void *command_queue, std::vector<uint8_t> buffer):
@@ -38,14 +46,19 @@ namespace dehancer::cuda {
             length_(0),
             is_self_allocated_(false)
     {
+      push();
       memobj_ = reinterpret_cast<CUdeviceptr>(device_memory);
       CUdeviceptr pbase;
       CHECK_CUDA(cuMemGetAddressRange (&pbase, &length_, memobj_ ));
+      pop();
     }
 
     MemoryHolder::~MemoryHolder() {
-      if (is_self_allocated_ && memobj_)
-        cudaFree((void *)memobj_);
+      if (is_self_allocated_ && memobj_) {
+        push();
+        cudaFree((void *) memobj_);
+        pop();
+      }
     }
 
     size_t MemoryHolder::get_length() const {
@@ -84,7 +97,9 @@ namespace dehancer::cuda {
         return Error(CommonError::OUT_OF_RANGE, "Buffer length not enough to copy memory object");
 
       try {
+        this->push();
         CHECK_CUDA(cudaMemcpyAsync(buffer, (const void *)memobj_, get_length(), cudaMemcpyDeviceToHost, get_command_queue()));
+        this->pop();
       }
       catch (const std::runtime_error &e) {
         return Error(CommonError::EXCEPTION, e.what());

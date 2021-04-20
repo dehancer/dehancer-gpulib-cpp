@@ -13,10 +13,15 @@ namespace dehancer::cuda {
     public:
         explicit Context(const void *command_queue);
         [[nodiscard]] CUstream get_command_queue() const;
+        [[nodiscard]] CUcontext get_command_context() const;
 
+        void push() const;
+        void pop() const;
+        
     private:
         const void *command_queue_;
-
+        mutable CUcontext context_;
+  
     };
 }
 

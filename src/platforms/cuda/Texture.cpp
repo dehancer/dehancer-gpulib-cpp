@@ -13,7 +13,9 @@ namespace dehancer::cuda {
             desc_(desc),
             mem_(nullptr)
     {
-      
+  
+      push();
+  
       size_t pitch = 0;
       
       switch (desc_.pixel_format) {
@@ -53,6 +55,7 @@ namespace dehancer::cuda {
                                             cudaMemcpyHostToDevice,
                                             get_command_queue()));
       }
+      pop();
     }
     
     TextureHolder::~TextureHolder() = default;
@@ -101,12 +104,14 @@ namespace dehancer::cuda {
       }
       
       try {
+        push();
         CHECK_CUDA(cudaMemcpy2DFromArrayAsync(buffer,
                                               mem_->get_width() * pitch,
                                               mem_->get_contents(),
                                               0, 0, mem_->get_width() * pitch, mem_->get_height(),
                                               cudaMemcpyDeviceToHost,
                                               get_command_queue()));
+        pop();
       }
       catch (const std::runtime_error &e) {
         return Error(CommonError::EXCEPTION, e.what());
