@@ -15,7 +15,9 @@ option (DEHANCER_GPU_METAL "Dehancer GPU Layer is Metal" ON)
 option (DEHANCER_GPU_OPENCL "Dehancer GPU Layer is OpenCL" ON)
 option (DEHANCER_GPU_CUDA "Dehancer GPU Layer is CUDA" ON)
 option (DEHANCER_TARGET_ARCH "Dehancer platform arch" "")
-option(VCPKG_TARGET_TRIPLET "")
+option (VCPKG_TARGET_TRIPLET "")
+option (DEHANCER_COMMON_DIR " ${CMAKE_BINARY_DIR}/tmp")
+option (PRINT_KERNELS_DEBUG OFF)
 
 if (DEHANCER_TARGET_ARCH)
     #
@@ -100,9 +102,14 @@ if (WIN32)
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
     add_definitions(/MT /DWIN32=1 /D_ITERATOR_DEBUG_LEVEL=0)
     string(TOLOWER  ${CMAKE_BUILD_TYPE} BUILD_TYPE)
+
     if (${BUILD_TYPE} STREQUAL "debug")
         add_definitions(/MTd /D_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH=1 /D_HAS_ITERATOR_DEBUGGING=0)
     endif()
+
+    if (PRINT_KERNELS_DEBUG)
+        add_compile_definitions(PRINT_KERNELS_DEBUG=1)
+    endif ()
 
     set(VCPKG_BUILD_TYPE release)
     set(VCPKG_LIBRARY_LINKAGE static)
@@ -116,6 +123,9 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -rdynamic")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
+    if (PRINT_KERNELS_DEBUG)
+        add_compile_definitions(-DPRINT_KERNELS_DEBUG=1)
+    endif ()
 endif ()
 
 #

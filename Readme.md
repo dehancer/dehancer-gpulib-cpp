@@ -33,10 +33,13 @@ Requirements
     brew install nasm
     or
     yum install nasm
-    
-Windows
+
+Requirements Windows
 =======
-    xxd from msys2 
+    1. xxd from msys2
+    
+    2. cuda toolkit: 
+    https://developer.nvidia.com/cuda-10.2-download-archive?target_os=Windows&target_arch=x86_64&target_version=10&target_type=exelocal
 
 LibJPEG Turbo
 =============
