@@ -14,6 +14,7 @@ namespace dehancer::cuda {
         explicit Context(const void *command_queue);
         [[nodiscard]] CUstream get_command_queue() const;
         [[nodiscard]] CUcontext get_command_context() const;
+        [[nodiscard]] CUdevice get_device_id() const;
 
         void push() const;
         void pop() const;
@@ -21,7 +22,7 @@ namespace dehancer::cuda {
     private:
         const void *command_queue_;
         mutable CUcontext context_;
-  
+        mutable CUdevice device_id_;
     };
 }
 

@@ -8,10 +8,13 @@ namespace dehancer::cuda {
 
     Context::Context(const void *command_queue):
     command_queue_(command_queue),
-    context_(nullptr)
+    context_(nullptr),
+    device_id_(0)
     {
       CHECK_CUDA(cuStreamGetCtx(get_command_queue(), &context_));
-      //CHECK_CUDA(cuCtxPushCurrent(function_context_));
+      push();
+      CHECK_CUDA(cuCtxGetDevice(&device_id_));
+      pop();
     }
 
     CUstream Context::get_command_queue() const {
@@ -28,5 +31,9 @@ namespace dehancer::cuda {
     
     void Context::pop () const {
       CHECK_CUDA(cuCtxPopCurrent(&context_));
+    }
+    
+    CUdevice Context::get_device_id () const {
+      return device_id_;
     }
 }

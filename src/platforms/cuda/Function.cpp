@@ -19,7 +19,6 @@ namespace dehancer::cuda {
       
       //std::unique_lock<std::mutex> lock(Function::mutex_);
       
-      //CHECK_CUDA(cuCtxPushCurrent(function_context_));
       command_->push();
       
       auto encoder = std::make_shared<cuda::CommandEncoder>(kernel_, this);
@@ -91,7 +90,6 @@ namespace dehancer::cuda {
         CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventSynchronize(stop));
       }
       
-      //CHECK_CUDA(cuCtxPopCurrent(&function_context_));
       command_->pop();
     }
     
@@ -104,33 +102,26 @@ namespace dehancer::cuda {
             library_path_(library_path),
             kernel_(nullptr),
             arg_list_({}),
-            //function_context_(nullptr),
             max_device_threads_(8)
     {
       
-      //CHECK_CUDA(cuStreamGetCtx(command_->get_command_queue(), &function_context_));
-      
-      //CHECK_CUDA(cuCtxPushCurrent(function_context_));
-      
       command_->push();
-      
-      CUdevice cUdevice_0 = -1;
-      
-      CHECK_CUDA(cuCtxGetDevice(&cUdevice_0));
-      
+  
+      CUdevice device_id = command_->get_device_id();
+  
       #ifdef PRINT_KERNELS_DEBUG
-      std::cout << "CUDA Function " << kernel_name_ << "context is changed to device["<<cUdevice_0<<"]" <<std::endl;
+      std::cout << "CUDA Function " << kernel_name_ << "context is changed to device["<<device_id<<"]" <<std::endl;
       #endif
       
       cudaDeviceProp props{};
       
-      cudaGetDeviceProperties(&props, cUdevice_0);
+      cudaGetDeviceProperties(&props, device_id);
       
       max_device_threads_ = props.maxThreadsPerBlock;
       
       #ifdef PRINT_KERNELS_DEBUG
-      std::cout << "CUDA Function "<<kernel_name_ << " device["<<cUdevice_0<<"]: " << props.name << " max grid: " << props.maxGridSize[0] << "x" << props.maxGridSize[1] << "x" << props.maxGridSize[2] <<std::endl;
-      std::cout << "CUDA Function "<<kernel_name_ << " device["<<cUdevice_0<<"]: " << props.name << " max dim: " << props.maxThreadsDim[0] << "x" << props.maxThreadsDim[1] << "x" << props.maxThreadsDim[2] <<std::endl;
+      std::cout << "CUDA Function "<<kernel_name_ << " device["<<device_id<<"]: " << props.name << " max grid: " << props.maxGridSize[0] << "x" << props.maxGridSize[1] << "x" << props.maxGridSize[2] <<std::endl;
+      std::cout << "CUDA Function "<<kernel_name_ << " device["<<device_id<<"]: " << props.name << " max dim: " << props.maxThreadsDim[0] << "x" << props.maxThreadsDim[1] << "x" << props.maxThreadsDim[2] <<std::endl;
       #endif
       
       std::unique_lock<std::mutex> lock(Function::mutex_);
@@ -140,7 +131,6 @@ namespace dehancer::cuda {
         auto& km =  kernel_map_[command_->get_command_queue()];
         if (km.find(kernel_name_) != km.end()) {
           kernel_ = km[kernel_name_];
-          //CHECK_CUDA(cuCtxPopCurrent(&function_context_));
           command_->pop();
           return;
         }
@@ -155,7 +145,6 @@ namespace dehancer::cuda {
       std::size_t p_path_hash = std::hash<std::string>{}(p_path);
       
       if (p_path.empty()) {
-        //CHECK_CUDA(cuCtxPopCurrent(&function_context_));
         command_->pop();
         throw std::runtime_error("Could not find path to CUDA module for '" + kernel_name + "'");
       }
@@ -176,7 +165,6 @@ namespace dehancer::cuda {
           CHECK_CUDA(cuModuleLoad(&module, p_path.c_str()));
         }
         catch (const std::runtime_error &e) {
-          //CHECK_CUDA(cuCtxPopCurrent(&function_context_));
           command_->pop();
           throw std::runtime_error(e.what() + std::string(" module: ") + p_path);
         }
@@ -188,13 +176,11 @@ namespace dehancer::cuda {
         CHECK_CUDA(cuModuleGetFunction(&kernel_, module, kernel_name_.c_str()));
       }
       catch (const std::runtime_error &e) {
-        //CHECK_CUDA(cuCtxPopCurrent(&function_context_));
         command_->pop();
         throw std::runtime_error(e.what() + std::string(" kernel: ") + kernel_name_);
       }
       
       kernel_map_[command_->get_command_queue()][kernel_name_]=kernel_;
-      //CHECK_CUDA(cuCtxPopCurrent(&function_context_));
       command_->pop();
     }
     
