@@ -13,6 +13,20 @@ Build Intel
     -DDEHANCER_GPU_OPENCL=OFF -DDEHANCER_GPU_METAL=ON -DDEHANCER_GPU_CUDA=OFF ..
 
 
+Build Windows10 x64
+===================
+    # CUDA
+    cmake -G
+    "Ninja"
+    -DCMAKE_VERBOSE_MAKEFILE=ON
+    -DDEHANCER_GPU_CUDA=ON
+    -DDEHANCER_GPU_OPENCL=OFF
+    -DBUILD_TESTING=ON
+    -DPRINT_DEBUG=ON
+    -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+    -DVCPKG_TARGET_TRIPLET=x64-windows-static 
+    ..
+
 Requirements
 ===========
     Nasm:
