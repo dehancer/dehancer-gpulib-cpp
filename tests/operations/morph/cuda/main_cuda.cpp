@@ -7,7 +7,7 @@
 #include "tests/include/run_test.h"
 #include "tests/cuda/paths_config.h"
 
-TEST(TEST, CUDA_GAMMA) {
+TEST(TEST, CUDA_MORPH) {
 
   std::cout << std::endl;
   std::cerr << std::endl;
