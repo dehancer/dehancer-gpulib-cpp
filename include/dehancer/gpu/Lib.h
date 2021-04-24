@@ -38,3 +38,6 @@
 #include "dehancer/gpu/overlays/OverlayImageCache.h"
 #include "dehancer/gpu/overlays/OverlayKernel.h"
 
+#include "dehancer/gpu/clut/CLut.h"
+#include "dehancer/gpu/clut/CLut1DIdentity.h"
+#include "dehancer/gpu/clut/CLut2DIdentity.h"
