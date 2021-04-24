@@ -2,11 +2,15 @@
 // Created by denn on 02.02.2021.
 //
 
-#include "dehancer/gpu/kernels/lib.h"
-#include "dehancer/gpu/kernels/types.h"
+//#include "dehancer/gpu/kernels/lib.h"
 
 #ifndef DEHANCER_VIDEO_MORPH_KERNELS_H
 #define DEHANCER_VIDEO_MORPH_KERNELS_H
+
+#include "dehancer/gpu/kernels/common.h"
+#include "dehancer/gpu/kernels/types.h"
+#include "dehancer/gpu/kernels/blend.h"
+#include "dehancer/gpu/kernels/resample.h"
 
 DHCR_KERNEL void kernel_dilate(
         texture2d_read_t               source DHCR_BIND_TEXTURE(0),
