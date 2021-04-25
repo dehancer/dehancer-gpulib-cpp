@@ -42,8 +42,8 @@ DHCR_KERNEL void kernel_make2DLut(
            + (float)(clevel) * floorf( (float)(tex.gid.y)/denom));
   float b = (float)bindex/denom;
   
-  float xindex = floor((float)(tex.gid.x) / qsize);
-  float yindex = floor((float)(tex.gid.y) / qsize);
+  float xindex = floorf((float)(tex.gid.x) / qsize);
+  float yindex = floorf((float)(tex.gid.y) / qsize);
   float r = ((float)(tex.gid.x)-xindex*(qsize))/denom;
   float g = ((float)(tex.gid.y)-yindex*(qsize))/denom;
   

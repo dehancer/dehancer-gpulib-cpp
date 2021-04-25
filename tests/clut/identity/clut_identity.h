@@ -20,7 +20,7 @@ void make_identity(const std::string& platform) {
       auto command_queue = dehancer::DeviceCache::Instance().get_command_queue(dehancer::device::get_id(device));
       auto clut_2d_identity = dehancer::CLut2DIdentity(command_queue, 256);
       
-      std::string output_file =  "grid-"+platform+"-";
+      std::string output_file =  "clut2d-"+platform+"-";
       output_file.append(dehancer::device::get_name(device));
       output_file.append(ext);
   
