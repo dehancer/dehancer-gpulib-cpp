@@ -53,4 +53,23 @@ DHCR_KERNEL void kernel_make2DLut(
   
 }
 
+DHCR_KERNEL void kernel_make3DLut(
+        texture3d_write_t         d3DLut DHCR_BIND_TEXTURE(0),
+        DHCR_CONST_ARG float2_ref_t  compression DHCR_BIND_BUFFER(1)
+        DHCR_KERNEL_GID_3D
+) {
+  Texel3d tex;
+  get_kernel_texel3d(d3DLut, tex);
+  if (!get_texel_boundary(tex)) return;
+  
+  float3 denom = make_float3(get_texture_width(d3DLut)-1,
+                             get_texture_height(d3DLut)-1,
+                             get_texture_depth(d3DLut)-1);
+  
+  float4 input_color  = make_float4(compress(make_float3(tex.gid)/denom, compression),1);
+  
+  write_image(d3DLut, input_color, tex.gid);
+  
+}
+
 #endif //DEHANCER_GPULIB_CLUT_KERNELS_H
