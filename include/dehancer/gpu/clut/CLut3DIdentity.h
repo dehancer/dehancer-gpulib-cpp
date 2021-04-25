@@ -4,9 +4,8 @@
 
 #pragma once
 
-//#include "gpulib/GpuConfig.h"
 #include "dehancer/gpu/Function.h"
-#include "CLut.h"
+#include "dehancer/gpu/clut/CLut.h"
 
 namespace dehancer {
 
@@ -22,13 +21,10 @@ namespace dehancer {
         size_t get_lut_size() const override { return lut_size_; };
         Type get_lut_type() const override { return Type::lut_3d; };
 
-        //ComputeSize get_compute_size(const Texture &texture) override { return compute_size_; };
-
         ~CLut3DIdentity() override ;
 
     private:
         Texture  texture_;
         uint     lut_size_;
-        //Function::ComputeSize compute_size_;
     };
 }

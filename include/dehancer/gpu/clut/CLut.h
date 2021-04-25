@@ -19,7 +19,7 @@ namespace dehancer {
             lut_1d   = 0, // unsupported by ofx plugin
             lut_2d   = 1,
             lut_3d   = 2,
-            lut_hald = 3
+            //lut_hald = 3
         };
 
         virtual const Texture& get_texture() = 0;

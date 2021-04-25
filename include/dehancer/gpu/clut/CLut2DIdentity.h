@@ -4,9 +4,8 @@
 
 #pragma once
 
-//#include "gpulib/GpuConfig.h"
 #include "dehancer/gpu/Function.h"
-#include "CLut.h"
+#include "dehancer/gpu/clut/CLut.h"
 
 namespace dehancer {
 
