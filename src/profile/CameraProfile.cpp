@@ -17,8 +17,8 @@ namespace dehancer {
             clut_(nullptr)
     {}
     
-    const CLut *CameraProfile::get () const {
-      return clut_ ? clut_.get() : nullptr;
+    const std::shared_ptr<CLut>& CameraProfile::get () const {
+      return clut_;
     }
     
     Error CameraProfile::load (const CameraLutXmp &xmp) {

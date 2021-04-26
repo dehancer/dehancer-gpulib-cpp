@@ -30,11 +30,11 @@ namespace dehancer {
     
         Error load(const MLutXmp &xmp);
         
-        const CLut* get(Type type) const;
+        const std::shared_ptr<CLut>& get(Type type) const;
 
     public:
         StreamSpace space_;
         StreamSpace::Direction direction_;
-        std::array<std::shared_ptr<CLutTransform>, sizeof(Type)> cluts_;
+        std::array<std::shared_ptr<CLut>, sizeof(Type)> cluts_;
     };
 }

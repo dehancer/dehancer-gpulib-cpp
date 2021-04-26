@@ -17,10 +17,8 @@ namespace dehancer {
             cluts_()
     {}
     
-    const CLut* FilmProfile::get (FilmProfile::Type type) const {
-      if (cluts_[type])
-        return cluts_[type].get();
-      return nullptr;
+    const std::shared_ptr<CLut>& FilmProfile::get (FilmProfile::Type type) const {
+      return cluts_[type];
     }
     
     Error FilmProfile::load (const MLutXmp &xmp) {

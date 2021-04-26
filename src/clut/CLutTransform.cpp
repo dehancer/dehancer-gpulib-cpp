@@ -20,7 +20,7 @@ namespace dehancer {
             CLut(),
             space_(space),
             direction_(direction),
-            input_texture_(lut.get_texture()),
+            //input_texture_(lut.get_texture()),
             clut_(nullptr),
             lut_size_(lut.get_lut_size()),
             type_(to)
@@ -29,7 +29,7 @@ namespace dehancer {
         CLutTransformFunction(
                 command_queue,
                 kernel_name_,
-                input_texture_,
+                lut.get_texture(),
                 clut_->get_texture(),
                 wait_until_completed,
                 library_path

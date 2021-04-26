@@ -24,11 +24,11 @@ namespace dehancer {
         
         Error load(const CameraLutXmp &xmp);
         
-        const CLut* get() const;
+        const std::shared_ptr<CLut>& get() const;
     
     public:
         StreamSpace space_;
         StreamSpace::Direction direction_;
-        std::shared_ptr<CLutTransform> clut_;
+        std::shared_ptr<CLut> clut_;
     };
 }
