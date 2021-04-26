@@ -2,6 +2,8 @@
 // Created by denn on 26.04.2021.
 //
 
+#pragma once
+
 #include "dehancer/gpu/Function.h"
 #include "dehancer/gpu/clut/CLutTransform.h"
 #include "dehancer/gpu/clut/CLut.h"
@@ -20,6 +22,16 @@ namespace dehancer {
             //cube,
         };
     
+        /**
+         * Create profile lut from any source and convert to 3D
+         * @param command_queue
+         * @param source
+         * @param format
+         * @param space
+         * @param direction
+         * @param wait_until_completed
+         * @param library_path
+         */
         CLutProfile(const void *command_queue,
                     const std::vector<std::uint8_t>& source,
                     Format format,

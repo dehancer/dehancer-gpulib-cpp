@@ -1,3 +1,4 @@
 add_subdirectory(identity)
 add_subdirectory(transform)
 add_subdirectory(square_input)
+add_subdirectory(profiles)
