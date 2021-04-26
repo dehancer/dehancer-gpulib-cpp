@@ -144,7 +144,7 @@ inline static void run_on_grid_image(std::string platform, dh_test_on_grid_image
                                  const std::string& platform) {
       
       dehancer::TextureIO::Options::Type type = dehancer::TextureIO::Options::Type::png;
-      std::string ext = dehancer::TextureIO::extention_for(type);
+      std::string ext = dehancer::TextureIO::extension_for(type);
       float compression = 0.3f;
       
       size_t width = 800*2, height = 400*2 ;

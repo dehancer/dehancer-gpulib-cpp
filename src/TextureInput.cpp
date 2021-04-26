@@ -12,11 +12,11 @@ namespace dehancer {
     impl_(std::make_shared<impl::TextureInput>(command_queue,space,direction))
     {}
 
-    Texture TextureInput::get_texture() {
+    const Texture & TextureInput::get_texture() {
       return impl_->get_texture();
     }
 
-    const Texture TextureInput::get_texture() const {
+    const Texture & TextureInput::get_texture() const {
       return impl_->get_texture();
     }
     

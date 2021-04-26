@@ -53,8 +53,8 @@ namespace dehancer {
          * Get texture object
          * @return texture
          */
-        Texture get_texture() override;
-        [[nodiscard]] const Texture get_texture() const override;
+        const Texture & get_texture() override;
+        [[nodiscard]] const Texture & get_texture() const override;
 
         /***
          * Write texture object to image buffer with codec defined in options TextureOutput object

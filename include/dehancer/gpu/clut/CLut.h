@@ -14,11 +14,12 @@ namespace dehancer {
     class CLut {
 
     public:
-
+        
         enum class Type : int {
             lut_1d   = 0, // unsupported by ofx plugin
             lut_2d   = 1,
             lut_3d   = 2,
+            /// TODO:
             //lut_hald = 3
         };
 

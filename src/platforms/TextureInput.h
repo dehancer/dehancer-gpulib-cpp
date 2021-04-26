@@ -19,8 +19,8 @@ namespace dehancer::impl {
                               const StreamSpace &space = StreamSpace::create_identity(),
                               StreamSpace::Direction direction = StreamSpace::Direction::none);
 
-        Texture get_texture() { return texture_->get_ptr(); };
-        [[nodiscard]] Texture get_texture() const { return texture_->get_ptr(); };
+        const Texture& get_texture() { return texture_;/*->get_ptr()*/; };
+        [[nodiscard]] const Texture& get_texture() const { return texture_;/*->get_ptr()*/; };
 
         [[nodiscard]] size_t get_width() const;
         [[nodiscard]] size_t get_height() const;

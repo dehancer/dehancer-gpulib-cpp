@@ -34,8 +34,8 @@ namespace dehancer {
          * Get texture object
          * @return
          */
-        Texture get_texture() override;
-        [[nodiscard]] const Texture get_texture() const override;
+        const Texture & get_texture() override;
+        [[nodiscard]] const Texture & get_texture() const override;
 
         /***
          * Load texture from Image buffer. Buffer can contain data with one of defined image codec.

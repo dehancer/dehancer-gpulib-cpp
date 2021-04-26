@@ -13,7 +13,7 @@ void make_identity(const std::string& platform) {
   try {
   
     dehancer::TextureIO::Options::Type type = dehancer::TextureIO::Options::Type::png;
-    std::string ext = dehancer::TextureIO::extention_for(type);
+    std::string ext = dehancer::TextureIO::extension_for(type);
     float compression = 1.0f;
     
     for (auto device: dehancer::DeviceCache::Instance().get_device_list()) {

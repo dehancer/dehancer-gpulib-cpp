@@ -2,6 +2,8 @@
 // Created by denn on 25.04.2021.
 //
 
+#pragma once
+
 #include "dehancer/gpu/Function.h"
 #include "dehancer/gpu/clut/CLutTransformFunction.h"
 #include "dehancer/gpu/clut/CLut.h"
