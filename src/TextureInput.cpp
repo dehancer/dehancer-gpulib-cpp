@@ -42,7 +42,10 @@ namespace dehancer {
       return is;
     }
     
- 
+    Error TextureInput::load_from_data (const std::vector<float> &buffer, size_t width, size_t height) {
+      return load_from_data(buffer,width,height,1);
+    }
+    
     
     TextureInput::~TextureInput() = default;
 
