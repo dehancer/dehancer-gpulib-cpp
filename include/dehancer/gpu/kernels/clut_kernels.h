@@ -108,7 +108,7 @@ DHCR_KERNEL void kernel_resample1DLut_to_1DLut(
 inline  DHCR_DEVICE_FUNC float3 sample2DLut(float3 rgb, texture2d_read_t d2DLut){
   
   float  size    = (float)(get_texture_width(d2DLut));
-  float  clevel  = (uint)round(powf((float)size,1.0f/3.0f));
+  float  clevel  = (uint)roundf(powf((float)size,1.0f/3.0f));
   
   float cube_size = clevel*clevel;
   
@@ -119,8 +119,8 @@ inline  DHCR_DEVICE_FUNC float3 sample2DLut(float3 rgb, texture2d_read_t d2DLut)
   quad1.x = floorf(blueColor) - (quad1.y * clevel);
   
   float2 quad2;
-  quad2.y = floor(ceil(blueColor) / clevel);
-  quad2.x = ceil(blueColor) - (quad2.y * clevel);
+  quad2.y = floorf(ceilf(blueColor) / clevel);
+  quad2.x = ceilf(blueColor) - (quad2.y * clevel);
   
   float2 texPos1;
   
