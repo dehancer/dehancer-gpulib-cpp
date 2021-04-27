@@ -1,9 +1,9 @@
 include(CMakePackageConfigHelpers)
 
-set(lock "${CMAKE_BINARY_DIR}/lib-lock.lock")
-string(TOLOWER ${lock} lock)
+#set(lock "${CMAKE_BINARY_DIR}/lib-lock.lock")
+#string(TOLOWER ${lock} lock)
 
-file(LOCK ${lock} TIMEOUT 10 RESULT_VARIABLE lock_result)
+#file(LOCK ${lock} TIMEOUT 10 RESULT_VARIABLE lock_result)
 
 if (NOT ${lock_result} EQUAL 0)
     message(FATAL_ERROR "DEADLOCKED: ${lock_result}")
@@ -46,5 +46,5 @@ install(DIRECTORY ${PUBLIC_INCLUDE_FILES}
         FILES_MATCHING PATTERN "*.h"
         )
 
-file(LOCK ${lock} RELEASE)
-message("RELEASE ${lock}")
+#file(LOCK ${lock} RELEASE)
+#message("RELEASE ${lock}")
