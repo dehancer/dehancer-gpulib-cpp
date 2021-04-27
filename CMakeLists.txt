@@ -15,7 +15,7 @@ option (DEHANCER_GPU_METAL "Dehancer GPU Layer is Metal" ON)
 option (DEHANCER_GPU_OPENCL "Dehancer GPU Layer is OpenCL" ON)
 option (DEHANCER_GPU_CUDA "Dehancer GPU Layer is CUDA" ON)
 option (DEHANCER_TARGET_ARCH "Dehancer platform arch" "")
-option (VCPKG_TARGET_TRIPLET "x64-windows-static" "x64-windows-static")
+option (VCPKG_TARGET_TRIPLET "")
 option (DEHANCER_COMMON_DIR "")
 option (PRINT_KERNELS_DEBUG OFF)
 
@@ -418,7 +418,7 @@ else()
             -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
             -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-            -DVCPKG_TARGET_TRIPLET=x64-windows-static
+            -DVCPKG_TARGET_TRIPLET=${DVCPKG_TARGET_TRIPLET}
             PREFIX ${DEHANCER_COMMON_DIR}
             )
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dcmcpp;)
@@ -455,7 +455,7 @@ else()
             -DBUILD_TESTING=OFF
             -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-            -DVCPKG_TARGET_TRIPLET=x64-windows-static
+            -DVCPKG_TARGET_TRIPLET=${DVCPKG_TARGET_TRIPLET}
             -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
             PREFIX ${DEHANCER_COMMON_DIR}
             )
