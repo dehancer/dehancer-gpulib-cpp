@@ -13,7 +13,7 @@ namespace dehancer {
             const std::string &library_path):
             Function(command_queue, "kernel_make2DHaldLutBuffer", wait_until_completed, library_path),
             CLut(),
-            level_((size_t)std::sqrtf((float)lut_size)),
+            level_((size_t)std::sqrt((float)lut_size)),
             lut_size_(lut_size)
     {
 
