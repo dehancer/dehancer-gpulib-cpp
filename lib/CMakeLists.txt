@@ -1,5 +1,14 @@
 include(CMakePackageConfigHelpers)
 
+set(lock "${CMAKE_BINARY_DIR}/lib-lock.lock")
+string(TOLOWER ${lock} lock)
+
+file(LOCK ${lock} TIMEOUT 10 RESULT_VARIABLE lock_result)
+
+if (NOT ${lock_result} EQUAL 0)
+    message(FATAL_ERROR "DEADLOCKED: ${lock_result}")
+endif()
+
 set (PUBLIC_INCLUDE_FILES ${CMAKE_SOURCE_DIR}/include/dehancer)
 set (EMBEDDED_IMAGES_DIR ${CMAKE_BINARY_DIR}/generated/embedded)
 
@@ -36,3 +45,6 @@ install(DIRECTORY ${PUBLIC_INCLUDE_FILES}
         DESTINATION include
         FILES_MATCHING PATTERN "*.h"
         )
+
+file(LOCK ${lock} RELEASE)
+message("RELEASE ${lock}")
