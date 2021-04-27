@@ -416,7 +416,6 @@ else()
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
             -DVCPKG_TARGET_TRIPLET=x64-windows-static
             PREFIX ${DEHANCER_COMMON_DIR}
-            BUILD_ALWAYS OFF
             )
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dcmcpp;)
     set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cpp)
@@ -492,7 +491,7 @@ else()
             -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
             -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}
-            PREFIX ${DEHANCER_COMMON_DIR}
+            PREFIX ${DEHANCER_COMMON_DIR}/xmp
             )
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dxmpcpp)
     set(COMMON_LIBRARIES  dehancer_xmp_cpp;exiv2;exiv2-xmp;${COMMON_LIBRARIES})
