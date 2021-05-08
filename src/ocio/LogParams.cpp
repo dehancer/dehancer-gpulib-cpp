@@ -6,9 +6,7 @@
 #include <cfloat>
 #include <cmath>
 
-namespace dehancer {
-
-    namespace ocio {
+namespace dehancer::ocio {
 
         namespace _internal_ {
 
@@ -118,4 +116,3 @@ namespace dehancer {
             return out;
         }
     }
-}

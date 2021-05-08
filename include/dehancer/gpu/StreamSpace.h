@@ -12,7 +12,6 @@
 namespace dehancer {
 
     namespace ocio {
-
         struct Params {
             LogParameters  log;
             GammaParameters gama;
@@ -46,6 +45,7 @@ namespace dehancer {
          * Exchange format from host to gpu
          */
         struct TransformFunction {
+            
             bool is_identity = true;
 
             /***
@@ -59,7 +59,7 @@ namespace dehancer {
             Matrix cs_inverse_matrix = get_idetntity_cs_matrix() ;
 
             /***
-             * Polynominal and Gama transformation parameters
+             * Polynomial and Gama transformation parameters
              */
             ocio::Params cs_params;
         };

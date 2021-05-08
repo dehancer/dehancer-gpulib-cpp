@@ -10,6 +10,8 @@ namespace dehancer {
     namespace ocio {
         namespace ACEScct {
             const ocio::LogParameters log_parameters = {
+                    true,
+                    2.0f,
                     0.057077625570776259f,
                     0.5547945205479452f,
                     1.0f,
@@ -18,10 +20,7 @@ namespace dehancer {
                     0.155251175f,
                     10.5402374f,
                     0.0729055702f,
-                    1.0f,
-                    2.0f,
-                    true
-            };
+                    1.0f
         };
         namespace ACESAP1_DEH2020 {
             static const std::vector<float> forward_ccm_matrix_bfd

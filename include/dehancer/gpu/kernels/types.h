@@ -7,35 +7,25 @@
 
 #if defined(__CUDA_ARCH__)
 
+#define DEHANCER_GPU_CODE 1
+
 #include "dehancer/gpu/kernels/cuda/cuda_types.h"
 
-#define texture1d_read_t DHCR_READ_ONLY image1d_t
-#define texture1d_write_t DHCR_WRITE_ONLY image1d_t
-
-#define texture2d_read_t DHCR_READ_ONLY image2d_t
-#define texture2d_write_t DHCR_WRITE_ONLY image2d_t
-
-#define texture3d_read_t DHCR_READ_ONLY image3d_t
-#define texture3d_write_t DHCR_WRITE_ONLY image3d_t
-
 #elif defined(__METAL_VERSION__)
+
+#define DEHANCER_GPU_CODE 1
 
 #include "dehancer/gpu/kernels/metal/metal_types.h"
 
 #elif defined(CL_VERSION_1_2)
 
+#define DEHANCER_GPU_CODE 1
+
 #include "dehancer/gpu/kernels/opencl/opencl_types.h"
 
-#define texture1d_read_t DHCR_READ_ONLY image1d_t
-#define texture1d_write_t DHCR_WRITE_ONLY image1d_t
-
-#define texture2d_read_t DHCR_READ_ONLY image2d_t
-#define texture2d_write_t DHCR_WRITE_ONLY image2d_t
-
-#define texture3d_read_t DHCR_READ_ONLY image3d_t
-#define texture3d_write_t DHCR_WRITE_ONLY image3d_t
-
 #else
+
+#define DEHANCER_GPU_CODE 0
 
 /**
  * Dummy auto indentation for CLion
@@ -89,15 +79,6 @@ typedef  unsigned int uint;
 #define DHCR_WRITE_ONLY __write_only
 #define DHCR_READ_WRITE __read_write
 
-//#define texture1d_read_t DHCR_READ_ONLY image1d_t
-//#define texture1d_write_t DHCR_WRITE_ONLY image1d_t
-//
-//#define texture2d_read_t DHCR_READ_ONLY image2d_t
-//#define texture2d_write_t DHCR_WRITE_ONLY image2d_t
-//
-//#define texture3d_read_t DHCR_READ_ONLY image3d_t
-//#define texture3d_write_t DHCR_WRITE_ONLY image3d_t
-
 typedef enum {
     DHCR_ADDRESS_CLAMP,
     DHCR_ADDRESS_BORDER,
@@ -123,16 +104,18 @@ typedef enum {
 } DHCR_InterpolationMode;
 
 typedef struct {
+    bool_t  enabled;
+    float base;
     float lin_side_break;
     float lin_side_coeff;
     float lin_side_offset;
     float lin_side_slope;
     float gama_side_break;
-    float base;
-    bool_t  enabled;
 } DHCR_GammaParameters;
 
 typedef struct {
+    bool_t  enabled;
+    float base;
     float log_side_slope;
     float log_side_offset;
     float lin_side_slope;
@@ -142,9 +125,16 @@ typedef struct {
     float linear_slope;
     float linear_offset;
     float log2_base;
-    float base;
-    bool_t  enabled;
 } DHCR_LogParameters ;
+
+typedef struct {
+    bool   enabled;
+    uint   size;
+    uint   channels;
+#if !DEHANCER_GPU_CODE
+    float* data;
+#endif
+} DHCR_LutParameters;
 
 typedef enum {
     DHCR_Forward = 0,
