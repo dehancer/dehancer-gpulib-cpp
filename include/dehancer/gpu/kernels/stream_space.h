@@ -85,7 +85,7 @@ typedef struct {
 
 static inline DHCR_DEVICE_FUNC
 DHCR_StreamSpace_TransformFunc stream_space_transform_func_identity() {
-  #if DEHANCER_GPU_CODE
+#if DEHANCER_GPU_CODE
   float4x4 m =
           (float4x4){
                   (float4){1.000000f, 0.000000f, 0.000000f, 0.000000f},
@@ -93,15 +93,15 @@ DHCR_StreamSpace_TransformFunc stream_space_transform_func_identity() {
                   (float4){0.000000f, 0.000000f, 1.000000f, 0.000000f},
                   (float4){0.000000f, 0.000000f, 0.000000f, 1.000000f}
           };
-  #else
-  float4x4 m = float4x4(
+#else
+   float4x4 m =  float4x4(
           {
                   {1.000000f, 0.000000f, 0.000000f, 0.000000f},
                   {0.000000f, 1.000000f, 0.000000f, 0.000000f},
                   {0.000000f, 0.000000f, 1.000000f, 0.000000f},
                   {0.000000f, 0.000000f, 0.000000f, 1.000000f}
           });
-  #endif
+#endif
   DHCR_GammaParameters gamma = {false, 0, 0, 0, 0, 0, 0};
   DHCR_LogParameters log = {false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   DHCR_StreamSpace_Params params = { gamma, log };
@@ -116,11 +116,14 @@ DHCR_StreamSpace_TransformFunc stream_space_transform_func_identity() {
 
 static inline DHCR_DEVICE_FUNC
 DHCR_StreamSpace_TransformLut stream_space_transform_lut_identity() {
+#if !DEHANCER_GPU_CODE
+  float l[4] = {0.0f,0.0f,0.0f,0.0f};
+#endif
   DHCR_LutParameters lut = {
           1, 4, false
-          #if !DEHANCER_GPU_CODE
-          {0,0,0,0};
-          #endif
+#if !DEHANCER_GPU_CODE
+          ,l
+#endif
   };
   DHCR_StreamSpace_TransformLut identity = {
           true,
@@ -148,78 +151,75 @@ DHCR_StreamSpace stream_space_identity() {
 }
 
 static inline DHCR_DEVICE_FUNC
-float4 float4_multiply_float4x4(float4 v, float4x4 M)
+ float4
+float4_multiply_float4x4( float4 v,
+                          float4x4 M)
 {
-  #if defined(__CUDA_ARCH__)
+#if defined(__CUDA_ARCH__)
   return v*M;
-  #elif defined(__METAL_VERSION__)
+#elif defined(__METAL_VERSION__)
   return v*M;
-  #elif defined(CL_VERSION_1_2)
+#elif defined(CL_VERSION_1_2)
   return make_float4(
           M.s0*v.x + M.s1*v.y + M.s2*v.z + M.s3*v.w,
           M.s4*v.x + M.s5*v.y + M.s6*v.z + M.s7*v.w,
           M.s8*v.x + M.s9*v.y + M.sA*v.z + M.sB*v.w,
           M.sC*v.x + M.sD*v.y + M.sE*v.z + M.sF*v.w
   );
-  #else
+#else
   return (float4){0.000000f, 0.000000f, 0.000000f, 0.000000f};
-  #endif
+#endif
 }
 
 static inline DHCR_DEVICE_FUNC
-float4x4 float4x4_multiply_float4x4(float4x4 M, float4x4 N)
+float4x4 float4x4_multiply_float4x4( float4x4 M,  float4x4 N)
 {
-  #if defined(__CUDA_ARCH__)
+#if defined(__CUDA_ARCH__)
   return M*N;
-  #elif defined(__METAL_VERSION__)
+#elif defined(__METAL_VERSION__)
   return M*N;
-  #elif defined(CL_VERSION_1_2)
+#elif defined(CL_VERSION_1_2)
   return (float4x4){
           M.s0*N.s0+M.s1*N.s4+M.s2*N.s8+M.s3*N.sC , M.s0*N.s1+M.s1*N.s5+M.s2*N.s9+M.s3*N.sD , M.s0*N.s2+M.s1*N.s6+M.s2*N.sA+M.s3*N.sE , M.s0*N.s3+M.s1*N.s7+M.s2*N.sB+M.s3*N.sF ,
           M.s4*N.s0+M.s5*N.s4+M.s6*N.s8+M.s7*N.sC , M.s4*N.s1+M.s5*N.s5+M.s6*N.s9+M.s7*N.sD , M.s4*N.s2+M.s5*N.s6+M.s6*N.sA+M.s7*N.sE , M.s4*N.s3+M.s5*N.s7+M.s6*N.sB+M.s7*N.sF ,
           M.s8*N.s0+M.s9*N.s4+M.sA*N.s8+M.sB*N.sC , M.s8*N.s1+M.s9*N.s5+M.sA*N.s9+M.sB*N.sD , M.s8*N.s2+M.s9*N.s6+M.sA*N.sA+M.sB*N.sE , M.s8*N.s3+M.s9*N.s7+M.sA*N.sB+M.sB*N.sF ,
           M.sC*N.s0+M.sD*N.s4+M.sE*N.s8+M.sF*N.sC , M.sC*N.s1+M.sD*N.s5+M.sE*N.s9+M.sF*N.sD , M.sC*N.s2+M.sD*N.s6+M.sE*N.sA+M.sF*N.sE , M.sC*N.s3+M.sD*N.s7+M.sE*N.sB+M.sF*N.sF
   };
-  #else
-   return (float4x4){
-          (float4){1.000000f, 0.000000f, 0.000000f, 0.000000f},
-          (float4){0.000000f, 1.000000f, 0.000000f, 0.000000f},
-          (float4){0.000000f, 0.000000f, 1.000000f, 0.000000f},
-          (float4){0.000000f, 0.000000f, 0.000000f, 1.000000f}
-  };
-  #endif
+#else
+  return M*N;
+#endif
 }
 
 static inline DHCR_DEVICE_FUNC
-float4 transform(float4 in_, DHCR_StreamSpace space, DHCR_TransformDirection direction) {
+ float4 transform( float4 in_, DHCR_StreamSpace space, DHCR_TransformDirection direction) {
   
-  float4 out = make_float4(in_[0], in_[1], in_[2], in_[3]);
-
+   float4 out = make_float4(in_[0], in_[1], in_[2], in_[3]);
+  
   out = float4_multiply_float4x4(out,
-                          direction == DHCR_Forward
-                          ? space.transform_func.cs_forward_matrix
-                          : space.transform_func.cs_inverse_matrix);
-
-  float4 next = make_float4(out[0], out[1], out[2], out[3]);
+                                 direction == DHCR_Forward
+                                 ? space.transform_func.cs_forward_matrix
+                                 : space.transform_func.cs_inverse_matrix);
+  
+   float4 next = make_float4(out[0], out[1], out[2], out[3]);
   
   if (direction == DHCR_Forward) {
     
     if (space.transform_func.cs_params.log.enabled) {
-      next = apply_log_forward(next, space.transform_func.cs_params.log);
+      next =  apply_log_forward(next, space.transform_func.cs_params.log);
     }
     
     if (space.transform_func.cs_params.gama.enabled) {
-      next = apply_gamma_forward(next, space.transform_func.cs_params.gama);
+      next =  apply_gamma_forward(next, space.transform_func.cs_params.gama);
     }
     
   } else {
     
     if (space.transform_func.cs_params.gama.enabled) {
-      next = apply_gamma_inverse(next, space.transform_func.cs_params.gama);
+      next =  apply_gamma_inverse(next, space.transform_func.cs_params.gama);
     }
     
     if (space.transform_func.cs_params.log.enabled) {
-      next = apply_log_inverse(next, space.transform_func.cs_params.log);
+      next =  apply_log_inverse(next, space.transform_func.cs_params.log);
     }
     
   }
@@ -228,5 +228,10 @@ float4 transform(float4 in_, DHCR_StreamSpace space, DHCR_TransformDirection dir
   
   return out;
 };
+
+//#if !DEHANCER_GPU_CODE
+//}
+//#endif
+
 
 #endif //DEHANCER_GPULIB_STREAM_SPACE_H

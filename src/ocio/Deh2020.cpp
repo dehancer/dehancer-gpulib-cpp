@@ -10,8 +10,8 @@ namespace dehancer::ocio::DEH2020 {
         extern float __lut__data__[];
         extern uint  __lut__size__;
         extern uint  __lut__channels__;
-
-        LutParameters lut::params = {
+    
+        DHCR_LutParameters lut::params = {
                 .enabled = true,
                 .size = forward::__lut__size__,
                 .channels = forward::__lut__channels__,
@@ -25,8 +25,8 @@ namespace dehancer::ocio::DEH2020 {
         extern float __lut__data__[];
         extern uint  __lut__size__;
         extern uint  __lut__channels__;
-
-        LutParameters lut::params = {
+    
+        DHCR_LutParameters lut::params = {
                 .enabled = true,
                 .size = __lut__size__,
                 .channels = __lut__channels__,

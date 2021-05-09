@@ -24,8 +24,8 @@ namespace dehancer {
         
         explicit FilmProfile(
                 const void *command_queue,
-                const StreamSpace &space = StreamSpace::create_identity(),
-                StreamSpace::Direction direction = StreamSpace::Direction::none,
+                const StreamSpace &space = stream_space_identity(),
+                StreamSpaceDirection direction = StreamSpaceDirection::DHCR_None,
                 bool wait_until_completed = WAIT_UNTIL_COMPLETED);
     
         Error load(const MLutXmp &xmp);
@@ -34,7 +34,7 @@ namespace dehancer {
 
     public:
         StreamSpace space_;
-        StreamSpace::Direction direction_;
+        StreamSpaceDirection direction_;
         std::array<std::shared_ptr<CLut>, sizeof(Type)> cluts_;
     };
 }

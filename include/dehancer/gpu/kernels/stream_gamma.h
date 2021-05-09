@@ -9,8 +9,9 @@
 #include "dehancer/gpu/kernels/types.h"
 #include "dehancer/gpu/kernels/gamma.h"
 
+
 static inline DHCR_DEVICE_FUNC
-float4 apply_gamma_forward(float4 in, DHCR_GammaParameters params) {
+float4 apply_gamma_forward( float4 in, DHCR_GammaParameters params) {
   float4 out;
   out[0] = gamma_forward_channel(in[0], params);
   out[1] = gamma_forward_channel(in[1], params);
@@ -20,7 +21,7 @@ float4 apply_gamma_forward(float4 in, DHCR_GammaParameters params) {
 }
 
 static inline DHCR_DEVICE_FUNC
-float4 apply_gamma_inverse(float4 in, DHCR_GammaParameters params) {
+float4 apply_gamma_inverse( float4 in, DHCR_GammaParameters params) {
   float4 out;
   out[0] = gamma_inverse_channel(in[0], params);
   out[1] = gamma_inverse_channel(in[1], params);

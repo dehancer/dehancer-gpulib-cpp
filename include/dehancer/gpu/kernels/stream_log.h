@@ -29,7 +29,7 @@ typedef struct {
 } DHCR_inverse_m_params;
 
 static inline DHCR_DEVICE_FUNC
-float apply_log_forward_x(float in, DHCR_forward_m_params params) {
+float apply_log_forward_x (float in, DHCR_forward_m_params params) {
   
   //
   // if in <= logBreak
@@ -54,7 +54,7 @@ float apply_log_forward_x(float in, DHCR_forward_m_params params) {
 };
 
 static inline DHCR_DEVICE_FUNC
-float apply_log_inverse_x(float in, DHCR_inverse_m_params params) {
+float apply_log_inverse_x (float in, DHCR_inverse_m_params params) {
   
   //
   // if in <= linBreak
@@ -80,7 +80,7 @@ float apply_log_inverse_x(float in, DHCR_inverse_m_params params) {
 }
 
 static inline DHCR_DEVICE_FUNC
-float4 apply_log_forward(float4 in, DHCR_LogParameters params) {
+float4 apply_log_forward ( float4 in, DHCR_LogParameters params) {
   
   DHCR_forward_m_params m;
   
@@ -101,7 +101,7 @@ float4 apply_log_forward(float4 in, DHCR_LogParameters params) {
 }
 
 static inline DHCR_DEVICE_FUNC
-float4 apply_log_inverse(float4 in, DHCR_LogParameters params) {
+float4 apply_log_inverse ( float4 in, DHCR_LogParameters params) {
   DHCR_inverse_m_params m;
   
   m.m_m = params.lin_side_slope;

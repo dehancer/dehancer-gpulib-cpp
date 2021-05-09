@@ -7,7 +7,7 @@
 
 namespace dehancer {
 
-    TextureInput::TextureInput(const void *command_queue, const StreamSpace &space, StreamSpace::Direction direction):
+    TextureInput::TextureInput(const void *command_queue, const StreamSpace &space, StreamSpaceDirection direction):
     TextureIO(),
     impl_(std::make_shared<impl::TextureInput>(command_queue,space,direction))
     {}

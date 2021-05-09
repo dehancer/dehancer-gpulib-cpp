@@ -8,8 +8,8 @@
 namespace dehancer::impl {
 
     TextureInput::TextureInput(const void *command_queue,
-                               const dehancer::StreamSpace &space,
-                               dehancer::StreamSpace::Direction direction):
+                               const StreamSpace &space,
+                               StreamSpaceDirection direction):
             Command(command_queue, true),
             texture_(nullptr),
             space_(space),

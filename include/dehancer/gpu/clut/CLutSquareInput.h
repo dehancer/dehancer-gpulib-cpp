@@ -15,8 +15,8 @@ namespace dehancer {
         using TextureInput::TextureInput;
         
         explicit CLutSquareInput(const void *command_queue,
-                              const StreamSpace &space = StreamSpace::create_identity(),
-                              StreamSpace::Direction direction = StreamSpace::Direction::none);
+                              const StreamSpace &space = stream_space_identity(),
+                              StreamSpaceDirection direction = StreamSpaceDirection::DHCR_None);
     
         Error load_from_data(const std::vector<float> &buffer, size_t width, size_t height, size_t depth) override;
         Error load_from_data(const std::vector<float> &buffer, size_t width, size_t height) override;

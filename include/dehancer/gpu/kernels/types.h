@@ -72,6 +72,10 @@ typedef  unsigned int uint;
 #define bool3_ref_t bool3
 #define bool4_ref_t bool4
 
+#include "dehancer/gpu/Typedefs.h"
+#include <climits>
+#include <cfloat>
+#include <cmath>
 
 #endif
 

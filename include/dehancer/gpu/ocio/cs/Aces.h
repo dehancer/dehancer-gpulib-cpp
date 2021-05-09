@@ -6,21 +6,19 @@
 
 #include "dehancer/gpu/ocio/LogParams.h"
 
-namespace dehancer {
-    namespace ocio {
-        namespace ACEScct {
-            const ocio::LogParameters log_parameters = {
-                    true,
-                    2.0f,
-                    0.057077625570776259f,
-                    0.5547945205479452f,
-                    1.0f,
-                    0.0f,
-                    0.0078125f,
-                    0.155251175f,
-                    10.5402374f,
-                    0.0729055702f,
-                    1.0f
+namespace dehancer::ocio::ACEScct {
+        const DHCR_LogParameters log_parameters = {
+                true,
+                2.0f,
+                0.057077625570776259f,
+                0.5547945205479452f,
+                1.0f,
+                0.0f,
+                0.0078125f,
+                0.155251175f,
+                10.5402374f,
+                0.0729055702f,
+                1.0f
         };
         namespace ACESAP1_DEH2020 {
             static const std::vector<float> forward_ccm_matrix_bfd
@@ -28,7 +26,7 @@ namespace dehancer {
                        -0.130256418f, 1.140804737f, -0.010548319f, 0.000000000f,
                        -0.024003357f, -0.128968976f, 1.152972333f, 0.000000000f,
                        0.000000000f, 0.000000000f, 0.000000000f, 1.000000000f};
-
+            
             static const std::vector<float> inverse_ccm_matrix_bfd
                     = {0.613097402f, 0.339523146f, 0.047379451f, 0.000000000f,
                        0.070193722f, 0.916353879f, 0.013452398f, 0.000000000f,
@@ -36,5 +34,3 @@ namespace dehancer {
                        0.000000000f, 0.000000000f, 0.000000000f, 1.000000000f};
         }
     }
-}
-

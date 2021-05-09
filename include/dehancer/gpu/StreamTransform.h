@@ -14,7 +14,7 @@ namespace dehancer {
                         const Texture &source,
                         const Texture &destination,
                         const StreamSpace &space,
-                        StreamSpace::Direction direction,
+                        StreamSpaceDirection direction,
                         float impact=1.0f,
                         bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                         const std::string &library_path="");
@@ -23,7 +23,7 @@ namespace dehancer {
     
     private:
         StreamSpace space_;
-        StreamSpace::Direction direction_;
+        StreamSpaceDirection direction_;
         float impact_;
     };
 }

@@ -10,7 +10,7 @@ namespace dehancer {
                               const std::vector<std::uint8_t> &source,
                               Format format,
                               const StreamSpace &space,
-                              StreamSpace::Direction direction,
+                              StreamSpaceDirection direction,
                               bool wait_until_completed,
                               const std::string &library_path):
             CLut()

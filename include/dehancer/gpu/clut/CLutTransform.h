@@ -27,8 +27,8 @@ namespace dehancer {
         CLutTransform(const void *command_queue,
                       const CLut &lut,
                       CLut::Type to,
-                      const StreamSpace &space = StreamSpace::create_identity(),
-                      StreamSpace::Direction direction = StreamSpace::Direction::none,
+                      const StreamSpace &space = stream_space_identity(),
+                      StreamSpaceDirection direction = StreamSpaceDirection::DHCR_None,
                       bool wait_until_completed = Function::WAIT_UNTIL_COMPLETED,
                       const std::string &library_path = "");
         
@@ -41,7 +41,7 @@ namespace dehancer {
 
     protected:
         const StreamSpace&  space_;
-        const StreamSpace::Direction direction_;
+        const StreamSpaceDirection direction_;
 
     private:
         bool initializer(const void *command_queue, const CLut &lut, Type to);

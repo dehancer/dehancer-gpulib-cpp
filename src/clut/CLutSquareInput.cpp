@@ -8,7 +8,7 @@ namespace dehancer {
     
     CLutSquareInput::CLutSquareInput (const void *command_queue,
                                       const StreamSpace &space,
-                                      StreamSpace::Direction direction) :
+                                      StreamSpaceDirection direction) :
             TextureInput(command_queue, space,direction),
             lut_size_(0)
     {

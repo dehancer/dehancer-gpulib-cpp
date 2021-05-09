@@ -14,7 +14,7 @@ namespace dehancer {
                                  const CLut &lut,
                                  Type to,
                                  const StreamSpace &space,
-                                 StreamSpace::Direction direction,
+                                 StreamSpaceDirection direction,
                                  bool wait_until_completed,
                                  const std::string &library_path) :
             CLut(),

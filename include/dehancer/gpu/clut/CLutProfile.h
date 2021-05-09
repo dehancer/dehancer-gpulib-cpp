@@ -35,8 +35,8 @@ namespace dehancer {
         CLutProfile(const void *command_queue,
                     const std::vector<std::uint8_t>& source,
                     Format format,
-                    const StreamSpace &space = StreamSpace::create_identity(),
-                    StreamSpace::Direction direction = StreamSpace::Direction::none,
+                    const StreamSpace &space = stream_space_identity(),
+                    StreamSpaceDirection direction = StreamSpaceDirection::DHCR_None,
                     bool wait_until_completed = Function::WAIT_UNTIL_COMPLETED,
                     const std::string &library_path = "");
 

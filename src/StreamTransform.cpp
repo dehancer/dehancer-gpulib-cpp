@@ -10,7 +10,7 @@ namespace dehancer {
                                       const Texture &source,
                                       const Texture &destination,
                                       const StreamSpace &space,
-                                      StreamSpace::Direction direction,
+                                      StreamSpaceDirection direction,
                                       float impact,
                                       bool wait_until_completed,
                                       const std::string &library_path):
