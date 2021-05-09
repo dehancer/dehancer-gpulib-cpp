@@ -8,7 +8,7 @@
 #include "dehancer/gpu/kernels/common.h"
 #include "dehancer/gpu/kernels/types.h"
 
-inline DHCR_DEVICE_FUNC float gamma_forward_channel(float x, DHCR_GammaParameters params) {
+static inline DHCR_DEVICE_FUNC float gamma_forward_channel(float x, DHCR_GammaParameters params) {
   //
   // https://en.wikipedia.org/wiki/Rec._709
   //
@@ -16,7 +16,7 @@ inline DHCR_DEVICE_FUNC float gamma_forward_channel(float x, DHCR_GammaParameter
   return  params.lin_side_slope * powf(x , params.base) - params.lin_side_offset;
 }
 
-inline  DHCR_DEVICE_FUNC float gamma_inverse_channel(float x, DHCR_GammaParameters params) {
+static inline  DHCR_DEVICE_FUNC float gamma_inverse_channel(float x, DHCR_GammaParameters params) {
   //
   // https://en.wikipedia.org/wiki/Rec._709
   //
