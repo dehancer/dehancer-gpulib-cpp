@@ -21,7 +21,7 @@ namespace dehancer {
         stream_space_cache():clut_cache_(){};
 
         void invalidate();
-        [[nodiscard]] std::shared_ptr<CLut> get_lut(void *command_queue, const StreamSpace& space, StreamSpace::Direction direction);
+        [[nodiscard]] std::shared_ptr<CLut> get_lut(void *command_queue, const StreamSpace& space, StreamSpaceDirection direction);
 
         void lock() { user_mutex_.lock(); }
         void unlock() { user_mutex_.unlock(); }
@@ -33,9 +33,9 @@ namespace dehancer {
         std::mutex mutex_;
         std::mutex user_mutex_;
 
-        size_t get_hash(void *command_queue,
+        static size_t get_hash(void *command_queue,
                         const StreamSpace& space,
-                        StreamSpace::Direction direction) const;
+                        StreamSpaceDirection direction) ;
     };
 
     class StreamSpaceCache: public Singleton<stream_space_cache>{

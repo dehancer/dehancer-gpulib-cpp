@@ -16,7 +16,7 @@ namespace dehancer::ocio {
                 .lin_side_coeff  = 4.5f,
                 .lin_side_offset = 0.099f,
                 .lin_side_slope  = 1.099f,
-                .gama_side_break = 0.081f
+                .gamma_side_break = 0.081f
         };
     };
     
@@ -28,7 +28,7 @@ namespace dehancer::ocio {
                 .lin_side_coeff  = 1.0f,
                 .lin_side_offset = 0.0f,
                 .lin_side_slope  = 1.0f,
-                .gama_side_break = 0.0f
+                .gamma_side_break = 0.0f
         };
     };
     
@@ -40,7 +40,7 @@ namespace dehancer::ocio {
                 .lin_side_coeff  = 1.0f,
                 .lin_side_offset = 0.0f,
                 .lin_side_slope  = 1.0f,
-                .gama_side_break = 0.0f
+                .gamma_side_break = 0.0f
         };
     };
     
@@ -52,7 +52,7 @@ namespace dehancer::ocio {
                 .lin_side_coeff  = 12.92f,
                 .lin_side_offset =  0.055f,
                 .lin_side_slope  = 1.055f,
-                .gama_side_break = 0.04045f
+                .gamma_side_break = 0.04045f
         };
     };
 }

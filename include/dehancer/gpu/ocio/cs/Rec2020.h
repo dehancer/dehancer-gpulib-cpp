@@ -14,7 +14,7 @@ namespace dehancer::ocio::REC2020_22 {
             .lin_side_coeff  = 4.5f,
             .lin_side_offset = 0.0993f,
             .lin_side_slope  = 1.0993f,
-            .gama_side_break = 0.081f
+            .gamma_side_break = 0.081f
     };
 }
 
@@ -26,6 +26,6 @@ namespace REC2020_24 {
             .lin_side_coeff  = 12.921f,
             .lin_side_offset = 0.0553f,
             .lin_side_slope  = 1.0553f,
-            .gama_side_break = 0.04045f
+            .gamma_side_break = 0.04045f
     };
 }

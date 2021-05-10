@@ -114,7 +114,7 @@ typedef struct {
     float lin_side_coeff;
     float lin_side_offset;
     float lin_side_slope;
-    float gama_side_break;
+    float gamma_side_break;
 } DHCR_GammaParameters;
 
 typedef struct {

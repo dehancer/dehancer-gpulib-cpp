@@ -48,3 +48,10 @@
 
 #include "dehancer/gpu/profile/FilmProfile.h"
 #include "dehancer/gpu/profile/CameraProfile.h"
+
+#include "dehancer/gpu/spaces/StreamSpaceCache.h"
+#include "dehancer/gpu/spaces/StreamTransform.h"
+#include "dehancer/gpu/ocio/cs/Aces.h"
+#include "dehancer/gpu/ocio/cs/Deh2020.h"
+#include "dehancer/gpu/ocio/cs/Rec2020.h"
+#include "dehancer/gpu/ocio/cs/Rec709.h"

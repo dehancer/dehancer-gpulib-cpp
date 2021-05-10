@@ -2,7 +2,7 @@
 // Created by denn on 08.05.2021.
 //
 
-#include "dehancer/gpu/StreamTransform.h"
+#include "dehancer/gpu/spaces/StreamTransform.h"
 
 namespace dehancer {
     

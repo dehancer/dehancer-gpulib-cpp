@@ -20,7 +20,7 @@ static inline  DHCR_DEVICE_FUNC float gamma_inverse_channel(float x, DHCR_GammaP
   //
   // https://en.wikipedia.org/wiki/Rec._709
   //
-  if (x < params.gama_side_break) return x / params.lin_side_coeff;
+  if (x < params.gamma_side_break) return x / params.lin_side_coeff;
   return powf((x + params.lin_side_offset) / params.lin_side_slope, 1.0f / params.base);
 }
 

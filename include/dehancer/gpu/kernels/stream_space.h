@@ -17,7 +17,7 @@ typedef enum {
 } DHCR_StreamSpace_Type;
 
 typedef struct {
-    DHCR_GammaParameters gama;
+    DHCR_GammaParameters gamma;
     DHCR_LogParameters   log;
 } DHCR_StreamSpace_Params;
 
@@ -208,14 +208,14 @@ float4 transform( float4 in_, DHCR_StreamSpace space, DHCR_TransformDirection di
       next =  apply_log_forward(next, space.transform_func.cs_params.log);
     }
     
-    if (space.transform_func.cs_params.gama.enabled) {
-      next =  apply_gamma_forward(next, space.transform_func.cs_params.gama);
+    if (space.transform_func.cs_params.gamma.enabled) {
+      next =  apply_gamma_forward(next, space.transform_func.cs_params.gamma);
     }
     
   } else {
     
-    if (space.transform_func.cs_params.gama.enabled) {
-      next =  apply_gamma_inverse(next, space.transform_func.cs_params.gama);
+    if (space.transform_func.cs_params.gamma.enabled) {
+      next =  apply_gamma_inverse(next, space.transform_func.cs_params.gamma);
     }
     
     if (space.transform_func.cs_params.log.enabled) {

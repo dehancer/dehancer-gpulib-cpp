@@ -15,7 +15,7 @@ set (EMBEDDED_IMAGES_DIR ${CMAKE_BINARY_DIR}/generated/embedded)
 file (GLOB COMMON_SRC ${COMMON_SRC}
         ${CMAKE_SOURCE_DIR}/src/*.cpp
         ${CMAKE_SOURCE_DIR}/src/*.c
-        #${CMAKE_SOURCE_DIR}/src/spaces/*.cpp
+        ${CMAKE_SOURCE_DIR}/src/spaces/*.cpp
         ${CMAKE_SOURCE_DIR}/src/clut/*.cpp
         ${CMAKE_SOURCE_DIR}/src/clut/utils/*.cpp
         ${CMAKE_SOURCE_DIR}/src/profile/*.cpp
