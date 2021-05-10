@@ -44,6 +44,7 @@
 #include "dehancer/gpu/clut/CLut3DIdentity.h"
 #include "dehancer/gpu/clut/CLutTransform.h"
 #include "dehancer/gpu/clut/CLutSquareInput.h"
+#include "dehancer/gpu/clut/CLutCubeInput.h"
 
 #include "dehancer/gpu/profile/FilmProfile.h"
 #include "dehancer/gpu/profile/CameraProfile.h"
