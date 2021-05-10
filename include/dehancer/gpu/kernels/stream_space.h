@@ -23,7 +23,7 @@ typedef struct {
 
 typedef struct {
     
-    bool is_identity;
+    bool_t is_identity;
     
     /***
      * Forward transformation matrix from current space to another
@@ -43,7 +43,7 @@ typedef struct {
 } DHCR_StreamSpace_TransformFunc;
 
 typedef struct {
-    bool is_identity;
+    bool_t is_identity;
     DHCR_LutParameters forward;
     DHCR_LutParameters inverse;
 } DHCR_StreamSpace_TransformLut;
@@ -57,7 +57,7 @@ typedef struct {
     /***
      * Transformed image can be analyzed and expanded
      */
-    bool                            expandable;
+    bool_t                          expandable;
     
     /***
      * Transform function
@@ -94,7 +94,7 @@ DHCR_StreamSpace_TransformFunc stream_space_transform_func_identity() {
                   (float4){0.000000f, 0.000000f, 0.000000f, 1.000000f}
           };
 #else
-   float4x4 m =  float4x4(
+  float4x4 m =  float4x4(
           {
                   {1.000000f, 0.000000f, 0.000000f, 0.000000f},
                   {0.000000f, 1.000000f, 0.000000f, 0.000000f},
@@ -151,7 +151,7 @@ DHCR_StreamSpace stream_space_identity() {
 }
 
 static inline DHCR_DEVICE_FUNC
- float4
+float4
 float4_multiply_float4x4( float4 v,
                           float4x4 M)
 {
@@ -191,16 +191,16 @@ float4x4 float4x4_multiply_float4x4( float4x4 M,  float4x4 N)
 }
 
 static inline DHCR_DEVICE_FUNC
- float4 transform( float4 in_, DHCR_StreamSpace space, DHCR_TransformDirection direction) {
+float4 transform( float4 in_, DHCR_StreamSpace space, DHCR_TransformDirection direction) {
   
-   float4 out = make_float4(in_[0], in_[1], in_[2], in_[3]);
+  float4 out = make_float4(in_[0], in_[1], in_[2], in_[3]);
   
   out = float4_multiply_float4x4(out,
                                  direction == DHCR_Forward
                                  ? space.transform_func.cs_forward_matrix
                                  : space.transform_func.cs_inverse_matrix);
   
-   float4 next = make_float4(out[0], out[1], out[2], out[3]);
+  float4 next = make_float4(out[0], out[1], out[2], out[3]);
   
   if (direction == DHCR_Forward) {
     
@@ -228,10 +228,5 @@ static inline DHCR_DEVICE_FUNC
   
   return out;
 };
-
-//#if !DEHANCER_GPU_CODE
-//}
-//#endif
-
 
 #endif //DEHANCER_GPULIB_STREAM_SPACE_H

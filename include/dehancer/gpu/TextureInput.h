@@ -83,8 +83,15 @@ namespace dehancer {
                 float *buffer,
                 size_t width,
                 size_t height,
-                size_t depth= 1);
-
+                size_t depth);
+    
+        virtual Error load_from_data(
+                float *buffer,
+                size_t width,
+                size_t height) {
+          return load_from_data(buffer,width,height,1);
+        };
+    
         /***
          * Read image to the Texture from input stream
          * @param os - input stream

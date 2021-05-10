@@ -132,7 +132,7 @@ typedef struct {
 } DHCR_LogParameters ;
 
 typedef struct {
-    bool   enabled;
+    bool_t   enabled;
     uint   size;
     uint   channels;
 #if !DEHANCER_GPU_CODE

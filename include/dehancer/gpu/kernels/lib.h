@@ -14,6 +14,6 @@
 #include "dehancer/gpu/kernels/morph_kernels.h"
 #include "dehancer/gpu/kernels/channel_utils.h"
 #include "dehancer/gpu/kernels/clut_kernels.h"
-#include "dehancer/gpu/kernels/stream_space.h"
+#include "dehancer/gpu/kernels/stream_kernels.h"
 
 #endif // DEHANCER_GPULIB_LIB_H

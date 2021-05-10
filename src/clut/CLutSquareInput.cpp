@@ -47,6 +47,14 @@ namespace dehancer {
       return e;
     }
     
+    Error CLutSquareInput::load_from_data (float *buffer, size_t width, size_t height, size_t depth) {
+      auto e = TextureInput::load_from_data(buffer, width, height, depth);
+      if (!e) {
+        update_lut_size();
+      }
+      return e;
+    }
+    
     void CLutSquareInput::update_lut_size () {
       if (get_texture()) {
         auto level = (uint) std::round(powf((float) get_texture()->get_width(), 1.0f / 3.0f));
@@ -63,4 +71,5 @@ namespace dehancer {
     const Texture &CLutSquareInput::get_texture () const {
       return TextureInput::get_texture();
     }
+    
 }
