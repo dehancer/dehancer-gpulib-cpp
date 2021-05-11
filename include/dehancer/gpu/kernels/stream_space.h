@@ -84,7 +84,7 @@ typedef struct {
 } DHCR_StreamSpace;
 
 static inline DHCR_DEVICE_FUNC
-DHCR_StreamSpace_TransformFunc stream_space_transform_func_identity() {
+float4x4 stream_matrix_transform_identity() {
 #if DEHANCER_GPU_CODE
   float4x4 m =
           (float4x4){
@@ -102,6 +102,12 @@ DHCR_StreamSpace_TransformFunc stream_space_transform_func_identity() {
                   {0.000000f, 0.000000f, 0.000000f, 1.000000f}
           });
 #endif
+  return m;
+}
+
+static inline DHCR_DEVICE_FUNC
+DHCR_StreamSpace_TransformFunc stream_space_transform_func_identity() {
+  float4x4 m = stream_matrix_transform_identity();
   DHCR_GammaParameters gamma = {false, 0, 0, 0, 0, 0, 0};
   DHCR_LogParameters log = {false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   DHCR_StreamSpace_Params params = { gamma, log };
