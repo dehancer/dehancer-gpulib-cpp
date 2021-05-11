@@ -37,14 +37,19 @@ namespace dehancer {
       const DHCR_LutParameters* transform_lut = nullptr;
       
       switch (direction) {
+        
         case StreamSpaceDirection::DHCR_Forward:
+          
           if (space.transform_lut.forward.enabled)
             transform_lut = &space.transform_lut.forward;
           break;
-        case StreamSpaceDirection::DHCR_Inverse:
-          if (!space.transform_lut.inverse.enabled)
+        
+          case StreamSpaceDirection::DHCR_Inverse:
+          
+          if (space.transform_lut.inverse.enabled)
             transform_lut = &space.transform_lut.inverse;
           break;
+          
         case StreamSpaceDirection::DHCR_None:
           transform_lut = nullptr;
           break;

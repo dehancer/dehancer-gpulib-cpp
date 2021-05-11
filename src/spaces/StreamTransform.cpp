@@ -3,6 +3,8 @@
 //
 
 #include "dehancer/gpu/spaces/StreamTransform.h"
+
+#include <utility>
 #include "dehancer/gpu/spaces/StreamSpaceCache.h"
 
 namespace dehancer {
@@ -47,5 +49,29 @@ namespace dehancer {
       encoder.set(transform_lut_enabled,5);
       encoder.set(transform_function_enabled,6);
       encoder.set(impact_,7);
+    }
+    
+    void StreamTransform::set_space (StreamSpace space) {
+      space_ = std::move(space);
+    }
+    
+    void StreamTransform::set_direction (StreamSpaceDirection direction) {
+      direction_ = direction;
+    }
+    
+    void StreamTransform::set_impact (float impact) {
+      impact_ = impact;
+    }
+    
+    const StreamSpace &StreamTransform::get_space () const {
+      return space_;
+    }
+    
+    StreamSpaceDirection StreamTransform::get_direction () const {
+      return direction_;
+    }
+    
+    float StreamTransform::get_impact () const {
+      return impact_;
     }
 }

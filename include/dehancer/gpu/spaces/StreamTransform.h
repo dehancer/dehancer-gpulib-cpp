@@ -20,7 +20,15 @@ namespace dehancer {
                         const std::string &library_path="");
         
         void setup(CommandEncoder &commandEncoder) override ;
-    
+        
+        void set_space(StreamSpace space);
+        void set_direction(StreamSpaceDirection direction);
+        void set_impact(float impact);
+        
+        const StreamSpace& get_space() const;
+        StreamSpaceDirection get_direction() const;
+        float get_impact() const;
+        
     private:
         StreamSpace space_;
         StreamSpaceDirection direction_;
