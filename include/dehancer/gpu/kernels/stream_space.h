@@ -48,7 +48,7 @@ typedef struct {
     DHCR_LutParameters inverse;
 } DHCR_StreamSpace_TransformLut;
 
-typedef struct {
+typedef struct _DHCR_StreamSpace_{
     /***
      * Space type
      */
@@ -68,8 +68,9 @@ typedef struct {
      * Transform table
      */
     DHCR_StreamSpace_TransformLut   transform_lut;
-
-#if !DEHANCER_GPU_CODE
+    
+#if __cplusplus && !DEHANCER_GPU_CODE
+  
     /***
      * Searchable unique id
      */
@@ -79,6 +80,9 @@ typedef struct {
      * Name of space can be displayed on UI
      */
     std::string                     name = "Rec.709";
+    
+    bool operator==(const _DHCR_StreamSpace_ &c) const { return type == c.type && id == c.id; }
+
 #endif
 
 } DHCR_StreamSpace;
