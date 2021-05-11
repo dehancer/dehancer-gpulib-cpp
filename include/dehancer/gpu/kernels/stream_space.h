@@ -117,7 +117,7 @@ DHCR_StreamSpace_TransformFunc stream_space_transform_func_identity() {
 static inline DHCR_DEVICE_FUNC
 DHCR_StreamSpace_TransformLut stream_space_transform_lut_identity() {
 #if !DEHANCER_GPU_CODE
-  float l[4] = {0.0f,0.0f,0.0f,0.0f};
+  static float l[4] = {0.0f,0.0f,0.0f,0.0f};
 #endif
   DHCR_LutParameters lut = {
           1, 4, false

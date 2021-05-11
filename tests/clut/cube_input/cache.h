@@ -24,8 +24,7 @@ void load_from_cache(const std::string& platform) {
     float compression = 1.0f;
     
     dehancer::DHCR_StreamSpace_TransformFunc transform_function = dehancer::stream_space_transform_func_identity();
-    
-    
+      
     auto space = (dehancer::StreamSpace) {
             .type = dehancer::DHCR_ColorSpace,
             .expandable = false,

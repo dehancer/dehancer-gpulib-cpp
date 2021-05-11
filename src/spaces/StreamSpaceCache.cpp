@@ -38,23 +38,24 @@ namespace dehancer {
       
       switch (direction) {
         case StreamSpaceDirection::DHCR_Forward:
-          if (!space.transform_lut.forward.enabled)
-            return nullptr;
-          transform_lut = &space.transform_lut.forward;
+          if (space.transform_lut.forward.enabled)
+            transform_lut = &space.transform_lut.forward;
           break;
         case StreamSpaceDirection::DHCR_Inverse:
           if (!space.transform_lut.inverse.enabled)
-            return nullptr;
-          transform_lut = &space.transform_lut.inverse;
+            transform_lut = &space.transform_lut.inverse;
           break;
         case StreamSpaceDirection::DHCR_None:
-          return nullptr;
+          transform_lut = nullptr;
+          break;
       }
       
-      if (!transform_lut)
-        return nullptr;
-      
       std::unique_lock<std::mutex> lock(mutex_);
+      
+      if (!transform_lut) {
+        static DHCR_StreamSpace_TransformLut  lut  = stream_space_transform_lut_identity();
+        transform_lut = &lut.forward;
+      }
       
       size_t hash = get_hash(command_queue,space,direction);
       
@@ -65,10 +66,14 @@ namespace dehancer {
         
         auto clut = std::make_shared<CLutCubeInput>(command_queue);
         
-        clut->
+        auto e = clut->
                 load_from_data(
                 transform_lut->data,
                 transform_lut->size);
+  
+        if (e) {
+          return nullptr;
+        }
         
         clut_cache_[hash] = clut;
         
