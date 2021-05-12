@@ -20,7 +20,6 @@ namespace dehancer {
             CLut(),
             space_(space),
             direction_(direction),
-            //input_texture_(lut.get_texture()),
             clut_(nullptr),
             lut_size_(lut.get_lut_size()),
             type_(to)

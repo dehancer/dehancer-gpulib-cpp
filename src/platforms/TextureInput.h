@@ -15,9 +15,9 @@ namespace dehancer::impl {
 
     public:
 
-        explicit TextureInput(const void *command_queue,
-                              const StreamSpace &space = stream_space_identity(),
-                              StreamSpaceDirection direction = StreamSpaceDirection::DHCR_None);
+        explicit TextureInput(const void *command_queue);//,
+                              //const StreamSpace &space = stream_space_identity(),
+                              //StreamSpaceDirection direction = StreamSpaceDirection::DHCR_None);
 
         const Texture& get_texture() { return texture_;/*->get_ptr()*/; };
         [[nodiscard]] const Texture& get_texture() const { return texture_;/*->get_ptr()*/; };
@@ -50,8 +50,8 @@ namespace dehancer::impl {
 
     private:
         Texture texture_;
-        StreamSpace space_;
-        StreamSpaceDirection direction_;
+        //StreamSpace space_;
+        //StreamSpaceDirection direction_;
 
     };
 }

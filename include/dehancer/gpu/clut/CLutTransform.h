@@ -46,7 +46,6 @@ namespace dehancer {
     private:
         bool initializer(const void *command_queue, const CLut &lut, Type to);
     
-        //Texture input_texture_;
         std::shared_ptr<CLut> clut_;
         size_t  lut_size_;
         Type    type_;
