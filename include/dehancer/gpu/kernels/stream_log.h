@@ -92,11 +92,17 @@ float4 apply_log_forward ( float4 in, DHCR_LogParameters params) {
   m.m_minuslino = -params.linear_offset;
   
   float4 out;
-  out[0] = apply_log_forward_x(in[0], m);
-  out[1] = apply_log_forward_x(in[1], m);
-  out[2] = apply_log_forward_x(in[2], m);
-  out[3] = apply_log_forward_x(in[3], m);
-  
+#if DEHANCER_GPU_CODE == 1
+  out.x = apply_log_forward_x(in.x, m);
+  out.y = apply_log_forward_x(in.y, m);
+  out.z = apply_log_forward_x(in.z, m);
+  out.w = apply_log_forward_x(in.w, m);
+#else
+  out.x() = apply_log_forward_x(in.x(), m);
+  out.y() = apply_log_forward_x(in.y(), m);
+  out.z() = apply_log_forward_x(in.z(), m);
+  out.w() = apply_log_forward_x(in.w(), m);
+#endif
   return out;
 }
 
@@ -113,11 +119,18 @@ float4 apply_log_inverse ( float4 in, DHCR_LogParameters params) {
   m.m_linearOffset = params.linear_offset;
   
   float4 out;
-  out[0] = apply_log_inverse_x(in[0], m);
-  out[1] = apply_log_inverse_x(in[1], m);
-  out[2] = apply_log_inverse_x(in[2], m);
-  out[3] = apply_log_inverse_x(in[3], m);
   
+#if DEHANCER_GPU_CODE == 1
+  out.x = apply_log_inverse_x(in.x, m);
+  out.y = apply_log_inverse_x(in.y, m);
+  out.z = apply_log_inverse_x(in.z, m);
+  out.w = apply_log_inverse_x(in.w, m);
+#else
+  out.x() = apply_log_inverse_x(in.x(), m);
+  out.y() = apply_log_inverse_x(in.y(), m);
+  out.z() = apply_log_inverse_x(in.z(), m);
+  out.w() = apply_log_inverse_x(in.w(), m);
+#endif
   return out;
 }
 

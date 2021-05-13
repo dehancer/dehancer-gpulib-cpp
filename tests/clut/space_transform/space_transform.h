@@ -49,6 +49,15 @@ void load_from_cache(const std::string& platform) {
               .compression = compression
       });
       
+      std::string identity_file =  "space-identity-"+platform+"-"+"forward"+"-";
+      identity_file.append(dehancer::device::get_name(device));
+      identity_file.append(ext);
+  
+      {
+        std::ofstream os(identity_file, std::ostream::binary | std::ostream::trunc);
+        os << output;
+      }
+      
       auto transformer = dehancer::StreamTransform(command_queue,
                                                    nullptr,
                                                    nullptr,

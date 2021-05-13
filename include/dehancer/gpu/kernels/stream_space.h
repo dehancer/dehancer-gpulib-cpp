@@ -90,6 +90,9 @@ typedef struct _DHCR_StreamSpace_{
 static inline DHCR_DEVICE_FUNC
 float4x4 stream_matrix_transform_identity() {
 #if DEHANCER_GPU_CODE
+#if defined(__CUDA_ARCH__)
+  float4x4 m; m.setIdentity();
+#else
   float4x4 m =
           (float4x4){
                   (float4){1.000000f, 0.000000f, 0.000000f, 0.000000f},
@@ -97,6 +100,7 @@ float4x4 stream_matrix_transform_identity() {
                   (float4){0.000000f, 0.000000f, 1.000000f, 0.000000f},
                   (float4){0.000000f, 0.000000f, 0.000000f, 1.000000f}
           };
+#endif
 #else
   float4x4 m =  float4x4(
           {
@@ -166,7 +170,7 @@ float4_multiply_float4x4( float4 v,
                           float4x4 M)
 {
 #if defined(__CUDA_ARCH__)
-  return v*M;
+  return M*v;
 #elif defined(__METAL_VERSION__)
   return v*M;
 #elif defined(CL_VERSION_1_2)
@@ -203,14 +207,14 @@ float4x4 float4x4_multiply_float4x4( float4x4 M,  float4x4 N)
 static inline DHCR_DEVICE_FUNC
 float4 transform( float4 in_, DHCR_StreamSpace space, DHCR_TransformDirection direction) {
   
-  float4 out = make_float4(in_[0], in_[1], in_[2], in_[3]);
+  float4 out = in_;//make_float4(in_.x, in_.y, in_.z, in_.w);
   
   out = float4_multiply_float4x4(out,
                                  direction == DHCR_Forward
                                  ? space.transform_func.cs_forward_matrix
                                  : space.transform_func.cs_inverse_matrix);
   
-  float4 next = make_float4(out[0], out[1], out[2], out[3]);
+  float4 next = out;//make_float4(out.x, out.y, out.z, out.w);
   
   if (direction == DHCR_Forward) {
     
@@ -234,9 +238,9 @@ float4 transform( float4 in_, DHCR_StreamSpace space, DHCR_TransformDirection di
     
   }
   
-  out = make_float4(next[0], next[1], next[2], next[3]);
+  //out = make_float4(next.x, next.y, next.z, next.w);
   
-  return out;
+  return next;
 };
 
 #endif //DEHANCER_GPULIB_STREAM_SPACE_H

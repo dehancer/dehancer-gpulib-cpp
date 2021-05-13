@@ -17,6 +17,14 @@ TEST(TEST, LOAD_CUBE) {
   load_from_cube("cuda");
 
 }
+TEST(TEST, LOAD_CACHED_ACES) {
+  
+  std::cout << std::endl;
+  std::cerr << std::endl;
+  
+  load_from_cache("cuda");
+  
+}
 
 namespace dehancer::device {
 

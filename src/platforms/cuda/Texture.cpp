@@ -47,13 +47,32 @@ namespace dehancer::cuda {
       }
       
       if (from_memory) {
-        CHECK_CUDA(cudaMemcpy2DToArrayAsync(mem_->get_contents(),
-                                            0, 0,
-                                            from_memory,
-                                            mem_->get_width() * pitch,
-                                            mem_->get_width() * pitch, mem_->get_height(),
-                                            cudaMemcpyHostToDevice,
-                                            get_command_queue()));
+        if (desc_.type == TextureDesc::Type::i2d || desc_.type == TextureDesc::Type::i1d ) {
+          CHECK_CUDA(cudaMemcpy2DToArrayAsync(mem_->get_contents(),
+                                              0, 0,
+                                              from_memory,
+                                              mem_->get_width() * pitch,
+                                              mem_->get_width() * pitch,
+                                              mem_->get_height() ,
+                                              cudaMemcpyHostToDevice,
+                                              get_command_queue()));
+        }
+        else if (desc_.type == TextureDesc::Type::i3d) {
+  
+
+          cudaMemcpy3DParms cpy_params = {0};
+
+          size_t nx = mem_->get_width(), ny = mem_->get_height(), nz = mem_->get_depth();
+
+          cpy_params.srcPtr = make_cudaPitchedPtr((void *)from_memory, nx*pitch, nx*pitch, ny);
+          cpy_params.dstArray = mem_->get_contents();
+          
+          cpy_params.extent = make_cudaExtent(nx, ny, nz);
+
+          cpy_params.kind   = cudaMemcpyHostToDevice;
+
+          cudaMemcpy3DAsync(&cpy_params, get_command_queue());
+        }
       }
       pop();
     }

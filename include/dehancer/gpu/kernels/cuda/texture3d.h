@@ -34,7 +34,7 @@ namespace dehancer {
 
               cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<T>();
 
-              CHECK_CUDA(cudaMalloc3DArray(&mem_, &channelDesc, {width_,height_,depth_}));
+              CHECK_CUDA(cudaMalloc3DArray(&mem_, &channelDesc, {width_,height_,depth_},cudaArraySurfaceLoadStore));
 
               cudaResourceDesc resDesc{};
               memset(&resDesc, 0, sizeof(resDesc));

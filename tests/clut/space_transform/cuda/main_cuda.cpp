@@ -12,8 +12,8 @@ TEST(TEST, SPACE_TRANSFORM) {
 
   std::cout << std::endl;
   std::cerr << std::endl;
-
-  load_from_cube("cuda");
+  
+  load_from_cache("cuda");
 
 }
 

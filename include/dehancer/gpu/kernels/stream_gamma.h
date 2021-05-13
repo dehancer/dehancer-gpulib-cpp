@@ -13,20 +13,35 @@
 static inline DHCR_DEVICE_FUNC
 float4 apply_gamma_forward( float4 in, DHCR_GammaParameters params) {
   float4 out;
-  out[0] = gamma_forward_channel(in[0], params);
-  out[1] = gamma_forward_channel(in[1], params);
-  out[2] = gamma_forward_channel(in[2], params);
-  out[3] = gamma_forward_channel(in[3], params);
+#if DEHANCER_GPU_CODE == 1
+  out.x = gamma_forward_channel(in.x, params);
+  out.y = gamma_forward_channel(in.y, params);
+  out.z = gamma_forward_channel(in.z, params);
+  out.w = gamma_forward_channel(in.w, params);
+#else
+  out.x() = gamma_forward_channel(in.x(), params);
+  out.y() = gamma_forward_channel(in.y(), params);
+  out.z() = gamma_forward_channel(in.z(), params);
+  out.w() = gamma_forward_channel(in.w(), params);
+#endif
   return out;
 }
 
 static inline DHCR_DEVICE_FUNC
 float4 apply_gamma_inverse( float4 in, DHCR_GammaParameters params) {
   float4 out;
-  out[0] = gamma_inverse_channel(in[0], params);
-  out[1] = gamma_inverse_channel(in[1], params);
-  out[2] = gamma_inverse_channel(in[2], params);
-  out[3] = gamma_inverse_channel(in[3], params);
+#if DEHANCER_GPU_CODE == 1
+  out.x = gamma_inverse_channel(in.x, params);
+  out.y = gamma_inverse_channel(in.y, params);
+  out.z = gamma_inverse_channel(in.z, params);
+  out.w = gamma_inverse_channel(in.w, params);
+#else
+  out.x() = gamma_inverse_channel(in.x(), params);
+  out.y() = gamma_inverse_channel(in.y(), params);
+  out.z() = gamma_inverse_channel(in.z(), params);
+  out.w() = gamma_inverse_channel(in.w(), params);
+#endif
+  
   return out;
 }
 
