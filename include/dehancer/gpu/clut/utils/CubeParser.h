@@ -16,7 +16,7 @@ namespace dehancer {
 
         std::vector<float>& get_lut() { return buffer_; };
         [[nodiscard]] const std::vector<float>& get_lut() const { return buffer_; };
-        [[nodiscard]] uint get_lut_size() const { return lut_size_; };
+        [[nodiscard]] size_t get_lut_size() const { return lut_size_; };
         [[nodiscard]] CLut::Type get_lut_type() const { return CLut::Type::lut_3d; };
         [[nodiscard]] size_t get_channels() const { return channels_; };
         [[nodiscard]] const float* get_domain_min() const { return domain_min_; };
