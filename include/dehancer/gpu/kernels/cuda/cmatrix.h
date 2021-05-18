@@ -34,8 +34,21 @@ public:
 		m11 = values[0];	m12 = values[1];
 		m21 = values[2];	m22 = values[3];
 	}
-
-	inline __device__ __host__ float2x2(const float2x2& other)
+    
+    inline __device__ __host__ float2x2(const float2 s1, const float2 s2)
+    {
+      m11 = s1.x;	m12 = s1.y;
+      m21 = s2.x;	m22 = s2.y;
+    }
+    
+    inline __device__ __host__ float2x2(const std::initializer_list<float2> &list)
+    {
+	  auto it = list.begin();
+      m11 = it->x;	m12 = it->y;  it++;
+      m21 = it->x;	m22 = it->y;
+    }
+    
+    inline __device__ __host__ float2x2(const float2x2& other)
 	{
 		m11 = other.m11;	m12 = other.m12;
 		m21 = other.m21; 	m22 = other.m22;
