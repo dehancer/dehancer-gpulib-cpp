@@ -14,14 +14,6 @@
 constexpr sampler linear_normalized_sampler(address::mirrored_repeat, filter::linear, coord::normalized);
 constexpr sampler nearest_sampler(address::clamp_to_border, filter::nearest, coord::pixel);
 
-#define texture1d_read_t  texture1d<float, access::sample>
-#define texture1d_write_t texture1d<float, access::write>
-
-#define texture2d_read_t  texture2d<float, access::sample>
-#define texture2d_write_t texture2d<float, access::write>
-
-#define texture3d_read_t  texture3d<float, access::sample>
-#define texture3d_write_t texture3d<float, access::write>
 
 #define  get_kernel_tid1d(tid) { \
   tid = int(__dehancer_kernel_gid_1d__);\

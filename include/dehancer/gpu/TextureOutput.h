@@ -53,22 +53,22 @@ namespace dehancer {
          * Get texture object
          * @return texture
          */
-        Texture get_texture() override;
-        [[nodiscard]] const Texture get_texture() const override;
+        const Texture & get_texture() override;
+        [[nodiscard]] const Texture & get_texture() const override;
 
         /***
          * Write texture object to image buffer with codec defined in options TextureOutput object
          * @param buffer - image buffer
          * @return Error or Error:OK
          */
-        Error write_as_image(std::vector<uint8_t>& buffer);
+        virtual Error write_as_image(std::vector<uint8_t>& buffer);
 
         /***
          * Write texture contents as raw rgba32float packed data
          * @param buffer - output buffer
          * @return Error or Error:OK
          */
-        Error write_to_data(std::vector<float>& buffer);
+        virtual Error write_to_data(std::vector<float>& buffer);
 
         /***
          * Save as image into output stream

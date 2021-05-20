@@ -87,7 +87,7 @@ void magic_resampler(float length_, std::vector<float>& kernel) {
 int run_on_device(int num, const void* device, std::string patform) {
   
   dehancer::TextureIO::Options::Type type = dehancer::TextureIO::Options::Type::png;
-  std::string ext = dehancer::TextureIO::extention_for(type);
+  std::string ext = dehancer::TextureIO::extension_for(type);
   float compression = 0.3f;
   
   size_t width = 800*2, height = 400*2 ;

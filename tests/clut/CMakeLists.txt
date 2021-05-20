@@ -1,0 +1,6 @@
+add_subdirectory(identity)
+add_subdirectory(transform)
+add_subdirectory(square_input)
+add_subdirectory(profiles)
+add_subdirectory(cube_input)
+add_subdirectory(space_transform)

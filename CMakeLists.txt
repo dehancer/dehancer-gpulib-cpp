@@ -16,8 +16,13 @@ option (DEHANCER_GPU_OPENCL "Dehancer GPU Layer is OpenCL" ON)
 option (DEHANCER_GPU_CUDA "Dehancer GPU Layer is CUDA" ON)
 option (DEHANCER_TARGET_ARCH "Dehancer platform arch" "")
 option (VCPKG_TARGET_TRIPLET "")
-option (DEHANCER_COMMON_DIR " ${CMAKE_BINARY_DIR}/tmp")
+option (DEHANCER_COMMON_DIR "")
 option (PRINT_KERNELS_DEBUG OFF)
+
+if (NOT DEHANCER_COMMON_DIR)
+    set(DEHANCER_COMMON_DIR "${CMAKE_BINARY_DIR}/tmp")
+endif ()
+message("DEHANCER_COMMON_DIR: ${DEHANCER_COMMON_DIR}")
 
 if (DEHANCER_TARGET_ARCH)
     #
@@ -50,7 +55,7 @@ endif ()
 # Programs
 #
 find_program(CCACHE_FOUND ccache)
-find_program(MAKE_EXE NAMES gmake nmake make)
+find_program(MAKE_EXE NAMES  nmake make)
 
 #
 # CCache settings
@@ -101,6 +106,7 @@ if (WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -EHsc -Wno-deprecated-declarations")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
     add_definitions(/MT /DWIN32=1 /D_ITERATOR_DEBUG_LEVEL=0)
+
     string(TOLOWER  ${CMAKE_BUILD_TYPE} BUILD_TYPE)
 
     if (${BUILD_TYPE} STREQUAL "debug")
@@ -140,6 +146,8 @@ find_package (PkgConfig REQUIRED)
 find_package (BLAS REQUIRED)
 find_package (LAPACK REQUIRED)
 find_package (ZLIB REQUIRED)
+find_package (EXPAT REQUIRED)
+find_package (Iconv REQUIRED)
 
 if (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
     find_package (OpenCV REQUIRED PATHS /usr/local/arm64)
@@ -340,7 +348,6 @@ if (NOT GTEST_FOUND)
             -DCMAKE_C_FLAGS=${C_FLAGS}
             -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
             -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
             )
@@ -362,7 +369,7 @@ if (DEHANCER_GPU_OPENCL)
     #
     # OpenCL
     #
-    ExternalProject_Add(dehancer_opencl_helper
+    ExternalProject_Add(dhoph
             GIT_REPOSITORY https://github.com/dehancer/dehancer-opencl-helper
             CMAKE_ARGS
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -380,7 +387,7 @@ if (DEHANCER_GPU_OPENCL)
             -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}
             PREFIX ${DEHANCER_COMMON_DIR}
             )
-    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dehancer_opencl_helper;)
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dhoph;)
     set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};clHelperLib;${OpenCL_LIBRARIES};)
 endif ()
 
@@ -412,9 +419,8 @@ else()
             -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
             -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-            -DVCPKG_TARGET_TRIPLET=x64-windows-static
+            -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}
             PREFIX ${DEHANCER_COMMON_DIR}
-            BUILD_ALWAYS OFF
             )
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dcmcpp;)
     set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cpp)
@@ -448,14 +454,52 @@ else()
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
             -DBUILD_TESTING=OFF
-            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
             -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-            -DVCPKG_TARGET_TRIPLET=x64-windows-static
+            -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}
+            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
             PREFIX ${DEHANCER_COMMON_DIR}
             )
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dmcpp)
     set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};dehancer_maths_cpp;armadillo)
+endif()
+
+#
+# XMP
+#
+pkg_check_modules(dehancer_xmp_cpp dehancer-xmp-cpp)
+if (dehancer_xmp_cpp_FOUND)
+
+    message(STATUS "xmp: ${dehancer_xmp_cpp_LIBRARIES}, ${dehancer_xmp_cpp_LIBRARY_DIRS} ${dehancer_xmp_cpp_INCLUDE_DIRS}")
+    include_directories(
+            ${dehancer_xmp_cpp_INCLUDE_DIRS}
+    )
+    link_directories(
+            ${dehancer_xmp_cpp_LIBRARY_DIRS}
+    )
+
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES}; dehancer_xmp_cpp exiv2 exiv2-xmp)
+
+else()
+    ExternalProject_Add(dxmpcpp
+            GIT_REPOSITORY https://github.com/dehancer/dehancer-xmp-cpp
+            CMAKE_ARGS
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_C_FLAGS=${C_FLAGS}
+            -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+            -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
+            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
+            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+            -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}
+            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}/x
+            PREFIX ${DEHANCER_COMMON_DIR}/x
+            )
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dxmpcpp)
+    set(COMMON_LIBRARIES  dehancer_xmp_cpp;exiv2;exiv2-xmp;${COMMON_LIBRARIES})
 endif()
 
 if(DEHANCER_USE_OPEN_COLOR)
@@ -488,9 +532,9 @@ if(DEHANCER_USE_OPEN_COLOR)
             -DOCIO_INSTALL_EXT_PACKAGES=ALL
             -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
             -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
             -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
             PREFIX ${DEHANCER_COMMON_DIR}
             )
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES}; OpenColorIO)
@@ -523,6 +567,13 @@ if (DEHANCER_GPU_OPENCL)
     )
 endif ()
 
+
+message("COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
+message("OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}")
+message("OpenCV_LIBRARIES: ${OpenCV_LIBRARIES}")
+message("OpenCV_DIR: ${OpenCV_DIR}")
+add_subdirectory(lib)
+
 set(COMMON_LIBRARIES
         ${COMMON_LIBRARIES};
         ${BLAS_LIBRARIES};
@@ -531,14 +582,16 @@ set(COMMON_LIBRARIES
         ${CMAKE_DL_LIBS};
         )
 
-message("COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
-message("OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}")
-message("OpenCV_LIBRARIES: ${OpenCV_LIBRARIES}")
-message("OpenCV_DIR: ${OpenCV_DIR}")
-add_subdirectory(lib)
-
 if(BUILD_TESTING)
+
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${EXPAT_LIBRARIES};${Iconv_LIBRARIES};${ZLIB_LIBRARIES};)
+
+    if (WIN32)
+        set(COMMON_LIBRARIES ${COMMON_LIBRARIES};Secur32.lib;Shell32.lib;Iphlpapi.lib;ws2_32;kernel32;psapi)
+    endif()
+
     include(CTest)
     add_subdirectory(tests)
     enable_testing()
 endif()
+

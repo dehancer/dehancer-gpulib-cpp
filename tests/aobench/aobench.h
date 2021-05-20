@@ -72,7 +72,7 @@ namespace test {
 int run_on_device(int num, const void* device, std::string patform) {
 
   dehancer::TextureIO::Options::Type type = dehancer::TextureIO::Options::Type::png;
-  std::string ext = dehancer::TextureIO::extention_for(type);
+  std::string ext = dehancer::TextureIO::extension_for(type);
   float       compression = 0.3f;
 
   size_t width = 400*4, height = 300*4;

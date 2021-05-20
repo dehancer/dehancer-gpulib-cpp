@@ -5,6 +5,7 @@
 #pragma once
 
 #include "dehancer/gpu/Kernel.h"
+#include "dehancer/Common.h"
 #include <variant>
 
 namespace dehancer {

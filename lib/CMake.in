@@ -58,6 +58,7 @@ install(DIRECTORY
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/..
         FILES_MATCHING
         PATTERN *dehancer_math*.*
+        PATTERN *armadillo*.*
         PATTERN *gtest* EXCLUDE
         PATTERN *gmock* EXCLUDE
         )

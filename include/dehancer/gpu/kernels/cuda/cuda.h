@@ -9,5 +9,5 @@
 #include "dehancer/gpu/kernels/cmath.h"
 
 #include "dehancer/gpu/kernels/cuda/common.h"
-//#include "dehancer/gpu/kernels/cuda/cmatrix.h"
+#include "dehancer/gpu/kernels/cuda/cmatrix.h"
 #include "dehancer/gpu/kernels/cuda/std_kernels.h"

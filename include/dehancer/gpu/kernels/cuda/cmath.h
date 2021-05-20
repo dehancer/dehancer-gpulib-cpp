@@ -24,6 +24,7 @@
 
 #include <cuda.h>
 #include <cmath>
+#include <float.h>
 
 typedef unsigned int uint;
 typedef unsigned short ushort;

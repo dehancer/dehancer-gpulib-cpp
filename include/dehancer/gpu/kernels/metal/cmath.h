@@ -285,15 +285,31 @@ inline static  float __attribute__((overloadable)) floorf(float v) {
 }
 
 inline static float2 __attribute__((overloadable)) floorf(float2 v) {
-  return floor(v); //make_float2(floorf(v.x), floorf(v.y));
+  return floor(v);
 }
 
 inline static  float3 __attribute__((overloadable)) floorf(float3 v) {
-  return floor(v); //make_float3(floorf(v.x), floorf(v.y), floorf(v.z));
+  return floor(v);
 }
 
-inline static  float4 __attribute__((overloadable)) floorf(float4 v) {
-  return floor(v);//make_float4(floorf(v.x), floorf(v.y), floorf(v.z), floorf(v.w));
+////////////////////////////////////////////////////////////////////////////////
+// ceil
+////////////////////////////////////////////////////////////////////////////////
+
+inline static  float __attribute__((overloadable)) ceilf(float v) {
+  return ceil(v);
+}
+
+inline static float2 __attribute__((overloadable)) ceilf(float2 v) {
+  return ceil(v);
+}
+
+inline static  float3 __attribute__((overloadable)) ceilf(float3 v) {
+  return ceil(v);
+}
+
+inline static  float4 __attribute__((overloadable)) ceilf(float4 v) {
+  return ceil(v);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -301,19 +317,19 @@ inline static  float4 __attribute__((overloadable)) floorf(float4 v) {
 ////////////////////////////////////////////////////////////////////////////////
 
 inline static  float __attribute__((overloadable)) fracf(float v) {
-  return metal::fract(v);//v - floorf(v);
+  return metal::fract(v);
 }
 
 inline static  float2 __attribute__((overloadable)) fracf(float2 v) {
-  return metal::fract(v);//make_float2(fracf(v.x), fracf(v.y));
+  return metal::fract(v);
 }
 
 inline static  float3 __attribute__((overloadable)) fracf(float3 v) {
-  return metal::fract(v); //make_float3(fracf(v.x), fracf(v.y), fracf(v.z));
+  return metal::fract(v);
 }
 
 inline static  float4 __attribute__((overloadable)) fracf(float4 v) {
-  return metal::fract(v); //make_float4(fracf(v.x), fracf(v.y), fracf(v.z), fracf(v.w));
+  return metal::fract(v);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -348,6 +364,7 @@ inline static  float3 __attribute__((overloadable)) reflect(float3 i, float3 n) 
 }
 
 #define powf pow
+#define roundf round
 #define log2f log2
 #define log10f log10
 

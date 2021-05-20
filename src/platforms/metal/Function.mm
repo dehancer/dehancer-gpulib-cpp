@@ -84,13 +84,19 @@ namespace dehancer::metal {
       }
     }
 
-    MTLSize Function::get_threads_per_threadgroup(int w, int h, int d) {
-      return MTLSizeMake(4, 4, d == 1 ? 1 : 4);
+    MTLSize Function::get_threads_per_threadgroup(int w, int h, int d) const {
+      NSUInteger dg = d == 1 ? 1 : 4;
+      NSUInteger wg = pipelineState_.pipeline.threadExecutionWidth / dg;
+      NSUInteger hg = pipelineState_.pipeline.maxTotalThreadsPerThreadgroup / wg / dg;
+      return MTLSizeMake(wg, hg, dg);
     }
 
-    MTLSize Function::get_thread_groups(int w, int h, int d) {
+    MTLSize Function::get_thread_groups(int w, int h, int d) const {
       auto tpg = get_threads_per_threadgroup(w, h, d);
-      return MTLSizeMake( (NSUInteger)(w/tpg.width), (NSUInteger)(h == 1 ? 1 : h/tpg.height), (NSUInteger)(d == 1 ? 1 : d/tpg.depth));
+      auto wt = (NSUInteger)((w + tpg.width - 1)/tpg.width);
+      auto ht = (NSUInteger)(h == 1 ? 1 : (h + tpg.height - 1)/tpg.height);
+      auto dt = (NSUInteger)(d == 1 ? 1 : (d + tpg.depth - 1)/tpg.depth);
+      return MTLSizeMake( wt == 0 ? 1 : wt, ht == 0 ? 1 : ht, dt == 0 ? 1 : dt);
     }
 
     const std::string &Function::get_name() const {
@@ -101,7 +107,7 @@ namespace dehancer::metal {
       return pipelineState_.arg_list;
     }
 
-    Function::ComputeSize Function::get_compute_size(const CommandEncoder::Size size) {
+    Function::ComputeSize Function::get_compute_size(const CommandEncoder::Size size) const {
       if ((int)size.depth==1) {
         auto exeWidth = [pipelineState_.pipeline threadExecutionWidth];
         auto threadGroupCount = MTLSizeMake(exeWidth, 1, 1);

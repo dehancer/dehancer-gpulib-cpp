@@ -7,16 +7,16 @@
 
 namespace dehancer {
 
-    TextureInput::TextureInput(const void *command_queue, const StreamSpace &space, StreamSpace::Direction direction):
+    TextureInput::TextureInput(const void *command_queue): //, const StreamSpace &space, StreamSpaceDirection direction):
     TextureIO(),
-    impl_(std::make_shared<impl::TextureInput>(command_queue,space,direction))
+    impl_(std::make_shared<impl::TextureInput>(command_queue/*,space,direction*/))
     {}
 
-    Texture TextureInput::get_texture() {
+    const Texture & TextureInput::get_texture() {
       return impl_->get_texture();
     }
 
-    const Texture TextureInput::get_texture() const {
+    const Texture & TextureInput::get_texture() const {
       return impl_->get_texture();
     }
     
@@ -42,7 +42,10 @@ namespace dehancer {
       return is;
     }
     
- 
+    Error TextureInput::load_from_data (const std::vector<float> &buffer, size_t width, size_t height) {
+      return load_from_data(buffer,width,height,1);
+    }
+    
     
     TextureInput::~TextureInput() = default;
 

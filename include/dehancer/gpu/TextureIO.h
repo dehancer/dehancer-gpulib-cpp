@@ -32,10 +32,10 @@ namespace dehancer {
 
     public:
 
-        virtual Texture get_texture() = 0;
-        [[nodiscard]] virtual const Texture get_texture() const = 0;
+        virtual const Texture& get_texture() = 0;
+        [[nodiscard]] virtual const Texture& get_texture() const = 0;
 
-        inline static std::string extention_for(Options::Type type) {
+        inline static std::string extension_for(Options::Type type) {
           switch (type) {
             case Options::Type::jpeg:
               return ".jpg";

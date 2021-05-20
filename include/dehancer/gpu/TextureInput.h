@@ -26,23 +26,23 @@ namespace dehancer {
          * @param space - color space transformation
          * @param direction - color space transformation diration
          */
-        explicit TextureInput(const void *command_queue,
-                              const StreamSpace &space = StreamSpace::create_identity(),
-                              StreamSpace::Direction direction = StreamSpace::Direction::none);
+        explicit TextureInput(const void *command_queue);//,
+                              //const StreamSpace &space = stream_space_identity(),
+                              //StreamSpaceDirection direction = StreamSpaceDirection::DHCR_None);
 
         /***
          * Get texture object
          * @return
          */
-        Texture get_texture() override;
-        [[nodiscard]] const Texture get_texture() const override;
+        const Texture & get_texture() override;
+        [[nodiscard]] const Texture & get_texture() const override;
 
         /***
          * Load texture from Image buffer. Buffer can contain data with one of defined image codec.
          * @param buffer
          * @return
          */
-        Error load_from_image(const std::vector<uint8_t>& buffer);
+        virtual Error load_from_image(const std::vector<uint8_t>& buffer);
         
         /***
          * Load texture from Image buffer. Buffer can contain data with one of defined image codec.
@@ -50,7 +50,7 @@ namespace dehancer {
          * @param length
          * @return
          */
-        Error load_from_image(const uint8_t* buffer, size_t length);
+        virtual Error load_from_image(const uint8_t* buffer, size_t length);
         
         /***
          * Load texture raw data packed as rgba32float
@@ -60,12 +60,17 @@ namespace dehancer {
          * @param depth
          * @return
          */
-        Error load_from_data(
+        virtual Error load_from_data(
                 const std::vector<float> &buffer,
                 size_t width,
                 size_t height,
-                size_t depth= 1);
-
+                size_t depth);
+    
+        virtual Error load_from_data(
+                const std::vector<float> &buffer,
+                size_t width,
+                size_t height);
+    
         /***
          * Load texture raw data packed as rgba32float
          * @param buffer
@@ -74,12 +79,19 @@ namespace dehancer {
          * @param depth
          * @return
          */
-        Error load_from_data(
+        virtual Error load_from_data(
                 float *buffer,
                 size_t width,
                 size_t height,
-                size_t depth= 1);
-
+                size_t depth);
+    
+        virtual Error load_from_data(
+                float *buffer,
+                size_t width,
+                size_t height) {
+          return load_from_data(buffer,width,height,1);
+        };
+    
         /***
          * Read image to the Texture from input stream
          * @param os - input stream

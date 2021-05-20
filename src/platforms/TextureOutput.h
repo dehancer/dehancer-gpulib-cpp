@@ -15,7 +15,7 @@ namespace dehancer::impl {
     class TextureOutput: public dehancer::Command {
     public:
         explicit TextureOutput(const void *command_queue,
-                      const Texture& source,
+                      const Texture&  source,
                       const TextureIO::Options& options);
 
         explicit TextureOutput(const void *command_queue,
@@ -26,8 +26,8 @@ namespace dehancer::impl {
                               .compression = 0.0f
                       });
 
-        Texture get_texture() ;
-        [[nodiscard]] const Texture get_texture() const ;
+        const Texture& get_texture() ;
+        [[nodiscard]] const Texture& get_texture() const ;
 
         Error write_as_image(std::vector<uint8_t>& buffer) const;
 
