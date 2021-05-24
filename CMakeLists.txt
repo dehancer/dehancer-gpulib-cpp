@@ -339,6 +339,8 @@ if (NOT GTEST_FOUND)
 
     ExternalProject_Add(googletest
             GIT_REPOSITORY https://github.com/google/googletest
+            GIT_PROGRESS YES
+            GIT_SHALLOW YES
             CMAKE_ARGS
             -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
             -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
@@ -371,6 +373,8 @@ if (DEHANCER_GPU_OPENCL)
     #
     ExternalProject_Add(dhoph
             GIT_REPOSITORY https://github.com/dehancer/dehancer-opencl-helper
+            GIT_PROGRESS YES
+            GIT_SHALLOW YES
             CMAKE_ARGS
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
@@ -406,6 +410,8 @@ if (dehancer_common_cpp_FOUND)
 else()
     ExternalProject_Add(dcmcpp
             GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
+            GIT_PROGRESS YES
+            GIT_SHALLOW YES
             CMAKE_ARGS
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -444,6 +450,8 @@ else()
 
     ExternalProject_Add(dmcpp
             GIT_REPOSITORY https://github.com/dehancer/dehancer-maths-cpp
+            GIT_PROGRESS YES
+            GIT_SHALLOW YES
             CMAKE_ARGS
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -483,6 +491,8 @@ if (dehancer_xmp_cpp_FOUND)
 else()
     ExternalProject_Add(dxmpcpp
             GIT_REPOSITORY https://github.com/dehancer/dehancer-xmp-cpp
+            GIT_PROGRESS YES
+            GIT_SHALLOW YES
             CMAKE_ARGS
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
