@@ -143,8 +143,6 @@ set(ENV{PKG_CONFIG_PATH} $ENV{SYSROOT}/usr/local/dehancer/lib/pkgconfig)
 
 find_package (Threads REQUIRED)
 find_package (PkgConfig REQUIRED)
-find_package (BLAS REQUIRED)
-find_package (LAPACK REQUIRED)
 find_package (ZLIB REQUIRED)
 find_package (EXPAT REQUIRED)
 find_package (Iconv REQUIRED)
@@ -156,6 +154,60 @@ elseif (${DEHANCER_TARGET_ARCH} MATCHES "x86_64.*")
 else()
     find_package (OpenCV REQUIRED )
 endif()
+
+
+find_package(BLAS REQUIRED)
+find_package(LAPACK REQUIRED)
+
+if (LINUX)
+    set(DEHANCER_EXT_MATH_LIB)
+
+    set(FORTRAN_LIB_PATHS ${CMAKE_SYSTEM_LIBRARY_PATH};/usr/lib/gcc/x86_64-linux-gnu/9;/usr/lib/gcc/x86_64-linux-gnu/8;/usr/lib/gcc/x86_64-linux-gnu;/lib64;/lib;/usr/lib64;/usr/lib;/usr/local/lib64;/usr/local/lib;/opt/local/lib64;/opt/local/lib)
+
+    find_library(GFORTRAN_LIBRARY
+            NAMES gfortran
+            PATHS ${FORTRAN_LIB_PATHS}
+            )
+
+    find_library(GQUADMATH_LIBRARY
+            NAMES quadmath
+            PATHS ${FORTRAN_LIB_PATHS}
+            )
+
+    message("GFORTRAN_LIBRARY: ${GFORTRAN_LIBRARY}")
+
+    foreach(v ${BLAS_LIBRARIES})
+        string(REPLACE ".so" ".a" vv ${v})
+        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+    endforeach()
+
+    foreach(v ${LAPACK_LIBRARIES})
+        string(REPLACE ".so" ".a" vv ${v})
+        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+    endforeach()
+
+    foreach(v ${GFORTRAN_LIBRARY})
+        string(REPLACE ".so" ".a" vv ${v})
+        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+    endforeach()
+
+    foreach(v ${GQUADMATH_LIBRARY})
+        string(REPLACE ".so" ".a" vv ${v})
+        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+    endforeach()
+
+    set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};m)
+
+    find_library(DEHANCER_EXT_MATH_LIB REQUIRED ${DEHANCER_EXT_MATH})
+
+else()
+    set(DEHANCER_EXT_MATH_LIB ${BLAS_LIBRARIES};${LAPACK_LIBRARIES})
+endif ()
+
+include_directories(${BLAS_INCLUDE_DIRS} ${LAPACK_INCLUDE_DIRS})
+
+message("BLASS/LAPACK: ${DEHANCER_EXT_MATH_LIB}")
+
 
 if (DEHANCER_GPU_CUDA)
 
@@ -576,9 +628,8 @@ add_subdirectory(lib)
 
 set(COMMON_LIBRARIES
         ${COMMON_LIBRARIES};
-        ${BLAS_LIBRARIES};
-        ${LAPACK_LIBRARIES};
         ${OpenCV_LIBS};
+        ${DEHANCER_EXT_MATH_LIB};
         ${CMAKE_DL_LIBS};
         )
 

@@ -72,6 +72,7 @@ Ubuntu (20.04)
     sudo ln -s /usr/bin/clang++-11 /usr/bin/clang++
     sudo apt install libssl1.1 ocl-icd-opencl-dev fakeroot xorriso
     sudo aptitude install liblapack-dev
+    sudo aptitude install gfortran
     
 
 OpenCV from sources
