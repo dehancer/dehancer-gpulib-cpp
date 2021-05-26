@@ -32,7 +32,7 @@ namespace dehancer {
 
         auto texture_ = dt.lut_->get_texture();
 
-        auto _3dcopy = CLut3DCopyFunction(dt.command_queue_, texture_, dt.resolution_);
+        auto _3dcopy = CLut3DCopyFunction(dt.command_queue_, texture_, dt.resolution_, true);
 
         os << generator_comment << dehancer::gpulib::version();
         os << std::endl;
