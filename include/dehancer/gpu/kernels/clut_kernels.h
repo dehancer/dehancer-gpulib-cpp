@@ -281,4 +281,27 @@ DHCR_KERNEL void kernel_convert3DLut_to_2DLut(
   write_image(DLutOut, result, tex.gid);
 }
 
+DHCR_KERNEL void kernel_copy_3DLut(
+        texture3d_read_t             d3DLut DHCR_BIND_TEXTURE(0),
+        DHCR_DEVICE_ARG float*      buffer DHCR_BIND_BUFFER(1),
+        DHCR_DEVICE_ARG uint_ref_t lut_size DHCR_BIND_BUFFER(2),
+        DHCR_DEVICE_ARG uint_ref_t channels DHCR_BIND_BUFFER(3)
+        
+        DHCR_KERNEL_GID_3D
+)
+{
+  
+  Texel3d tex; get_kernel_texel3d(d3DLut, tex);
+  
+  if (!get_texel_boundary(tex)) return;
+  
+  float3 rgb = make_float3(tex.gid)/(make_float3(lut_size,lut_size,lut_size)-make_float3(1));
+  float4 result = read_image(d3DLut, rgb);
+  
+  uint index = (tex.gid.x + lut_size * tex.gid.y + lut_size * lut_size * tex.gid.z) * channels;
+  buffer[index + 0] = result.x;
+  buffer[index + 1] = result.y;
+  buffer[index + 2] = result.z;
+}
+
 #endif //DEHANCER_GPULIB_CLUT_KERNELS_H

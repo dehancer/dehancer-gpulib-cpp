@@ -52,7 +52,18 @@ void load_from_cube(const std::string& platform) {
                 .compression = compression
         });
       }
-      
+  
+      {
+  
+        output_file =  "cube_to_cube-"+platform+"-"+"cube"+"-";
+        output_file.append(dehancer::device::get_name(device));
+        output_file.append(".cube");
+        
+        std::ofstream os(output_file, std::ostream::binary | std::ostream::trunc);
+        os << dehancer::CLutCubeOutput(command_queue, cube, (dehancer::CLutCubeOutput::Options){
+                .resolution = dehancer::CLutCubeOutput::Options::normal
+        });
+      }
     }
   }
   
