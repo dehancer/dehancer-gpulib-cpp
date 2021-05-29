@@ -20,8 +20,8 @@ void load_from_cube(const std::string& platform) {
     std::cout << std::endl;
     
     //std::string file_path = DATA_DIR; file_path.append("/250d.cube");
-    //std::string file_path = DATA_DIR; file_path.append("/oversat_33.cube");
-    std::string file_path = DATA_DIR; file_path.append("/oversat_65.cube");
+    std::string file_path = DATA_DIR; file_path.append("/oversat_33.cube");
+    //std::string file_path = DATA_DIR; file_path.append("/oversat_65.cube");
     
     std::cout << "Open test: " << file_path << std::endl;
     
