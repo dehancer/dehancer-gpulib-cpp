@@ -18,14 +18,14 @@ TEST(TEST, LOAD_CUBE) {
 
 }
 
-TEST(TEST, LOAD_CACHED_ACES) {
-  
-  std::cout << std::endl;
-  std::cerr << std::endl;
-  
-  load_from_cache("metal");
-  
-}
+//TEST(TEST, LOAD_CACHED_ACES) {
+//
+//  std::cout << std::endl;
+//  std::cerr << std::endl;
+//
+//  load_from_cache("metal");
+//
+//}
 
 namespace dehancer::device {
 

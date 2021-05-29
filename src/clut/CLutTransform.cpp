@@ -30,7 +30,7 @@ namespace dehancer {
                 kernel_name_,
                 lut.get_texture(),
                 clut_->get_texture(),
-                wait_until_completed,
+                true,
                 library_path
         );
       }
@@ -86,7 +86,7 @@ namespace dehancer {
           switch (to) {
             case Type::lut_2d:
               kernel_name_ = "kernel_convert3DLut_to_2DLut";
-              clut_ = std::make_shared<CLut2DIdentity>(command_queue, lut_size_);
+              clut_ = std::make_shared<CLut2DIdentity>(command_queue, 64);
               break;
             
             case Type::lut_1d:
@@ -97,6 +97,8 @@ namespace dehancer {
             default:
               kernel_name_ = "kernel_resample3DLut_to_3DLut";
               clut_ = std::make_shared<CLut3DIdentity>(command_queue, lut_size_);
+              std::cerr << " ### CLutTransform::initializer: >>: " << kernel_name_ << std::endl;
+    
               break;
           }
           break;
@@ -133,7 +135,10 @@ namespace dehancer {
 //          }
 //          break;
       }
-      
+  
+      std::cerr << " ### CLutTransform::initializer: source clut: " << (int)lut.get_lut_type() << " size: " << lut.get_lut_size() << std::endl;
+      std::cerr << " ### CLutTransform::initializer: target clut: " << (int)clut_->get_lut_type() << " size: " << clut_->get_lut_size() << std::endl;
+  
       return clut_->get_texture() != nullptr;
     }
 }

@@ -16,9 +16,9 @@ namespace dehancer {
     {
   
       execute([this,&source,&target](CommandEncoder& encoder) {
-          encoder.set(source,0);
+          encoder.set(target,0);
           encoder.set(target,1);
-          encoder.set(target,2);
+          encoder.set(source,2);
           return CommandEncoder::Size::From(target);
       });
       

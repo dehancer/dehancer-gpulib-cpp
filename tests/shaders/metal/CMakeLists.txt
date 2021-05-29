@@ -14,7 +14,7 @@
  file (GLOB DEPENDS_SOURCES ${DEPENDS_PLUGIN_SOURCES}
          ${CMAKE_CURRENT_SOURCE_DIR}/*.h
          ${CMAKE_SOURCE_DIR}/tests/shaders/*.h
-         ${CMAKE_SOURCE_DIR}/include/dehancer/gpu/kernels/opencl/*.h
+         ${CMAKE_SOURCE_DIR}/include/dehancer/gpu/kernels/metal/*.h
          ${CMAKE_SOURCE_DIR}/include/dehancer/gpu/kernels/*.h
          )
 

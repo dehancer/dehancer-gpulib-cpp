@@ -81,9 +81,9 @@ DHCR_KERNEL void kernel_make3DLut(
 //
 
 DHCR_KERNEL void kernel_resample1DLut_to_1DLut(
-        texture1d_read_t         DLut DHCR_BIND_TEXTURE(0),
-        texture1d_read_t         DLutIdentity DHCR_BIND_TEXTURE(1),
-        texture1d_write_t        DLutOut DHCR_BIND_TEXTURE(2)
+        texture1d_read_t         DLutIdentity DHCR_BIND_TEXTURE(0),
+        texture1d_write_t        DLutOut DHCR_BIND_TEXTURE(1),
+        texture1d_read_t         DLut DHCR_BIND_TEXTURE(2)
         DHCR_KERNEL_GID_1D
 ) {
   Texel1d tex;
@@ -143,9 +143,9 @@ inline  DHCR_DEVICE_FUNC float3 sample2DLut(float3 rgb, texture2d_read_t d2DLut)
 }
 
 DHCR_KERNEL void kernel_resample2DLut_to_2DLut(
-        texture2d_read_t         DLut DHCR_BIND_TEXTURE(0),
-        texture2d_read_t         DLutIdentity DHCR_BIND_TEXTURE(1),
-        texture2d_write_t        DLutOut DHCR_BIND_TEXTURE(2)
+        texture2d_read_t         DLutIdentity DHCR_BIND_TEXTURE(0),
+        texture2d_write_t        DLutOut DHCR_BIND_TEXTURE(1),
+        texture2d_read_t         DLut DHCR_BIND_TEXTURE(2)
         DHCR_KERNEL_GID_2D
 ) {
   Texel2d tex;
@@ -159,9 +159,9 @@ DHCR_KERNEL void kernel_resample2DLut_to_2DLut(
 }
 
 DHCR_KERNEL void kernel_resample3DLut_to_3DLut(
-        texture3d_read_t         DLut DHCR_BIND_TEXTURE(0),
-        texture3d_read_t         DLutIdentity DHCR_BIND_TEXTURE(1),
-        texture3d_write_t        DLutOut DHCR_BIND_TEXTURE(2)
+        texture3d_read_t         DLutIdentity DHCR_BIND_TEXTURE(0),
+        texture3d_write_t        DLutOut DHCR_BIND_TEXTURE(1),
+        texture3d_read_t         DLut DHCR_BIND_TEXTURE(2)
         DHCR_KERNEL_GID_3D
 ) {
   Texel3d tex;
@@ -180,9 +180,9 @@ DHCR_KERNEL void kernel_resample3DLut_to_3DLut(
 
 // 1D
 DHCR_KERNEL void kernel_convert1DLut_to_2DLut(
-        texture1d_read_t         DLut DHCR_BIND_TEXTURE(0),
-        texture2d_read_t         DLutIdentity DHCR_BIND_TEXTURE(1),
-        texture2d_write_t        DLutOut DHCR_BIND_TEXTURE(2)
+        texture2d_read_t         DLutIdentity DHCR_BIND_TEXTURE(0),
+        texture2d_write_t        DLutOut DHCR_BIND_TEXTURE(1),
+        texture1d_read_t         DLut DHCR_BIND_TEXTURE(2)
         DHCR_KERNEL_GID_2D
 ) {
   Texel2d tex;
@@ -198,9 +198,9 @@ DHCR_KERNEL void kernel_convert1DLut_to_2DLut(
 }
 
 DHCR_KERNEL void kernel_convert1DLut_to_3DLut(
-        texture1d_read_t         DLut DHCR_BIND_TEXTURE(0),
-        texture3d_read_t         DLutIdentity DHCR_BIND_TEXTURE(1),
-        texture3d_write_t        DLutOut DHCR_BIND_TEXTURE(2)
+        texture3d_read_t         DLutIdentity DHCR_BIND_TEXTURE(0),
+        texture3d_write_t        DLutOut DHCR_BIND_TEXTURE(1),
+        texture1d_read_t         DLut DHCR_BIND_TEXTURE(2)
         DHCR_KERNEL_GID_3D
 ) {
   Texel3d tex;
@@ -217,9 +217,9 @@ DHCR_KERNEL void kernel_convert1DLut_to_3DLut(
 
 // 2D
 DHCR_KERNEL void kernel_convert2DLut_to_1DLut(
-        texture2d_read_t         DLut DHCR_BIND_TEXTURE(0),
-        texture1d_read_t         DLutIdentity DHCR_BIND_TEXTURE(1),
-        texture1d_write_t        DLutOut DHCR_BIND_TEXTURE(2)
+        texture1d_read_t         DLutIdentity DHCR_BIND_TEXTURE(0),
+        texture1d_write_t        DLutOut DHCR_BIND_TEXTURE(1),
+        texture2d_read_t         DLut DHCR_BIND_TEXTURE(2)
         DHCR_KERNEL_GID_1D
 ) {
   Texel1d tex;
@@ -233,9 +233,9 @@ DHCR_KERNEL void kernel_convert2DLut_to_1DLut(
 }
 
 DHCR_KERNEL void kernel_convert2DLut_to_3DLut(
-        texture2d_read_t         DLut DHCR_BIND_TEXTURE(0),
-        texture3d_read_t         DLutIdentity DHCR_BIND_TEXTURE(1),
-        texture3d_write_t        DLutOut DHCR_BIND_TEXTURE(2)
+        texture3d_read_t         DLutIdentity DHCR_BIND_TEXTURE(0),
+        texture3d_write_t        DLutOut DHCR_BIND_TEXTURE(1),
+        texture2d_read_t         DLut DHCR_BIND_TEXTURE(2)
         DHCR_KERNEL_GID_3D
 ) {
   Texel3d tex;
@@ -250,9 +250,9 @@ DHCR_KERNEL void kernel_convert2DLut_to_3DLut(
 
 //3D
 DHCR_KERNEL void kernel_convert3DLut_to_1DLut(
-        texture3d_read_t         DLut DHCR_BIND_TEXTURE(0),
-        texture1d_read_t         DLutIdentity DHCR_BIND_TEXTURE(1),
-        texture1d_write_t        DLutOut DHCR_BIND_TEXTURE(2)
+        texture1d_read_t         DLutIdentity DHCR_BIND_TEXTURE(0),
+        texture1d_write_t        DLutOut DHCR_BIND_TEXTURE(1),
+        texture3d_read_t         DLut DHCR_BIND_TEXTURE(2)
         DHCR_KERNEL_GID_1D
 ) {
   Texel1d tex;
@@ -266,18 +266,28 @@ DHCR_KERNEL void kernel_convert3DLut_to_1DLut(
 }
 
 DHCR_KERNEL void kernel_convert3DLut_to_2DLut(
-        texture3d_read_t         DLut DHCR_BIND_TEXTURE(0),
-        texture2d_read_t         DLutIdentity DHCR_BIND_TEXTURE(1),
-        texture2d_write_t        DLutOut DHCR_BIND_TEXTURE(2)
+        texture2d_read_t         DLutIdentity DHCR_BIND_TEXTURE(0),
+        texture2d_write_t        DLutOut DHCR_BIND_TEXTURE(1),
+        texture3d_read_t         DLut DHCR_BIND_TEXTURE(2)
         DHCR_KERNEL_GID_2D
 ) {
-  Texel2d tex;
-  get_kernel_texel2d(DLutOut, tex);
+  Texel2d tex; get_kernel_texel2d(DLutOut, tex);
   if (!get_texel_boundary(tex)) return;
   
-  float3 rgb  =  make_float3(read_image(DLutIdentity, tex.gid));
+  float3 rgb    = make_float3(read_image(DLutIdentity, tex.gid));
+  //float3 rgb    = make_float3(sampled_color(DLutIdentity, tex.size, tex.gid));
+  
+  //Texel2d tex_3d; get_kernel_texel3d(DLut, tex_3d);
+  
   float4 result = read_image(DLut, rgb);
+//  float3 size = make_float3(get_texture_width(DLut), get_texture_height(DLut), get_texture_depth(DLut));
+//  float r = rgb.x * (size.x);
+//  float g = rgb.y * (size.y);
+//  float b = rgb.z * (size.z);
+//  float4 result = tex3D_trilinear(DLut, r, g, b);
+
   result.w = 1.0f;
+  
   write_image(DLutOut, result, tex.gid);
 }
 
@@ -295,13 +305,14 @@ DHCR_KERNEL void kernel_copy_3DLut(
   
   if (!get_texel_boundary(tex)) return;
   
-  float3 rgb = make_float3(tex.gid)/(make_float3(lut_size,lut_size,lut_size)-make_float3(1));
+  float3 rgb = make_float3(tex.gid)/(make_float3(lut_size,lut_size,lut_size)-make_float3(1.0f));
   float4 result = read_image(d3DLut, rgb);
   
   uint index = (tex.gid.x + lut_size * tex.gid.y + lut_size * lut_size * tex.gid.z) * channels;
   buffer[index + 0] = result.x;
   buffer[index + 1] = result.y;
   buffer[index + 2] = result.z;
+  buffer[index + 3] = 1.0f;
 }
 
 #endif //DEHANCER_GPULIB_CLUT_KERNELS_H
