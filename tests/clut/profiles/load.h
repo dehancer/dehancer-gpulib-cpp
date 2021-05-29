@@ -81,7 +81,7 @@ void load_from_xmp(const std::string& platform) {
   
         EXPECT_TRUE(lut);
         
-        auto out_tex = dehancer::CLutTransform(command_queue, *lut,dehancer::CLut::Type::lut_2d);
+        auto out_tex = dehancer::CLutTransform(command_queue, *lut, dehancer::CLut::Type::lut_2d);
         
         {
           std::ofstream ao_bench_os(output_file, std::ostream::binary | std::ostream::trunc);

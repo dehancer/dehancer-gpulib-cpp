@@ -33,6 +33,7 @@ namespace dehancer {
                   get_command_queue(),
                   square_lut,
                   dehancer::CLut::Type::lut_3d,
+                  0,
                   space_,
                   direction_
           );

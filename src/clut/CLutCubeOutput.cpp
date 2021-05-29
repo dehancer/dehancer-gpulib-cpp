@@ -20,15 +20,17 @@ namespace dehancer {
                                    const std::string &title,
                                    const std::string &comments) :
             command_queue_(command_queue),
-            lut_(new CLutTransform(command_queue_,
-                                   clut,
-                                   CLut::Type::lut_3d,
-                                   dehancer::stream_space_identity(),
-                                   DHCR_None)),
+            lut_(nullptr),
             title_(title),
             comments_(comments),
             resolution_(options.get_resolution_size())
     {
+      lut_ = std::make_shared<CLutTransform>(command_queue_,
+                                             clut,
+                                             CLut::Type::lut_3d,
+                                             resolution_,
+                                             dehancer::stream_space_identity(),
+                                             DHCR_None);
       std::cerr << " ### CLutCubeOutput::initializer: target clut: " << (int)lut_->get_lut_type() << " size: " << lut_->get_lut_size() << std::endl;
     }
     
@@ -86,14 +88,16 @@ namespace dehancer {
             const std::string &title,
             const std::string &comments) :
             command_queue_(command_queue),
-            lut_(new CLutTransform(command_queue_,
-                                   clut,
-                                   CLut::Type::lut_3d,
-                                   dehancer::stream_space_identity(),
-                                   DHCR_None)),
+            lut_(nullptr),
             title_(title),
             comments_(comments),
-            resolution_(resolution) {
-      
+            resolution_(resolution)
+    {
+      lut_ = std::make_shared<CLutTransform>(command_queue_,
+                                             clut,
+                                             CLut::Type::lut_3d,
+                                             resolution_,
+                                             dehancer::stream_space_identity(),
+                                             DHCR_None);
     }
 }

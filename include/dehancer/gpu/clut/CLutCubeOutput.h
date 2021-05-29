@@ -61,6 +61,6 @@ namespace dehancer {
         std::shared_ptr<CLut> lut_;
         std::string title_;
         std::string comments_;
-        uint        resolution_;
+        size_t      resolution_;
     };
 }

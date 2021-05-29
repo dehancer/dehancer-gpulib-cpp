@@ -10,18 +10,19 @@
 
 namespace dehancer {
     
-    CLutTransform::CLutTransform(const void *command_queue,
-                                 const CLut &lut,
-                                 Type to,
-                                 const StreamSpace &space,
-                                 StreamSpaceDirection direction,
-                                 bool wait_until_completed,
-                                 const std::string &library_path) :
+    CLutTransform::CLutTransform (const void *command_queue,
+                                  const CLut &lut,
+                                  CLut::Type to,
+                                  size_t lut_size,
+                                  const StreamSpace &space,
+                                  StreamSpaceDirection direction,
+                                  bool wait_until_completed,
+                                  const std::string &library_path) :
             CLut(),
             space_(space),
             direction_(direction),
             clut_(nullptr),
-            lut_size_(lut.get_lut_size()),
+            lut_size_(lut_size == 0 ? lut.get_lut_size() : lut_size),
             type_(to)
     {
       if(initializer(command_queue,lut,to)) {
@@ -86,7 +87,7 @@ namespace dehancer {
           switch (to) {
             case Type::lut_2d:
               kernel_name_ = "kernel_convert3DLut_to_2DLut";
-              clut_ = std::make_shared<CLut2DIdentity>(command_queue, 64);
+              clut_ = std::make_shared<CLut2DIdentity>(command_queue, lut_size_);
               break;
             
             case Type::lut_1d:

@@ -24,13 +24,14 @@ namespace dehancer {
          * @param space - not works yet
          * @param direction - not works yet
          */
-        CLutTransform(const void *command_queue,
-                      const CLut &lut,
-                      CLut::Type to,
-                      const StreamSpace &space = stream_space_identity(),
-                      StreamSpaceDirection direction = StreamSpaceDirection::DHCR_None,
-                      bool wait_until_completed = Function::WAIT_UNTIL_COMPLETED,
-                      const std::string &library_path = "");
+        CLutTransform (const void *command_queue,
+                       const CLut &lut,
+                       CLut::Type to,
+                       size_t lut_size = 0,
+                       const StreamSpace &space = stream_space_identity(),
+                       StreamSpaceDirection direction = StreamSpaceDirection::DHCR_None,
+                       bool wait_until_completed = Function::WAIT_UNTIL_COMPLETED,
+                       const std::string &library_path = "");
         
         const Texture& get_texture() override { return clut_->get_texture(); };
         [[nodiscard]] const Texture& get_texture() const override { return clut_->get_texture(); };
