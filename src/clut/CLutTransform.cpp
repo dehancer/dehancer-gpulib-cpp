@@ -148,8 +148,8 @@ namespace dehancer {
           
           switch (to) {
             case Type::lut_3d:
-              kernel_name_ = "kernel_resample_hald_3DLut_to_3DLut";
-              //kernel_name_ = "kernel_resample3DLut_to_3DLut";
+              //kernel_name_ = "kernel_resample_hald_3DLut_to_3DLut";
+              kernel_name_ = "kernel_resample3DLut_to_3DLut";
               clut_ = std::make_shared<CLut3DIdentity>(command_queue, lut_size_);
               break;
             case Type::lut_2d:

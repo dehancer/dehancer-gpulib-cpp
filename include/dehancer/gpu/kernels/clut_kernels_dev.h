@@ -3,7 +3,7 @@
 //
 
 #ifndef DEHANCER_GPULIB_CLUT_KERNELS_NEW_H
-#define DEHANCER_GPULIB_CLUT_KERNELS_NEW_H
+#define DEHANCER_GPULIB_CLUT_KERNELS_H
 
 #include "dehancer/gpu/kernels/common.h"
 #include "dehancer/gpu/kernels/types.h"
@@ -275,8 +275,16 @@ DHCR_KERNEL void kernel_convert3DLut_to_2DLut(
   if (!get_texel_boundary(tex)) return;
   
   float3 rgb    = make_float3(read_image(DLutIdentity, tex.gid));
+  //float3 rgb    = make_float3(sampled_color(DLutIdentity, tex.size, tex.gid));
+  
+  //Texel2d tex_3d; get_kernel_texel3d(DLut, tex_3d);
   
   float4 result = read_image(DLut, rgb);
+//  float3 size = make_float3(get_texture_width(DLut), get_texture_height(DLut), get_texture_depth(DLut));
+//  float r = rgb.x * (size.x);
+//  float g = rgb.y * (size.y);
+//  float b = rgb.z * (size.z);
+//  float4 result = tex3D_trilinear(DLut, r, g, b);
 
   result.w = 1.0f;
   
@@ -286,8 +294,8 @@ DHCR_KERNEL void kernel_convert3DLut_to_2DLut(
 DHCR_KERNEL void kernel_copy_3DLut(
         texture3d_read_t             d3DLut DHCR_BIND_TEXTURE(0),
         DHCR_DEVICE_ARG float*      buffer DHCR_BIND_BUFFER(1),
-        //DHCR_DEVICE_ARG uint_ref_t lut_size DHCR_BIND_BUFFER(2),
-        DHCR_DEVICE_ARG uint_ref_t channels DHCR_BIND_BUFFER(2)
+        DHCR_DEVICE_ARG uint_ref_t lut_size DHCR_BIND_BUFFER(2),
+        DHCR_DEVICE_ARG uint_ref_t channels DHCR_BIND_BUFFER(3)
         
         DHCR_KERNEL_GID_3D
 )
@@ -297,10 +305,9 @@ DHCR_KERNEL void kernel_copy_3DLut(
   
   if (!get_texel_boundary(tex)) return;
   
-  //float3 rgb = make_float3(tex.gid)/(make_float3(lut_size,lut_size,lut_size)-make_float3(1.0f));
-  float4 result = read_image(d3DLut, tex.gid);
+  float3 rgb = make_float3(tex.gid)/(make_float3(lut_size,lut_size,lut_size)-make_float3(1.0f));
+  float4 result = read_image(d3DLut, rgb);
   
-  uint lut_size = get_texture_width(d3DLut);
   uint index = (tex.gid.x + lut_size * tex.gid.y + lut_size * lut_size * tex.gid.z) * channels;
   buffer[index + 0] = result.x;
   buffer[index + 1] = result.y;
