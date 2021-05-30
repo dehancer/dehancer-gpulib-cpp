@@ -201,7 +201,7 @@ DHCR_KERNEL void kernel_resample3DLut_to_3DLut(
   get_kernel_texel3d(DLutOut, tex);
   if (!get_texel_boundary(tex)) return;
   
-  float3 rgb  =  make_float3(read_image(DLutIdentity, tex.gid));
+  float3 rgb    = make_float3(read_image(DLutIdentity, tex.gid));
   float4 result = read_image(DLut, rgb);
   result.w = 1.0f;
   write_image(DLutOut, result, tex.gid);
