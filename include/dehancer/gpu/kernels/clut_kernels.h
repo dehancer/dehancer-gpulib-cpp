@@ -110,69 +110,71 @@ inline  DHCR_DEVICE_FUNC float3 sample2DLut(float3 rgb, texture2d_read_t d2DLut)
   
   float  size    = (float)(get_texture_width(d2DLut));
   float  clevel  = (float)(int)roundf(powf((float)size,1.0f/3.0f));
+
+  float cube_size = clevel*clevel;
+
+  float blueColor = rgb.z * (cube_size-1.0f-0.8f);
+
+  float2 quad1;
+  quad1.y = floorf(floorf(blueColor) / clevel);
+  quad1.x = floorf(blueColor) - (quad1.y * clevel);
+
+  float2 quad2;
+  quad2.y = floorf(ceilf(blueColor) / clevel);
+  quad2.x = ceilf(blueColor) - (quad2.y * clevel);
+
+  float2 texPos1;
+
+  float denom = 1.0f/clevel;
+
+  texPos1.x = (quad1.x * denom) + 0.5f/size + ((denom - 1.0f/size) * rgb.x);
+  texPos1.y = (quad1.y * denom) + 0.5f/size + ((denom - 1.0f/size) * rgb.y);
+
+  float2 texPos2;
+  texPos2.x = (quad2.x * denom) + 0.5f/size + ((denom - 1.0f/size) * rgb.x);
+  texPos2.y = (quad2.y * denom) + 0.5f/size + ((denom - 1.0f/size) * rgb.y);
+
+  //constexpr sampler quadSampler1;
+  float4 newColor1 = read_image(d2DLut, texPos1);
+
+  //constexpr sampler quadSampler2;
+  float4 newColor2 =  read_image(d2DLut, texPos2);
+
+  return make_float3(mix(newColor1, newColor2, fracf(blueColor)));
+
+  
+  //  float3 base = rgb;//inputTexture.sample(quadSampler, fragmentInput.textureCoordinate);
 //
-//  float cube_size = clevel*clevel;
+//  float mul       = clevel*clevel - 1.0f;
+//  float blueColor = base.b * mul;
 //
-//  float blueColor = rgb.z * (cube_size-1.0f-0.8f);
-//
-//  float2 quad1;
-//  quad1.y = floorf(floorf(blueColor) / clevel);
+//  half2 quad1;
+//  quad1.y = floorf(floor(blueColor) / clevel);
 //  quad1.x = floorf(blueColor) - (quad1.y * clevel);
 //
-//  float2 quad2;
-//  quad2.y = floorf(ceilf(blueColor) / clevel);
+//  half2 quad2;
+//  quad2.y = floorf(ceil(blueColor) / clevel);
 //  quad2.x = ceilf(blueColor) - (quad2.y * clevel);
 //
 //  float2 texPos1;
-//
+//  float ret = 0.5f/size;
+//  float ret2 = 1.0f/size;
 //  float denom = 1.0f/clevel;
-//
-//  texPos1.x = (quad1.x * denom) + 0.5f/size + ((denom - 1.0f/size) * rgb.x);
-//  texPos1.y = (quad1.y * denom) + 0.5f/size + ((denom - 1.0f/size) * rgb.y);
+//  texPos1.x = (quad1.x * denom) + ret + ((denom - ret2) * base.x);
+//  texPos1.y = (quad1.y * denom) + ret + ((denom - ret2) * base.y);
 //
 //  float2 texPos2;
-//  texPos2.x = (quad2.x * denom) + 0.5f/size + ((denom - 1.0f/size) * rgb.x);
-//  texPos2.y = (quad2.y * denom) + 0.5f/size + ((denom - 1.0f/size) * rgb.y);
+//  texPos2.x = (quad2.x * denom) + ret + ((denom - ret2) * base.x);
+//  texPos2.y = (quad2.y * denom) + ret + ((denom - ret2) * base.y);
 //
-//  //constexpr sampler quadSampler1;
-//  float4 newColor1 = read_image(d2DLut, texPos1); //d2DLut.sample(quadSampler1, texPos1);
+//  //constexpr sampler quadSampler3;
+//  float4 newColor1 = read_image(d2DLut, texPos1); //inputTexture2.sample(quadSampler3, texPos1);
+//  //constexpr sampler quadSampler4;
+//  float4 newColor2 = read_image(d2DLut, texPos2); //inputTexture2.sample(quadSampler4, texPos2);
 //
-//  //constexpr sampler quadSampler2;
-//  float4 newColor2 =  read_image(d2DLut, texPos2);;//d2DLut.sample(quadSampler2, texPos2);
-//
+//  //float4 newColor = mix(newColor1, newColor2, fracf(blueColor));
+//  //return mix(base, make_float4(make_float3(newColor), base.w));
 //  return make_float3(mix(newColor1, newColor2, fracf(blueColor)));
-  float3 base = rgb;//inputTexture.sample(quadSampler, fragmentInput.textureCoordinate);
-  
-  float mul       = clevel*clevel - 1.0f;
-  float blueColor = base.b * mul;
-  
-  half2 quad1;
-  quad1.y = floorf(floor(blueColor) / clevel);
-  quad1.x = floorf(blueColor) - (quad1.y * clevel);
-  
-  half2 quad2;
-  quad2.y = floorf(ceil(blueColor) / clevel);
-  quad2.x = ceilf(blueColor) - (quad2.y * clevel);
-  
-  float2 texPos1;
-  float ret = 0.5f/size;
-  float ret2 = 1.0f/size;
-  float denom = 1.0f/clevel;
-  texPos1.x = (quad1.x * denom) + ret + ((denom - ret2) * base.x);
-  texPos1.y = (quad1.y * denom) + ret + ((denom - ret2) * base.y);
-  
-  float2 texPos2;
-  texPos2.x = (quad2.x * denom) + ret + ((denom - ret2) * base.x);
-  texPos2.y = (quad2.y * denom) + ret + ((denom - ret2) * base.y);
-  
-  //constexpr sampler quadSampler3;
-  float4 newColor1 = read_image(d2DLut, texPos1); //inputTexture2.sample(quadSampler3, texPos1);
-  //constexpr sampler quadSampler4;
-  float4 newColor2 = read_image(d2DLut, texPos2); //inputTexture2.sample(quadSampler4, texPos2);
-  
-  //float4 newColor = mix(newColor1, newColor2, fracf(blueColor));
-  //return mix(base, make_float4(make_float3(newColor), base.w));
-  return make_float3(mix(newColor1, newColor2, fracf(blueColor)));
 }
 
 DHCR_KERNEL void kernel_resample2DLut_to_2DLut(
@@ -185,9 +187,9 @@ DHCR_KERNEL void kernel_resample2DLut_to_2DLut(
   get_kernel_texel2d(DLutOut, tex);
   if (!get_texel_boundary(tex)) return;
   
-  float2 rgb_coords = get_texel_coords(tex);
-  float3 rgb        = make_float3(read_image(DLutIdentity, rgb_coords));
-  //float3 rgb    = make_float3(sampled_color(DLutIdentity, tex.size, tex.gid));//make_float3(read_image(DLutIdentity, tex.gid));
+  //float2 rgb_coords = get_texel_coords(tex);
+  //float3 rgb        = make_float3(read_image(DLutIdentity, rgb_coords));
+  float3 rgb    = make_float3(sampled_color(DLutIdentity, tex.size, tex.gid));
   float3 result = sample2DLut(rgb, DLut);
   
   write_image(DLutOut, make_float4(result,1.0f), tex.gid);
@@ -222,6 +224,10 @@ DHCR_KERNEL void kernel_resample_hald_3DLut_to_3DLut(
   get_kernel_texel3d(DLutOut, tex);
   if (!get_texel_boundary(tex)) return;
   
+  /***
+   * TODO:
+   * must be parameterized
+   */
   float  l = (1.0f-64.0f/65.0f);
   float3 al = make_float3(l);
   float3 ah = make_float3(1.0f/(1.0f + l*2.0f));
@@ -230,6 +236,8 @@ DHCR_KERNEL void kernel_resample_hald_3DLut_to_3DLut(
   rgb_coords = clamp(ah*rgb_coords+al, 0.0f, 1.0f);
   
   float3 rgb    = make_float3(read_image(DLutIdentity, rgb_coords));
+  
+  //rgb = clamp(ah*rgb+al, 0.0f, 1.0f);
   
   float4 result = read_image(DLut, rgb);
   result.w = 1.0f;
@@ -340,19 +348,9 @@ DHCR_KERNEL void kernel_convert3DLut_to_2DLut(
   Texel2d tex; get_kernel_texel2d(DLutOut, tex);
   if (!get_texel_boundary(tex)) return;
   
-  //float3 rgb    = make_float3(read_image(DLutIdentity, tex.gid));
-  float2 rgb_coords = get_texel_coords(tex);
-  float3 rgb    = make_float3(read_image(DLutIdentity, rgb_coords));
-  //float3 rgb    = make_float3(sampled_color(DLutIdentity, tex.size, tex.gid));
-  
-  //Texel2d tex_3d; get_kernel_texel3d(DLut, tex_3d);
+  float3 rgb    = make_float3(sampled_color(DLutIdentity, tex.size, tex.gid));
   
   float4 result = read_image(DLut, rgb);
-//  float3 size = make_float3(get_texture_width(DLut), get_texture_height(DLut), get_texture_depth(DLut));
-//  float r = rgb.x * (size.x);
-//  float g = rgb.y * (size.y);
-//  float b = rgb.z * (size.z);
-//  float4 result = tex3D_trilinear(DLut, r, g, b);
 
   result.w = 1.0f;
   
@@ -373,8 +371,6 @@ DHCR_KERNEL void kernel_copy_3DLut(
   
   if (!get_texel_boundary(tex)) return;
   
-  //float3 rgb    = make_float3(tex.gid)/(make_float3(lut_size,lut_size,lut_size)-make_float3(1.0f));
-  //float4 result = read_image(d3DLut, rgb);
   float4 result = read_image(d3DLut, tex.gid);
   
   uint len   = get_texture_width(d3DLut);

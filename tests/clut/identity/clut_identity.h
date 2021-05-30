@@ -38,8 +38,7 @@ void make_identity(const std::string& platform) {
         }
       }
   
-  
-  
+      
       {
         /**
          * HALD
