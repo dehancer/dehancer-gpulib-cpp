@@ -31,7 +31,6 @@ namespace dehancer {
                                              resolution_,
                                              dehancer::stream_space_identity(),
                                              DHCR_None);
-      std::cerr << " ### CLutCubeOutput::initializer: target clut: " << (int)lut_->get_lut_type() << " size: " << lut_->get_lut_size() << std::endl;
     }
     
     std::ostream &operator<<(std::ostream &os, const CLutCubeOutput &dt) {

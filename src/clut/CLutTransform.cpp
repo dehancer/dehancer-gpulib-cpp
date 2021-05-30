@@ -59,8 +59,7 @@ namespace dehancer {
     {
       if(initializer(command_queue,lut,to)) {
         auto& s = tmp_lut_ ? tmp_lut_->get_texture() : lut.get_texture();
-        std::cerr << " ### CLutTransform::initializer: s -> t: " << s->get_width() << " size: " << clut_->get_texture()->get_width() << std::endl;
-  
+        
         CLutTransformFunction(
                 command_queue,
                 kernel_name_,
@@ -69,6 +68,7 @@ namespace dehancer {
                 true,
                 library_path
         );
+        
         tmp_lut_ = nullptr;
       }
     }
@@ -90,7 +90,12 @@ namespace dehancer {
               kernel_name_ = "kernel_convert1DLut_to_2DLut";
               clut_ = std::make_shared<CLut2DIdentity>(command_queue, lut_size_);
               break;
-            
+    
+              ///
+              /// TODO:
+              /// convert TO HALD
+              ///
+              
             default:
               kernel_name_ = "kernel_resample3DLut_to_3DLut";
               clut_ = std::make_shared<CLut1DIdentity>(command_queue, lut_size_);
@@ -110,7 +115,12 @@ namespace dehancer {
               kernel_name_ = "kernel_convert2DLut_to_1DLut";
               clut_ = std::make_shared<CLut1DIdentity>(command_queue, lut_size_);
               break;
-            
+    
+              ///
+              /// TODO:
+              /// convert TO HALD
+              ///
+              
             default:
               kernel_name_ = "kernel_resample2DLut_to_2DLut";
               clut_ = std::make_shared<CLut2DIdentity>(command_queue, lut_size_);
@@ -131,10 +141,15 @@ namespace dehancer {
               clut_ = std::make_shared<CLut1DIdentity>(command_queue, lut_size_);
               break;
             
+
+              ///
+              /// TODO:
+              /// convert TO HALD
+              ///
+            
             default:
               kernel_name_ = "kernel_resample3DLut_to_3DLut";
               clut_ = std::make_shared<CLut3DIdentity>(command_queue, lut_size_);
-              std::cerr << " ### CLutTransform::initializer: >>: " << kernel_name_ << std::endl;
               
               break;
           }
@@ -144,11 +159,8 @@ namespace dehancer {
           
           tmp_lut_ = std::make_shared<CLutHaldTo3DTransform>(command_queue, lut);
           
-          std::cerr << " ### CLutTransform::initializer: tmp clut: " << (int)tmp_lut_->get_lut_type() << " size: " << tmp_lut_->get_lut_size() << std::endl;
-          
           switch (to) {
             case Type::lut_3d:
-              //kernel_name_ = "kernel_resample_hald_3DLut_to_3DLut";
               kernel_name_ = "kernel_resample3DLut_to_3DLut";
               clut_ = std::make_shared<CLut3DIdentity>(command_queue, lut_size_);
               break;
@@ -164,8 +176,6 @@ namespace dehancer {
           }
           break;
       }
-      std::cerr << " ### CLutTransform::initializer: source clut: " << (int)lut.get_lut_type() << " size: " << lut.get_lut_size() << std::endl;
-      std::cerr << " ### CLutTransform::initializer: target clut: " << (int)clut_->get_lut_type() << " size: " << clut_->get_lut_size() << std::endl;
       
       return clut_->get_texture() != nullptr;
     }

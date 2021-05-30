@@ -133,11 +133,9 @@ inline  DHCR_DEVICE_FUNC float3 sample2DLut(float3 rgb, texture2d_read_t d2DLut)
   texPos2.x = (quad2.x * denom) + 0.5f/size + ((denom - 1.0f/size) * rgb.x);
   texPos2.y = (quad2.y * denom) + 0.5f/size + ((denom - 1.0f/size) * rgb.y);
   
-  //constexpr sampler quadSampler1;
-  float4 newColor1 = read_image(d2DLut, texPos1); //d2DLut.sample(quadSampler1, texPos1);
+  float4 newColor1 = read_image(d2DLut, texPos1);
   
-  //constexpr sampler quadSampler2;
-  float4 newColor2 =  read_image(d2DLut, texPos2);;//d2DLut.sample(quadSampler2, texPos2);
+  float4 newColor2 =  read_image(d2DLut, texPos2);
   
   return make_float3(mix(newColor1, newColor2, fracf(blueColor)));
 }
@@ -286,7 +284,6 @@ DHCR_KERNEL void kernel_convert3DLut_to_2DLut(
 DHCR_KERNEL void kernel_copy_3DLut(
         texture3d_read_t             d3DLut DHCR_BIND_TEXTURE(0),
         DHCR_DEVICE_ARG float*      buffer DHCR_BIND_BUFFER(1),
-        //DHCR_DEVICE_ARG uint_ref_t lut_size DHCR_BIND_BUFFER(2),
         DHCR_DEVICE_ARG uint_ref_t channels DHCR_BIND_BUFFER(2)
         
         DHCR_KERNEL_GID_3D
@@ -297,7 +294,6 @@ DHCR_KERNEL void kernel_copy_3DLut(
   
   if (!get_texel_boundary(tex)) return;
   
-  //float3 rgb = make_float3(tex.gid)/(make_float3(lut_size,lut_size,lut_size)-make_float3(1.0f));
   float4 result = read_image(d3DLut, tex.gid);
   
   uint lut_size = get_texture_width(d3DLut);
