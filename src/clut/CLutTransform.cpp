@@ -10,6 +10,37 @@
 
 namespace dehancer {
     
+    class CLutHaldTo3DTransform : public CLut {
+    public:
+        CLutHaldTo3DTransform(const void *command_queue,
+                              const CLut &lut):
+                CLut(),
+                texture_(nullptr),
+                lut_size_(lut.get_lut_size())
+        {
+          TextureDesc desc = {
+                  .width = lut_size_,
+                  .height = lut_size_,
+                  .depth = lut_size_,
+                  .pixel_format = TextureDesc::PixelFormat::rgba32float,
+                  .type = TextureDesc::Type::i3d,
+                  .mem_flags = TextureDesc::MemFlags::read_write
+          };
+          std::vector<float> buffer;
+          lut.get_texture()->get_contents(buffer);
+          texture_ = desc.make(command_queue,buffer.data());
+        }
+        
+        const Texture& get_texture() override { return texture_; };
+        [[nodiscard]] const Texture& get_texture() const override { return texture_; };
+        [[nodiscard]] size_t get_lut_size() const override { return lut_size_; };
+        [[nodiscard]] Type get_lut_type() const override { return CLut::Type::lut_3d; };
+    
+    private:
+        Texture texture_;
+        size_t  lut_size_;
+    };
+    
     CLutTransform::CLutTransform (const void *command_queue,
                                   const CLut &lut,
                                   CLut::Type to,
@@ -22,18 +53,23 @@ namespace dehancer {
             space_(space),
             direction_(direction),
             clut_(nullptr),
+            tmp_lut_(nullptr),
             lut_size_(lut_size == 0 ? lut.get_lut_size() : lut_size),
             type_(to)
     {
       if(initializer(command_queue,lut,to)) {
+        auto& s = tmp_lut_ ? tmp_lut_->get_texture() : lut.get_texture();
+        
         CLutTransformFunction(
                 command_queue,
                 kernel_name_,
-                lut.get_texture(),
+                s,
                 clut_->get_texture(),
                 true,
                 library_path
         );
+        
+        tmp_lut_ = nullptr;
       }
     }
     
@@ -54,7 +90,12 @@ namespace dehancer {
               kernel_name_ = "kernel_convert1DLut_to_2DLut";
               clut_ = std::make_shared<CLut2DIdentity>(command_queue, lut_size_);
               break;
-            
+    
+              ///
+              /// TODO:
+              /// convert TO HALD
+              ///
+              
             default:
               kernel_name_ = "kernel_resample3DLut_to_3DLut";
               clut_ = std::make_shared<CLut1DIdentity>(command_queue, lut_size_);
@@ -74,7 +115,12 @@ namespace dehancer {
               kernel_name_ = "kernel_convert2DLut_to_1DLut";
               clut_ = std::make_shared<CLut1DIdentity>(command_queue, lut_size_);
               break;
-            
+    
+              ///
+              /// TODO:
+              /// convert TO HALD
+              ///
+              
             default:
               kernel_name_ = "kernel_resample2DLut_to_2DLut";
               clut_ = std::make_shared<CLut2DIdentity>(command_queue, lut_size_);
@@ -95,51 +141,42 @@ namespace dehancer {
               clut_ = std::make_shared<CLut1DIdentity>(command_queue, lut_size_);
               break;
             
+
+              ///
+              /// TODO:
+              /// convert TO HALD
+              ///
+            
             default:
               kernel_name_ = "kernel_resample3DLut_to_3DLut";
               clut_ = std::make_shared<CLut3DIdentity>(command_queue, lut_size_);
-              std::cerr << " ### CLutTransform::initializer: >>: " << kernel_name_ << std::endl;
-    
+              
               break;
           }
           break;
-
-//        case Type::lut_hald:
-//
-//          tmp_lut_ = std::make_shared<CLut3DLutFromHaldLut>(command_queue, lut, true);
-//          input_texture_ = tmp_lut_->get_texture();
-//
-//          switch (to) {
-//            case Type::lut_3d:
-//            case Type::lut_hald:
-//              kernel_name_ = "kernel_resample3DLut_to_3DLut";
-//              //cs_kernel_name_ = "kernel_cs_transform_3DLut";
-//              identity_lut_ = std::make_shared<CLut3DIdentity>(command_queue, lut_size_);
-//              texture_ = identity_lut_->get_texture();
-//
-//              break;
-//
-//            case Type::lut_2d:
-//              kernel_name_ = "kernel_convert3DLut_to_2DLut";
-//              //cs_kernel_name_ = "kernel_cs_transform_2DLut";
-//              identity_lut_ = std::make_shared<CLut2DIdentity>(command_queue, lut_size_);
-//              texture_ = identity_lut_->get_texture();
-//
-//              break;
-//
-//            case Type::lut_1d:
-//              kernel_name_ = "kernel_convert3DLut_to_1DLut";
-//              //cs_kernel_name_ = "kernel_cs_transform_1DLut";
-//              identity_lut_ = std::make_shared<CLut1DIdentity>(command_queue, lut_size_);
-//              texture_ = identity_lut_->get_texture();
-//              break;
-//          }
-//          break;
+        
+        case Type::lut_hald:
+          
+          tmp_lut_ = std::make_shared<CLutHaldTo3DTransform>(command_queue, lut);
+          
+          switch (to) {
+            case Type::lut_3d:
+              kernel_name_ = "kernel_resample3DLut_to_3DLut";
+              clut_ = std::make_shared<CLut3DIdentity>(command_queue, lut_size_);
+              break;
+            case Type::lut_2d:
+              kernel_name_ = "kernel_convert3DLut_to_2DLut";
+              clut_ = std::make_shared<CLut2DIdentity>(command_queue, lut_size_);
+              break;
+            
+            case Type::lut_1d:
+              kernel_name_ = "kernel_convert3DLut_to_1DLut";
+              clut_ = std::make_shared<CLut1DIdentity>(command_queue, lut_size_);
+              break;
+          }
+          break;
       }
-  
-      std::cerr << " ### CLutTransform::initializer: source clut: " << (int)lut.get_lut_type() << " size: " << lut.get_lut_size() << std::endl;
-      std::cerr << " ### CLutTransform::initializer: target clut: " << (int)clut_->get_lut_type() << " size: " << clut_->get_lut_size() << std::endl;
-  
+      
       return clut_->get_texture() != nullptr;
     }
 }

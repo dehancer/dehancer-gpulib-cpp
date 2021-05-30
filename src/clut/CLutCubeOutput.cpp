@@ -31,7 +31,6 @@ namespace dehancer {
                                              resolution_,
                                              dehancer::stream_space_identity(),
                                              DHCR_None);
-      std::cerr << " ### CLutCubeOutput::initializer: target clut: " << (int)lut_->get_lut_type() << " size: " << lut_->get_lut_size() << std::endl;
     }
     
     std::ostream &operator<<(std::ostream &os, const CLutCubeOutput &dt) {
@@ -69,11 +68,12 @@ namespace dehancer {
       os << "# LUT data points begin";
       os << std::endl;
       
-      _3dcopy.foreach([&os](uint index, float r, float g, float b){
+      float gamma_weight = 1.0f;
+      _3dcopy.foreach([&os, gamma_weight](uint index, float r, float g, float b){
           os << std::fixed << std::setw( 1 ) << std::setprecision( 6 )
-             << r << " "
-             << g << " "
-             << b << std::endl;
+             << powf(r,gamma_weight) << " "
+             << powf(g,gamma_weight) << " "
+             << powf(b,gamma_weight) << std::endl;
       });
       
       os << "#LUT data points end" << std::endl;

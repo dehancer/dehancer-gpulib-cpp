@@ -21,8 +21,7 @@ namespace dehancer {
       execute([this, input, &mem](CommandEncoder& encode){
           encode.set(input,0);
           encode.set(mem,1);
-          encode.set((uint)lut_size_, 2);
-          encode.set((uint)channels_, 3);
+          encode.set((uint)channels_, 2);
           return CommandEncoder::Size::From(input);
       });
       
@@ -30,16 +29,11 @@ namespace dehancer {
     }
     
     void CLut3DCopyFunction::foreach (std::function<void (uint, float, float, float)> block) {
-     
-      //auto bytes = buffer_.data();
-  
+      
       for (uint ib = 0; ib < lut_size_ ; ++ib) {
         for (uint ig = 0; ig < lut_size_ ; ++ig) {
           for (uint ir = 0; ir < lut_size_ ; ++ir) {
             auto index = static_cast<int>(ir + lut_size_ * ig + lut_size_ * lut_size_ * ib) * channels_;
-//            auto r = *(bytes + index+0) ;
-//            auto g = *(bytes + index+1) ;
-//            auto b = *(bytes + index+2) ;
             auto r = buffer_[index+0] ;
             auto g = buffer_[index+1] ;
             auto b = buffer_[index+2] ;

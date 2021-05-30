@@ -48,6 +48,7 @@ namespace dehancer {
         bool initializer(const void *command_queue, const CLut &lut, Type to);
     
         std::shared_ptr<CLut> clut_;
+        std::shared_ptr<CLut> tmp_lut_;
         size_t  lut_size_;
         Type    type_;
         std::string kernel_name_;

@@ -12,9 +12,8 @@
 #include "dehancer/gpu/kernels/cmath.h"
 
 constexpr sampler linear_normalized_sampler(address::mirrored_repeat, filter::linear, coord::normalized);
-//constexpr sampler linear_normalized_sampler(address::clamp_to_border, filter::linear, coord::normalized);
+//constexpr sampler linear_normalized_sampler(address::clamp_to_zero, filter::linear, coord::normalized);
 constexpr sampler nearest_sampler(address::clamp_to_border, filter::nearest, coord::pixel);
-
 
 #define  get_kernel_tid1d(tid) { \
   tid = int(__dehancer_kernel_gid_1d__);\
@@ -109,7 +108,8 @@ static inline void __attribute__((overloadable)) write_image(texture1d_write_t d
 
 // 2D
 static inline float4 __attribute__((overloadable)) read_image(texture2d_read_t source, int2 gid) {
-  return source.read((uint2)gid); //source.sample(nearest_sampler, (float2)gid);
+  //return source.read((uint2)gid);
+  return source.sample(nearest_sampler, (float2)gid);
 }
 
 static inline float4 __attribute__((overloadable)) read_image(texture2d_read_t source, float2 coords) {
@@ -122,7 +122,8 @@ static inline void __attribute__((overloadable)) write_image(texture2d_write_t d
 
 // 3D
 static inline float4 __attribute__((overloadable)) read_image(texture3d_read_t source, int3 gid) {
-  return source.read((uint3)gid); //source.sample(nearest_sampler, (uint3)gid);
+  //return source.read((uint3)gid);
+  return source.sample(nearest_sampler, (float3)gid);
 }
 
 static inline float4 __attribute__((overloadable)) read_image(texture3d_read_t source, float3 coords) {

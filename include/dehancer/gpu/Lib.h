@@ -42,6 +42,7 @@
 #include "dehancer/gpu/clut/CLut1DIdentity.h"
 #include "dehancer/gpu/clut/CLut2DIdentity.h"
 #include "dehancer/gpu/clut/CLut3DIdentity.h"
+#include "dehancer/gpu/clut/CLutHaldIdentity.h"
 #include "dehancer/gpu/clut/CLutTransform.h"
 #include "dehancer/gpu/clut/CLutSquareInput.h"
 #include "dehancer/gpu/clut/CLutCubeInput.h"

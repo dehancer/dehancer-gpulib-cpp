@@ -47,7 +47,7 @@ void load_from_cube(const std::string& platform) {
       /***
        * Transform to png lut
        */
-      auto transformed2d = dehancer::CLutTransform(command_queue, cube, dehancer::CLut::Type::lut_2d);
+      auto transformed2d = dehancer::CLutTransform(command_queue, cube, dehancer::CLut::Type::lut_2d, 64);
       
       std::string output_file =
               "cube_to_square-"
@@ -81,7 +81,7 @@ void load_from_cube(const std::string& platform) {
                 command_queue,
                 cube,
                 (dehancer::CLutCubeOutput::Options){
-                        .resolution = dehancer::CLutCubeOutput::Options::normal
+                        .resolution = dehancer::CLutCubeOutput::Options::large
                 });
         
         std::ofstream os(output_file, std::ostream::binary | std::ostream::trunc);
@@ -116,6 +116,66 @@ void load_from_cube(const std::string& platform) {
         output_file.append(dehancer::device::get_name(device));
         output_file.append(ext);
         
+        std::ofstream os(output_file, std::ostream::binary | std::ostream::trunc);
+        os << dehancer::TextureOutput(command_queue, transformed2d_cube_output.get_texture(), {
+                .type = type,
+                .compression = compression
+        });
+      }
+  
+      auto _3d_cube_ = dehancer::CLutTransform(command_queue, transformed2d, dehancer::CLut::Type::lut_3d, 33);
+  
+      {
+    
+        /***
+         * Save lut as cube file
+         */
+        output_file =
+                "transformed2d_to_cube-"
+                +platform+"-"
+                +"cube"+"-";
+        output_file.append(dehancer::device::get_name(device));
+        output_file.append(".cube");
+    
+        auto cube_output = dehancer::CLutCubeOutput(
+                command_queue,
+                _3d_cube_,
+                (dehancer::CLutCubeOutput::Options){
+                        .resolution = dehancer::CLutCubeOutput::Options::large
+                });
+    
+        std::ofstream os(output_file, std::ostream::binary | std::ostream::trunc);
+        os << cube_output;
+      }
+  
+      dehancer::CLutCubeInput cube_reread2(command_queue);
+  
+      {
+        /***
+         * Load cube file again
+         */
+        std::ifstream cube_is(output_file, std::ostream::binary);
+        cube_is >> cube_reread2;
+      }
+  
+      {
+    
+        auto transformed2d_cube_output = dehancer::CLutTransform(
+                command_queue, cube_reread2,
+                dehancer::CLut::Type::lut_2d, 64);
+    
+        /***
+         * Save lut as cube file again
+         */
+    
+        output_file =
+                "cube_to_cube2-"
+                +platform+"-"
+                +"cube"+"-"
+                +std::to_string(transformed2d_cube_output.get_lut_size())+"-";
+        output_file.append(dehancer::device::get_name(device));
+        output_file.append(ext);
+    
         std::ofstream os(output_file, std::ostream::binary | std::ostream::trunc);
         os << dehancer::TextureOutput(command_queue, transformed2d_cube_output.get_texture(), {
                 .type = type,
