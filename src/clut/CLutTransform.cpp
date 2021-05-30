@@ -58,10 +58,13 @@ namespace dehancer {
             type_(to)
     {
       if(initializer(command_queue,lut,to)) {
+        auto& s = tmp_lut_ ? tmp_lut_->get_texture() : lut.get_texture();
+        std::cerr << " ### CLutTransform::initializer: s -> t: " << s->get_width() << " size: " << clut_->get_texture()->get_width() << std::endl;
+  
         CLutTransformFunction(
                 command_queue,
                 kernel_name_,
-                tmp_lut_ ? tmp_lut_->get_texture() : lut.get_texture(),
+                s,
                 clut_->get_texture(),
                 true,
                 library_path
@@ -140,6 +143,8 @@ namespace dehancer {
         case Type::lut_hald:
           
           tmp_lut_ = std::make_shared<CLutHaldTo3DTransform>(command_queue, lut);
+          
+          std::cerr << " ### CLutTransform::initializer: tmp clut: " << (int)tmp_lut_->get_lut_type() << " size: " << tmp_lut_->get_lut_size() << std::endl;
           
           switch (to) {
             case Type::lut_3d:

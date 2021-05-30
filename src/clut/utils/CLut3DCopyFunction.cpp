@@ -21,8 +21,8 @@ namespace dehancer {
       execute([this, input, &mem](CommandEncoder& encode){
           encode.set(input,0);
           encode.set(mem,1);
-          encode.set((uint)lut_size_, 2);
-          encode.set((uint)channels_, 3);
+          //encode.set((uint)lut_size_, 2);
+          encode.set((uint)channels_, 2);
           return CommandEncoder::Size::From(input);
       });
       
