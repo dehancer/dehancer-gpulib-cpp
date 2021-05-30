@@ -203,6 +203,25 @@ DHCR_KERNEL void kernel_resample3DLut_to_3DLut(
   get_kernel_texel3d(DLutOut, tex);
   if (!get_texel_boundary(tex)) return;
   
+  float3 rgb_coords = get_texel_coords(tex);
+  
+  float3 rgb    = make_float3(read_image(DLutIdentity, rgb_coords));
+  
+  float4 result = read_image(DLut, rgb);
+  result.w = 1.0f;
+  write_image(DLutOut, result, tex.gid);
+}
+
+DHCR_KERNEL void kernel_resample_hald_3DLut_to_3DLut(
+        texture3d_read_t         DLutIdentity DHCR_BIND_TEXTURE(0),
+        texture3d_write_t        DLutOut DHCR_BIND_TEXTURE(1),
+        texture3d_read_t         DLut DHCR_BIND_TEXTURE(2)
+        DHCR_KERNEL_GID_3D
+) {
+  Texel3d tex;
+  get_kernel_texel3d(DLutOut, tex);
+  if (!get_texel_boundary(tex)) return;
+  
   float  l = (1.0f-64.0f/65.0f);
   float3 al = make_float3(l);
   float3 ah = make_float3(1.0f/(1.0f + l*2.0f));
@@ -355,12 +374,11 @@ DHCR_KERNEL void kernel_copy_3DLut(
   if (!get_texel_boundary(tex)) return;
   
   //float3 rgb    = make_float3(tex.gid)/(make_float3(lut_size,lut_size,lut_size)-make_float3(1.0f));
+  //float4 result = read_image(d3DLut, rgb);
   float4 result = read_image(d3DLut, tex.gid);
   
   uint len   = get_texture_width(d3DLut);
   uint index = (tex.gid.x + len * tex.gid.y + len * len * tex.gid.z) * channels;
-  
-  //if (index >= (tex.size.x + len * tex.size.y + len * len * tex.size.z) * channels-3) return;
   
   buffer[index + 0] = result.x;
   buffer[index + 1] = result.y;
