@@ -8,6 +8,8 @@
 #include "dehancer/vectors.hpp"
 #include "gpulib_version.h"
 
+#include <iomanip>
+
 namespace dehancer {
     
     /// Lut export generator version
