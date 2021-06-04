@@ -76,6 +76,7 @@ namespace dehancer {
       return *this;
     }
     
+    
     Filter& Filter::process (bool emplace) {
       
       if (!impl_->source) return *this;
@@ -168,6 +169,10 @@ namespace dehancer {
       set_source(source);
       set_destination(destination);
       return process(emplace);
+    }
+    
+    Filter &Filter::process (const Texture &source, const Texture &destination) {
+      return process(source,destination, false);
     }
     
     const Texture &Filter::get_source () const {
@@ -264,5 +269,6 @@ namespace dehancer {
     const void *Filter::get_command_queue () const {
       return impl_->command_queue;
     }
+ 
   
 }

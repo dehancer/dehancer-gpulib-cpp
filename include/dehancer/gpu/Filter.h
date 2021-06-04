@@ -147,7 +147,9 @@ namespace dehancer {
          */
         virtual Filter& process(bool emplace);
     
-        virtual Filter& process(const Texture& source, const Texture& destination,  bool emplace = false);
+        virtual Filter& process(const Texture& source, const Texture& destination,  bool emplace);
+    
+        Filter& process(const Texture& source, const Texture& destination);
     
         /***
          * Process filter
