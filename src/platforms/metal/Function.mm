@@ -16,6 +16,10 @@ namespace dehancer::metal {
             const std::string& library_path
     );
     
+    const std::string &Function::get_library_path () const {
+      return library_path_;
+    }
+    
     void Function::execute(const dehancer::Function::EncodeHandler& block){
       
       id<MTLCommandQueue> queue = command_->get_command_queue();

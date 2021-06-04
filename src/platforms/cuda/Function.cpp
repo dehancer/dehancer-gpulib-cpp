@@ -198,4 +198,8 @@ namespace dehancer::cuda {
     const std::string &Function::get_name() const {
       return kernel_name_;
     }
+    
+    const std::string &Function::get_library_path () const {
+      return library_path_;
+    }
 }
