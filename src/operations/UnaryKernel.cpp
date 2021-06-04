@@ -30,6 +30,9 @@ namespace dehancer {
         Texture mask_;
         
         std::string library_path;
+    
+        std::shared_ptr<Function> horizontal_kernel;
+        std::shared_ptr<Function> vertical_kernel;
         
         UnaryKernelImpl(
                 UnaryKernel* root,
@@ -78,7 +81,15 @@ namespace dehancer {
             channels_finalizer(nullptr),
             channels_unary_ops(nullptr),
             channels_scale({1.f,1.f,1.f,1.0f}),
-            library_path(library_path)
+            library_path(library_path),
+            horizontal_kernel(std::make_shared<Function>(root_->get_command_queue(),
+                                                         "kernel_convolve_horizontal",
+                                                         root_->get_wait_completed(),
+                                                         library_path)),
+            vertical_kernel(std::make_shared<Function>(root_->get_command_queue(),
+                                                         "kernel_convolve_vertical",
+                                                         root_->get_wait_completed(),
+                                                         library_path))
     {
       
       has_mask_ = options_.mask != nullptr;
@@ -255,23 +266,23 @@ namespace dehancer {
       impl_->reset_unary_ops();
       
       #if  __TEST_NOT_SKIP__ == 1
-      auto horizontal_kernel = Function(get_command_queue(),
-                                        "kernel_convolve_horizontal",
-                                        get_wait_completed(),
-                                        impl_->library_path
-      );
-      
-      auto vertical_kernel = Function(get_command_queue(),
-                                      "kernel_convolve_vertical",
-                                      get_wait_completed(),
-                                      impl_->library_path
-      );
+//      auto horizontal_kernel = Function(get_command_queue(),
+//                                        "kernel_convolve_horizontal",
+//                                        get_wait_completed(),
+//                                        impl_->library_path
+//      );
+//
+//      auto vertical_kernel = Function(get_command_queue(),
+//                                      "kernel_convolve_vertical",
+//                                      get_wait_completed(),
+//                                      impl_->library_path
+//      );
       
       for (int i = 0; i < impl_->channels_transformer->get_channels()->size(); ++i) {
         
         if (impl_->row_weights[i]) {
           
-          horizontal_kernel.execute([this, i] (CommandEncoder &command) {
+          impl_->horizontal_kernel->execute([this, i] (CommandEncoder &command) {
               auto in = impl_->channels_transformer->get_channels()->at(i);
               auto out = impl_->channels_unary_ops->at(i);
               
@@ -279,8 +290,8 @@ namespace dehancer {
               command.set(out, 1);
               
               int
-              w = impl_->channels_unary_ops->get_width(i),
-              h = impl_->channels_unary_ops->get_height(i);
+              w = (int)impl_->channels_unary_ops->get_width(i),
+              h = (int)impl_->channels_unary_ops->get_height(i);
     
               #ifdef PRINT_DEBUG
               dehancer::log::print(" ### UnaryKernel::process(base[%i]): rows size=%ix%i, origin size=%ix%i",
@@ -316,7 +327,7 @@ namespace dehancer {
         }
         
         if (impl_->col_weights[i]) {
-          vertical_kernel.execute([this, i](CommandEncoder &command) {
+          impl_->vertical_kernel->execute([this, i](CommandEncoder &command) {
               auto in = impl_->channels_unary_ops->at(i);
               auto out = impl_->channels_transformer->get_channels()->at(i);
               
@@ -324,8 +335,8 @@ namespace dehancer {
               command.set(out, 1);
     
               int
-                      w = impl_->channels_transformer->get_channels()->get_width(i),
-                      h = impl_->channels_transformer->get_channels()->get_height(i);
+                      w = (int)impl_->channels_transformer->get_channels()->get_width(i),
+                      h = (int)impl_->channels_transformer->get_channels()->get_height(i);
     
               #ifdef PRINT_DEBUG
               dehancer::log::print(" ### UnaryKernel::process(base[%i]): cols size=%ix%i, origin size=%ix%i",
