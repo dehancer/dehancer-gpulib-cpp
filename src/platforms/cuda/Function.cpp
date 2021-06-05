@@ -89,7 +89,7 @@ namespace dehancer::cuda {
         CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventRecord(stop, nullptr));
         CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventSynchronize(stop));
        
-        cudaDeviceSynchronize();
+        //cudaDeviceSynchronize();
       }
       
       command_->pop();

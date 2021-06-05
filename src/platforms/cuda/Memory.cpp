@@ -27,8 +27,8 @@ namespace dehancer::cuda {
       }
       is_self_allocated_ = true;
 
-      //CHECK_CUDA(cudaMalloc((void**)&memobj_, length_));
-      CHECK_CUDA(cudaMallocManaged((void**)&memobj_, length_, cudaMemAttachGlobal));
+      CHECK_CUDA(cudaMalloc((void**)&memobj_, length_));
+      //CHECK_CUDA(cudaMallocManaged((void**)&memobj_, length_, cudaMemAttachGlobal));
       
       if (buffer) {
         auto *p = static_cast<uint8_t*>((void*)buffer);
