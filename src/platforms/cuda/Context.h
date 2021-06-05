@@ -15,7 +15,9 @@ namespace dehancer::cuda {
         [[nodiscard]] CUstream get_command_queue() const;
         [[nodiscard]] CUcontext get_command_context() const;
         [[nodiscard]] CUdevice get_device_id() const;
-
+        void get_device_info(cudaDeviceProp& info) const;
+        void get_mem_info(size_t& total, size_t& free);
+        
         void push() const;
         void pop() const;
         

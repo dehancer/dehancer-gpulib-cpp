@@ -36,4 +36,14 @@ namespace dehancer::cuda {
     CUdevice Context::get_device_id () const {
       return device_id_;
     }
+    
+    void Context::get_device_info (cudaDeviceProp &info) const {
+      cudaGetDeviceProperties(&info, device_id_);
+    }
+    
+    void Context::get_mem_info (size_t &total, size_t &free) {
+      //push();
+      cudaMemGetInfo( &free, &total );
+      //pop();
+    }
 }
