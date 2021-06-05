@@ -84,7 +84,7 @@ namespace dehancer::cuda {
         get_device_info(info);
         total /= 1024*1024;
         free_mem /= 1024*1024;
-        auto mess = error_string(""
+        auto mess = message_string(""
                                  "GPU out of memory. \r\n"
                                  "%s has total dedicated memory %i MB and %i MB is free. \r\n"
                                  "Please lower project resolution, turn on Proxy Mode or upgrade your hardware",
