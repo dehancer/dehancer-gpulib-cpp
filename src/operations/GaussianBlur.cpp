@@ -56,7 +56,7 @@ namespace dehancer {
         //std::cout << " GAUSSIAN KERNEL["<<index<<"] SIZE = " << data.size() << ", origin size: " << size << " reduce: "<< reduceBy << " sigma: "<< sigma << " real sigma: "<< real_sigma<< std::endl;
     
         #ifdef PRINT_DEBUG
-        dehancer::log::print(" ### #kernel_blur(base): kernel index:%i size = %i, origin size: %i, sigma: %f, reduceBy: %i", index, data.size(),size,sigma,reduceBy);
+        //dehancer::log::print(" ### #kernel_blur(base): kernel index:%i size = %i, origin size: %i, sigma: %f, reduceBy: %i", index, data.size(),size,sigma,reduceBy);
         #endif
         
         return 1.0f/(float)reduceBy;

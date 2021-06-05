@@ -32,7 +32,8 @@ namespace dehancer {
               assert(width_ > 0 && height_ > 0);
 
               cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<T>();
-
+  
+//              CHECK_CUDA(cudaMallocManaged(&mem_, width_*height_* sizeof(float) * 4, cudaMemAttachGlobal));
               CHECK_CUDA(
                       cudaMallocArray(&mem_, &channelDesc, width_, height_,
                                       cudaArraySurfaceLoadStore));

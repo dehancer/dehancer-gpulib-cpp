@@ -266,18 +266,7 @@ namespace dehancer {
       impl_->reset_unary_ops();
       
       #if  __TEST_NOT_SKIP__ == 1
-//      auto horizontal_kernel = Function(get_command_queue(),
-//                                        "kernel_convolve_horizontal",
-//                                        get_wait_completed(),
-//                                        impl_->library_path
-//      );
-//
-//      auto vertical_kernel = Function(get_command_queue(),
-//                                      "kernel_convolve_vertical",
-//                                      get_wait_completed(),
-//                                      impl_->library_path
-//      );
-      
+
       for (int i = 0; i < impl_->channels_transformer->get_channels()->size(); ++i) {
         
         if (impl_->row_weights[i]) {
@@ -292,16 +281,6 @@ namespace dehancer {
               int
               w = (int)impl_->channels_unary_ops->get_width(i),
               h = (int)impl_->channels_unary_ops->get_height(i);
-    
-              #ifdef PRINT_DEBUG
-              dehancer::log::print(" ### UnaryKernel::process(base[%i]): rows size=%ix%i, origin size=%ix%i",
-                                   i,
-                                   w,h,
-                                   impl_->channels_unary_ops->get_desc().width,
-                                   impl_->channels_unary_ops->get_desc().height
-                                   );
-              #endif
-    
     
               command.set(w, 2);
               command.set(h, 3);
@@ -337,15 +316,7 @@ namespace dehancer {
               int
                       w = (int)impl_->channels_transformer->get_channels()->get_width(i),
                       h = (int)impl_->channels_transformer->get_channels()->get_height(i);
-    
-              #ifdef PRINT_DEBUG
-              dehancer::log::print(" ### UnaryKernel::process(base[%i]): cols size=%ix%i, origin size=%ix%i",
-                                   i,
-                                   w,h,
-                                   impl_->channels_unary_ops->get_desc().width,
-                                   impl_->channels_unary_ops->get_desc().height
-              );
-              #endif
+              
               
               command.set(w, 2);
               command.set(h, 3);
