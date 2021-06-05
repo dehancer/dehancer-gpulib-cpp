@@ -78,17 +78,16 @@ namespace dehancer::cuda {
       }
       catch (const std::runtime_error& e) {
         dehancer::log::error(true, "CUDA make_texture error: %s", e.what());
-        //auto c = get_command_context();
         size_t total=0, free_mem=0;
         get_mem_info(total,free_mem);
         cudaDeviceProp info{};
         get_device_info(info);
-        total /= 1024*1024*1024;
-        free_mem /= 1024*1024*1024;
-        throw dehancer::texture::memory_exception(
-                error_string("GPU Memory allocation error. Device: %s has total %iGb and %uGb is used",
-                             info.name, total, free_mem)
-        );
+        total /= 1073741824;
+        free_mem /= 1073741824;
+        auto mess = error_string("GPU Memory allocation error:%s has total %iGb and %uGb is used",
+                                 info.name, total, free_mem);
+        dehancer::log::error(true, "CUDA make_texture error desc: %s", mess.c_str());
+        throw dehancer::texture::memory_exception(mess);
       }
       pop();
     }
