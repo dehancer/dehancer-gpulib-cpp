@@ -84,7 +84,11 @@ namespace dehancer::cuda {
         get_device_info(info);
         total /= 1024*1024;
         free_mem /= 1024*1024;
-        auto mess = error_string("GPU Memory allocation error:%s has total dedicated memory %i MB and %i MB is free",
+        auto mess = error_string(""
+                                 "\nGPU out of memory"
+                                 "\n%s has total dedicated memory %i MB and %i MB is free\n"
+                                 "\n"
+                                 "Please lower project resolution, turn on Proxy Mode or upgrade your hardware",
                                  info.name, total, free_mem);
         dehancer::log::error(true, "CUDA make_texture error desc: %s", mess.c_str());
         throw dehancer::texture::memory_exception(mess);
