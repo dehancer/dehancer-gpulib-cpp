@@ -82,9 +82,9 @@ namespace dehancer::cuda {
         get_mem_info(total,free_mem);
         cudaDeviceProp info{};
         get_device_info(info);
-        total /= 1073741824;
-        free_mem /= 1073741824;
-        auto mess = error_string("GPU Memory allocation error:%s has total %iGb and %uGb is free",
+        total /= 1024*1024;
+        free_mem /= 1024*1024;
+        auto mess = error_string("GPU Memory allocation error:%s has total dedicated memory %i MB and %i MB is free",
                                  info.name, total, free_mem);
         dehancer::log::error(true, "CUDA make_texture error desc: %s", mess.c_str());
         throw dehancer::texture::memory_exception(mess);
