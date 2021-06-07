@@ -87,7 +87,7 @@ namespace dehancer::cuda {
         auto mess = message_string(""
                                  "GPU out of memory. \r\n"
                                  "%s has total dedicated memory %i MB and %i MB is free. \r\n"
-                                 "Please lower project resolution, turn on Proxy Mode or upgrade your hardware",
+                                 "Please lower Project resolution, turn on Proxy Mode or upgrade your hardware",
                                  info.name, total, free_mem);
         dehancer::log::error(true, "CUDA make_texture error desc: %s", mess.c_str());
         throw dehancer::texture::memory_exception(mess);
