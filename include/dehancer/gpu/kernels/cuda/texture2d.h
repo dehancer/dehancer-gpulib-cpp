@@ -55,7 +55,7 @@ namespace dehancer {
               memset(&texDesc, 0, sizeof(texDesc));
               texDesc.addressMode[0]   = cudaAddressModeMirror;//cudaAddressModeClamp;
               texDesc.addressMode[1]   = cudaAddressModeMirror;//cudaAddressModeClamp;
-              texDesc.filterMode       = cudaFilterModePoint; //cudaFilterModeLinear; //cudaFilterModePoint;
+              texDesc.filterMode       = cudaFilterModeLinear; //cudaFilterModePoint;
               texDesc.readMode         = cudaReadModeElementType;
               texDesc.normalizedCoords = normalized_coords_;
               
