@@ -46,11 +46,6 @@ namespace dehancer {
       return dehancer::TextureHolder::Make(command_queue, *this, from_memory);
     }
     
-    Texture TextureHolder::Make (const void *command_queue, const TextureDesc &desc, const Memory &memory) {
-      return dehancer::Texture();
-    }
-    
-    
     size_t TextureDesc::get_hash () const {
       return
               10000000000 * depth

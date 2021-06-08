@@ -126,15 +126,6 @@ namespace dehancer {
         static Texture Make(const void *command_queue, const TextureDesc &desc, const float *from_memory = nullptr);
         
         /***
-         *
-         * @param command_queue
-         * @param desc
-         * @param memory
-         * @return
-         */
-        static Texture Make(const void *command_queue, const TextureDesc &desc, const Memory& memory);
-    
-        /***
          * Get a weak shared pointer to texture object.
          * @return
          */

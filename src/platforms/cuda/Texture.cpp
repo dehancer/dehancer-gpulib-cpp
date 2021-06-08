@@ -8,58 +8,6 @@
 
 namespace dehancer::cuda {
     
-    TextureHolder::TextureHolder (const void *command_queue, const TextureDesc &desc, const Memory &memory):
-            dehancer::TextureHolder(),
-            Context(command_queue),
-            desc_(desc),
-            mem_(nullptr)
-    {
-      push();
-  
-      try {
-    
-        switch (desc_.pixel_format) {
-
-          case TextureDesc::PixelFormat::rgba32float:
-            mem_ = make_texture<float4>(memory);
-            break;
-
-          case TextureDesc::PixelFormat::rgba16float:
-            mem_ = make_texture<half[4]>(memory);
-            break;
-
-          case TextureDesc::PixelFormat::rgba32uint:
-            mem_ = make_texture<uint32_t[4]>(memory);
-            break;
-
-          case TextureDesc::PixelFormat::rgba16uint:
-            mem_ = make_texture<uint16_t[4]>(memory);
-            break;
-
-          case TextureDesc::PixelFormat::rgba8uint:
-            mem_ = make_texture<uint8_t[4]>(memory);
-            break;
-        }
-      }
-      catch (const std::runtime_error& e) {
-        dehancer::log::error(true, "CUDA make_texture error: %s", e.what());
-        size_t total=0, free_mem=0;
-        get_mem_info(total,free_mem);
-        cudaDeviceProp info{};
-        get_device_info(info);
-        total /= 1024*1024;
-        free_mem /= 1024*1024;
-        auto mess = message_string(""
-                                   "GPU out of memory. \r\n"
-                                   "%s has total dedicated memory %i MB and %i MB is free. \r\n"
-                                   "Please lower Project resolution, turn on Proxy Mode or upgrade your hardware",
-                                   info.name, total, free_mem);
-        dehancer::log::error(true, "CUDA make_texture error desc: %s", mess.c_str());
-        throw dehancer::texture::memory_exception(mess);
-      }
-      pop();
-    }
-    
     TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory) :
             dehancer::TextureHolder(),
             Context(command_queue),

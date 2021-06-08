@@ -15,7 +15,6 @@ namespace dehancer::cuda {
 
     struct TextureHolder: public dehancer::TextureHolder, public Context {
         TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory);
-        TextureHolder(const void *command_queue, const TextureDesc &desc, const Memory& memory);
         ~TextureHolder() override ;
 
         [[nodiscard]] const void*  get_memory() const override;
@@ -35,20 +34,6 @@ namespace dehancer::cuda {
     private:
         TextureDesc desc_;
         std::shared_ptr<dehancer::nvcc::texture> mem_;
-
-        template<class T>
-        std::shared_ptr<dehancer::nvcc::texture> make_texture(const Memory& memory) {
-          switch (desc_.type) {
-            case TextureDesc::Type::i1d:
-              return std::make_shared<dehancer::nvcc::texture1d<T>>(desc_.width, memory);
-            case TextureDesc::Type::i2d:
-              return std::make_shared<dehancer::nvcc::texture2d<T>>(desc_.width,desc_.height, memory);
-            case TextureDesc::Type::i3d:
-              return std::make_shared<dehancer::nvcc::texture3d<T>>(desc_.width,desc_.height,desc_.depth, memory);
-          }
-  
-          return std::make_shared<dehancer::nvcc::texture2d<T>>(desc_.width,desc_.height, memory);
-        }
     
         template<class T>
         std::shared_ptr<dehancer::nvcc::texture> make_texture() {
