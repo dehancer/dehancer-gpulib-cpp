@@ -5,11 +5,14 @@
 #pragma once
 
 #include "dehancer/gpu/kernels/cuda/texture.h"
+#ifndef CUDA_KERNEL
+#include "dehancer/gpu/Memory.h"
+#endif
 
 namespace dehancer {
-
+    
     namespace nvcc {
-
+        
         template<class T>
         struct texture1d: public texture {
 
@@ -22,42 +25,51 @@ namespace dehancer {
             __device__ [[nodiscard]] size_t get_depth() const override { return 1;}
 
 #ifndef CUDA_KERNEL
-            explicit texture1d(size_t width, bool normalized_coords = true):
+            explicit texture1d(size_t width, const Memory& mem = nullptr, bool normalized_coords = true):
                     texture(),
                     texture_(0),
                     surface_(0),
                     width_(width),
-                    normalized_coords_(normalized_coords)
+                    normalized_coords_(normalized_coords),
+                    mem_(nullptr)
             {
               assert(width_ > 0);
-
+              
               cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<T>();
-
-              CHECK_CUDA(
-                      cudaMallocArray(&mem_, &channelDesc, width_, 1,
-                                      cudaArraySurfaceLoadStore));
-
               cudaResourceDesc resDesc{};
               memset(&resDesc, 0, sizeof(resDesc));
-              resDesc.resType = cudaResourceTypeArray;
-              resDesc.res.array.array = mem_;
-
+              
+              if (!mem) {
+                CHECK_CUDA(
+                        cudaMallocArray(&mem_, &channelDesc, width_, 1,
+                                        cudaArraySurfaceLoadStore));
+                
+                resDesc.resType = cudaResourceTypeArray;
+                resDesc.res.array.array = mem_;
+              }
+              else {
+                resDesc.resType = cudaResourceTypeLinear;
+                resDesc.res.linear.devPtr = mem->get_memory();
+                resDesc.res.linear.desc = channelDesc;
+                resDesc.res.linear.sizeInBytes = mem->get_length();
+              }
+              
               //--- Specify surface ---
               CHECK_CUDA(cudaCreateSurfaceObject(&surface_, &resDesc));
-
+              
               // Specify texture object parameters
               cudaTextureDesc texDesc{};
               memset(&texDesc, 0, sizeof(texDesc));
-              texDesc.addressMode[0]   = cudaAddressModeMirror;//cudaAddressModeClamp;
+              texDesc.addressMode[0]   = cudaAddressModeMirror;
               texDesc.addressMode[1]   = cudaAddressModeMirror;
-              texDesc.filterMode       = cudaFilterModePoint;
+              texDesc.filterMode       = cudaFilterModeLinear;
               texDesc.readMode         = cudaReadModeElementType;
               texDesc.normalizedCoords = normalized_coords_;
-
+              
               // Create texture object
               CHECK_CUDA(cudaCreateTextureObject(&texture_, &resDesc, &texDesc, nullptr));
             }
-
+            
             ~texture1d() {
               if (texture_)
                 cuTexObjectDestroy(texture_);
@@ -113,7 +125,7 @@ namespace dehancer {
               surf2Dwrite<T>(color, surface_, coord * sizeof(T) , 0 , cudaBoundaryModeClamp);
             }
 #endif
-
+        
         private:
             cudaTextureObject_t texture_;
             cudaSurfaceObject_t surface_;
@@ -121,7 +133,7 @@ namespace dehancer {
             bool normalized_coords_;
 
 #ifndef CUDA_KERNEL
-            cudaArray* mem_ = nullptr;
+            cudaArray_t mem_ = nullptr;
 #endif
         };
     }

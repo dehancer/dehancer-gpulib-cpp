@@ -5,11 +5,14 @@
 #pragma once
 
 #include "dehancer/gpu/kernels/cuda/texture.h"
+#ifndef CUDA_KERNEL
+#include "dehancer/gpu/Memory.h"
+#endif
 
 namespace dehancer {
-
+    
     namespace nvcc {
-
+        
         template<class T>
         struct texture3d: public texture {
 
@@ -22,45 +25,56 @@ namespace dehancer {
             __device__ [[nodiscard]] size_t get_depth() const override { return depth_;};
 
 #ifndef CUDA_KERNEL
-            texture3d(size_t width, size_t height, size_t depth, bool normalized_coords = true):
+            texture3d(size_t width, size_t height, size_t depth, const Memory& mem = nullptr, bool normalized_coords = true):
                     texture_(0),
                     surface_(0),
                     width_(width),
                     depth_(depth),
                     height_(height),
-                    normalized_coords_(normalized_coords)
+                    normalized_coords_(normalized_coords),
+                    mem_(nullptr)
             {
               assert(width_ > 0 && height_ > 0 && depth_ > 0);
-
+              
               cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<T>();
-
-              CHECK_CUDA(cudaMalloc3DArray(&mem_, &channelDesc, {width_,height_,depth_},cudaArraySurfaceLoadStore));
-
+              
               cudaResourceDesc resDesc{};
               memset(&resDesc, 0, sizeof(resDesc));
-              resDesc.resType = cudaResourceTypeArray;
-              resDesc.res.array.array = mem_;
-
+              
+              if (!mem) {
+                CHECK_CUDA(
+                        cudaMalloc3DArray(&mem_, &channelDesc, {width_, height_, depth_}, cudaArraySurfaceLoadStore));
+                resDesc.resType = cudaResourceTypeArray;
+                resDesc.res.array.array = mem_;
+              }
+              else {
+                resDesc.resType = cudaResourceTypeLinear;
+                resDesc.res.linear.devPtr = mem->get_memory();
+                resDesc.res.linear.desc = channelDesc;
+                resDesc.res.linear.sizeInBytes = mem->get_length();
+              }
+              
+              
               //--- Specify surface ---
               CHECK_CUDA(cudaCreateSurfaceObject(&surface_, &resDesc));
-
+              
               // Specify texture object parameters
               cudaTextureDesc texDesc{};
               memset(&texDesc, 0, sizeof(texDesc));
-              texDesc.addressMode[0]   = cudaAddressModeMirror;//cudaAddressModeClamp;
-              texDesc.addressMode[1]   = cudaAddressModeMirror;//cudaAddressModeClamp;
-              texDesc.addressMode[2]   = cudaAddressModeMirror;//cudaAddressModeClamp;
+              texDesc.addressMode[0]   = cudaAddressModeMirror;
+              texDesc.addressMode[1]   = cudaAddressModeMirror;
+              texDesc.addressMode[2]   = cudaAddressModeMirror;
               /***
                * ALWAYS LINEAR! IT USES for LUT interpolations only
                */
               texDesc.filterMode       = cudaFilterModeLinear;
               texDesc.readMode         = cudaReadModeElementType;
               texDesc.normalizedCoords = normalized_coords_;
-
+              
               // Create texture object
               CHECK_CUDA(cudaCreateTextureObject(&texture_, &resDesc, &texDesc, nullptr));
             }
-
+            
             ~texture3d() {
               if (texture_)
                 cuTexObjectDestroy(texture_);
@@ -99,7 +113,7 @@ namespace dehancer {
               surf3Dwrite<T>(color, surface_, coords.x * sizeof(T) , coords.y,  coords.z , cudaBoundaryModeClamp);
             }
 #endif
-
+        
         private:
             cudaTextureObject_t texture_;
             cudaSurfaceObject_t surface_;
@@ -109,7 +123,7 @@ namespace dehancer {
             bool normalized_coords_;
 
 #ifndef CUDA_KERNEL
-            cudaArray* mem_ = nullptr;
+            cudaArray_t mem_ = nullptr;
 #endif
         };
     }
