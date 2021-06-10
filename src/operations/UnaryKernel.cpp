@@ -253,11 +253,14 @@ namespace dehancer {
             ))
     {
       impl_->recompute_kernel();
-      impl_->set_source(s);
+      //impl_->set_source(s);
     }
     
     void UnaryKernel::process() {
-      
+  
+      impl_->set_source(get_source());
+      //impl_->set_destination(get_destination());
+  
       if(!impl_->channels_transformer) return;
       if(!impl_->channels_finalizer) return;
       
@@ -343,6 +346,8 @@ namespace dehancer {
       }
       
       #endif
+  
+      impl_->channels_unary_ops = nullptr;
       
       impl_->set_destination(get_destination());
       impl_->channels_finalizer->process();
@@ -457,6 +462,4 @@ namespace dehancer {
     void UnaryKernel::process (const Texture &source, const Texture &destination) {
       Kernel::process(source, destination);
     }
-    
-  
 }
