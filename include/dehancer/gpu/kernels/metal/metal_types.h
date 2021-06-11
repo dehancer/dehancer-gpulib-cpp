@@ -60,3 +60,12 @@ typedef struct  {
     int3 gid;
     int3 size;
 } Texel3d;
+
+#define texture1d_read_t  metal::texture1d<float, metal::access::sample>
+#define texture1d_write_t metal::texture1d<float, metal::access::write>
+
+#define texture2d_read_t  metal::texture2d<float, metal::access::sample>
+#define texture2d_write_t metal::texture2d<float, metal::access::write>
+
+#define texture3d_read_t  metal::texture3d<float, metal::access::sample>
+#define texture3d_write_t metal::texture3d<float, metal::access::write>

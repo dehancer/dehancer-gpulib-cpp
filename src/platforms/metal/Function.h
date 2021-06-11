@@ -34,9 +34,10 @@ namespace dehancer::metal {
 
         void set_current_pipeline() const ;
 
-        MTLSize get_threads_per_threadgroup(int w, int h, int d);
-        MTLSize get_thread_groups(int w, int h, int d);
-        ComputeSize get_compute_size(const CommandEncoder::Size size);
+        MTLSize get_threads_per_threadgroup(int w, int h, int d) const;
+        MTLSize get_thread_groups(int w, int h, int d) const;
+        ComputeSize get_compute_size(const CommandEncoder::Size size) const;
+        const std::string& get_library_path() const;
 
         ~Function();
 

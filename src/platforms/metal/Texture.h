@@ -39,6 +39,5 @@ namespace dehancer::metal {
     private:
         TextureDesc  desc_;
         std::shared_ptr<TextureItem> texture_item_;
-        //id<MTLTexture> texture_;
     };
 }

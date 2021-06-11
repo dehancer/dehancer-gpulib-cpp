@@ -107,7 +107,7 @@ void GenerateIdentityLut3D(float * img, int edgeLen, int numChannels, Lut3DOrder
     if (!img) return;
     if (numChannels < 3)
     {
-        throw Exception("Cannot generate idenitity 3d LUT with less than 3 channels.");
+        throw Exception("Cannot generate identity 3d LUT with less than 3 channels.");
     }
 
     float c = 1.0f / ((float)edgeLen - 1.0f);

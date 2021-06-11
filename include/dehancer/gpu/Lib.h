@@ -31,3 +31,29 @@
 #include "dehancer/gpu/operations/ErodeKernel.h"
 
 #include "dehancer/gpu/math/ConvolveUtils.h"
+
+#include "dehancer/gpu/overlays/WatermarkImageCache.h"
+#include "dehancer/gpu/overlays/FalsecolorScaleImageCache.h"
+#include "dehancer/gpu/overlays/FalsecolorGradientImageCache.h"
+#include "dehancer/gpu/overlays/OverlayImageCache.h"
+#include "dehancer/gpu/overlays/OverlayKernel.h"
+
+#include "dehancer/gpu/clut/CLut.h"
+#include "dehancer/gpu/clut/CLut1DIdentity.h"
+#include "dehancer/gpu/clut/CLut2DIdentity.h"
+#include "dehancer/gpu/clut/CLut3DIdentity.h"
+#include "dehancer/gpu/clut/CLutHaldIdentity.h"
+#include "dehancer/gpu/clut/CLutTransform.h"
+#include "dehancer/gpu/clut/CLutSquareInput.h"
+#include "dehancer/gpu/clut/CLutCubeInput.h"
+#include "dehancer/gpu/clut/CLutCubeOutput.h"
+
+#include "dehancer/gpu/profile/FilmProfile.h"
+#include "dehancer/gpu/profile/CameraProfile.h"
+
+#include "dehancer/gpu/spaces/StreamSpaceCache.h"
+#include "dehancer/gpu/spaces/StreamTransform.h"
+#include "dehancer/gpu/ocio/cs/Aces.h"
+#include "dehancer/gpu/ocio/cs/Deh2020.h"
+#include "dehancer/gpu/ocio/cs/Rec2020.h"
+#include "dehancer/gpu/ocio/cs/Rec709.h"

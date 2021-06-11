@@ -24,17 +24,27 @@ using dh_test_on_grid_image_function = std::function<int (int num,
                                                           const std::string& platform)>;
 
 
-inline static int run_on_device(int num, const void* device, std::string platform, dh_test_function block) {
+inline static int run_on_device(int num,
+                                const void* device,
+                                std::string platform,
+                                dh_test_function block,
+                                const std::vector<std::string>& images = IMAGE_FILES
+                                ) {
+  
   auto command_queue = dehancer::DeviceCache::Instance().get_command_queue(dehancer::device::get_id(device));
   
   int i = 0;
-  for (auto& file: IMAGE_FILES) {
+  for (auto& file: images) {
     std::string path = IMAGES_DIR; path.append("/"); path.append(file);
     
-    std::string out_file_cv = "texture-io-";
+    std::string out_file_cv = "texture-io-[";
+    out_file_cv.append(dehancer::device::get_name(device)); out_file_cv.append("]-");
     out_file_cv.append(platform);
-    out_file_cv.append("-["); out_file_cv.append(std::to_string(num)); out_file_cv.append("]-");
-    out_file_cv.append(std::to_string(i)); out_file_cv.append(test::ext);
+    out_file_cv.append("-[");
+    out_file_cv.append(std::to_string(num));
+    out_file_cv.append("]-");
+    out_file_cv.append(std::to_string(i));
+    out_file_cv.append(test::ext);
     
     auto r = block (num, command_queue, platform, path, out_file_cv, i++);
     if (r!=0) return r;
@@ -45,7 +55,9 @@ inline static int run_on_device(int num, const void* device, std::string platfor
   return 0;
 }
 
-inline static void run_images(std::string platform, dh_test_function block) {
+inline static void run_images(std::string platform,
+                              dh_test_function block,
+                              const std::vector<std::string>& images = IMAGE_FILES) {
   try {
 #if __APPLE__
     auto devices = dehancer::DeviceCache::Instance().get_device_list(
@@ -69,7 +81,7 @@ inline static void run_images(std::string platform, dh_test_function block) {
     dev_num = 0;
     
     for (auto d: devices) {
-      if (run_on_device(dev_num++, d, platform, block) != 0) return;
+      if (run_on_device(dev_num++, d, platform, block, images) != 0) return;
     }
     
   }
@@ -81,7 +93,8 @@ inline static void run_images(std::string platform, dh_test_function block) {
   }
 }
 
-inline static void run_on_devices(std::string platform, dh_test_on_devices_function block) {
+inline static void run_on_devices(std::string platform,
+                                  dh_test_on_devices_function block) {
   try {
 #if __APPLE__
     auto devices = dehancer::DeviceCache::Instance().get_device_list(
@@ -131,7 +144,7 @@ inline static void run_on_grid_image(std::string platform, dh_test_on_grid_image
                                  const std::string& platform) {
       
       dehancer::TextureIO::Options::Type type = dehancer::TextureIO::Options::Type::png;
-      std::string ext = dehancer::TextureIO::extention_for(type);
+      std::string ext = dehancer::TextureIO::extension_for(type);
       float compression = 0.3f;
       
       size_t width = 800*2, height = 400*2 ;

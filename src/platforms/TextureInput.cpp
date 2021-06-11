@@ -7,13 +7,13 @@
 
 namespace dehancer::impl {
 
-    TextureInput::TextureInput(const void *command_queue,
-                               const dehancer::StreamSpace &space,
-                               dehancer::StreamSpace::Direction direction):
+    TextureInput::TextureInput(const void *command_queue)://,
+                               //const StreamSpace &space,
+                               //StreamSpaceDirection direction):
             Command(command_queue, true),
-            texture_(nullptr),
-            space_(space),
-            direction_(direction)
+            texture_(nullptr)//,
+            //space_(space),
+            //direction_(direction)
     {
     }
 
@@ -89,6 +89,7 @@ namespace dehancer::impl {
         );
 
       }
+      catch (const cv::Exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
       catch (const std::exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
     }
 

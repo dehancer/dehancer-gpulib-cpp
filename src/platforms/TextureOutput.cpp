@@ -4,11 +4,12 @@
 
 #include "TextureOutput.h"
 #include  <opencv2/opencv.hpp>
+#include <utility>
 
 namespace dehancer::impl {
     
     TextureOutput::TextureOutput(const void *command_queue,
-                                 const dehancer::Texture& source,
+                                 const dehancer::Texture&  source,
                                  const dehancer::TextureIO::Options &options):
             Command(command_queue,true),
             source_(source),
@@ -36,12 +37,12 @@ namespace dehancer::impl {
       source_ = dehancer::TextureHolder::Make(command_queue, desc, from_memory);
     }
     
-    const Texture TextureOutput::get_texture() const {
-      return source_->get_ptr();
+    const Texture& TextureOutput::get_texture() const {
+      return source_;//->get_ptr();
     }
     
-    Texture TextureOutput::get_texture() {
-      return source_->get_ptr();
+    const Texture& TextureOutput::get_texture() {
+      return source_;//->get_ptr();
     }
     
     Error TextureOutput::write_as_image(std::vector<uint8_t> &buffer) const {
@@ -53,8 +54,8 @@ namespace dehancer::impl {
       
       try {
         auto cv_result = cv::Mat(
-                source_->get_height(),
-                source_->get_width(),
+                (int)source_->get_height(),
+                (int)source_->get_width(),
                 CV_32FC4,
                 reinterpret_cast<uchar *>(to_memory.data())
         );
@@ -70,7 +71,7 @@ namespace dehancer::impl {
           case TextureIO::Options::Type::png:
             ext = ".png";
             params.push_back(cv::IMWRITE_PNG_COMPRESSION);
-            params.push_back(9.0f * options_.compression);
+            params.push_back((int)(9.0f * options_.compression));
             output_type = CV_16U;
             output_color = cv::COLOR_RGBA2BGRA;
             scale = 65355.0f;
@@ -79,7 +80,7 @@ namespace dehancer::impl {
           case TextureIO::Options::Type::jpeg:
             ext = ".jpg";
             params.push_back(cv::IMWRITE_JPEG_QUALITY);
-            params.push_back(100.0f - 100.0f * options_.compression);
+            params.push_back((int)(100.0f - 100.0f * options_.compression));
             output_type = CV_8U;
             output_color = cv::COLOR_RGBA2BGR;
             scale = 255.0f;
@@ -131,7 +132,7 @@ namespace dehancer::impl {
       if (ret) {
         throw std::runtime_error(ret.message());
       }
-      os.write(reinterpret_cast<const char *>(buffer.data()), static_cast<size_t >(buffer.size()));
+      os.write(reinterpret_cast<const char *>(buffer.data()), static_cast<std::streamsize>(buffer.size()));
       return os;
     }
 }

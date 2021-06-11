@@ -4,6 +4,10 @@
 
 #pragma once
 
+#if WIN32
+#define __attribute__(x)
+#endif
+
 typedef  unsigned int uint;
 
 #define __constant const
@@ -60,3 +64,12 @@ typedef struct  {
     int3 gid;
     int3 size;
 } Texel3d;
+
+#define texture1d_read_t DHCR_READ_ONLY image1d_t
+#define texture1d_write_t DHCR_WRITE_ONLY image1d_t
+
+#define texture2d_read_t DHCR_READ_ONLY image2d_t
+#define texture2d_write_t DHCR_WRITE_ONLY image2d_t
+
+#define texture3d_read_t DHCR_READ_ONLY image3d_t
+#define texture3d_write_t DHCR_WRITE_ONLY image3d_t

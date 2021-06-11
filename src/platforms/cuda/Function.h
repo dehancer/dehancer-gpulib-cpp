@@ -21,6 +21,7 @@ namespace dehancer::cuda {
         dehancer::cuda::Command* get_command() { return command_;}
         [[nodiscard]] const std::string& get_name() const;
         [[nodiscard]] const std::vector<dehancer::Function::ArgInfo>& get_arg_info_list() const ;
+        const std::string& get_library_path() const;
 
         ~Function();
 
@@ -31,7 +32,6 @@ namespace dehancer::cuda {
         std::string library_path_;
         CUfunction kernel_;
         mutable std::vector<dehancer::Function::ArgInfo> arg_list_;
-        CUcontext function_context_, current_context_;
         size_t max_device_threads_;
 
         typedef std::unordered_map<std::string, CUfunction> KernelMap;

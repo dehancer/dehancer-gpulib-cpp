@@ -8,10 +8,11 @@
 #include <string>
 
 constexpr const char* IMAGES_DIR="@IMAGES_DIR@";
-static const std::vector<std::string> IMAGE_FILES = {"lena0.jpg","lena1.jpg","lena2.png","lena3.jpg","lena4.jpg", "halation14.jpg"};
+constexpr const char* DATA_DIR="@DATA_DIR@";
+static const std::vector<std::string> IMAGE_FILES = {"lena0.jpg","lena1.jpg","lena2.png","lena3.jpg","lena4.jpg", "halation14.jpg", "4K.jpg"};
 
 namespace test {
     dehancer::TextureIO::Options::Type type = dehancer::TextureIO::Options::Type::png;
-    [[maybe_unused]] std::string ext = dehancer::TextureIO::extention_for(type);
+    [[maybe_unused]] std::string ext = dehancer::TextureIO::extension_for(type);
     float compression = 0.3f;
 }

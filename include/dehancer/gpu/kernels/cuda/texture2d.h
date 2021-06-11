@@ -6,10 +6,14 @@
 
 #include "dehancer/gpu/kernels/cuda/texture.h"
 
+#ifndef CUDA_KERNEL
+//#include "src/platforms/cuda/Context.h"
+#endif
+
 namespace dehancer {
-
+    
     namespace nvcc {
-
+        
         template<class T>
         struct texture2d: public texture {
 
@@ -30,34 +34,35 @@ namespace dehancer {
                     normalized_coords_(normalized_coords)
             {
               assert(width_ > 0 && height_ > 0);
-
+              
               cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<T>();
 
+//              CHECK_CUDA(cudaMallocManaged(&mem_, width_*height_* sizeof(float) * 4, cudaMemAttachGlobal));
               CHECK_CUDA(
                       cudaMallocArray(&mem_, &channelDesc, width_, height_,
                                       cudaArraySurfaceLoadStore));
-
+              
               cudaResourceDesc resDesc{};
               memset(&resDesc, 0, sizeof(resDesc));
               resDesc.resType = cudaResourceTypeArray;
               resDesc.res.array.array = mem_;
-
+              
               //--- Specify surface ---
               CHECK_CUDA(cudaCreateSurfaceObject(&surface_, &resDesc));
-
+              
               // Specify texture object parameters
               cudaTextureDesc texDesc{};
               memset(&texDesc, 0, sizeof(texDesc));
               texDesc.addressMode[0]   = cudaAddressModeMirror;//cudaAddressModeClamp;
               texDesc.addressMode[1]   = cudaAddressModeMirror;//cudaAddressModeClamp;
-              texDesc.filterMode       = cudaFilterModePoint; //cudaFilterModeLinear; //cudaFilterModePoint;
+              texDesc.filterMode       = cudaFilterModeLinear; //cudaFilterModePoint;
               texDesc.readMode         = cudaReadModeElementType;
               texDesc.normalizedCoords = normalized_coords_;
-
+              
               // Create texture object
               CHECK_CUDA(cudaCreateTextureObject(&texture_, &resDesc, &texDesc, nullptr));
             }
-
+            
             ~texture2d() {
               if (texture_)
                 cuTexObjectDestroy(texture_);
@@ -96,7 +101,7 @@ namespace dehancer {
               surf2Dwrite<T>(color, surface_, coords.x * sizeof(T) , coords.y , cudaBoundaryModeClamp);
             }
 #endif
-
+        
         private:
             cudaTextureObject_t texture_;
             cudaSurfaceObject_t surface_;

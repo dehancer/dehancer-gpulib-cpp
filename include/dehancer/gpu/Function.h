@@ -76,6 +76,9 @@ namespace dehancer {
          */
         [[nodiscard]] const std::vector<ArgInfo> & get_arg_list() const ;
 
+        
+        const std::string& get_library_path() const;
+        
     protected:
         std::shared_ptr<impl::Function> impl_;
     };

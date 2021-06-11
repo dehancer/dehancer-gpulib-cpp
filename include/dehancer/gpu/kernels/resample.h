@@ -8,6 +8,8 @@
 #include "dehancer/gpu/kernels/common.h"
 #include "dehancer/gpu/kernels/types.h"
 
+#define DHCR_AXIS_OFFSET -0.5f
+
 /***
  * Bilinear interpolation
  * @param source - source texture
@@ -16,13 +18,13 @@
  * @return color
  */
 inline DHCR_DEVICE_FUNC
-float4 tex2D_bilinear(texture2d_read_t source, float x, float y)
+float4  tex2D_bilinear(texture2d_read_t source, float x, float y)
 {
-  x -= 0.5f;
-  y -= 0.5f;
+  x += DHCR_AXIS_OFFSET;
+  y += DHCR_AXIS_OFFSET;
   
-  float  u = floor(x);
-  float  v = floor(y);
+  float  u = floorf(x);
+  float  v = floorf(y);
   
   float  px = x - u;
   float  py = y - v;
@@ -32,15 +34,84 @@ float4 tex2D_bilinear(texture2d_read_t source, float x, float y)
   
   int2   gid_src = make_int2(u,v);
   
-  float4 q11 = read_image(source, gid_src+make_int2(0,0));
-  float4 q12 = read_image(source, gid_src+make_int2(0,dy));
+  float4 q11 = read_image(source, gid_src+make_int2(0, 0 ));
+  float4 q12 = read_image(source, gid_src+make_int2(0, dy));
   float4 q22 = read_image(source, gid_src+make_int2(dx,dy));
-  float4 q21 = read_image(source, gid_src+make_int2(dx,0));
+  float4 q21 = read_image(source, gid_src+make_int2(dx,0 ));
   
   float4 c1  = mix(q11,q21,make_float4(px));
   float4 c2  = mix(q12,q22,make_float4(px));
   
   return mix(c1,c2,make_float4(py));
+}
+
+/***
+ * Bilinear interpolation
+ * @param source - source texture
+ * @param x - source x pixel coord
+ * @param y - source y pixel coord
+ * @return color
+ */
+inline DHCR_DEVICE_FUNC
+float4 tex3D_trilinear(texture3d_read_t source, float x, float y, float z)
+{
+  x += DHCR_AXIS_OFFSET;
+  y += DHCR_AXIS_OFFSET;
+  z += DHCR_AXIS_OFFSET;
+  
+  float3 dim = make_float3(get_texture_width(source),
+                           get_texture_height(source),
+                           get_texture_depth(source));
+  
+  float  u = floorf(x);
+  float  v = floorf(y);
+  float  w = floorf(z);
+  
+  //float  px = x - u;
+  //float  py = y - v;
+  //float  pw = z - w;
+  
+  int dx = 1;
+  int dy = 1;
+  int dw = 1;
+  
+  int3   gid_src = make_int3(u,v,w);
+  
+  float3 R0G0B0 = make_float3(read_image(source, gid_src+make_int3(0,  0,  0 )));
+  float3 R0G0B1 = make_float3(read_image(source, gid_src+make_int3(0,  0,  dw)));
+  float3 R1G0B0 = make_float3(read_image(source, gid_src+make_int3(dx, 0,  0 )));
+  float3 R0G1B0 = make_float3(read_image(source, gid_src+make_int3(0,  dy, 0 )));
+  
+  float3 R1G0B1 = make_float3(read_image(source, gid_src+make_int3(dx, 0,  dw)));
+  float3 R1G1B0 = make_float3(read_image(source, gid_src+make_int3(dx, dy, 0 )));
+  float3 R0G1B1 = make_float3(read_image(source, gid_src+make_int3(0,  dy, dw)));
+  
+  float3 R1G1B1 = make_float3(read_image(source, gid_src+make_int3(dx, dy, dw)));
+  
+  float R0 = R0G0B0.x * dim.x;
+  float G0 = R0G0B0.y * dim.y;
+  float B0 = R0G0B0.z * dim.z;
+  
+  float R1 = R1G0B0.x * dim.x;
+  float G1 = R0G1B0.y * dim.y;
+  float B1 = R0G0B1.z * dim.z;
+  
+  float tr = (x-R0)/(R1-R0);
+  float tg = (y-G0)/(G1-G0);
+  float tb = (z-B0)/(B1-B0);
+  
+  float3 c0 = R0G0B0;
+  float3 c1 = R0G0B1 - R0G0B0;
+  float3 c2 = R1G0B0 - R0G0B0;
+  float3 c3 = R0G1B0 - R0G0B0;
+  float3 c4 = R1G0B1 - R1G0B0 - R0G0B1 + R0G0B0;
+  float3 c5 = R1G1B0 - R0G1B0 - R1G0B0 + R0G0B0;
+  float3 c6 = R0G1B1 - R0G1B0 - R0G0B1 + R0G0B0;
+  float3 c7 = R1G1B1 - R1G1B0 - R0G1B1 - R1G0B1 + R0G0B1 + R0G1B0 + R1G0B0 - R0G0B0;
+  
+  float3 rgb = c0 + c1*tb + c2*tr + c3*tg + c4*tb*tr + c5*tr*tg + c6*tg*tb + c7*tr*tg*tb;
+  
+  return make_float4(rgb,1.0f);
 }
 
 inline DHCR_DEVICE_FUNC
@@ -55,11 +126,11 @@ float read_channel(DHCR_DEVICE_ARG float* source, int2 size, int2 gid){
 inline DHCR_DEVICE_FUNC
 float channel_bilinear(DHCR_DEVICE_ARG float* source, int2 size, float x, float y)
 {
-  x -= 0.5f;
-  y -= 0.5f;
+  x += DHCR_AXIS_OFFSET;
+  y += DHCR_AXIS_OFFSET;
   
-  float  u = floor(x);
-  float  v = floor(y);
+  float  u = floorf(x);
+  float  v = floorf(y);
   
   float  px = x - u;
   float  py = y - v;
@@ -136,10 +207,11 @@ float __attribute__((overloadable))  cubicFilter(float x, float c0, float  c1, f
 inline DHCR_DEVICE_FUNC
 float4 tex2D_bicubic(texture2d_read_t tex, float x, float y)
 {
-  x -= 0.5f;
-  y -= 0.5f;
-  float px = floor(x);
-  float py = floor(y);
+  x += DHCR_AXIS_OFFSET;
+  y += DHCR_AXIS_OFFSET;
+
+  float px = floorf(x);
+  float py = floorf(y);
   float fx = x - px;
   float fy = y - py;
   
@@ -172,11 +244,11 @@ float4 tex2D_bicubic(texture2d_read_t tex, float x, float y)
 inline DHCR_DEVICE_FUNC
 float channel_bicubic(DHCR_DEVICE_ARG float* source, int2 size, float x, float y)
 {
-  x -= 0.5f;
-  y -= 0.5f;
+  x += DHCR_AXIS_OFFSET;
+  y += DHCR_AXIS_OFFSET;
   
-  float px = floor(x);
-  float py = floor(y);
+  float px = floorf(x);
+  float py = floorf(y);
   float fx = x - px;
   float fy = y - py;
   
@@ -210,10 +282,11 @@ float channel_bicubic(DHCR_DEVICE_ARG float* source, int2 size, float x, float y
 inline DHCR_DEVICE_FUNC
 float4 tex2D_box_average(texture2d_read_t tex, float x, float y)
 {
-  x -= 0.5f;
-  y -= 0.5f;
-  float px = floor(x);
-  float py = floor(y);
+  x += DHCR_AXIS_OFFSET;
+  y += DHCR_AXIS_OFFSET;
+  
+  float px = floorf(x);
+  float py = floorf(y);
 
   int2 gid = make_int2(px,py);
   

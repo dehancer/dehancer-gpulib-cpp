@@ -22,13 +22,14 @@
 
 #pragma once
 
-#include "cuda_runtime.h"
+#include <cuda.h>
+#include <cmath>
+#include <float.h>
 
 typedef unsigned int uint;
 typedef unsigned short ushort;
 
 #ifndef __CUDACC__
-#include <cmath>
 
 ////////////////////////////////////////////////////////////////////////////////
 // host implementations of CUDA functions
@@ -1096,6 +1097,13 @@ inline __device__ __host__ float4 lerp(float4 a, float4 b, float t) {
 // clamp
 // - clamp the value v to be in the range [a, b]
 ////////////////////////////////////////////////////////////////////////////////
+
+
+template<class T>
+__device__ const T& __attribute__((overloadable)) clamp(const T& v, const T& lo, const T& hi )
+{
+  return (v < lo) ? lo : (hi < v) ? hi : v;
+}
 
 inline __device__ __host__ float clamp(float f, float a, float b) {
   return fmaxf(a, fminf(f, b));

@@ -65,10 +65,10 @@ DHCR_KERNEL void kernel_make1DLut_transform(
   
   float x = (float)(tex.gid);
   
-  float3 c = compress((float3){x, x, x}/denom, compression);
+  float3 c = compress(make_float3(x, x, x)/denom, compression);
   
   // linear transform with compression
-  float4 color = (float4){c.x, c.y, c.z, 1.f};
+  float4 color = make_float4(c.x, c.y, c.z, 1.f);
   
   write_image(d1DLut, color, tex.gid);
 }
@@ -87,7 +87,7 @@ DHCR_KERNEL  void kernel_make3DLut_transform(
   float3 c = compress(get_texel_coords(tex), compression);
   
   // transformation
-  float4 color = (float4){c.x/2.f, c.y, 0.f, 1.f};
+  float4 color = make_float4(c.x/2.f, c.y, 0.f, 1.f);
   
   write_image(d3DLut, color, tex.gid);
 }
@@ -147,7 +147,7 @@ DHCR_KERNEL void blend_kernel(
   
   float4 inColor = read_image(source, coords);
   
-  float3        c = (float3){inColor.x,inColor.y,inColor.z};
+  float3        c = make_float3(inColor.x,inColor.y,inColor.z);
   float luminance = dot(c, kIMP_Y_YUV_factor);
   int       index = clamp((int)(luminance*(float)(levels-1)),(int)(0),(int)(levels-1));
   float4    color = {1.0f, 0.0f, 0.0f, 1.0f};
@@ -158,7 +158,7 @@ DHCR_KERNEL void blend_kernel(
     color.z = color_map[index*3+2];
   }
   
-  float3  r = (float3){color.x,color.y,color.z};
+  float3  r = make_float3(color.x,color.y,color.z);
   
   float3 rc = mix(c,r,opacity);
   

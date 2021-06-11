@@ -366,4 +366,9 @@ inline static  float3 __attribute__((overloadable)) reflect(float3 i, float3 n) 
   return i - 2.0f * n * dot(n, i);
 }
 
+#define roundf round
+#define ceilf ceil
+//#define log2f log2
+//#define log10f log10
+
 #endif

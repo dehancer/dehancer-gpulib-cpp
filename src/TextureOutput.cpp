@@ -26,11 +26,11 @@ namespace dehancer{
 
     }
 
-    Texture TextureOutput::get_texture() {
+    const Texture& TextureOutput::get_texture() {
       return impl_->get_texture();
     }
 
-    const Texture TextureOutput::get_texture() const {
+    const Texture & TextureOutput::get_texture() const {
       return impl_->get_texture();
     }
 

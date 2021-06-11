@@ -5,7 +5,7 @@
 #include "gtest/gtest.h"
 #include "../function.h"
 #include "tests/include/run_test.h"
-#include "tests/metal/paths_config.h"
+#include "tests/cuda/paths_config.h"
 
 TEST(TEST, CUDA_GAMMA) {
 
@@ -23,7 +23,7 @@ namespace dehancer::device {
       * @return metal lib path.
       */
     std::string get_lib_path() {
-      return METAL_KERNELS_LIBRARY;
+      return CUDA_KERNELS_LIBRARY;
     }
 
     extern std::size_t get_lib_source(std::string& source) {

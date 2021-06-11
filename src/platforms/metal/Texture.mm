@@ -113,6 +113,15 @@ namespace dehancer::metal {
                                     withBytes: buffer
                                   bytesPerRow: bytes_per_pixel * region.size.width
                                 bytesPerImage: bytes_per_pixel * region.size.width * region.size.height];
+        
+        id <MTLCommandBuffer> commandBuffer = [get_command_queue() commandBuffer];
+
+        id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
+        [blitEncoder synchronizeTexture:texture_item_->texture slice:0 level:0];
+        [blitEncoder endEncoding];
+
+        [commandBuffer commit];
+        [commandBuffer waitUntilCompleted];
       }
     }
     

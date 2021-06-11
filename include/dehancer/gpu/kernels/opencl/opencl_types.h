@@ -56,4 +56,17 @@ typedef struct  {
     int3 size;
 } Texel3d;
 
+#define texture1d_read_t DHCR_READ_ONLY image1d_t
+#define texture1d_write_t DHCR_WRITE_ONLY image1d_t
+
+#define texture2d_read_t DHCR_READ_ONLY image2d_t
+#define texture2d_write_t DHCR_WRITE_ONLY image2d_t
+
+#define texture3d_read_t DHCR_READ_ONLY image3d_t
+#define texture3d_write_t DHCR_WRITE_ONLY image3d_t
+
+#define float2x2 float4
+#define float3x3 float8
+#define float4x4 float16
+
 #endif //DEHANCER_GPULIB_OPENCL_TYPES_H

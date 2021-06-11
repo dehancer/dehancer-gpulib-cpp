@@ -5,6 +5,7 @@
 #pragma once
 
 #include "dehancer/gpu/Kernel.h"
+#include "dehancer/Common.h"
 #include <variant>
 
 namespace dehancer {
@@ -53,6 +54,8 @@ namespace dehancer {
         );
     
         virtual ~Filter() = default;
+    
+        [[nodiscard]] const void* get_command_queue() const;
         
         /***
          * Add GPU Kernel instance
@@ -144,7 +147,9 @@ namespace dehancer {
          */
         virtual Filter& process(bool emplace);
     
-        virtual Filter& process(const Texture& source, const Texture& destination,  bool emplace = false);
+        virtual Filter& process(const Texture& source, const Texture& destination,  bool emplace);
+    
+        Filter& process(const Texture& source, const Texture& destination);
     
         /***
          * Process filter

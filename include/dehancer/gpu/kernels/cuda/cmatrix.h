@@ -1,21 +1,25 @@
-#pragma once
+//#pragma once
 // Adapted from https://github.com/niessner/VoxelHashing/blob/master/DepthSensingCUDA/Source/cuda_SimpleMatrixUtil.h
+
+#pragma once
+
+#include "dehancer/gpu/kernels/cuda/cmath.h"
 
 #define MINF __int_as_float(0xff800000)
 #define INF  __int_as_float(0x7f800000)
 
 #include <iostream>
 #include <algorithm>
-
-#include "dehancer/gpu/kernels/cuda/cmath.h"
+#include <cuda.h>
 
 #if defined(__CUDA_ARCH__)
 #define __CONDITIONAL_UNROLL__ #pragma unroll
+#define cudaAssert(condition)
 #else
 #define __CONDITIONAL_UNROLL__
+#define cudaAssert(condition) if (!(condition)) { printf("ASSERT: %s %s\n", #condition, __FILE__); }
 #endif
 
-#define cudaAssert(condition) if (!(condition)) { printf("ASSERT: %s %s\n", #condition, __FILE__); }
 
 class float2x2
 {
@@ -30,8 +34,21 @@ public:
 		m11 = values[0];	m12 = values[1];
 		m21 = values[2];	m22 = values[3];
 	}
-
-	inline __device__ __host__ float2x2(const float2x2& other)
+    
+    inline __device__ __host__ float2x2(const float2 s1, const float2 s2)
+    {
+      m11 = s1.x;	m12 = s1.y;
+      m21 = s2.x;	m22 = s2.y;
+    }
+    
+    inline __device__ __host__ float2x2(const std::initializer_list<float2> &list)
+    {
+	  auto it = list.begin();
+      m11 = it->x;	m12 = it->y;  it++;
+      m21 = it->x;	m22 = it->y;
+    }
+    
+    inline __device__ __host__ float2x2(const float2x2& other)
 	{
 		m11 = other.m11;	m12 = other.m12;
 		m21 = other.m21; 	m22 = other.m22;

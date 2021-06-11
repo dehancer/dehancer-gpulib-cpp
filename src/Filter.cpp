@@ -25,9 +25,9 @@ namespace dehancer {
         
         struct FilterImlp {
             
-            const void *command_queue{};
-            Texture source = nullptr;
-            Texture destination = nullptr;
+            const void *command_queue = nullptr;
+            Texture     source = nullptr;
+            Texture     destination = nullptr;
             bool        wait_until_completed = false;
             std::string library_path;
             
@@ -75,6 +75,7 @@ namespace dehancer {
       
       return *this;
     }
+    
     
     Filter& Filter::process (bool emplace) {
       
@@ -170,6 +171,10 @@ namespace dehancer {
       return process(emplace);
     }
     
+    Filter &Filter::process (const Texture &source, const Texture &destination) {
+      return process(source,destination, false);
+    }
+    
     const Texture &Filter::get_source () const {
       return impl_->source;
     }
@@ -261,4 +266,9 @@ namespace dehancer {
       return name;
     }
     
+    const void *Filter::get_command_queue () const {
+      return impl_->command_queue;
+    }
+ 
+  
 }

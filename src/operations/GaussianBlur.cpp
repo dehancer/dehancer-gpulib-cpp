@@ -10,6 +10,7 @@
 namespace dehancer {
     
     static constexpr float MIN_DOWNSCALED_SIGMA = 4.0f;
+    static constexpr float MAX_DOWNSCALED_FACTOR = 17.0f;
     
     struct GaussianBlurOptions {
         std::array<float, 4> radius_array;
@@ -28,6 +29,13 @@ namespace dehancer {
         
         if (radius==0) return 1.0f;
         
+        float downscale_ration_ = 1.0f;
+        
+        while(radius>(float)MAX_DOWNSCALED_FACTOR) {
+          downscale_ration_ *= 2.0f;
+          radius *= 0.5f;
+        }
+        
         float sigma = radius/2.0f;
         
         int kRadius = (int)std::ceil(sigma*std::sqrt(-2.0f*std::log(options.accuracy)))+1;
@@ -40,26 +48,24 @@ namespace dehancer {
         if (size<3) size=3;
         
         bool doDownscaling = sigma > 2.0f*MIN_DOWNSCALED_SIGMA + 0.5f;
-        
+
         int reduceBy = doDownscaling
                        ? std::min((int)std::floor(sigma/MIN_DOWNSCALED_SIGMA), size)
                        : 1;
-        
-        float real_sigma = doDownscaling
-                           ? std::sqrt(sigma*sigma/(float)(reduceBy*reduceBy) - 1.f/3.f - 1.f/4.f)
-                           : sigma;
 
-        int new_size = size/reduceBy;
+        //float real_sigma = doDownscaling
+        //                   ? std::sqrt(sigma*sigma/(float)(reduceBy*reduceBy) - 1.f/3.f - 1.f/4.f)
+        //                   : sigma;
+
+        //int new_size = static_cast<int>((float )size/downscale_ration_);
     
-        dehancer::math::make_gaussian_kernel(data, new_size, real_sigma);
+        dehancer::math::make_gaussian_kernel(data, size, sigma);
         
-        //std::cout << " GAUSSIAN KERNEL["<<index<<"] SIZE = " << data.size() << ", origin size: " << size << " reduce: "<< reduceBy << " sigma: "<< sigma << " real sigma: "<< real_sigma<< std::endl;
+        //std::cout << " GAUSSIAN KERNEL["<<index<<"] SIZE = " << data.size() << ", origin size: " << size << " reduce: "<< downscale_ration_  << " / " << reduceBy << " sigma: "<< sigma  << "/" << real_sigma << std::endl;
     
-        #ifdef PRINT_DEBUG
-        dehancer::log::print(" ### #kernel_blur(base): kernel index:%i size = %i, origin size: %i, sigma: %f, reduceBy: %i", index, data.size(),size,sigma,reduceBy);
-        #endif
+        //dehancer::log::print(" ### #kernel_blur(base): kernel index:%i size = %i, origin size: %i, sigma: %f, reduceBy: %f/%i", index, data.size(),size,sigma, downscale_ration_, reduceBy);
         
-        return 1.0f/(float)reduceBy;
+        return 1.0f/(float)downscale_ration_;
     };
     
     GaussianBlur::GaussianBlur (const void *command_queue,
