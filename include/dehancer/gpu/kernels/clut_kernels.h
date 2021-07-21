@@ -22,7 +22,7 @@ DHCR_KERNEL void kernel_make1DLut(
   if (!get_texel_boundary(tex)) return;
   
   float3 denom = make_float3(get_texture_width(d1DLut)-1);
-  float4 input_color  = make_float4(compress(make_float3(tex.gid)/denom, compression),1);
+  float4 input_color  = make_float4(compress(make_float3(tex.gid)/denom, compression),1.0f);
   
   write_image(d1DLut, input_color, tex.gid);
   
@@ -53,7 +53,7 @@ DHCR_KERNEL void kernel_make2DLut(
   
   float3 rgb = compress(make_float3(r,g,b),compression);
   
-  write_image(d2DLut, make_float4(rgb,1), tex.gid);
+  write_image(d2DLut, make_float4(rgb,1.0f), tex.gid);
   
 }
 
@@ -70,7 +70,7 @@ DHCR_KERNEL void kernel_make3DLut(
                              get_texture_height(d3DLut)-1,
                              get_texture_depth(d3DLut)-1);
   
-  float4 input_color  = make_float4(compress(make_float3(tex.gid)/denom, compression),1);
+  float4 input_color  = make_float4(compress(make_float3(tex.gid)/denom, compression),1.0f);
   
   write_image(d3DLut, input_color, tex.gid);
   
@@ -95,7 +95,7 @@ DHCR_KERNEL void kernel_resample1DLut_to_1DLut(
   float y = read_image(DLut,rgb.y).y;
   float z = read_image(DLut,rgb.z).z;
   
-  write_image(DLutOut, make_float4(x,y,z,1), tex.gid);
+  write_image(DLutOut, make_float4(x,y,z,1.0f), tex.gid);
 }
 
 /**
@@ -192,7 +192,7 @@ DHCR_KERNEL void kernel_convert1DLut_to_2DLut(
   float y = read_image(DLut,rgba.y).y;
   float z = read_image(DLut,rgba.z).z;
   
-  write_image(DLutOut, make_float4(x,y,z,1), tex.gid);
+  write_image(DLutOut, make_float4(x,y,z,1.0f), tex.gid);
 }
 
 DHCR_KERNEL void kernel_convert1DLut_to_3DLut(
@@ -210,7 +210,7 @@ DHCR_KERNEL void kernel_convert1DLut_to_3DLut(
   float y = read_image(DLut,rgba.y).y;
   float z = read_image(DLut,rgba.z).z;
   
-  write_image(DLutOut, make_float4(x,y,z,1), tex.gid);
+  write_image(DLutOut, make_float4(x,y,z,1.0f), tex.gid);
 }
 
 // 2D

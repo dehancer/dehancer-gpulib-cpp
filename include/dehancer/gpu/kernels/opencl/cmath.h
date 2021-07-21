@@ -27,6 +27,10 @@
 // constructors
 ////////////////////////////////////////////////////////////////////////////////
 
+inline static  float2 __attribute__((overloadable)) make_float2(int x) {
+  return (float2)(x, x);
+}
+
 inline static  float2 __attribute__((overloadable)) make_float2(float x, float y) {
   return (float2)(x, y);
 }
@@ -116,6 +120,10 @@ inline static  float3 __attribute__((overloadable)) make_float3(float s) {
   return make_float3(s, s, s);
 }
 
+inline static  float3 __attribute__((overloadable)) make_float3(int s) {
+  return make_float3(s, s, s);
+}
+
 inline static  float3 __attribute__((overloadable)) make_float3(float2 a) {
   return make_float3(a.x, a.y, 0.0f);
 }
@@ -179,6 +187,11 @@ inline static  uint3 __attribute__((overloadable)) make_uint3(int3 a) {
 inline static  float4 __attribute__((overloadable)) make_float4(float s) {
   return make_float4(s, s, s, s);
 }
+
+inline static  float4 __attribute__((overloadable)) make_float4(int s) {
+  return make_float4((float)s, (float)s, (float)s, (float)s);
+}
+
 
 inline static  float4 __attribute__((overloadable)) make_float4(float3 a) {
   return make_float4(a.x, a.y, a.z, 0.0f);
