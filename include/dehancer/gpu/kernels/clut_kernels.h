@@ -284,7 +284,7 @@ DHCR_KERNEL void kernel_convert3DLut_to_2DLut(
 DHCR_KERNEL void kernel_copy_3DLut(
         texture3d_read_t             d3DLut DHCR_BIND_TEXTURE(0),
         DHCR_DEVICE_ARG float*      buffer DHCR_BIND_BUFFER(1),
-        DHCR_DEVICE_ARG uint_ref_t channels DHCR_BIND_BUFFER(2)
+        DHCR_CONST_ARG uint_ref_t channels DHCR_BIND_BUFFER(2)
         
         DHCR_KERNEL_GID_3D
 )
