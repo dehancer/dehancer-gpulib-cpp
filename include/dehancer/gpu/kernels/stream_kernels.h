@@ -33,16 +33,16 @@ DHCR_KERNEL void  kernel_stream_transform(
   if (transform_lut_enabled) {
     // calibrated coeff
     if (direction == DHCR_Forward) {
-      float4 a_low  = make_float4(-0.01);
-      float4 a_high = make_float4(1.009);
+      float4 a_low  = to_float4(-0.01f);
+      float4 a_high = to_float4(1.009f);
       color = (color - a_low) / (a_high - a_low);
     }
-    color = read_image(transform_lut, make_float3(color));
+    color = read_image(transform_lut, to_float3(color));
   }
   
   color = mix(inColor, color, impact);
   
-  write_image(destination, make_float4(make_float3(color),inColor.w), tex.gid);
+  write_image(destination, to_float4(to_float3(color),inColor.w), tex.gid);
 }
 
 #endif //DEHANCER_GPULIB_STREAM_KERNELS_H

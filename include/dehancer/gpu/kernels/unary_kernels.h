@@ -64,7 +64,7 @@ DHCR_KERNEL void kernel_convolve_horizontal(
     }
     
     if (has_mask){
-      float2 coords = make_float2(tid)/make_float2(w,h);
+      float2 coords = to_float2(tid)/make_float2(w,h);
       float4  mask_color = read_image(mask,coords);
       switch (channel_index) {
         case 0: val = mix(scl[index], val, mask_color.x); break;
@@ -135,7 +135,7 @@ DHCR_KERNEL void kernel_convolve_vertical (
     }
     
     if (has_mask){
-      float2 coords = make_float2(tid)/make_float2(w,h);
+      float2 coords = to_float2(tid)/make_float2(w,h);
       float4  mask_color = read_image(mask,coords);
       switch (channel_index) {
         case 0: val = mix(scl[index], val, mask_color.x); break;

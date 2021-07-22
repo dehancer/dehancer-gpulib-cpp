@@ -248,7 +248,7 @@ DHCR_KERNEL void kernel_gradient(
   float4 color = make_float4(x, x, x, 1.0f) ;
   
   if (inverse)
-    color = make_float4(1.0f) - color;
+    color = to_float4(1.0f) - color;
     
   write_image(destination, color, tex.gid);
   

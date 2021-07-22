@@ -65,7 +65,7 @@ auto memory_test =  [] (int dev_num,
     if (error)
       std::cerr << "Memory error: " << error << std::endl;
 
-    std::cout << "summ: " << std::endl;
+    std::cout << "sum: " << std::endl;
     for (auto v: result) {
       std::cout << v << " ";
     }

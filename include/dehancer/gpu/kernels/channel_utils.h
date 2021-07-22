@@ -57,7 +57,7 @@ DHCR_KERNEL void image_to_one_channel (
     
     channel_tr_ color; color.vec = sampled_color(source, size, gid);
 
-    channel_tr_ eColor; eColor.vec = has_mask ? sampled_color(mask, size, gid) : make_float4(1.0f);
+    channel_tr_ eColor; eColor.vec = has_mask ? sampled_color(mask, size, gid) : to_float4(1.0f);
 
     if (transform)
       switch (trtype) {
@@ -118,7 +118,7 @@ DHCR_KERNEL void one_channel_to_image (
       color.arr[channel_index] = channel_bicubic(channel, size, coords.x, coords.y);
     }
 
-    channel_tr_ eColor; eColor.vec = has_mask ? sampled_color(mask, destination_size, gid) : make_float4(1.0f);
+    channel_tr_ eColor; eColor.vec = has_mask ? sampled_color(mask, destination_size, gid) : to_float4(1.0f);
   
     if (transform)
       switch (trtype) {

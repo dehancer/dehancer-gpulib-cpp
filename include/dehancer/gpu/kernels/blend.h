@@ -77,7 +77,7 @@ inline DHCR_DEVICE_FUNC float3 clipcolor(float3 c) {
 
 inline DHCR_DEVICE_FUNC float3 setlum(float3 c, float l) {
   float d = l - lum(c);
-  c = c + make_float3(d);
+  c = c + to_float3(d);
   return clipcolor(c);
 }
 
@@ -97,17 +97,17 @@ inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) blend_normal(float4
   outputColor.z = (c1.z * c1.w + c2.z * c2.w * (1.0f - c1.w))/alphaDivisor;
   outputColor.w = a;
   
-  return clamp(outputColor, make_float4(-0.0f), make_float4(+1.0f));
+  return clamp(outputColor, to_float4(-0.0f), to_float4(+1.0f));
 }
 
 inline  DHCR_DEVICE_FUNC float4 blend_luminosity(float4 baseColor, float4 overlayColor)
 {
-  float3 base_rgb = make_float3(baseColor);
-  float3 over_rgb = make_float3(overlayColor);
-  return make_float4(
+  float3 base_rgb = to_float3(baseColor);
+  float3 over_rgb = to_float3(overlayColor);
+  return to_float4(
           base_rgb
           *
-          make_float3(1.0f - overlayColor.w)
+          to_float3(1.0f - overlayColor.w)
           +
           setlum(base_rgb,
                  lum(over_rgb)
@@ -142,33 +142,33 @@ inline  DHCR_DEVICE_FUNC float4 blend_overlay(float4 base, float4 overlay)
 }
 
 inline DHCR_DEVICE_FUNC float4 blend_color(float4 base, float4 overlay){
-  float3 base_rgb = make_float3(base);
-  float3 overlay_rgb = make_float3(overlay);
-  return make_float4(base_rgb * make_float3(1.0f - overlay.w) + setlum(overlay_rgb, lum(base_rgb)) * overlay.w, base.w);
+  float3 base_rgb = to_float3(base);
+  float3 overlay_rgb = to_float3(overlay);
+  return to_float4(base_rgb * to_float3(1.0f - overlay.w) + setlum(overlay_rgb, lum(base_rgb)) * overlay.w, base.w);
 }
 
 inline DHCR_DEVICE_FUNC float4 blend_add(float4 base, float4 overlay){
-  float3 base_rgb = make_float3(base);
-  float3 overlay_rgb = make_float3(overlay);
-  return clamp(make_float4(mix(base_rgb,
+  float3 base_rgb = to_float3(base);
+  float3 overlay_rgb = to_float3(overlay);
+  return clamp(to_float4(mix(base_rgb,
                                clamp(base_rgb+overlay_rgb, 0.0f, 1.0f),
-                               make_float3(overlay.w)),1.0f), make_float4(0.0f), make_float4(1.0f));
+                               to_float3(overlay.w)),1.0f), to_float4(0.0f), to_float4(1.0f));
 }
 
 inline DHCR_DEVICE_FUNC float4 blend_subtract(float4 base, float4 overlay){
-  float3 base_rgb = make_float3(base);
-  float3 overlay_rgb = make_float3(overlay);
-  return clamp(make_float4(mix(base_rgb,
+  float3 base_rgb = to_float3(base);
+  float3 overlay_rgb = to_float3(overlay);
+  return clamp(to_float4(mix(base_rgb,
                                clamp(base_rgb-overlay_rgb, 0.0f, 1.0f),
-                               make_float3(overlay.w)),1.0f), make_float4(0.0f), make_float4(1.0f));
+                               to_float3(overlay.w)),1.0f), to_float4(0.0f), to_float4(1.0f));
 }
 
 inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) blend(float4 base, float4 overlay, DHCR_BlendingMode mode, float4 opacity){
   
-  float3 base_opacity = clamp(make_float3(opacity), 0.0f, 1.0f);
+  float3 base_opacity = clamp(to_float3(opacity), 0.0f, 1.0f);
   
-  float3 overlay_rgb  = make_float3(overlay);
-  float4 result = make_float4(overlay_rgb, opacity.w);
+  float3 overlay_rgb  = to_float3(overlay);
+  float4 result = to_float4(overlay_rgb, opacity.w);
   
   switch (mode) {
     case DHCR_Luminosity:
@@ -208,19 +208,19 @@ inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) blend(float4 base, 
       break;
   }
   
-  result = mix(base, result, make_float4(base_opacity, 1.0f));
+  result = mix(base, result, to_float4(base_opacity, 1.0f));
   
   return  result;
 }
 
 inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) blend(float4 base, float4 overlay, DHCR_BlendingMode mode, float opacity) {
-  return blend(base,overlay,mode,make_float4(opacity));
+  return blend(base,overlay,mode,to_float4(opacity));
 }
 
 inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) blend(float3 base, float3 overlay, DHCR_BlendingMode mode, float opacity){
-  float4 base_ = make_float4(base,1.0f);
-  float4 overlay_ = make_float4(overlay,1.0f);
-  return make_float3(blend(base_, overlay_, mode, opacity));
+  float4 base_ = to_float4(base,1.0f);
+  float4 overlay_ = to_float4(overlay,1.0f);
+  return to_float3(blend(base_, overlay_, mode, opacity));
 }
 
 

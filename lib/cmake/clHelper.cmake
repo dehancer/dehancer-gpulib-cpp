@@ -185,7 +185,7 @@ MACRO (COMPILE_OPENCL)
 					${input_file}
 					-o ${dep_file}
 					DEPENDS ${input_file} ${deps}
-					COMMENT "Generated dependencies for ${src} -> ${rel_dep_file}"
+					COMMENT "*** OPENCL ${CLANG_COMPILER} Generated dependencies for ${src} -> ${rel_dep_file}"
 			)
 			#      ADD_CUSTOM_TARGET(clhelper_dep_file_for_${src} ALL DEPENDS ${dep_file})
 
@@ -198,14 +198,15 @@ MACRO (COMPILE_OPENCL)
 			FILE(RELATIVE_PATH rel_preproc_file ${CMAKE_BINARY_DIR} ${preproc_file})
 			ADD_CUSTOM_COMMAND(
 					OUTPUT ${preproc_file}
-					COMMAND clang -E -DCLANG_OPENCL
+					COMMAND ${CLANG_COMPILER} -E -DCLANG_OPENCL -DCLANG_OPENCL_PREPROC=1
 					${CLHELPER_INCLUDE_DIRS}
 					${CLHELPER_DEFINITIONS}
 					${OPENCL_DEFINITIONS}
 					${input_file}
+					#-std=cl1.2
 					-o ${preproc_file}
 					DEPENDS ${input_file} ${deps} ${dep_file}
-					COMMENT "Run pre-processor on ${src} -> ${rel_preproc_file}"
+					COMMENT "*** OPENCL ${CLANG_COMPILER} Run pre-processor on ${src} -> ${rel_preproc_file}"
 			)
 
 			# ------------------------------------------------------------------

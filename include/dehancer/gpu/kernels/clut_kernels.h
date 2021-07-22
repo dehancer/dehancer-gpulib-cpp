@@ -21,8 +21,8 @@ DHCR_KERNEL void kernel_make1DLut(
   get_kernel_texel1d(d1DLut, tex);
   if (!get_texel_boundary(tex)) return;
   
-  float3 denom = make_float3(get_texture_width(d1DLut)-1);
-  float4 input_color  = make_float4(compress(make_float3(tex.gid)/denom, compression),1.0f);
+  float3 denom = to_float3(get_texture_width(d1DLut)-1);
+  float4 input_color  = to_float4(compress(to_float3(tex.gid)/denom, compression),1.0f);
   
   write_image(d1DLut, input_color, tex.gid);
   
@@ -53,7 +53,7 @@ DHCR_KERNEL void kernel_make2DLut(
   
   float3 rgb = compress(make_float3(r,g,b),compression);
   
-  write_image(d2DLut, make_float4(rgb,1.0f), tex.gid);
+  write_image(d2DLut, to_float4(rgb,1.0f), tex.gid);
   
 }
 
@@ -70,7 +70,7 @@ DHCR_KERNEL void kernel_make3DLut(
                              get_texture_height(d3DLut)-1,
                              get_texture_depth(d3DLut)-1);
   
-  float4 input_color  = make_float4(compress(make_float3(tex.gid)/denom, compression),1.0f);
+  float4 input_color  = to_float4(compress(to_float3(tex.gid)/denom, compression),1.0f);
   
   write_image(d3DLut, input_color, tex.gid);
   
@@ -90,7 +90,7 @@ DHCR_KERNEL void kernel_resample1DLut_to_1DLut(
   get_kernel_texel1d(DLutOut, tex);
   if (!get_texel_boundary(tex)) return;
   
-  float3 rgb  =  make_float3(read_image(DLutIdentity, tex.gid));
+  float3 rgb  =  to_float3(read_image(DLutIdentity, tex.gid));
   float x = read_image(DLut,rgb.x).x;
   float y = read_image(DLut,rgb.y).y;
   float z = read_image(DLut,rgb.z).z;
@@ -137,7 +137,7 @@ inline  DHCR_DEVICE_FUNC float3 sample2DLut(float3 rgb, texture2d_read_t d2DLut)
   
   float4 newColor2 =  read_image(d2DLut, texPos2);
   
-  return make_float3(mix(newColor1, newColor2, fracf(blueColor)));
+  return to_float3(mix(newColor1, newColor2, fracf(blueColor)));
 }
 
 DHCR_KERNEL void kernel_resample2DLut_to_2DLut(
@@ -150,10 +150,10 @@ DHCR_KERNEL void kernel_resample2DLut_to_2DLut(
   get_kernel_texel2d(DLutOut, tex);
   if (!get_texel_boundary(tex)) return;
   
-  float3 rgb  =  make_float3(read_image(DLutIdentity, tex.gid));
+  float3 rgb  =  to_float3(read_image(DLutIdentity, tex.gid));
   float3 result = sample2DLut(rgb, DLut);
   
-  write_image(DLutOut, make_float4(result,1.0f), tex.gid);
+  write_image(DLutOut, to_float4(result,1.0f), tex.gid);
 }
 
 DHCR_KERNEL void kernel_resample3DLut_to_3DLut(
@@ -166,7 +166,7 @@ DHCR_KERNEL void kernel_resample3DLut_to_3DLut(
   get_kernel_texel3d(DLutOut, tex);
   if (!get_texel_boundary(tex)) return;
   
-  float3 rgb  =  make_float3(read_image(DLutIdentity, tex.gid));
+  float3 rgb  =  to_float3(read_image(DLutIdentity, tex.gid));
   float4 result = read_image(DLut, rgb);
   result.w = 1.0f;
   write_image(DLutOut, result, tex.gid);
@@ -224,10 +224,10 @@ DHCR_KERNEL void kernel_convert2DLut_to_1DLut(
   get_kernel_texel1d(DLutOut, tex);
   if (!get_texel_boundary(tex)) return;
   
-  float3 rgb  =  make_float3(read_image(DLutIdentity, tex.gid));
+  float3 rgb  =  to_float3(read_image(DLutIdentity, tex.gid));
   float3 result = sample2DLut(rgb, DLut);
   
-  write_image(DLutOut, make_float4(result,1.0f), tex.gid);
+  write_image(DLutOut, to_float4(result,1.0f), tex.gid);
 }
 
 DHCR_KERNEL void kernel_convert2DLut_to_3DLut(
@@ -240,10 +240,10 @@ DHCR_KERNEL void kernel_convert2DLut_to_3DLut(
   get_kernel_texel3d(DLutOut, tex);
   if (!get_texel_boundary(tex)) return;
   
-  float3 rgb  =  make_float3(read_image(DLutIdentity, tex.gid));
+  float3 rgb  =  to_float3(read_image(DLutIdentity, tex.gid));
   float3 result = sample2DLut(rgb, DLut);
   
-  write_image(DLutOut, make_float4(result,1.0f), tex.gid);
+  write_image(DLutOut, to_float4(result,1.0f), tex.gid);
 }
 
 //3D
@@ -257,7 +257,7 @@ DHCR_KERNEL void kernel_convert3DLut_to_1DLut(
   get_kernel_texel1d(DLutOut, tex);
   if (!get_texel_boundary(tex)) return;
   
-  float3 rgb  =  make_float3(read_image(DLutIdentity, tex.gid));
+  float3 rgb  =  to_float3(read_image(DLutIdentity, tex.gid));
   float4 result = read_image(DLut, rgb);
   result.w = 1.0f;
   write_image(DLutOut, result, tex.gid);
@@ -272,7 +272,7 @@ DHCR_KERNEL void kernel_convert3DLut_to_2DLut(
   Texel2d tex; get_kernel_texel2d(DLutOut, tex);
   if (!get_texel_boundary(tex)) return;
   
-  float3 rgb    = make_float3(read_image(DLutIdentity, tex.gid));
+  float3 rgb    = to_float3(read_image(DLutIdentity, tex.gid));
   
   float4 result = read_image(DLut, rgb);
 

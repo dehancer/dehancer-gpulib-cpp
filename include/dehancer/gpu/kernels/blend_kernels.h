@@ -46,13 +46,13 @@ DHCR_KERNEL void  kernel_blend(
       break;
   }
   
-  float4 mask_rgba = make_float4(1.0f);
+  float4 mask_rgba = to_float4(1.0f);
   
   if (has_mask) {
-    mask_rgba = bicubic_sampled_color(mask, tex.size, tex.gid) * make_float4(opacity);
+    mask_rgba = bicubic_sampled_color(mask, tex.size, tex.gid) * to_float4(opacity);
   }
   else
-    mask_rgba = mask_rgba * make_float4(opacity);
+    mask_rgba = mask_rgba * to_float4(opacity);
   
   overlay_color = mix(base,overlay_color,overlay_color.w);
   
