@@ -100,12 +100,12 @@ static inline float3 __attribute__((overloadable)) to_float3(float4 a) {
   return make_float3(a.x, a.y, a.z);
 }
 
-inline DHCR_DEVICE_FUNC float  __attribute__((overloadable)) permute(float x)
+static inline DHCR_DEVICE_FUNC float  __attribute__((overloadable)) permute(float x)
 {
   return floorf(fmodf(((x*34.0f)+1.0f)*x, 289.0f));
 }
 
-inline DHCR_DEVICE_FUNC float taylor_inv_sqrt(float r)
+static inline DHCR_DEVICE_FUNC float taylor_inv_sqrt(float r)
 {
   return 1.79284291400159f - 0.85373472095314f * r;
 }
@@ -116,67 +116,67 @@ inline DHCR_DEVICE_FUNC float taylor_inv_sqrt(float r)
  * @return
  */
 #if defined(__CUDA_ARCH__) || defined(CL_VERSION_1_2)
-inline DHCR_DEVICE_FUNC float __attribute__((overloadable)) fract(float v) {
+static inline DHCR_DEVICE_FUNC float __attribute__((overloadable)) fract(float v) {
   return fracf(v);
 }
 
-inline DHCR_DEVICE_FUNC float2 __attribute__((overloadable)) fract(float2 v) {
+static inline DHCR_DEVICE_FUNC float2 __attribute__((overloadable)) fract(float2 v) {
   return fracf(v);
 }
 
-inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) fract(float3 v) {
+static inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) fract(float3 v) {
   return fracf(v);
 }
 
 /***
  * abs
  */
-inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) abs(float3 v) {
+static inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) abs(float3 v) {
   return make_float3(fabs(v.x),fabs(v.y),fabs(v.z));
 }
 
 /***
  * powf
  */
-inline DHCR_DEVICE_FUNC float2 __attribute__((overloadable)) powf(float2 a, float2 b) {
+static inline DHCR_DEVICE_FUNC float2 __attribute__((overloadable)) powf(float2 a, float2 b) {
   return make_float2(powf(a.x,b.x),powf(a.y,b.y));
 }
 
-inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) powf(float3 a, float3 b) {
-return make_float3(powf(a.x,b.x),powf(a.y,b.y),powf(a.z,b.z));
+static inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) powf(float3 a, float3 b) {
+  return make_float3(powf(a.x,b.x),powf(a.y,b.y),powf(a.z,b.z));
 }
 
-inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) powf(float4 a, float4 b) {
+static inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) powf(float4 a, float4 b) {
   return make_float4(powf(a.x,b.x),powf(a.y,b.y),powf(a.z,b.z),powf(a.w,b.w));
 }
 
 /***
  * log2f
  */
-inline DHCR_DEVICE_FUNC float2 __attribute__((overloadable)) log2f(float2 a) {
+static inline DHCR_DEVICE_FUNC float2 __attribute__((overloadable)) log2f(float2 a) {
   return make_float2(log2f(a.x),log2f(a.y));
 }
 
-inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) log2f(float3 a) {
+static inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) log2f(float3 a) {
   return make_float3(log2f(a.x),log2f(a.y),log2f(a.z));
 }
 
-inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) log2f(float4 a) {
+static inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) log2f(float4 a) {
   return make_float4(log2f(a.x),log2f(a.y),log2f(a.z),log2f(a.w));
 }
 
 /***
  * log10f
  */
-inline DHCR_DEVICE_FUNC float2 __attribute__((overloadable)) log10f(float2 a) {
+static inline DHCR_DEVICE_FUNC float2 __attribute__((overloadable)) log10f(float2 a) {
   return make_float2(log10f(a.x),log10f(a.y));
 }
 
-inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) log10f(float3 a) {
+static inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable)) log10f(float3 a) {
   return make_float3(log10f(a.x),log10f(a.y),log10f(a.z));
 }
 
-inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) log10f(float4 a) {
+static inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) log10f(float4 a) {
   return make_float4(log10f(a.x),log10f(a.y),log10f(a.z),log10f(a.w));
 }
 
@@ -255,7 +255,7 @@ static inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable))  linear_log(
   return result;
 }
 
-inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) linear_log(float4 in, float slope, float offset, DHCR_TransformDirection direction) {
+static inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) linear_log(float4 in, float slope, float offset, DHCR_TransformDirection direction) {
   float4 result = in;
   if (direction == DHCR_None) return result;
   if (slope==0.0f) return result;
@@ -338,7 +338,7 @@ static inline DHCR_DEVICE_FUNC float3 __attribute__((overloadable))  linear_pow(
   return result;
 }
 
-inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) linear_pow(float4 in, float slope, float offset, DHCR_TransformDirection direction) {
+static inline DHCR_DEVICE_FUNC float4 __attribute__((overloadable)) linear_pow(float4 in, float slope, float offset, DHCR_TransformDirection direction) {
   float4 result = in;
   
   if (direction == DHCR_None) return result;
