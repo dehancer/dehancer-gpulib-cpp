@@ -243,6 +243,49 @@
 //  return make_uint4((uint)(a.x), (uint)(a.y), (uint)(a.z), (uint)(a.w));
 //}
 
+/* make_type definitions with opencl style element initializers */
+#ifdef make_float2
+#  undef make_float2
+#endif
+#ifdef make_float3
+#  undef make_float3
+#endif
+#ifdef make_float4
+#  undef make_float4
+#endif
+#ifdef make_int2
+#  undef make_int2
+#endif
+#ifdef make_int3
+#  undef make_int3
+#endif
+#ifdef make_int4
+#  undef make_int4
+#endif
+#ifdef make_uint2
+#  undef make_uint2
+#endif
+#ifdef make_uint3
+#  undef make_uint3
+#endif
+#ifdef make_uint4
+#  undef make_uint4
+#endif
+#ifdef make_uchar4
+#  undef make_uchar4
+#endif
+
+#define make_float2(x, y)        ((float2)(x, y))
+#define make_float3(x, y, z)     ((float3)(x, y, z))
+#define make_float4(x, y, z, w)  ((float4)(x, y, z, w))
+#define make_int2(x, y)          ((int2)(x, y))
+#define make_int3(x, y, z)       ((int3)(x, y, z))
+#define make_int4(x, y, z, w)    ((int4)(x, y, z, w))
+#define make_uint2(x, y)         ((uint2)(x, y))
+#define make_uint3(x, y, z)      ((uint3)(x, y, z))
+#define make_uint4(x, y, z, w)   ((uint4)(x, y, z, w))
+#define make_uchar4(x, y, z, w)  ((uchar4)(x, y, z, w))
+
 //
 //////////////////////////////////////////////////////////////////////////////////
 //// min
