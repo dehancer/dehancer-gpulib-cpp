@@ -20,7 +20,7 @@ namespace dehancer::opencl {
       auto texture_size = block(*encoder_);
       
       //size_t local_work_size[3] = {16,16,16};
-      size_t local_work_size[3] = {8,8,1};
+      size_t local_work_size[3] = {8,1,1};
       size_t preferred_work_size = 8;
       
       ///
@@ -63,10 +63,16 @@ namespace dehancer::opencl {
       if (texture_size.height < local_work_size[1]) local_work_size[1] = texture_size.height;
       if (texture_size.depth < local_work_size[2]) local_work_size[2] = texture_size.depth;
       
+//      size_t global_work_size[3] = {
+//              ((texture_size.width + local_work_size[0] - 1) / local_work_size[0]),
+//              ((texture_size.height + local_work_size[1] - 1) / local_work_size[1]),
+//              ((texture_size.depth + local_work_size[2] - 1) / local_work_size[2])
+//      };
+  
       size_t global_work_size[3] = {
-              ((texture_size.width + local_work_size[0] - 1) / local_work_size[0]),
-              ((texture_size.height + local_work_size[1] - 1) / local_work_size[1]),
-              ((texture_size.depth + local_work_size[2] - 1) / local_work_size[2])
+              texture_size.width ,
+              texture_size.height,
+              texture_size.depth
       };
 
 #ifdef PRINT_KERNELS_DEBUG
