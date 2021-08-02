@@ -5,6 +5,7 @@
 #pragma once
 
 #include "dehancer/gpu/Lib.h"
+#include <regex>
 
 void make_identity(const std::string& platform) {
   
@@ -16,8 +17,13 @@ void make_identity(const std::string& platform) {
     std::string ext = dehancer::TextureIO::extension_for(type);
     float compression = 1.0f;
     
+    std::cout << "CLut identity extension: " << ext << std::endl;
+    
     for (auto device: dehancer::DeviceCache::Instance().get_device_list()) {
+  
       auto command_queue = dehancer::DeviceCache::Instance().get_command_queue(dehancer::device::get_id(device));
+      
+      std::string dev_name =  std::regex_replace(dehancer::device::get_name(device), std::regex("[:., ]+"), "-");
   
       {
         /**
@@ -26,12 +32,15 @@ void make_identity(const std::string& platform) {
         auto clut_2d_identity = dehancer::CLut2DIdentity(command_queue, 64);
     
         std::string output_file = "clut-2d-" + platform + "-";
-        output_file.append(dehancer::device::get_name(device));
+        output_file.append(dev_name);
         output_file.append(ext);
     
+        std::cout << "clut_2d_identity name: " << output_file << std::endl;
+        
         {
-          std::ofstream ao_bench_os(output_file, std::ostream::binary | std::ostream::trunc);
-          ao_bench_os << dehancer::TextureOutput(command_queue, clut_2d_identity.get_texture(), {
+          std::ofstream os(output_file, std::ostream::binary | std::ostream::trunc);
+          
+          os << dehancer::TextureOutput(command_queue, clut_2d_identity.get_texture(), {
                   .type = type,
                   .compression = compression
           });
@@ -46,12 +55,14 @@ void make_identity(const std::string& platform) {
         auto clut_hald_identity = dehancer::CLutHaldIdentity(command_queue, 64);
     
         std::string output_file = "clut-hald-" + platform + "-";
-        output_file.append(dehancer::device::get_name(device));
+        output_file.append(dev_name);
         output_file.append(ext);
-    
+  
+        std::cout << "clut_hald_identity name: " << output_file << std::endl;
+  
         {
-          std::ofstream ao_bench_os(output_file, std::ostream::binary | std::ostream::trunc);
-          ao_bench_os << dehancer::TextureOutput(command_queue, clut_hald_identity.get_texture(), {
+          std::ofstream os(output_file, std::ostream::binary | std::ostream::trunc);
+          os << dehancer::TextureOutput(command_queue, clut_hald_identity.get_texture(), {
                   .type = type,
                   .compression = compression
           });
@@ -66,9 +77,11 @@ void make_identity(const std::string& platform) {
   
         {
           output_file = "clut-hald-to-cube-" + platform + "-";
-          output_file.append(dehancer::device::get_name(device));
+          output_file.append(dev_name);
           output_file.append(".cube");
-    
+  
+          std::cout << "cube_output name: " << output_file << std::endl;
+  
           std::ofstream os(output_file, std::ostream::binary | std::ostream::trunc);
           os << cube_output;
         }
