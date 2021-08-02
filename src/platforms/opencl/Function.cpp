@@ -20,20 +20,39 @@ namespace dehancer::opencl {
       auto texture_size = block(*encoder_);
       
       //size_t local_work_size[3] = {16,16,16};
-      size_t local_work_size[3] = {1,1,1};
+      size_t local_work_size[3] = {8,8,1};
+      size_t preferred_work_size = 8;
       
       ///
       /// TODO: optimize workgroups automatically
-      ///
-      //clGetKernelWorkGroupInfo(kernel_, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t), local_work_size, nullptr);
-      //local_work_size[1] = 1;
-      //if (local_work_size[0]>=texture_size.width) local_work_size[0] = 1;
+      /// CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE
+      //clGetKernelWorkGroupInfo(kernel_, command_->get_device_id(), CL_KERNEL_WORK_GROUP_SIZE, sizeof(local_work_size), local_work_size, nullptr);
+      //clGetKernelWorkGroupInfo(kernel_, command_->get_device_id(), CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, sizeof(size_t), &preferred_work_size, nullptr);
+  
+      //local_work_size[0] = local_work_size[1];
+  
+      #ifdef PRINT_KERNELS_DEBUG
+      std::cout << "Function "<<kernel_name_
+                << " WORK_GROUP: "
+                << local_work_size[0] << "x" << local_work_size[1] << "x" << local_work_size[2]
+                << " PREFERRED_WORK_GROUP_SIZE: " << preferred_work_size
+                << std::endl;
+      #endif
 
+//
+      //local_work_size[1] = 1;
+      //local_work_size[2] = 1;
+//
+      if (local_work_size[0]>=texture_size.width) local_work_size[0] = 1;
+      if (local_work_size[1]>=texture_size.height) local_work_size[1] = 1;
+      if (local_work_size[2]>=texture_size.depth) local_work_size[2] = 1;
+//
 //      if (texture_size.depth==1) {
 //        local_work_size[2] = 1;
 //      }
 //      else {
-//        local_work_size[0] = local_work_size[1] = local_work_size[2] = 8;
+//        local_work_size[0] = local_work_size[1] = 8;
+//        local_work_size[2] = 1;
 //      }
 //
 //      if (texture_size.height==1) {
@@ -45,9 +64,9 @@ namespace dehancer::opencl {
       if (texture_size.depth < local_work_size[2]) local_work_size[2] = texture_size.depth;
       
       size_t global_work_size[3] = {
-              ((texture_size.width + local_work_size[0] - 1) / local_work_size[0]) * local_work_size[0],
-              ((texture_size.height + local_work_size[1] - 1) / local_work_size[1]) * local_work_size[1],
-              ((texture_size.depth + local_work_size[2] - 1) / local_work_size[2]) * local_work_size[2]
+              ((texture_size.width + local_work_size[0] - 1) / local_work_size[0]),
+              ((texture_size.height + local_work_size[1] - 1) / local_work_size[1]),
+              ((texture_size.depth + local_work_size[2] - 1) / local_work_size[2])
       };
 
 #ifdef PRINT_KERNELS_DEBUG
@@ -64,13 +83,18 @@ namespace dehancer::opencl {
       
       if (command_->get_wait_completed())
         waiting_event = clCreateUserEvent(command_->get_context(), &last_error);
+  
+      cl_uint dim = 3;
+      
+      if (texture_size.depth==1) dim = 2;
       
       last_error = clEnqueueNDRangeKernel(command_->get_command_queue(),
-                                          kernel_, 3,
+                                          kernel_,
+                                          dim,
                                           nullptr,
                                           global_work_size,
-                                          nullptr,
-              //local_work_size,
+              //                            nullptr,
+                                          local_work_size,
                                           0,
                                           nullptr,
                                           &waiting_event);
