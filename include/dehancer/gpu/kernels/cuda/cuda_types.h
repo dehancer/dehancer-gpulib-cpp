@@ -20,6 +20,7 @@ typedef  unsigned int uint;
 
 #define DHCR_KERNEL         extern "C" __global__
 #define DHCR_DEVICE_FUNC   __device__
+#define DHCR_HOST_DEVICE_FUNC  __host__ __device__
 #define DHCR_DEVICE_ARG
 #define DHCR_THREAD_ARG
 #define DHCR_CONST_ARG

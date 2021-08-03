@@ -10,6 +10,7 @@
 
 #define DHCR_KERNEL __kernel
 #define DHCR_DEVICE_FUNC
+#define DHCR_HOST_DEVICE_FUNC
 #define DHCR_DEVICE_ARG __global
 #define DHCR_THREAD_ARG
 #define DHCR_CONST_ARG

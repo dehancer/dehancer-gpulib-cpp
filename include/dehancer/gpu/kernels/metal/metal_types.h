@@ -16,6 +16,7 @@
 
 #define DHCR_KERNEL        kernel
 #define DHCR_DEVICE_FUNC
+#define DHCR_HOST_DEVICE_FUNC
 #define DHCR_DEVICE_ARG    device
 #define DHCR_THREAD_ARG    thread
 #define DHCR_CONST_ARG     constant

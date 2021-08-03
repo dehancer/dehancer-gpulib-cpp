@@ -140,7 +140,7 @@ typedef struct {
 #endif
 } DHCR_LutParameters;
 
-typedef enum {
+typedef enum { // __attribute__ ((packed, aligned (16))) {
     DHCR_Forward = 0,
     DHCR_Inverse,
     DHCR_None

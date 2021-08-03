@@ -7,6 +7,7 @@
 
 #include "dehancer/gpu/kernels/type_cast.h"
 #include "dehancer/gpu/kernels/constants.h"
+#include "dehancer/gpu/kernels/types.h"
 
 inline DHCR_DEVICE_FUNC float __attribute__((overloadable)) min_component(float2 v) {
   return min(v.x, v.y);
