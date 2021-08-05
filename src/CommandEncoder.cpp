@@ -117,6 +117,7 @@ namespace dehancer {
          * Inverse transformation matrix to current space from another
          */
         float cs_inverse_matrix[16];
+        //cl_float16 cs_forward_matrix_;
         
         /***
          * Polynomial and Gama/Log transformation parameters

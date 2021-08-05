@@ -20,7 +20,8 @@ namespace dehancer::opencl {
       auto texture_size = block(*encoder_);
       
       //size_t local_work_size[3] = {16,16,16};
-      size_t local_work_size[3] = {8,1,1};
+      //size_t local_work_size[3] = {8,1,1};
+      size_t local_work_size[3] = {1,1,1};
       size_t preferred_work_size = 8;
       
       ///
@@ -99,8 +100,8 @@ namespace dehancer::opencl {
                                           dim,
                                           nullptr,
                                           global_work_size,
-              //                            nullptr,
-                                          local_work_size,
+                                          nullptr,
+              //                            local_work_size,
                                           0,
                                           nullptr,
                                           &waiting_event);
