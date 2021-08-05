@@ -48,9 +48,11 @@ void load_from_cache(const std::string& platform) {
               .type = type,
               .compression = compression
       });
-      
+  
+      std::string dev_name =  std::regex_replace(dehancer::device::get_name(device), std::regex("[:., ]+"), "-");
+  
       std::string identity_file =  "space-identity-"+platform+"-"+"forward"+"-";
-      identity_file.append(dehancer::device::get_name(device));
+      identity_file.append(dev_name);
       identity_file.append(ext);
   
       {
@@ -71,7 +73,7 @@ void load_from_cache(const std::string& platform) {
       transformer.process();
       
       std::string output_file =  "space-transform-"+platform+"-"+"forward"+"-";
-      output_file.append(dehancer::device::get_name(device));
+      output_file.append(dev_name);
       output_file.append(ext);
       
       {
@@ -85,7 +87,7 @@ void load_from_cache(const std::string& platform) {
       transformer.process();
       
       output_file =  "space-transform-"+platform+"-"+"inverse"+"-";
-      output_file.append(dehancer::device::get_name(device));
+      output_file.append(dev_name);
       output_file.append(ext);
       
       {

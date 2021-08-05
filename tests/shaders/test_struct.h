@@ -17,11 +17,15 @@ typedef struct  {
 //#else
 //  dehancer::math::float4x4 mat;
 //#endif
-    DHCR_TransformDirection direction;
-    DHCR_TransformType transform_type;
+//    DHCR_TransformDirection direction;
+//    DHCR_TransformType transform_type;
     bool_t  enabled;
-    int      size;
+    int     size;
     float   data;
+    float   data1;
+    float   data2;
+    float   data3;
+    float   data4;
 } TestStruct;
 
 #endif //DEHANCER_GPULIB_TEST_STRUCT_H

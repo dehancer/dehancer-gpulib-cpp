@@ -25,6 +25,8 @@
 
 #else
 
+//#include <CL/cl.h>
+
 #define DEHANCER_GPU_CODE 0
 
 /**
@@ -66,8 +68,13 @@ typedef  unsigned int uint;
 #define int3_ref_t int3
 #define int4_ref_t int4
 
+#if defined(DEHANCER_GPU_OPENCL)
+#define bool_ref_t uint
+#define bool_t uint
+#else
 #define bool_ref_t bool
 #define bool_t bool
+#endif
 #define bool2_ref_t bool2
 #define bool3_ref_t bool3
 #define bool4_ref_t bool4
@@ -108,7 +115,7 @@ typedef enum {
 } DHCR_InterpolationMode;
 
 typedef struct { //__attribute__ ((packed))
-    bool_t  enabled;
+     uint enabled;//bool_t  enabled;
     float base;
     float lin_side_break;
     float lin_side_coeff;
@@ -117,7 +124,8 @@ typedef struct { //__attribute__ ((packed))
     float gamma_side_break;
 } DHCR_GammaParameters;
 
-typedef struct {
+//typedef struct  __attribute__ (( aligned (4) )) {
+typedef struct { // __attribute__ (( packed )) {
     bool_t  enabled;
     float base;
     float log_side_slope;
