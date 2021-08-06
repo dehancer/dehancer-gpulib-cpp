@@ -28,12 +28,6 @@ namespace dehancer {
     
     void StreamTransform::setup (CommandEncoder &encoder) {
   
-      std::cout << "StreamTransform::setup: " << get_name() << " args: " << std::endl;
-  
-      for (auto& a: get_arg_list()) {
-        std::cout << std::setw(20) << a.name << "["<<a.index<<"]: " << a.type_name << std::endl;
-      }
-      
       auto transform_lut =
               StreamSpaceCache::Instance()
                       .get_lut(get_command_queue(), space_, direction_);
