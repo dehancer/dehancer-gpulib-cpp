@@ -31,7 +31,7 @@ auto function_test =  [] (int dev_num,
       std::ifstream ifs(input_image, std::ios::binary);
       ifs >> input_text;
       
-      using WCache = dehancer::overlay::WatermarkImageCache;
+      using WCache = dehancer::overlay::PromoLimitImageCache;
       
       auto resolution = dehancer::overlay::resolution_from(input_text.get_texture());
       
