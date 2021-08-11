@@ -8,5 +8,5 @@ endif()
 
 set (DEHANCER_CURRENT_PLATFORM_CUDA ON)
 
-set (TEST cuda-load-xmp-test)
+set (TEST cuda-square-input-test)
 include(${CMAKE_SOURCE_DIR}/tests/CMakeCommon.in)

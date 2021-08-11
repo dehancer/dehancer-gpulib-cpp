@@ -12,7 +12,9 @@ namespace dehancer::opencl {
           auto* device = reinterpret_cast<clHelper::Device *>((void *)id);
           if (!device)
             return "unknown";
-          return device->name;
+          std::string name = device->vendor;
+          name.append(": "); name.append(device->name);
+          return name;
         }
 
         uint64_t    get_id(const void* id) {

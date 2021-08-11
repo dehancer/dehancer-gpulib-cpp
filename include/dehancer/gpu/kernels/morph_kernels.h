@@ -25,11 +25,11 @@ DHCR_KERNEL void kernel_dilate(
   
   Texel2d tex_src; get_kernel_texel2d(source, tex_src);
   
-  float2 coords = get_texel_coords(tex) * make_float2(tex_src.size);
+  float2 coords = get_texel_coords(tex) * to_float2(tex_src.size);
   
-  int2 gid = make_int2(coords);
+  int2 gid = to_int2(coords);
   
-  float4  color = make_float4(0.0f);
+  float4  color = to_float4(0.0f);
   
   #pragma unroll
   for (int j = -size; j <= size; ++j) {
@@ -53,11 +53,11 @@ DHCR_KERNEL void kernel_erode(
   
   Texel2d tex_src; get_kernel_texel2d(source, tex_src);
   
-  float2 coords = get_texel_coords(tex) * make_float2(tex_src.size);
+  float2 coords = get_texel_coords(tex) * to_float2(tex_src.size);
   
-  int2 gid = make_int2(coords);
+  int2 gid = to_int2(coords);
   
-  float4  color = make_float4(1.0f);
+  float4  color = to_float4(1.0f);
 
 #pragma unroll
   for (int j = -size; j <= size; ++j) {

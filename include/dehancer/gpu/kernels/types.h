@@ -25,6 +25,8 @@
 
 #else
 
+//#include <CL/cl.h>
+
 #define DEHANCER_GPU_CODE 0
 
 /**
@@ -51,8 +53,6 @@ typedef  unsigned int uint;
 #define DHCR_DEVICE_ARG
 #define DHCR_THREAD_ARG
 #define DHCR_CONST_ARG
-#define bool_ref_t bool
-#define bool_t bool
 #define uint_ref_t unsigned int
 #define int_ref_t int
 #define float_ref_t  float
@@ -68,6 +68,13 @@ typedef  unsigned int uint;
 #define int3_ref_t int3
 #define int4_ref_t int4
 
+#if defined(DEHANCER_GPU_OPENCL)
+#define bool_ref_t uint
+#define bool_t uint
+#else
+#define bool_ref_t bool
+#define bool_t bool
+#endif
 #define bool2_ref_t bool2
 #define bool3_ref_t bool3
 #define bool4_ref_t bool4
@@ -107,8 +114,8 @@ typedef enum {
     DHCR_BoxAverage  = 2
 } DHCR_InterpolationMode;
 
-typedef struct {
-    bool_t  enabled;
+typedef struct { //__attribute__ ((packed))
+     uint enabled;//bool_t  enabled;
     float base;
     float lin_side_break;
     float lin_side_coeff;
@@ -117,7 +124,8 @@ typedef struct {
     float gamma_side_break;
 } DHCR_GammaParameters;
 
-typedef struct {
+//typedef struct  __attribute__ (( aligned (4) )) {
+typedef struct { // __attribute__ (( packed )) {
     bool_t  enabled;
     float base;
     float log_side_slope;
@@ -140,7 +148,7 @@ typedef struct {
 #endif
 } DHCR_LutParameters;
 
-typedef enum {
+typedef enum { // __attribute__ ((packed, aligned (16))) {
     DHCR_Forward = 0,
     DHCR_Inverse,
     DHCR_None

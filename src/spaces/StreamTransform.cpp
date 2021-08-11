@@ -6,6 +6,8 @@
 
 #include <utility>
 #include "dehancer/gpu/spaces/StreamSpaceCache.h"
+#include <iostream>
+#include <iomanip>
 
 namespace dehancer {
     
@@ -25,7 +27,7 @@ namespace dehancer {
     }
     
     void StreamTransform::setup (CommandEncoder &encoder) {
-      
+  
       auto transform_lut =
               StreamSpaceCache::Instance()
                       .get_lut(get_command_queue(), space_, direction_);
@@ -44,7 +46,7 @@ namespace dehancer {
       if (transform_lut)
         encoder.set(transform_lut->get_texture(), 2);
       
-      encoder.set(&space_,sizeof(space_),3);
+      encoder.set(space_,3);
       encoder.set(direction_,4);
       encoder.set(transform_lut_enabled,5);
       encoder.set(transform_function_enabled,6);

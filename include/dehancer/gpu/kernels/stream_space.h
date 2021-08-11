@@ -21,7 +21,7 @@ typedef struct {
     DHCR_LogParameters   log;
 } DHCR_StreamSpace_Params;
 
-typedef struct {
+typedef struct __attribute__((packed)) {
     
     bool_t is_identity;
     
