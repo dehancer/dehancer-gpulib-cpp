@@ -11,7 +11,7 @@
 
 
 static inline DHCR_DEVICE_FUNC
-float4 apply_gamma_forward( float4 in, DHCR_GammaParameters params) {
+float4 __attribute__((overloadable)) apply_gamma_forward( float4 in, DHCR_GammaParameters params) {
   float4 out;
 #if DEHANCER_GPU_CODE == 1
   out.x = gamma_forward_channel(in.x, params);
@@ -28,7 +28,7 @@ float4 apply_gamma_forward( float4 in, DHCR_GammaParameters params) {
 }
 
 static inline DHCR_DEVICE_FUNC
-float4 apply_gamma_inverse( float4 in, DHCR_GammaParameters params) {
+float4 __attribute__((overloadable)) apply_gamma_inverse( float4 in, DHCR_GammaParameters params) {
   float4 out;
 #if DEHANCER_GPU_CODE == 1
   out.x = gamma_inverse_channel(in.x, params);

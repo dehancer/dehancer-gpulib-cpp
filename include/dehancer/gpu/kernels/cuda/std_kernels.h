@@ -13,7 +13,7 @@
  * @param gid
  * @return
  */
-inline __device__ __host__ float4 __attribute__((overloadable)) sampled_color(
+inline __device__ float4 __attribute__((overloadable)) sampled_color(
         __read_only image2d_t source,
         int2 destination_size,
         int2 gid
@@ -38,7 +38,7 @@ inline __device__ __host__ float4 __attribute__((overloadable)) sampled_color(
  * @param gid
  * @return
  */
-inline __device__ __host__ float4 __attribute__((overloadable))  bicubic_sampled_color(
+inline __device__ float4 __attribute__((overloadable))  bicubic_sampled_color(
         __read_only image2d_t source,
         int2 destination_size,
         int2 gid
@@ -63,7 +63,7 @@ inline __device__ __host__ float4 __attribute__((overloadable))  bicubic_sampled
  * @param gid
  * @return
  */
-inline __device__ __host__ float4 __attribute__((overloadable)) box_average_sampled_color(
+inline __device__ float4 __attribute__((overloadable)) box_average_sampled_color(
         __read_only image2d_t source,
         int2 destination_size,
         int2 gid

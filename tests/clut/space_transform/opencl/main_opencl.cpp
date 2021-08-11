@@ -3,14 +3,14 @@
 //
 
 #include "gtest/gtest.h"
-#include "../function.h"
+#include "../space_transform.h"
 #include "tests/include/run_test.h"
 
-TEST(TEST, OPENCL_GAMMA) {
+TEST(TEST, CLUT_IDENTITY) {
 
   std::cout << std::endl;
   std::cerr << std::endl;
-
-  run_images("opencl", function_test);
+  
+  load_from_cache("opencl");
 
 }

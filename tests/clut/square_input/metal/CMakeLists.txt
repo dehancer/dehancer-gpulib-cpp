@@ -8,5 +8,5 @@ endif()
 
 set (DEHANCER_CURRENT_PLATFORM_METAL ON)
 
-set (TEST metal-load-xmpy-test)
+set (TEST metal-square-input-test)
 include(${CMAKE_SOURCE_DIR}/tests/CMakeCommon.in)

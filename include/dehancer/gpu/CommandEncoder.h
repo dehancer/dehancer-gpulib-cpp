@@ -7,6 +7,7 @@
 #include "dehancer/gpu/Typedefs.h"
 #include "dehancer/gpu/Texture.h"
 #include "dehancer/gpu/Memory.h"
+#include "StreamSpace.h"
 
 namespace dehancer {
     /***
@@ -79,5 +80,7 @@ namespace dehancer {
         virtual void set(const math::bool2& p, int index);
         virtual void set(const math::bool3& p, int index);
         virtual void set(const math::bool4& p, int index);
+        
+        virtual void set(const dehancer::StreamSpace& p, int index);
     };
 }

@@ -33,7 +33,7 @@ DHCR_KERNEL void  kernel_overlay_image(
   
   base          = sampled_color(source, tex.size, tex.gid);
   
-  int2 coords = tex.gid-make_int2(offset);
+  int2 coords = tex.gid-to_int2(offset);
   
   if (coords.x>=0 && coords.y>=0 && coords.x<tex_ovr.size.x && coords.y<tex_ovr.size.y) {
     coords = make_int2(
@@ -42,11 +42,11 @@ DHCR_KERNEL void  kernel_overlay_image(
     overlay_color = sampled_color(overlay, tex_ovr.size, coords);
   }
   else
-    overlay_color = make_float4(0.0f);
+    overlay_color = to_float4(0.0f);
   
   float4 result = mix(base, overlay_color, overlay_color.w);
 
-  float4 mask_rgba = make_float4(opacity);
+  float4 mask_rgba = to_float4(opacity);
   
   result = blend(base, result, DHCR_Normal, mask_rgba);
   

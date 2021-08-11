@@ -39,10 +39,10 @@ float4  tex2D_bilinear(texture2d_read_t source, float x, float y)
   float4 q22 = read_image(source, gid_src+make_int2(dx,dy));
   float4 q21 = read_image(source, gid_src+make_int2(dx,0 ));
   
-  float4 c1  = mix(q11,q21,make_float4(px));
-  float4 c2  = mix(q12,q22,make_float4(px));
+  float4 c1  = mix(q11,q21,to_float4(px));
+  float4 c2  = mix(q12,q22,to_float4(px));
   
-  return mix(c1,c2,make_float4(py));
+  return mix(c1,c2,to_float4(py));
 }
 
 /***
@@ -77,16 +77,16 @@ float4 tex3D_trilinear(texture3d_read_t source, float x, float y, float z)
   
   int3   gid_src = make_int3(u,v,w);
   
-  float3 R0G0B0 = make_float3(read_image(source, gid_src+make_int3(0,  0,  0 )));
-  float3 R0G0B1 = make_float3(read_image(source, gid_src+make_int3(0,  0,  dw)));
-  float3 R1G0B0 = make_float3(read_image(source, gid_src+make_int3(dx, 0,  0 )));
-  float3 R0G1B0 = make_float3(read_image(source, gid_src+make_int3(0,  dy, 0 )));
+  float3 R0G0B0 = to_float3(read_image(source, gid_src+make_int3(0,  0,  0 )));
+  float3 R0G0B1 = to_float3(read_image(source, gid_src+make_int3(0,  0,  dw)));
+  float3 R1G0B0 = to_float3(read_image(source, gid_src+make_int3(dx, 0,  0 )));
+  float3 R0G1B0 = to_float3(read_image(source, gid_src+make_int3(0,  dy, 0 )));
   
-  float3 R1G0B1 = make_float3(read_image(source, gid_src+make_int3(dx, 0,  dw)));
-  float3 R1G1B0 = make_float3(read_image(source, gid_src+make_int3(dx, dy, 0 )));
-  float3 R0G1B1 = make_float3(read_image(source, gid_src+make_int3(0,  dy, dw)));
+  float3 R1G0B1 = to_float3(read_image(source, gid_src+make_int3(dx, 0,  dw)));
+  float3 R1G1B0 = to_float3(read_image(source, gid_src+make_int3(dx, dy, 0 )));
+  float3 R0G1B1 = to_float3(read_image(source, gid_src+make_int3(0,  dy, dw)));
   
-  float3 R1G1B1 = make_float3(read_image(source, gid_src+make_int3(dx, dy, dw)));
+  float3 R1G1B1 = to_float3(read_image(source, gid_src+make_int3(dx, dy, dw)));
   
   float R0 = R0G0B0.x * dim.x;
   float G0 = R0G0B0.y * dim.y;
@@ -111,7 +111,7 @@ float4 tex3D_trilinear(texture3d_read_t source, float x, float y, float z)
   
   float3 rgb = c0 + c1*tb + c2*tr + c3*tg + c4*tb*tr + c5*tr*tg + c6*tg*tb + c7*tr*tg*tb;
   
-  return make_float4(rgb,1.0f);
+  return to_float4(rgb,1.0f);
 }
 
 inline DHCR_DEVICE_FUNC
@@ -180,10 +180,10 @@ float w3(float a)
 inline DHCR_DEVICE_FUNC
 float4 __attribute__((overloadable))  cubicFilter(float x, float4 c0, float4  c1, float4  c2, float4  c3)
 {
-  float4 r = c0 * make_float4(w0(x));
-  r += c1 * make_float4(w1(x));
-  r += c2 * make_float4(w2(x));
-  r += c3 * make_float4(w3(x));
+  float4 r = c0 * to_float4(w0(x));
+  r += c1 * to_float4(w1(x));
+  r += c2 * to_float4(w2(x));
+  r += c3 * to_float4(w3(x));
   return r;
 }
 
@@ -301,9 +301,9 @@ float4 tex2D_box_average(texture2d_read_t tex, float x, float y)
   xy += read_image(tex, gid + make_int2( 0, 1));
   xy += read_image(tex, gid + make_int2( 1, 1));
   
-  float3 w = make_float3(1.0f/9.0f);
+  float3 w = to_float3(1.0f/9.0f);
   
-  return make_float4((make_float3(xy) * w),1.0f);
+  return to_float4((to_float3(xy) * w),1.0f);
 }
 
 #endif //DEHANCER_GPULIB_RESAMPLE_H

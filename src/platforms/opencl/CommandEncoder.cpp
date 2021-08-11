@@ -26,7 +26,7 @@ namespace dehancer::opencl {
       if (kernel_){
         auto ret = clSetKernelArg(kernel_, index, bytes_length,  bytes);
         if (ret != CL_SUCCESS)
-          throw std::runtime_error("Unable to pass to kernel "+function_->get_name()+" bytes at index: " + std::to_string(index));
+          throw std::runtime_error("Unable to pass to kernel "+function_->get_name()+" bytes at index: " + std::to_string(index) + ", error code: " + std::to_string(ret));
       }
       else {
         throw std::runtime_error("Unable to pass bytes to null kernel "+function_->get_name());
@@ -69,24 +69,6 @@ namespace dehancer::opencl {
       cl_bool buf = p;
       set(&buf, sizeof(buf), index);
     }
-
-    void CommandEncoder::set(const float2x2& m, int index){
-      cl_float4 mat;
-      for (int i = 0; i < m.size(); ++i) mat.s[i]=m[i];
-      set(&mat, sizeof(mat), index);
-    };
-    
-    void CommandEncoder::set(const float3x3& m, int index){
-      cl_float mat[9];
-      for (int i = 0; i < m.size(); ++i) mat[i]=m[i];
-      set(&mat, sizeof(mat), index);
-    };
-    
-    void CommandEncoder::set(const float4x4& m, int index){
-      cl_float16 mat;
-      for (int i = 0; i < m.size(); ++i) mat.s[i]=m[i];
-      set(&mat, sizeof(mat), index);
-    };
     
     void CommandEncoder::set(const math::uint4 &p, int index) {
       cl_uint4 buf = { p.x(), p.y(), p.z(), p.w()};
@@ -132,5 +114,29 @@ namespace dehancer::opencl {
       cl_uint2 buf = { p.x(), p.y()};
       set(&buf, sizeof(buf), index);
     }
-  
+    
+    void CommandEncoder::set(const float2x2& m, int index){
+      cl_float4 mat;
+      for (int i = 0; i < m.size(); ++i) mat.s[i]=m[i];
+      set(&mat, sizeof(mat), index);
+    };
+    
+    void CommandEncoder::set(const float3x3& m, int index){
+      cl_float mat[9];
+      for (int i = 0; i < m.size(); ++i) mat[i]=m[i];
+      set(&mat, sizeof(mat), index);
+    };
+    
+    void CommandEncoder::set(const float4x4& m, int index){
+      cl_float16 mat;
+      for (int i = 0; i < m.size(); ++i) mat.s[i]=m[i];
+      set(&mat, sizeof(mat), index);
+    }
+    
+   
+//    void CommandEncoder::set (const dehancer::StreamSpace &p, int index) {
+//      gpu_DHCR_StreamSpace space{};
+//      std::cout << "CommandEncoder set(space(), "<<index<<") " << std::endl;
+//      set(&space, sizeof(space), index);
+//    }
 }

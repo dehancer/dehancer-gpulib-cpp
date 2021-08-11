@@ -7,6 +7,64 @@
 
 #include "dehancer/gpu/kernels/stream_space.h"
 
+//typedef struct  __attribute__((packed)) {
+//
+//    bool_t is_identity;
+//
+//    /***
+//     * Forward transformation matrix from current space to another
+//     */
+//    float4x4 cs_forward_matrix;
+//
+//    /***
+//     * Inverse transformation matrix to current space from another
+//     */
+//    float4x4 cs_inverse_matrix;
+//
+//    /***
+//     * Polynomial and Gama/Log transformation parameters
+//     */
+//    DHCR_StreamSpace_Params cs_params;
+//
+//} gpu_DHCR_StreamSpace_TransformFunc;
+//
+//typedef struct {
+//    bool_t   enabled;
+//    uint   size;
+//    uint   channels;
+//} gpu_DHCR_LutParameters;
+//
+//
+//typedef struct {
+//    bool_t is_identity;
+//    gpu_DHCR_LutParameters forward;
+//    gpu_DHCR_LutParameters inverse;
+//} gpu_DHCR_StreamSpace_TransformLut;
+//
+//
+//typedef struct {
+//    /***
+//     * Space type
+//     */
+//    DHCR_StreamSpace_Type           type;
+//
+//    /***
+//     * Transformed image can be analyzed and expanded
+//     */
+//    bool_t                          expandable;
+//
+//    /***
+//     * Transform function
+//     */
+//    gpu_DHCR_StreamSpace_TransformFunc  transform_func;
+//
+//    /***
+//     * Transform table
+//     */
+//    gpu_DHCR_StreamSpace_TransformLut   transform_lut;
+//
+//} gpu_DHCR_StreamSpace;
+
 DHCR_KERNEL void  kernel_stream_transform(
         texture2d_read_t         source DHCR_BIND_TEXTURE(0),
         texture2d_write_t   destination DHCR_BIND_TEXTURE(1),
@@ -29,20 +87,20 @@ DHCR_KERNEL void  kernel_stream_transform(
   if (transform_function_enabled) {
     color = transform(color, space, direction);
   }
-  
+
   if (transform_lut_enabled) {
     // calibrated coeff
     if (direction == DHCR_Forward) {
-      float4 a_low  = make_float4(-0.01);
-      float4 a_high = make_float4(1.009);
+      float4 a_low  = to_float4(-0.01f);
+      float4 a_high = to_float4(1.009f);
       color = (color - a_low) / (a_high - a_low);
     }
-    color = read_image(transform_lut, make_float3(color));
+    color = read_image(transform_lut, to_float3(color));
   }
-  
+
   color = mix(inColor, color, impact);
   
-  write_image(destination, make_float4(make_float3(color),inColor.w), tex.gid);
+  write_image(destination, to_float4(to_float3(color),inColor.w), tex.gid);
 }
 
 #endif //DEHANCER_GPULIB_STREAM_KERNELS_H
