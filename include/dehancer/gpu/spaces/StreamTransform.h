@@ -21,7 +21,7 @@ namespace dehancer {
         
         void setup(CommandEncoder &commandEncoder) override ;
         
-        void set_space(StreamSpace space);
+        void set_space(const StreamSpace& space);
         void set_direction(StreamSpaceDirection direction);
         void set_impact(float impact);
         
