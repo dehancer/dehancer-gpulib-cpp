@@ -21,7 +21,11 @@ typedef struct {
     DHCR_LogParameters   log;
 } DHCR_StreamSpace_Params;
 
-typedef struct __attribute__((packed)) {
+typedef struct
+#if defined(CL_VERSION_1_2) || defined(DEHANCER_GPU_OPENCL)
+__attribute__ ((packed))
+#endif
+{
     
     bool_t is_identity;
     
@@ -48,7 +52,7 @@ typedef struct {
     DHCR_LutParameters inverse;
 } DHCR_StreamSpace_TransformLut;
 
-typedef struct _DHCR_StreamSpace_{
+typedef struct _DHCR_StreamSpace_ {
     /***
      * Space type
      */
@@ -207,14 +211,12 @@ float4x4 float4x4_multiply_float4x4( float4x4 M,  float4x4 N)
 static inline DHCR_DEVICE_FUNC
 float4 transform( float4 in_, DHCR_StreamSpace space, DHCR_TransformDirection direction) {
   
-  float4 out = in_;//make_float4(in_.x, in_.y, in_.z, in_.w);
+  float4 next = in_;
   
-  out = float4_multiply_float4x4(out,
+  next = float4_multiply_float4x4(next,
                                  direction == DHCR_Forward
                                  ? space.transform_func.cs_forward_matrix
                                  : space.transform_func.cs_inverse_matrix);
-  
-  float4 next = out;//make_float4(out.x, out.y, out.z, out.w);
   
   if (direction == DHCR_Forward) {
     
@@ -237,8 +239,6 @@ float4 transform( float4 in_, DHCR_StreamSpace space, DHCR_TransformDirection di
     }
     
   }
-  
-  //out = make_float4(next.x, next.y, next.z, next.w);
   
   return next;
 };

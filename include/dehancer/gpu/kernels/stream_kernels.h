@@ -25,28 +25,27 @@ DHCR_KERNEL void  kernel_stream_transform(
   
   float4 inColor = sampled_color(source, tex.size, tex.gid);
   
-  inColor.x = 0;
   write_image(destination, inColor, tex.gid);
   
-//  float4 color  = inColor;
-//
-//  if (transform_function_enabled) {
-//    color = transform(color, space, direction);
-//  }
-//
-//  if (transform_lut_enabled) {
-//    // calibrated coeff
-//    if (direction == DHCR_Forward) {
-//      float4 a_low  = to_float4(-0.01f);
-//      float4 a_high = to_float4(1.009f);
-//      color = (color - a_low) / (a_high - a_low);
-//    }
-//    color = read_image(transform_lut, to_float3(color));
-//  }
-//
-//  color = mix(inColor, color, impact);
-//
-//  write_image(destination, to_float4(to_float3(color),inColor.w), tex.gid);
+  float4 color  = inColor;
+
+  if (transform_function_enabled) {
+    color = transform(color, space, direction);
+  }
+
+  if (transform_lut_enabled) {
+    // calibrated coeff
+    if (direction == DHCR_Forward) {
+      float4 a_low  = to_float4(-0.01f);
+      float4 a_high = to_float4(1.009f);
+      color = (color - a_low) / (a_high - a_low);
+    }
+    color = read_image(transform_lut, to_float3(color));
+  }
+
+  color = mix(inColor, color, impact);
+
+  write_image(destination, to_float4(to_float3(color),inColor.w), tex.gid);
 }
 
 #endif //DEHANCER_GPULIB_STREAM_KERNELS_H
