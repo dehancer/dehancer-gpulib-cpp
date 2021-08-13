@@ -33,4 +33,9 @@ namespace dehancer::metal {
         throw std::runtime_error("Unable to pass buffer to null kernel");
       }
     }
+    
+    void CommandEncoder::set (const StreamSpace &p, int index) {
+      StreamSpace copy = p;
+      set(&copy, sizeof(copy), index);
+    }
 }
