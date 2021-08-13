@@ -10,7 +10,7 @@
 DHCR_KERNEL void  kernel_stream_transform(
         texture2d_read_t         source DHCR_BIND_TEXTURE(0),
         texture2d_write_t   destination DHCR_BIND_TEXTURE(1)//,
-        //texture3d_read_t  transform_lut DHCR_BIND_TEXTURE(2),
+        texture3d_read_t  transform_lut DHCR_BIND_TEXTURE(2),
         //DHCR_CONST_ARG_REF (DHCR_StreamSpace)                        space DHCR_BIND_BUFFER(3),
         //DHCR_CONST_ARG_REF (DHCR_TransformDirection)             direction DHCR_BIND_BUFFER(4),
         //DHCR_CONST_ARG  bool_ref_t                   transform_lut_enabled DHCR_BIND_BUFFER(5),

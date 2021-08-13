@@ -44,7 +44,7 @@ namespace dehancer {
       bool transform_function_enabled = !space_.transform_func.is_identity;
   
      //// if (transform_lut)
-        //encoder.set(transform_lut->get_texture(), 2);
+        encoder.set(transform_lut->get_texture(), 2);
       
       //encoder.set(space_,3);
       //encoder.set(direction_,4);
