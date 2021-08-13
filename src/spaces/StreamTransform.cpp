@@ -43,7 +43,7 @@ namespace dehancer {
   
       bool transform_function_enabled = !space_.transform_func.is_identity;
   
-      if (transform_lut)
+     //// if (transform_lut)
         encoder.set(transform_lut->get_texture(), 2);
       
       encoder.set(space_,3);
@@ -53,8 +53,8 @@ namespace dehancer {
       encoder.set(impact_,7);
     }
     
-    void StreamTransform::set_space (StreamSpace space) {
-      space_ = std::move(space);
+    void StreamTransform::set_space (const StreamSpace& space) {
+      space_ = space; //std::move(space);
     }
     
     void StreamTransform::set_direction (StreamSpaceDirection direction) {
