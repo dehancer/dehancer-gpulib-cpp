@@ -46,7 +46,7 @@ namespace dehancer {
      //// if (transform_lut)
         encoder.set(transform_lut->get_texture(), 2);
       
-      //encoder.set(space_,3);
+      encoder.set(space_,3);
       encoder.set(direction_,4);
       encoder.set(transform_lut_enabled,5);
       encoder.set(transform_function_enabled,6);
