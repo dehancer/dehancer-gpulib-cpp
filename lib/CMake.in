@@ -62,3 +62,21 @@ install(DIRECTORY
         PATTERN *gtest* EXCLUDE
         PATTERN *gmock* EXCLUDE
         )
+
+install(DIRECTORY ${PUBLIC_INCLUDE_FILES}
+        DESTINATION include
+        FILES_MATCHING PATTERN "*.h"
+        )
+
+set(prefix ${CMAKE_INSTALL_PREFIX})
+set(exec_prefix "\${prefix}")
+set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
+set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
+set(dehancer_gpu_cpp_lib ${PROJECT_LIB_PLATFORM})
+
+configure_file(${CMAKE_SOURCE_DIR}/dehancer-gpulib-cpp.pc.in ${CMAKE_CURRENT_BINARY_DIR}/dehancer-gpulib-cpp.pc @ONLY)
+
+install(FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/dehancer-gpulib-cpp.pc
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+        )

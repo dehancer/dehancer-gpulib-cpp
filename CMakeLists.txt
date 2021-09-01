@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.12)
 #
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 1.0.2)
+project(${PROJECT_LIB} VERSION 1.0.4)
 
 #
 # Options
@@ -153,7 +153,7 @@ endif ()
 #
 set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
 set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib64/pkgconfig)
-set(ENV{PKG_CONFIG_PATH} $ENV{SYSROOT}/usr/local/dehancer/lib/pkgconfig)
+set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:$ENV{SYSROOT}:/usr/local/dehancer/lib/pkgconfig)
 
 find_package (Threads REQUIRED)
 find_package (PkgConfig REQUIRED)

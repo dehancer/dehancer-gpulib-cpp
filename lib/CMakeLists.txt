@@ -43,10 +43,10 @@ if(DEHANCER_GPU_CUDA)
 endif ()
 
 
-install(DIRECTORY ${PUBLIC_INCLUDE_FILES}
-        DESTINATION include
-        FILES_MATCHING PATTERN "*.h"
-        )
+#install(DIRECTORY ${PUBLIC_INCLUDE_FILES}
+#        DESTINATION include
+#        FILES_MATCHING PATTERN "*.h"
+#        )
 
 #file(LOCK ${lock} RELEASE)
 #message("RELEASE ${lock}")
