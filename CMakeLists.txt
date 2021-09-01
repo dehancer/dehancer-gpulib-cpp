@@ -153,7 +153,7 @@ endif ()
 #
 set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
 set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib64/pkgconfig)
-set(ENV{PKG_CONFIG_PATH} $ENV{SYSROOT}/usr/local/dehancer/lib/pkgconfig)
+set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:$ENV{SYSROOT}:/usr/local/dehancer/lib/pkgconfig)
 
 find_package (Threads REQUIRED)
 find_package (PkgConfig REQUIRED)
