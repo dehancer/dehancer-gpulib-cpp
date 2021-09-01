@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.12)
 #
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 1.0.2)
+project(${PROJECT_LIB} VERSION 1.0.4)
 
 #
 # Options
