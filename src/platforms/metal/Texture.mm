@@ -21,7 +21,7 @@ namespace dehancer::metal {
     {
       
       auto text_hash = desc_.get_hash();
-      auto dev_hash  = reinterpret_cast<size_t>(command_queue);
+      //auto dev_hash  = reinterpret_cast<size_t>(command_queue);
       
       MTLTextureDescriptor *descriptor = [[MTLTextureDescriptor new] autorelease];
       
@@ -119,9 +119,10 @@ namespace dehancer::metal {
         id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
         [blitEncoder synchronizeTexture:texture_item_->texture slice:0 level:0];
         [blitEncoder endEncoding];
-
+        
         [commandBuffer commit];
         [commandBuffer waitUntilCompleted];
+        
       }
     }
     
@@ -239,14 +240,13 @@ namespace dehancer::metal {
       return desc_.type;
     }
     
-    TextureHolder::~TextureHolder() = default;
-//    {
-//      if (texture_item_->texture) {
-//        #ifdef PRINT_DEBUG
-//        dehancer::log::print(" ### ~TextureHolder(Metal): %p", texture_item_->texture);
-//        #endif
-//        //[texture_ release];
-//      }
-//    }
+    TextureHolder::~TextureHolder()
+    {
+      if (texture_item_->texture) {
+        #ifdef PRINT_DEBUG
+        dehancer::log::print(" ### ~TextureHolder(Metal): %p", texture_item_->texture);
+        #endif
+      }
+    }
 
 }

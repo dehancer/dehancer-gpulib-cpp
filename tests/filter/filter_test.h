@@ -207,9 +207,9 @@ auto filter_test =  [] (int dev_num,
     filter.set_enable(2, true);
     filter.set_enable(3, true);
     
-    for (int i = 0; i < 4; ++i) {
+    //for (int i = 0; i < 4; ++i) {
       filter.process(true) ;
-    }
+    //}
     
     
     std::cout<<"Filter " << filter.get_name() << " done..." << std::endl;
