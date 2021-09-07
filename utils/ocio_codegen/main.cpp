@@ -5,19 +5,223 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include "dehancer/gpu/Lib.h"
 
+#include "dehancer/gpu/Lib.h"
 #include "OpenColorIO/OpenColorIO.h"
 #include "OpenColorIO/OpenColorTransforms.h"
-//#include "OpenColorIO/transforms/Lut3DTransform.h"
-//#include "OpenColorIO/OpBuilders.h"
+
+#include "utils/metal/paths_config.h"
 
 namespace OCIO = OCIO_NAMESPACE;
 
-int main(int argc, char **) {
-  OCIO::ConstConfigRcPtr config    = OCIO::Config::Create();
-  OCIO::FileTransformRcPtr cube_transform = OCIO::FileTransform::Create();
-  cube_transform->setInterpolation(OCIO::INTERP_LINEAR);
-  cube_transform->setDirection(OCIO::TRANSFORM_DIR_FORWARD);
-  return 0;
+int main(int argc, char** argv) {
+  
+  if (argc != 6) {
+    std::cerr << "Usage: " << argv[0] << " <ocio namespace> <Forward transform 3D Cube file-path> <Inverse transform 3D Cube file-path> <c++-file-path-forward> <c++-file-path-inverse>" << std::endl;
+    return EXIT_FAILURE;
+  }
+  
+  int argc_next = 0;
+  std::string ocio_namespace = argv[++argc_next];
+  
+  try {
+    
+    /**
+     * Initializes
+     */
+    std::vector<std::string> namesapces = {"forward","inverse"};
+    std::vector<std::vector<float>> luts_data;
+    
+    luts_data.emplace_back();
+    luts_data.emplace_back();
+    
+    auto command_queue = dehancer::DeviceCache::Instance().get_default_command_queue();
+    
+    if (!command_queue) {
+      std::cerr << "Could not get default command queue" << std::endl;
+      return EXIT_FAILURE;
+    }
+    
+    dehancer::CLutCubeInput forward_cube(command_queue);
+    
+    std::string file_forward_path = argv[++argc_next];
+    std::string file_inverse_path = argv[++argc_next];
+    
+    {
+      /***
+       * Load cube file
+       */
+      std::ifstream cube_is(file_forward_path, std::ostream::binary);
+      cube_is >> forward_cube;
+    }
+    
+    auto lut_size = forward_cube.get_lut_size();
+    auto lut_channels = forward_cube.get_channels();
+    
+    forward_cube.get_texture()->get_contents(luts_data[0]);
+    
+    /**
+     * OpenColorIO
+     */
+    
+    ///
+    /// Forward Validation
+    ///
+    OCIO::FileTransformRcPtr cube_transform = OCIO::FileTransform::Create();
+    
+    cube_transform->setInterpolation(OCIO::INTERP_TETRAHEDRAL);
+    cube_transform->setDirection(OCIO::TRANSFORM_DIR_FORWARD);
+    cube_transform->setSrc(file_forward_path.c_str());
+    cube_transform->validate();
+    
+    std::cout << " >> " << *cube_transform << std::endl;
+    
+    OCIO::ConstConfigRcPtr config = OCIO::Config::Create();
+    
+    OCIO::ConstProcessorRcPtr proc_forward = config->getProcessor(cube_transform);
+    OCIO::ConstCPUProcessorRcPtr cpu_forward = proc_forward->getDefaultCPUProcessor();
+    
+    auto identity_cube = dehancer::CLut3DIdentity(command_queue, 64);
+    std::vector<float> identity_data;
+    identity_cube.get_texture()->get_contents(identity_data);
+    
+    /* IN */
+    OCIO::PackedImageDesc in_desc(
+            (void *)identity_data.data(),
+            long(identity_data.size() / identity_cube.get_channels()),
+            1,
+            identity_cube.get_channels());
+    
+    /* FORWARD */
+    std::vector<float> vals_froward(identity_data.size(), -1.0f);
+    OCIO::PackedImageDesc out_forward_desc(
+            vals_froward.data(),
+            long(vals_froward.size() / identity_cube.get_channels()),
+            1,
+            identity_cube.get_channels());
+    
+    
+    /* INVERSE */
+    std::vector<float> vals_inverese(identity_data.size(), -1.0f);
+    OCIO::PackedImageDesc out_inverse_desc(
+            vals_inverese.data(),
+            long(vals_inverese.size() / identity_cube.get_channels()),
+            1,
+            identity_cube.get_channels());
+    
+    /***
+     * Configureing inverse transformation
+     */
+  
+    OCIO::FileTransformRcPtr cube_transform_inverese = OCIO::FileTransform::Create();
+    cube_transform_inverese->setInterpolation(OCIO::INTERP_TETRAHEDRAL);
+    cube_transform_inverese->setDirection(OCIO::TRANSFORM_DIR_INVERSE);
+    cube_transform_inverese->setSrc(file_forward_path.c_str());
+    cube_transform_inverese->validate();
+  
+    OCIO::ConstProcessorRcPtr    proc_inverse = config->getProcessor(cube_transform_inverese);
+    OCIO::ConstCPUProcessorRcPtr cpu_inverese = proc_inverse->getDefaultCPUProcessor();
+    
+    cpu_forward->apply(in_desc, out_forward_desc);
+    cpu_inverese->apply(in_desc, out_inverse_desc);
+  
+    luts_data[0] = vals_froward;
+    luts_data[1] = vals_inverese;
+    
+    /* Release GPU */
+    dehancer::DeviceCache::Instance().return_command_queue(command_queue);
+    
+    /**
+     * Generate embedded lut data
+     */
+    
+    int index = 0;
+    ++argc_next;
+    for(auto& data: luts_data ) {
+      
+      std::ofstream os(argv[index+argc_next]);
+      auto namesp = namesapces[index++];
+      
+      auto size = lut_size;
+      size = size * size * size;
+      os << "// " << std::endl
+         << "// Generated by Dehancer OCIO Builtin Generator" << std::endl
+         << "//" << std::endl
+         << "#include <stdlib.h>" << std::endl
+         << "" << std::endl
+         << "namespace dehancer::ocio::"<<ocio_namespace<<"::"<< namesp << " {" << std::endl
+         << "\tsize_t __lut__size__ = " << lut_size << ";" << std::endl
+         << "\tsize_t __lut__channels__ = " << lut_channels << ";" << std::endl
+         << "\tfloat __lut__data__[" << size * 4 << "] = {" << std::endl;
+      
+      size_t i = 0;
+      for (; i < data.size();) {
+        os << "\t\t"
+           << std::fixed << std::setw(1) << std::setprecision(6)
+           << data[i++] << "f, " << data[i++] << "f, " << data[i++]
+           << "f, 1.0f";
+        i++;
+        if (i < data.size()) os << ", ";
+        os << std::endl;
+      }
+      
+      os << std::endl
+         << "\t};" << std::endl
+         << "}" << std::endl;
+    }
+    
+    return EXIT_SUCCESS;
+  }
+  catch (const std::exception &e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+    return EXIT_FAILURE;
+  }
 }
+
+
+namespace dehancer {
+    /**
+     * Must be defined in certain plugin
+     * @return
+     */
+    
+    extern std::string get_installation_path(){
+      return "";
+    }
+}
+
+#ifdef DEHANCER_GPU_CUDA
+
+namespace dehancer::device {
+    
+    /**
+      * MUST BE defined in certain plugin module
+      * @return cuda lib path.
+      */
+    std::string get_lib_path () {
+      return CUDA_KERNELS_LIBRARY;
+    }
+    
+    extern std::size_t get_lib_source (std::string &source) {
+      return 0;
+    }
+}
+
+#elif DEHANCER_GPU_METAL
+
+namespace dehancer::device {
+    
+    /**
+     * MUST BE defined in certain plugin module
+     * @return metal lib path.
+     */
+    std::string get_lib_path () {
+      return METAL_KERNELS_LIBRARY;
+    }
+    
+    extern std::size_t get_lib_source (std::string &source) {
+      return 0;
+    }
+}
+
+#endif

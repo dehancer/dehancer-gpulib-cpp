@@ -31,7 +31,7 @@ elseif(DEHANCER_CURRENT_PLATFORM_OPENCL)
     set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_opencl)
 
     file (GLOB REGISTRY_SOURCES ${REGISTRY_SOURCES}
-            ${CMAKE_SOURCE_DIR}/tests/shaders/opencl/Registry.cpp
+            ${CMAKE_SOURCE_DIR}/utils/shaders/opencl/Registry.cpp
             )
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES}; ${CURRENT_KERNEL_TARGET_NAME}_opencl)
 
