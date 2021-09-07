@@ -22,12 +22,10 @@ void BuildOps(OpRcPtrVec & ops,
 ////////////////////////////////////////////////////////////////////////
 
 void BuildAllocationOp(OpRcPtrVec & ops,
-                       const Config & config,
                        const AllocationTransform & transform,
                        TransformDirection dir);
 
 void BuildBuiltinOps(OpRcPtrVec & ops,
-                     const Config & config,
                      const BuiltinTransform & transform,
                      TransformDirection dir);
 
@@ -46,17 +44,20 @@ void BuildColorSpaceOps(OpRcPtrVec & ops,
                         const Config & config,
                         const ConstContextRcPtr & context,
                         const ConstColorSpaceRcPtr & srcColorSpace,
-                        const ConstColorSpaceRcPtr & dstColorSpace);
+                        const ConstColorSpaceRcPtr & dstColorSpace,
+                        bool dataBypass);
 
 void BuildColorSpaceToReferenceOps(OpRcPtrVec & ops,
                                    const Config & config,
                                    const ConstContextRcPtr & context,
-                                   const ConstColorSpaceRcPtr & srcColorSpace);
+                                   const ConstColorSpaceRcPtr & srcColorSpace,
+                                   bool dataBypass);
 
 void BuildColorSpaceFromReferenceOps(OpRcPtrVec & ops,
                                      const Config & config,
                                      const ConstContextRcPtr & context,
-                                     const ConstColorSpaceRcPtr & dstColorSpace);
+                                     const ConstColorSpaceRcPtr & dstColorSpace,
+                                     bool dataBypass);
 
 void BuildReferenceConversionOps(OpRcPtrVec & ops,
                                  const Config & config,
@@ -67,7 +68,7 @@ void BuildReferenceConversionOps(OpRcPtrVec & ops,
 void BuildDisplayOps(OpRcPtrVec & ops,
                      const Config & config,
                      const ConstContextRcPtr & context,
-                     const DisplayTransform & transform,
+                     const DisplayViewTransform & transform,
                      TransformDirection dir);
 
 void BuildExponentOp(OpRcPtrVec & ops,
@@ -76,12 +77,10 @@ void BuildExponentOp(OpRcPtrVec & ops,
                      TransformDirection dir);
 
 void BuildExponentWithLinearOp(OpRcPtrVec & ops,
-                               const Config & config,
                                const ExponentWithLinearTransform & transform,
                                TransformDirection dir);
 
 void BuildExposureContrastOp(OpRcPtrVec & ops,
-                             const Config & config,
                              const ExposureContrastTransform & transform,
                              TransformDirection dir);
 
@@ -92,10 +91,26 @@ void BuildFileTransformOps(OpRcPtrVec & ops,
                            TransformDirection dir);
 
 void BuildFixedFunctionOp(OpRcPtrVec & ops,
-                          const Config & config,
-                          const ConstContextRcPtr & context,
                           const FixedFunctionTransform & transform,
                           TransformDirection dir);
+
+void BuildGradingPrimaryOp(OpRcPtrVec & ops,
+                           const Config & config,
+                           const ConstContextRcPtr & context,
+                           const GradingPrimaryTransform & transform,
+                           TransformDirection dir);
+
+void BuildGradingRGBCurveOp(OpRcPtrVec & ops,
+                            const Config & config,
+                            const ConstContextRcPtr & context,
+                            const GradingRGBCurveTransform & transform,
+                            TransformDirection dir);
+
+void BuildGradingToneOp(OpRcPtrVec & ops,
+                        const Config & config,
+                        const ConstContextRcPtr & context,
+                        const GradingToneTransform & transform,
+                        TransformDirection dir);
 
 void BuildGroupOps(OpRcPtrVec & ops,
                    const Config & config,
@@ -104,17 +119,14 @@ void BuildGroupOps(OpRcPtrVec & ops,
                    TransformDirection dir);
 
 void BuildLogOp(OpRcPtrVec & ops,
-                const Config & config,
                 const LogAffineTransform& transform,
                 TransformDirection dir);
 
 void BuildLogOp(OpRcPtrVec & ops,
-                const Config & config,
                 const LogCameraTransform& transform,
                 TransformDirection dir);
 
 void BuildLogOp(OpRcPtrVec & ops,
-                const Config & config,
                 const LogTransform& transform,
                 TransformDirection dir);
 
@@ -126,30 +138,30 @@ void BuildLookOps(OpRcPtrVec & ops,
 
 void BuildLookOps(OpRcPtrVec & ops,
                   ConstColorSpaceRcPtr & currentColorSpace,
-                  bool skipColorSpaceConversions,
+                  bool skipColorSpaceConversion,
                   const Config & config,
                   const ConstContextRcPtr & context,
                   const LookParseResult & looks);
 
 void BuildLut1DOp(OpRcPtrVec & ops,
-                  const Config & config,
                   const Lut1DTransform & transform,
                   TransformDirection dir);
 
 void BuildLut3DOp(OpRcPtrVec & ops,
-                  const Config & config,
                   const Lut3DTransform & transform,
                   TransformDirection dir);
 
 void BuildMatrixOp(OpRcPtrVec & ops,
-                   const Config & config,
                    const MatrixTransform & transform,
                    TransformDirection dir);
 
 void BuildRangeOp(OpRcPtrVec & ops,
-                  const Config & config,
                   const RangeTransform & transform,
                   TransformDirection dir);
+
+const char * LooksResultColorSpace(const Config & config,
+                                   const ConstContextRcPtr & context,
+                                   const LookParseResult & looks);
 
 } // namespace OCIO_NAMESPACE
 

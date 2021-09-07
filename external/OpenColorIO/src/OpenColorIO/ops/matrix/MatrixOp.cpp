@@ -60,7 +60,7 @@ public:
     void finalize() override;
     std::string getCacheID() const override;
 
-    ConstOpCPURcPtr getCPUOp() const override;
+    ConstOpCPURcPtr getCPUOp(bool fastLogExpPow) const override;
 
     void extractGpuShaderInfo(GpuShaderCreatorRcPtr & shaderCreator) const override;
 
@@ -112,7 +112,7 @@ bool MatrixOffsetOp::isSameType(ConstOpRcPtr & op) const
     return true;
 }
 
-bool MatrixOffsetOp::isInverse(ConstOpRcPtr & op) const
+bool MatrixOffsetOp::isInverse(ConstOpRcPtr & /* op */) const
 {
     // It is simpler to handle a pair of inverses by combining them and then removing
     // the identity.  So we just return false here.
@@ -181,7 +181,7 @@ std::string MatrixOffsetOp::getCacheID() const
     return cacheIDStream.str();
 }
 
-ConstOpCPURcPtr MatrixOffsetOp::getCPUOp() const
+ConstOpCPURcPtr MatrixOffsetOp::getCPUOp(bool /*fastLogExpPow*/) const
 {
     ConstMatrixOpDataRcPtr data = matrixData();
     return GetMatrixRenderer(data);
@@ -372,7 +372,6 @@ void CreateMatrixTransform(GroupTransformRcPtr & group, ConstOpRcPtr & op)
 }
 
 void BuildMatrixOp(OpRcPtrVec & ops,
-                   const Config & /*config*/,
                    const MatrixTransform & transform,
                    TransformDirection dir)
 {

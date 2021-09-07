@@ -30,7 +30,8 @@ OCIO_ADD_TEST(GammaOp, combining)
     info1.addAttribute(OCIO::METADATA_ID, "ID1");
     info1.addAttribute("Attrib", "1");
     info1.addAttribute("Attrib1", "10");
-    auto & child1 = info1.addChildElement("Gamma1Child", "Some content");
+    info1.addChildElement("Gamma1Child", "Some content");
+    auto & child1 = info1.getChildElement(0);
 
     OCIO_CHECK_NO_THROW(OCIO::CreateGammaOp(ops, gammaData1, OCIO::TRANSFORM_DIR_FORWARD));
 
@@ -48,7 +49,8 @@ OCIO_ADD_TEST(GammaOp, combining)
     info2.addAttribute(OCIO::METADATA_ID, "ID2");
     info2.addAttribute("Attrib", "2");
     info2.addAttribute("Attrib2", "20");
-    auto & child2 = info2.addChildElement("Gamma2Child", "Other content");
+    info2.addChildElement("Gamma2Child", "Other content");
+    auto & child2 = info2.getChildElement(0);
 
     OCIO_CHECK_NO_THROW(OCIO::CreateGammaOp(ops, gammaData2, OCIO::TRANSFORM_DIR_FORWARD));
 
@@ -97,8 +99,13 @@ OCIO_ADD_TEST(GammaOp, basic)
     const OCIO::GammaOpData::Params blueParams = { 2. };
     const OCIO::GammaOpData::Params alphaParams = { 1. };
 
-    const OCIO::GammaOp op0(OCIO::GammaOpData::BASIC_FWD,
-                            redParams, greenParams, blueParams, alphaParams);
+    OCIO::GammaOpDataRcPtr gamma1
+        = std::make_shared<OCIO::GammaOpData>(OCIO::GammaOpData::BASIC_FWD,
+                                              redParams,
+                                              greenParams,
+                                              blueParams,
+                                              alphaParams);
+    const OCIO::GammaOp op0(gamma1);
 
     OCIO_CHECK_EQUAL(op0.data()->getType(), OCIO::OpData::GammaType);
     auto gammaData = OCIO_DYNAMIC_POINTER_CAST<const OCIO::GammaOpData>(op0.data());

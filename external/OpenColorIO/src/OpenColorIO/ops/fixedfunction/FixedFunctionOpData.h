@@ -36,6 +36,8 @@ public:
         ACES_GLOW_10_INV,         // Glow function inverse (ACES 1.0)
         ACES_DARK_TO_DIM_10_FWD,  // Dark to dim surround correction (ACES 1.0)
         ACES_DARK_TO_DIM_10_INV,  // Dim to dark surround correction (ACES 1.0)
+        ACES_GAMUT_COMP_13_FWD,   // Parametric Gamut Compression (ACES 1.3)
+        ACES_GAMUT_COMP_13_INV,   // Parametric Gamut Compression inverse (ACES 1.3)
         REC2100_SURROUND_FWD,     // Rec.2100 surround correction (takes one double for the gamma param)
         REC2100_SURROUND_INV,     // Rec.2100 surround correction inverse (takes one gamma param)
         RGB_TO_HSV,               // Classic RGB to HSV function
@@ -55,10 +57,10 @@ public:
 
     typedef std::vector<double> Params;
 
-    FixedFunctionOpData();
+    FixedFunctionOpData() = delete;
 
     explicit FixedFunctionOpData(Style style);
-    FixedFunctionOpData(const Params & params, Style style);
+    FixedFunctionOpData(Style style, const Params & params);
     FixedFunctionOpData(const FixedFunctionOpData &) = default;
     virtual ~FixedFunctionOpData();
 
@@ -77,11 +79,11 @@ public:
 
     std::string getCacheID() const override;
 
-    Style getStyle() const { return m_style; }
-    void setStyle(Style style) { m_style = style; }
+    Style getStyle() const  noexcept { return m_style; }
+    void setStyle(Style style)  noexcept { m_style = style; }
 
-    TransformDirection getDirection() const;
-    void setDirection(TransformDirection dir);
+    TransformDirection getDirection() const noexcept;
+    void setDirection(TransformDirection dir) noexcept;
 
     void setParams(const Params & params) { m_params = params; }
     const Params & getParams() const { return m_params; }
@@ -89,7 +91,7 @@ public:
     bool operator==(const OpData & other) const override;
 
 protected:
-    void invert();
+    void invert() noexcept;
 
 private:
     Style m_style;

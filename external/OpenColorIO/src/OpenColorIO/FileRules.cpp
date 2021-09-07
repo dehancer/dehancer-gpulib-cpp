@@ -9,7 +9,9 @@
 
 #include <OpenColorIO/OpenColorIO.h>
 
+#include "CustomKeys.h"
 #include "FileRules.h"
+#include "Logging.h"
 #include "PathUtils.h"
 #include "Platform.h"
 #include "utils/StringUtils.h"
@@ -17,6 +19,9 @@
 
 namespace OCIO_NAMESPACE
 {
+
+const char * FileRules::DefaultRuleName        = "Default";
+const char * FileRules::FilePathSearchRuleName = "ColorSpaceNamePathSearch";
 
 namespace
 {
@@ -91,32 +96,34 @@ std::string ConvertToRegularExpression(const char * globPattern, bool ignoreCase
 
     std::string regexPattern;
     const size_t globSize = globString.size();
-    for (size_t i = 0; i < globSize; ++i)
+    size_t nextIdx = 0;
+    for (size_t idx = 0; idx < globSize; idx = nextIdx)
     {
-        if (globString[i] == '.') { regexPattern += "\\."; continue; }
-        if (globString[i] == '?') { regexPattern += ".";   continue; }
-        if (globString[i] == '*') { regexPattern += ".*";  continue; }
+        nextIdx = idx + 1;
+        if (globString[idx] == '.') { regexPattern += "\\."; continue; }
+        if (globString[idx] == '?') { regexPattern += ".";   continue; }
+        if (globString[idx] == '*') { regexPattern += ".*";  continue; }
 
         // Escape regex characters.
-        if (globString[i] == '+') { regexPattern += "\\+";  continue; }
-        if (globString[i] == '^') { regexPattern += "\\^";  continue; }
-        if (globString[i] == '$') { regexPattern += "\\$";  continue; }
-        if (globString[i] == '{') { regexPattern += "\\{";  continue; }
-        if (globString[i] == '}') { regexPattern += "\\}";  continue; }
-        if (globString[i] == '(') { regexPattern += "\\(";  continue; }
-        if (globString[i] == ')') { regexPattern += "\\)";  continue; }
-        if (globString[i] == '|') { regexPattern += "\\|";  continue; }
+        if (globString[idx] == '+') { regexPattern += "\\+";  continue; }
+        if (globString[idx] == '^') { regexPattern += "\\^";  continue; }
+        if (globString[idx] == '$') { regexPattern += "\\$";  continue; }
+        if (globString[idx] == '{') { regexPattern += "\\{";  continue; }
+        if (globString[idx] == '}') { regexPattern += "\\}";  continue; }
+        if (globString[idx] == '(') { regexPattern += "\\(";  continue; }
+        if (globString[idx] == ')') { regexPattern += "\\)";  continue; }
+        if (globString[idx] == '|') { regexPattern += "\\|";  continue; }
 
-        if (globString[i] == ']')
+        if (globString[idx] == ']')
         {
-            ThrowInvalidRegex(globPattern, globPattern + i);
+            ThrowInvalidRegex(globPattern, globPattern + idx);
         }
 
         // Full processing from '[' to ']'.
-        if (globString[i] == '[')
+        if (globString[idx] == '[')
         {
             std::string subString("[");
-            size_t end = i + 1; // +1 to bypass the '['
+            size_t end = idx + 1; // +1 to bypass the '['
             while (globString[end] != ']' && end < globSize)
             {
                 if (globString[end] == '!')
@@ -146,13 +153,13 @@ std::string ConvertToRegularExpression(const char * globPattern, bool ignoreCase
                 {
                     if (globString[end - 1] != '\\')
                     {
-                        ThrowInvalidRegex(globPattern, &globString[i]);
+                        ThrowInvalidRegex(globPattern, &globString[idx]);
                     }
                     subString += globString[end];
                 }
                 else if (globString[end] == '[')
                 {
-                    ThrowInvalidRegex(globPattern, &globString[i]);
+                    ThrowInvalidRegex(globPattern, &globString[idx]);
                 }
                 else
                 {
@@ -169,7 +176,7 @@ std::string ConvertToRegularExpression(const char * globPattern, bool ignoreCase
 
             if (end >= globSize)
             {
-                ThrowInvalidRegex(globPattern, &globString[i]);
+                ThrowInvalidRegex(globPattern, &globString[idx]);
             }
             else if (subString == "[]")
             {
@@ -182,11 +189,11 @@ std::string ConvertToRegularExpression(const char * globPattern, bool ignoreCase
 
             // Keep the result.
             regexPattern += subString;
-            i = end;
+            nextIdx = end + 1;
             continue;
         }
 
-        regexPattern += globString[i];
+        regexPattern += globString[idx];
     }
 
     return regexPattern;
@@ -233,21 +240,42 @@ std::string BuildRegularExpression(const char * filePathPattern, const char * fi
 
     str += ")$";
 
-    return SanitizeRegularExpression(str);
+    std::string res;
+    try
+    {
+        res = SanitizeRegularExpression(str);
+    }
+    catch (std::regex_error & ex)
+    {
+        std::ostringstream oss;
+        oss << "File rules: invalid regular expression '"
+            << str
+            << "' built from pattern '" << filePathPattern
+            << " and extension '" << fileNameExtension << "': '"
+            << ex.what()
+            << "'.";
+        throw Exception(oss.str().c_str());
+    }
+    return res;
 }
 
-void ValidateRegularExpression(const char * exp)
+void ValidateRegularExpression(const char * regex)
 {
+    if (!regex || !*regex)
+    {
+        throw Exception("File rules: regex is empty.");
+    }
+
     try
     {
         // Throws an exception if the expression is ill-formed.
-        const std::regex reg(exp);
+        const std::regex reg(regex);
     }
     catch (std::regex_error & ex)
     {
         std::ostringstream oss;
         oss << "File rules: invalid regular expression '" 
-            << exp
+            << regex
             << "': '"
             << ex.what() 
             << "'.";
@@ -274,36 +302,44 @@ public:
         FILE_RULE_GLOB
     };
 
-    using CustomKeys = std::map<std::string, std::string>;
-
     FileRule() = delete;
     FileRule(const FileRule &) = delete;
     FileRule & operator=(const FileRule &) = delete;
 
     explicit FileRule(const char * name)
-        : m_name(name)
+        : m_name(name ? name : "")
     {
-        if (0==Platform::Strcasecmp(name, FileRuleUtils::DefaultName))
+        if (m_name.empty())
         {
-            m_name = FileRuleUtils::DefaultName; // Enforce case consistency.
+            throw Exception("The file rule name is empty");
+        }
+        else if (0==Platform::Strcasecmp(name, FileRules::DefaultRuleName))
+        {
+            m_name = FileRules::DefaultRuleName; // Enforce case consistency.
             m_type = FILE_RULE_DEFAULT;
         }
-        else if (0==Platform::Strcasecmp(name, FileRuleUtils::ParseName))
+        else if (0==Platform::Strcasecmp(name, FileRules::FilePathSearchRuleName))
         {
-            m_name = FileRuleUtils::ParseName; // Enforce case consistency.
+            m_name = FileRules::FilePathSearchRuleName; // Enforce case consistency.
             m_type = FILE_RULE_PARSE_FILEPATH;
+        }
+        else
+        {
+            m_pattern   = "*";
+            m_extension = "*";
+            m_type      = FILE_RULE_GLOB;
         }
     }
 
     FileRuleRcPtr clone() const
     {
         FileRuleRcPtr rule = std::make_shared<FileRule>(m_name.c_str());
-    
+
+        rule->m_customKeys = m_customKeys;
         rule->m_colorSpace = m_colorSpace;
         rule->m_pattern    = m_pattern;
         rule->m_extension  = m_extension;
         rule->m_regex      = m_regex;
-        rule->m_customKeys = m_customKeys;
         rule->m_type       = m_type;
 
         return rule;
@@ -318,7 +354,7 @@ public:
     {
         if (m_type != FILE_RULE_GLOB)
         {
-            return nullptr;
+            return "";
         }
         return m_pattern.c_str();
     }
@@ -335,6 +371,10 @@ public:
         }
         else
         {
+            if (!pattern || !*pattern)
+            {
+                throw Exception("File rules: The file name pattern is empty.");
+            }
             ValidateRegularExpression(pattern, m_extension.c_str());
             m_pattern = pattern;
             m_regex = "";
@@ -346,7 +386,7 @@ public:
     {
         if (m_type != FILE_RULE_GLOB)
         {
-            return nullptr;
+            return "";
         }
         return m_extension.c_str();
     }
@@ -363,6 +403,10 @@ public:
         }
         else
         {
+            if (!extension || !*extension)
+            {
+                throw Exception("File rules: The file extension pattern is empty.");
+            }
             ValidateRegularExpression(m_pattern.c_str(), extension);
             m_extension = extension;
             m_regex = "";
@@ -374,7 +418,7 @@ public:
     {
         if (m_type != FILE_RULE_REGEX)
         {
-            return nullptr;
+            return "";
         }
         return m_regex.c_str();
     }
@@ -424,43 +468,6 @@ public:
         }
     }
 
-    size_t getNumCustomKeys() const
-    {
-        return m_customKeys.size();
-    }
-
-    const char * getCustomKeyName(size_t key) const
-    {
-        validateKeyIndex(key);
-        auto cust = std::next(m_customKeys.begin(), key);
-        return (*cust).first.c_str();
-    }
-
-    const char * getCustomKeyValue(size_t key) const
-    {
-        validateKeyIndex(key);
-        auto cust = std::next(m_customKeys.begin(), key);
-        return (*cust).second.c_str();
-    }
-
-    void setCustomKey(const char * key, const char * value)
-    {
-        if (!key || !*key)
-        {
-            std::ostringstream oss;
-            oss << "File rules: rule named '" << m_name << "': key has to be a non empty string.";
-            throw Exception(oss.str().c_str());
-        }
-        if (value && *value)
-        {
-            m_customKeys[key] = value;
-        }
-        else
-        {
-            m_customKeys.erase(key);
-        }
-    }
-
     bool matches(const Config & config, const char * path) const
     {
         switch (m_type)
@@ -472,7 +479,9 @@ public:
             const int rightMostColorSpaceIndex = ParseColorSpaceFromString(config, path);
             if (rightMostColorSpaceIndex >= 0)
             {
-                m_colorSpace = config.getColorSpaceNameByIndex(rightMostColorSpaceIndex);
+                m_colorSpace = config.getColorSpaceNameByIndex(SEARCH_REFERENCE_SPACE_ALL,
+                                                               COLORSPACE_ALL,
+                                                               rightMostColorSpaceIndex);
                 return true;
             }
             return false;
@@ -493,41 +502,34 @@ public:
         return false;
     }
 
-    void sanityCheck(std::function<ConstColorSpaceRcPtr(const char *)> colorSpaceAccesssor) const
+    void validate(const Config & cfg) const
     {
         if (m_type != FILE_RULE_PARSE_FILEPATH)
         {
-            // Can be a color space or a role (all color spaces).
-            ConstColorSpaceRcPtr cs = colorSpaceAccesssor(m_colorSpace.c_str());
-            if (!cs)
+            // Can be a color space, a role (all color spaces) or a named transform.
+            if (!cfg.getColorSpace(m_colorSpace.c_str()))
             {
-                std::ostringstream oss;
-                oss << "File rules: rule named '" << m_name << "' is referencing color space '"
-                    << m_colorSpace << "' that does not exist.";
-                throw Exception(oss.str().c_str());
+                if (!cfg.getNamedTransform(m_colorSpace.c_str()))
+                {
+                    std::ostringstream oss;
+                    oss << "File rules: rule named '" << m_name << "' is referencing '"
+                        << m_colorSpace << "' that is neither a color space nor a named "
+                                           "transform.";
+                    throw Exception(oss.str().c_str());
+                }
             }
         }
     }
 
+    CustomKeysContainer m_customKeys;
+
 private:
-    void validateKeyIndex(size_t key) const
-    {
-        const auto numKeys = getNumCustomKeys();
-        if (key >= numKeys)
-        {
-            std::ostringstream oss;
-            oss << "File rules: rule named '" << m_name << "': key index '" << key
-                << "' is invalid, there are '" << numKeys << "' custom keys.";
-            throw Exception(oss.str().c_str());
-        }
-    }
 
     std::string m_name;
     mutable std::string m_colorSpace;
     std::string m_pattern;
     std::string m_extension;
     std::string m_regex;
-    CustomKeys m_customKeys;
     RuleType m_type{ FILE_RULE_GLOB };
 };
 
@@ -561,7 +563,7 @@ FileRulesRcPtr FileRules::createEditableCopy() const
 
 FileRules::Impl::Impl()
 {
-    auto defaultRule = std::make_shared<FileRule>(FileRuleUtils::DefaultName);
+    auto defaultRule = std::make_shared<FileRule>(FileRules::DefaultRuleName);
     defaultRule->setColorSpace(ROLE_DEFAULT);
     m_rules.push_back(defaultRule);
 }
@@ -603,7 +605,7 @@ void FileRules::Impl::validateNewRule(size_t ruleIndex, const char * name) const
 {
     if (!name || !*name)
     {
-        throw Exception("File rules: rule should have a non empty name.");
+        throw Exception("File rules: rule should have a non-empty name.");
     }
     auto existingRule = std::find_if(m_rules.begin(), m_rules.end(),
                                      [name](const FileRuleRcPtr & rule)
@@ -617,7 +619,7 @@ void FileRules::Impl::validateNewRule(size_t ruleIndex, const char * name) const
         throw Exception(oss.str().c_str());
     }
     validatePosition(ruleIndex, DEFAULT_ALLOWED);
-    if (0==Platform::Strcasecmp(name, FileRuleUtils::DefaultName))
+    if (0==Platform::Strcasecmp(name, FileRules::DefaultRuleName))
     {
         std::ostringstream oss;
         oss << "File rules: Default rule already exists at index "
@@ -659,11 +661,25 @@ void FileRules::Impl::moveRule(size_t ruleIndex, int offset)
 }
 
 
-void FileRules::Impl::sanityCheck(std::function<ConstColorSpaceRcPtr(const char *)> colorSpaceAccesssor) const
+void FileRules::Impl::validate(const Config & cfg) const
 {
-    for (auto & rule : m_rules)
+    // All Config objects have a fileRules object, regardless of version. This object is
+    // initialized to have a defaultRule with the color space set to "default" (i.e., the default
+    // role). The fileRules->validate call will validate that all color spaces used in rules
+    // exist, or if they are roles that they point to a color space that exists.
+    //
+    // Because this would cause validate to improperly fail on v1 configs (since they are not
+    // required to actually contain file rules), we don't do this check on v1 configs when there is
+    // only two rules. In some case (e.g. load a v1 config from disk), the two expected rules are
+    // the 'Default' and 'ColorSpaceNamePathSearch' ones.
+
+    if (cfg.getMajorVersion() >= 2
+            || (cfg.getMajorVersion() == 1 && m_rules.size() > 2))
     {
-        rule->sanityCheck(colorSpaceAccesssor);
+        for (auto & rule : m_rules)
+        {
+            rule->validate(cfg);
+        }
     }
 }
 
@@ -746,25 +762,57 @@ void FileRules::setColorSpace(size_t ruleIndex, const char * colorSpace)
 size_t FileRules::getNumCustomKeys(size_t ruleIndex) const
 {
     m_impl->validatePosition(ruleIndex, Impl::DEFAULT_ALLOWED);
-    return m_impl->m_rules[ruleIndex]->getNumCustomKeys();
+    return m_impl->m_rules[ruleIndex]->m_customKeys.getSize();
 }
 
 const char * FileRules::getCustomKeyName(size_t ruleIndex, size_t key) const
 {
     m_impl->validatePosition(ruleIndex, Impl::DEFAULT_ALLOWED);
-    return m_impl->m_rules[ruleIndex]->getCustomKeyName(key);
+    try
+    {
+        return m_impl->m_rules[ruleIndex]->m_customKeys.getName(key);
+    }
+    catch (Exception & e)
+    {
+        std::ostringstream oss;
+        oss << "File rules: the custom key access for file rule '"
+            << std::string(m_impl->m_rules[ruleIndex]->getName())
+            << "' failed: " << e.what();
+        throw Exception(oss.str().c_str());
+    }
 }
 
 const char * FileRules::getCustomKeyValue(size_t ruleIndex, size_t key) const
 {
     m_impl->validatePosition(ruleIndex, Impl::DEFAULT_ALLOWED);
-    return m_impl->m_rules[ruleIndex]->getCustomKeyValue(key);
+    try
+    {
+        return m_impl->m_rules[ruleIndex]->m_customKeys.getValue(key);
+    }
+    catch (Exception & e)
+    {
+        std::ostringstream oss;
+        oss << "File rules: the custom key access for file rule '"
+            << std::string(m_impl->m_rules[ruleIndex]->getName())
+            << "' failed: " << e.what();
+        throw Exception(oss.str().c_str());
+    }
 }
 
 void FileRules::setCustomKey(size_t ruleIndex, const char * key, const char * value)
 {
     m_impl->validatePosition(ruleIndex, Impl::DEFAULT_ALLOWED);
-    m_impl->m_rules[ruleIndex]->setCustomKey(key, value);
+    try
+    {
+        m_impl->m_rules[ruleIndex]->m_customKeys.set(key, value);
+    }
+    catch (Exception & e)
+    {
+        std::ostringstream oss;
+        oss << "File rules: rule named '" << std::string(m_impl->m_rules[ruleIndex]->getName())
+            << "' error: " << e.what();
+        throw Exception(oss.str().c_str());
+    }
 }
 
 void FileRules::insertRule(size_t ruleIndex, const char * name, const char * colorSpace,
@@ -796,7 +844,7 @@ void FileRules::insertRule(size_t ruleIndex, const char * name, const char * col
 
 void FileRules::insertPathSearchRule(size_t ruleIndex)
 {
-    return insertRule(ruleIndex, FileRuleUtils::ParseName, nullptr, nullptr);
+    return insertRule(ruleIndex, FileRules::FilePathSearchRuleName, nullptr, nullptr);
 }
 
 void FileRules::setDefaultRuleColorSpace(const char * colorSpace)
@@ -820,6 +868,24 @@ void FileRules::decreaseRulePriority(size_t ruleIndex)
     m_impl->moveRule(ruleIndex, 1);
 }
 
+bool FileRules::isDefault() const noexcept
+{
+    if (m_impl->m_rules.size() == 1)
+    {
+        const auto & rule = m_impl->m_rules[0];
+        if (rule->m_customKeys.getSize() == 0)
+        {
+            // NB: Don't need to check the rule name -- the default rule may not be removed, so if
+            // there is only one rule, it's the default one.
+            if (StringUtils::Compare(rule->getColorSpace(), ROLE_DEFAULT))
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 const char * FileRules::Impl::getColorSpaceFromFilepath(const Config & config,
                                                         const char * filePath) const
 {
@@ -840,5 +906,144 @@ bool FileRules::Impl::filepathOnlyMatchesDefaultRule(const Config & config, cons
     return (rulePos + 1) == m_rules.size();
 }
 
-} // namespace OCIO_NAMESPACE
+std::ostream & operator<< (std::ostream & os, const FileRules & fr)
+{
+    const size_t numRules = fr.getNumEntries();
+    for (size_t r = 0; r < numRules; ++r)
+    {
+        os << "<FileRule name=" << fr.getName(r);
+        const char * cs{ fr.getColorSpace(r) };
+        if (cs && *cs)
+        {
+            os << ", colorspace=" << cs;
+        }
+        const char * regex{ fr.getRegex(r) };
+        if (regex && *regex)
+        {
+            os << ", regex=" << regex;
+        }
+        const char * pattern{ fr.getPattern(r) };
+        if (pattern && *pattern)
+        {
+            os << ", pattern=" << pattern;
+        }
+        const char * extension{ fr.getExtension(r) };
+        if (extension && *extension)
+        {
+            os << ", extension=" << extension;
+        }
+        const size_t numCK = fr.getNumCustomKeys(r);
+        if (numCK)
+        {
+            os << ", customKeys=[";
+            for (size_t ck = 0; ck < numCK; ++ck)
+            {
+                os << "(" << fr.getCustomKeyName(r, ck);
+                os << ", " << fr.getCustomKeyValue(r, ck) << ")";
+                if (ck + 1 != numCK)
+                {
+                    os << ", ";
+                }
+            }
+            os << "]";
+        }
+        os << ">";
+        if (r + 1 != numRules)
+        {
+            os << "\n";
+        }
+    }
+    return os;
+}
 
+void UpdateFileRulesFromV1ToV2(const Config & config, FileRulesRcPtr & fileRules)
+{
+    if (config.getMajorVersion() != 1)
+    {
+        return;
+    }
+
+    // In order to preserve the v1 behavior using Config:getColorSpaceFromFilepath() (i.e.
+    // mimic the Config::parseColorSpaceFromString() behavior) add the file path search
+    // rule to the list of file rules.
+
+    try
+    {
+        // Throws if the file rule does not exist.
+        fileRules->getIndexForRule(FileRules::FilePathSearchRuleName);
+    }
+    catch(const Exception & /* ex */)
+    {
+        fileRules->insertPathSearchRule(0);
+    }
+
+    // Now, double-check the default rule (which is using the default role) to find the
+    // right alternative if the default role is missing.
+
+    // In order to always return a valid color space, the algorithm for the default rule is:
+    //   1. Use the default role if it exists (i.e. that's the default implementation)
+    //   2. Use the "raw" color space (case insensitive) if it exists & is a 'data' color space
+    //   3. Use the first 'data' color space if one exists
+    //   4. Use the first active color space
+    //   5. finally, fallback to the first color space.
+
+    auto defaultCS = config.getColorSpace(ROLE_DEFAULT);
+
+    if (!defaultCS)
+    {
+        ConstColorSpaceRcPtr cs = config.getColorSpace("raw");
+        if (cs && cs->isData())
+        {
+            fileRules->setColorSpace(1, cs->getName());
+        }
+        else
+        {
+            const int numColorSpaces
+                = config.getNumColorSpaces(SEARCH_REFERENCE_SPACE_SCENE, COLORSPACE_ALL);
+
+            bool found = false;
+            for (int idx = 0; idx < numColorSpaces && !found; ++idx)
+            {
+                const char * csName 
+                    = config.getColorSpaceNameByIndex(SEARCH_REFERENCE_SPACE_SCENE,
+                                                      COLORSPACE_ALL,
+                                                      idx);
+                ConstColorSpaceRcPtr cs = config.getColorSpace(csName);
+                
+                if (cs->isData())
+                {
+                    fileRules->setColorSpace(1, csName);
+                    found = true;
+                }
+            }
+
+            if (!found)
+            {
+                if (config.getNumColorSpaces() > 0)
+                {
+                    // Take the first active color space.
+                    fileRules->setColorSpace(1, config.getColorSpaceNameByIndex(0));
+                }
+                else
+                {
+                    static constexpr char msg[]
+                        = "The default rule creation falls back to the first color space because "\
+                          "no suitable color space exists.";
+
+                    LogWarning(msg);
+
+                    // Take the first available color space.
+                    const char * csName
+                        = config.getColorSpaceNameByIndex(SEARCH_REFERENCE_SPACE_SCENE,
+                                                          COLORSPACE_ALL,
+                                                          0);
+
+                    fileRules->setColorSpace(1, csName);
+                }
+            }
+        }
+    }
+}
+
+
+} // namespace OCIO_NAMESPACE

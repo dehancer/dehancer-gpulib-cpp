@@ -97,7 +97,8 @@ OCIO_ADD_TEST(Lut3DOpData, interpolation)
     l.setInterpolation(OCIO::INTERP_CUBIC);
     OCIO_CHECK_EQUAL(l.getInterpolation(), OCIO::INTERP_CUBIC);
     OCIO_CHECK_EQUAL(l.getConcreteInterpolation(), OCIO::INTERP_LINEAR);
-    OCIO_CHECK_THROW_WHAT(l.validate(), OCIO::Exception, "invalid interpolation");
+    OCIO_CHECK_THROW_WHAT(l.validate(), OCIO::Exception,
+                          "does not support interpolation algorithm: cubic");
 
     l.setInterpolation(OCIO::INTERP_TETRAHEDRAL);
     OCIO_CHECK_EQUAL(l.getInterpolation(), OCIO::INTERP_TETRAHEDRAL);
@@ -125,7 +126,8 @@ OCIO_ADD_TEST(Lut3DOpData, interpolation)
     l.setInterpolation(OCIO::INTERP_UNKNOWN);
     OCIO_CHECK_EQUAL(l.getInterpolation(), OCIO::INTERP_UNKNOWN);
     OCIO_CHECK_EQUAL(l.getConcreteInterpolation(), OCIO::INTERP_LINEAR);
-    OCIO_CHECK_THROW_WHAT(l.validate(), OCIO::Exception, "invalid interpolation");
+    OCIO_CHECK_THROW_WHAT(l.validate(), OCIO::Exception,
+                          "does not support interpolation algorithm: unknown.");
 }
 
 OCIO_ADD_TEST(Lut3DOpData, is_inverse)
@@ -210,11 +212,11 @@ OCIO_ADD_TEST(Lut3DOpData, compose)
     OCIO_CHECK_EQUAL(composed->getName(), "lut1 + lut2");
     OCIO_REQUIRE_EQUAL(composed->getFormatMetadata().getNumChildrenElements(), 2);
     const auto & desc1 = composed->getFormatMetadata().getChildElement(0);
-    OCIO_CHECK_EQUAL(std::string(desc1.getName()), OCIO::METADATA_DESCRIPTION);
-    OCIO_CHECK_EQUAL(std::string(desc1.getValue()), "description of lut1");
+    OCIO_CHECK_EQUAL(std::string(desc1.getElementName()), OCIO::METADATA_DESCRIPTION);
+    OCIO_CHECK_EQUAL(std::string(desc1.getElementValue()), "description of lut1");
     const auto & desc2 = composed->getFormatMetadata().getChildElement(1);
-    OCIO_CHECK_EQUAL(std::string(desc2.getName()), OCIO::METADATA_DESCRIPTION);
-    OCIO_CHECK_EQUAL(std::string(desc2.getValue()), "description of lut2");
+    OCIO_CHECK_EQUAL(std::string(desc2.getElementName()), OCIO::METADATA_DESCRIPTION);
+    OCIO_CHECK_EQUAL(std::string(desc2.getElementValue()), "description of lut2");
 
     OCIO_CHECK_EQUAL(composed->getArray().getLength(), (unsigned long)32);
     OCIO_CHECK_EQUAL(composed->getArray().getNumColorComponents(),
@@ -280,9 +282,9 @@ OCIO_ADD_TEST(Lut3DOpData, compose_2)
     OCIO_CHECK_CLOSE(a[6]    ,    2.5942142f  / 4095.0f, 1e-7f);
     OCIO_CHECK_CLOSE(a[7]    ,   29.60961342f / 4095.0f, 1e-7f);
     OCIO_CHECK_CLOSE(a[8]    ,  154.82646179f / 4095.0f, 1e-7f);
-    OCIO_CHECK_CLOSE(a[8289] , 1184.69213867f / 4095.0f, 1e-6f);
-    OCIO_CHECK_CLOSE(a[8290] , 1854.97229004f / 4095.0f, 1e-7f);
-    OCIO_CHECK_CLOSE(a[8291] , 1996.75830078f / 4095.0f, 1e-7f);
+    OCIO_CHECK_CLOSE(a[8289] ,            0.4237791896f, 5e-7f);
+    OCIO_CHECK_CLOSE(a[8290] ,            0.4076989293f, 5e-7f);
+    OCIO_CHECK_CLOSE(a[8291] ,            0.4823103547f, 5e-7f);
     OCIO_CHECK_CLOSE(a[14736], 4094.07617188f / 4095.0f, 1e-7f);
     OCIO_CHECK_CLOSE(a[14737], 4067.37231445f / 4095.0f, 1e-6f);
     OCIO_CHECK_CLOSE(a[14738], 4088.30493164f / 4095.0f, 1e-6f);

@@ -77,14 +77,23 @@ TransformDirection AllocationTransform::getDirection() const  noexcept
     return getImpl()->m_dir;
 }
 
-void AllocationTransform::setDirection(TransformDirection dir)  noexcept
+void AllocationTransform::setDirection(TransformDirection dir) noexcept
 {
     getImpl()->m_dir = dir;
 }
 
 void AllocationTransform::validate() const
 {
-    Transform::validate();
+    try
+    {
+        Transform::validate();
+    }
+    catch (Exception & ex)
+    {
+        std::string errMsg("AllocationTransform validation failed: ");
+        errMsg += ex.what();
+        throw Exception(errMsg.c_str());
+    }
 
     if (getImpl()->m_allocation == ALLOCATION_UNIFORM)
     {
@@ -146,13 +155,16 @@ void AllocationTransform::setVars(int numvars, const float * vars)
 std::ostream& operator<< (std::ostream& os, const AllocationTransform& t)
 {
     Allocation allocation(t.getAllocation());
-    int numVars(t.getNumVars());
+    const int numVars(t.getNumVars());
     std::vector<float> vars(numVars);
-    t.getVars(&vars[0]);
+    if (numVars > 0)
+    {
+        t.getVars(&vars[0]);
+    }
 
     os << "<AllocationTransform ";
     os << "direction=" << TransformDirectionToString(t.getDirection());
-    if (numVars)
+    if (numVars > 0)
     {
         os << ", allocation=" << AllocationToString(allocation) << ", ";
         os << "vars=" << vars[0];
@@ -171,7 +183,6 @@ std::ostream& operator<< (std::ostream& os, const AllocationTransform& t)
 
 
 void BuildAllocationOp(OpRcPtrVec & ops,
-                       const Config & /*config*/,
                        const AllocationTransform & allocationTransform,
                        TransformDirection dir)
 {

@@ -51,8 +51,8 @@ static bool            g_invert;
 static DialogInterp    g_interpolation;
 static std::string     g_inputSpace;
 static std::string     g_outputSpace;
-static std::string     g_device;
-static std::string     g_transform;
+static std::string     g_display;
+static std::string     g_view;
 
 static WORD g_item_clicked = 0;
 
@@ -101,55 +101,55 @@ static void TrackMenu3(HWND hwndDlg, bool readFromControl)
 {
     assert(g_action == ACTION_DISPLAY);
     
-    const int transformMenu = DLOG_Menu3_Menu;
+    const int viewMenu = DLOG_Menu3_Menu;
 
     if(readFromControl)
     {
         char buf[256];
 
-        GET_MENU_VALUE_STRING(transformMenu, buf);
+        GET_MENU_VALUE_STRING(viewMenu, buf);
 
-        g_transform = buf;
+        g_view = buf;
     }
     else
     {
         // set menu from value
         bool match = false;
 
-        const int numberOfItems = GET_NUMBER_MENU_ITEMS(transformMenu);
+        const int numberOfItems = GET_NUMBER_MENU_ITEMS(viewMenu);
         
         for(int i=0; i < numberOfItems && !match; i++)
         {
             char buf[256];
 
-            GET_STRING_OF_MENU_ITEM(transformMenu, i, buf);
+            GET_STRING_OF_MENU_ITEM(viewMenu, i, buf);
 
-            if(g_transform == buf)
+            if(g_view == buf)
             {
                 match = true;
 
-                SendMessage(GET_ITEM(transformMenu), CB_SETCURSEL, (WPARAM)i, (LPARAM)0);
+                SendMessage(GET_ITEM(viewMenu), CB_SETCURSEL, (WPARAM)i, (LPARAM)0);
             }
         }
         
         
         if(!match)
         {
-            const std::string defaultTransform = g_context->getDefaultTransform(g_device);
+            const std::string defaultView = g_context->getDefaultView(g_display);
             
             for(int i=0; i < numberOfItems && !match; i++)
             {
                 char buf[256];
 
-                GET_STRING_OF_MENU_ITEM(transformMenu, i, buf);
+                GET_STRING_OF_MENU_ITEM(viewMenu, i, buf);
 
-                if(defaultTransform == buf)
+                if(defaultView == buf)
                 {
-                    SendMessage(GET_ITEM(transformMenu), CB_SETCURSEL, (WPARAM)i, (LPARAM)0);
+                    SendMessage(GET_ITEM(viewMenu), CB_SETCURSEL, (WPARAM)i, (LPARAM)0);
                 }
             }
 
-            g_transform = defaultTransform;
+            g_view = defaultView;
         }
     }
 }
@@ -158,19 +158,19 @@ static void TrackMenu2(HWND hwndDlg, bool readFromControl)
 {
     if(g_action == ACTION_DISPLAY)
     {
-        const int deviceMenu = DLOG_Menu2_Menu;
+        const int displayMenu = DLOG_Menu2_Menu;
         
         if(readFromControl)
         {
             char buf[256];
 
-            GET_MENU_VALUE_STRING(deviceMenu, buf);
+            GET_MENU_VALUE_STRING(displayMenu, buf);
 
-            g_device = buf;
+            g_display = buf;
         }
         else
         {
-            SELECT_STRING_ITEM(deviceMenu, g_device.c_str());
+            SELECT_STRING_ITEM(displayMenu, g_display.c_str());
         }
     }
     else
@@ -196,17 +196,17 @@ static void TrackMenu2(HWND hwndDlg, bool readFromControl)
     
     if(g_action == ACTION_DISPLAY)
     {
-        const SpaceVec transforms = g_context->getTransforms(g_device);
+        const SpaceVec views = g_context->getViews(g_display);
         
-        const int transformMenu = DLOG_Menu3_Menu;
+        const int viewMenu = DLOG_Menu3_Menu;
         
-        REMOVE_ALL_MENU_ITEMS(transformMenu);
+        REMOVE_ALL_MENU_ITEMS(viewMenu);
         
         int index = 0;
 
-        for(SpaceVec::const_iterator i = transforms.begin(); i != transforms.end(); ++i)
+        for(SpaceVec::const_iterator i = views.begin(); i != views.end(); ++i)
         {
-            ADD_MENU_ITEM(transformMenu, index, i->c_str(), index, (g_transform == *i));
+            ADD_MENU_ITEM(viewMenu, index, i->c_str(), index, (g_view == *i));
             index++;
         }
         
@@ -340,38 +340,38 @@ static void TrackActionRadios(HWND hwndDlg, bool readFromControl)
     
     if(g_action == ACTION_DISPLAY)
     {
-        const int deviceLabel = DLOG_Menu2_Label;
-        const int deviceMenu = DLOG_Menu2_Menu;
+        const int displayLabel = DLOG_Menu2_Label;
+        const int displayMenu = DLOG_Menu2_Menu;
         
-        const int transformLabel = DLOG_Menu3_Label;
-        const int transformMenu = DLOG_Menu3_Menu;
+        const int viewLabel = DLOG_Menu3_Label;
+        const int viewMenu = DLOG_Menu3_Menu;
         
-        SET_LABEL_STRING(deviceLabel, "Device:");
-        SHOW_ITEM(deviceLabel, TRUE);
+        SET_LABEL_STRING(displayLabel, "Display:");
+        SHOW_ITEM(displayLabel, TRUE);
 
-        SHOW_ITEM(deviceMenu, TRUE);
+        SHOW_ITEM(displayMenu, TRUE);
         
-        REMOVE_ALL_MENU_ITEMS(deviceMenu);
+        REMOVE_ALL_MENU_ITEMS(displayMenu);
         
-        const SpaceVec &devices = g_context->getDevices();
+        const SpaceVec &displays = g_context->getDisplays();
         
         index = 0;
 
-        for(SpaceVec::const_iterator i = devices.begin(); i != devices.end(); ++i)
+        for(SpaceVec::const_iterator i = displays.begin(); i != displays.end(); ++i)
         {
-            ADD_MENU_ITEM(deviceMenu, index, i->c_str(), index, (g_device == *i));
+            ADD_MENU_ITEM(displayMenu, index, i->c_str(), index, (g_display == *i));
             index++;
         }
         
         SHOW_ITEM(DLOG_Menu2_Button, FALSE);
                 
         
-        SET_LABEL_STRING(transformLabel, "Transform:");
-        SHOW_ITEM(transformLabel, TRUE);
+        SET_LABEL_STRING(viewLabel, "View:");
+        SHOW_ITEM(viewLabel, TRUE);
 
-        SHOW_ITEM(transformMenu, TRUE);
+        SHOW_ITEM(viewMenu, TRUE);
         
-        REMOVE_ALL_MENU_ITEMS(transformMenu);
+        REMOVE_ALL_MENU_ITEMS(viewMenu);
         
 
         TrackMenu2(hwndDlg, false);
@@ -443,10 +443,10 @@ static void TrackConfigMenu(HWND hwndDlg, bool readFromControl)
         {
             ExtensionMap extensions;
 
-            for(int i=0; i < OCIO::FileTransform::getNumFormats(); ++i)
+            for(int i=0; i < OCIO::FileTransform::GetNumFormats(); ++i)
             {
-                const std::string extension = OCIO::FileTransform::getFormatExtensionByIndex(i);
-                const std::string format = OCIO::FileTransform::getFormatNameByIndex(i);
+                const std::string extension = OCIO::FileTransform::GetFormatExtensionByIndex(i);
+                const std::string format = OCIO::FileTransform::GetFormatNameByIndex(i);
                 
                 if(extension != "ccc") // .ccc files require an ID parameter
                     extensions[ extension ] = format;
@@ -521,6 +521,20 @@ static void TrackConfigMenu(HWND hwndDlg, bool readFromControl)
 
     if( !configPath.empty() )
     {
+        ENABLE_ITEM(DLOG_OK, TRUE);
+        ENABLE_ITEM(DLOG_Export, TRUE);
+        ENABLE_ITEM(DLOG_Convert_Radio, TRUE);
+        ENABLE_ITEM(DLOG_Display_Radio, TRUE);
+        ENABLE_ITEM(DLOG_Menu1_Label, TRUE);
+        ENABLE_ITEM(DLOG_Menu1_Menu, TRUE);
+        ENABLE_ITEM(DLOG_Menu1_Button, TRUE);
+        ENABLE_ITEM(DLOG_Menu2_Label, TRUE);
+        ENABLE_ITEM(DLOG_Menu2_Menu, TRUE);
+        ENABLE_ITEM(DLOG_Menu2_Button, TRUE);
+        ENABLE_ITEM(DLOG_Menu3_Label, TRUE);
+        ENABLE_ITEM(DLOG_Menu3_Menu, TRUE);
+        ENABLE_ITEM(DLOG_Invert_Check, TRUE);
+                
         try
         {
             delete g_context;
@@ -532,24 +546,10 @@ static void TrackConfigMenu(HWND hwndDlg, bool readFromControl)
             {
                 g_action = ACTION_LUT;
                 
-                SHOW_ITEM(DLOG_Invert_Check, TRUE);
-                
-                if( g_context->canInvertLUT() )
-                {
-                    ENABLE_ITEM(DLOG_Invert_Check, TRUE);
-                }
-                else
-                {
-                    ENABLE_ITEM(DLOG_Invert_Check, FALSE);
-                
-                    g_invert = false;
-                }
-                
-                SET_CHECK(DLOG_Invert_Check, g_invert);
-                
                 SHOW_ITEM(DLOG_Convert_Radio, FALSE);
                 SHOW_ITEM(DLOG_Display_Radio, FALSE);
 
+                SET_CHECK(DLOG_Invert_Check, g_invert);
                 
                 const int interpLabel = DLOG_Menu1_Label;
                 const int interpMenu = DLOG_Menu1_Menu;
@@ -577,8 +577,6 @@ static void TrackConfigMenu(HWND hwndDlg, bool readFromControl)
             }
             else
             {
-                SHOW_ITEM(DLOG_Invert_Check, FALSE);
-            
                 if(g_action == ACTION_LUT)
                 {
                     g_action = ACTION_CONVERT;
@@ -587,6 +585,7 @@ static void TrackConfigMenu(HWND hwndDlg, bool readFromControl)
                 SHOW_ITEM(DLOG_Convert_Radio, TRUE);
                 SHOW_ITEM(DLOG_Display_Radio, TRUE);
                                 
+                SET_CHECK(DLOG_Invert_Check, g_invert);
                 
                 const SpaceVec &colorSpaces = g_context->getColorSpaces();
                 
@@ -601,19 +600,19 @@ static void TrackConfigMenu(HWND hwndDlg, bool readFromControl)
                 }
                 
                 
-                const SpaceVec &devices = g_context->getDevices();
+                const SpaceVec &displays = g_context->getDisplays();
                 
-                if(-1 == FindSpace(devices, g_device))
+                if(-1 == FindSpace(displays, g_display))
                 {
-                    g_device = g_context->getDefaultDevice();
+                    g_display = g_context->getDefaultDisplay();
                 }
                 
                 
-                const SpaceVec transforms = g_context->getTransforms(g_device);
+                const SpaceVec views = g_context->getViews(g_display);
                 
-                if(-1 == FindSpace(transforms, g_transform))
+                if(-1 == FindSpace(views, g_view))
                 {
-                    g_transform = g_context->getDefaultTransform(g_device);
+                    g_view = g_context->getDefaultView(g_display);
                 }
                 
                 
@@ -622,6 +621,20 @@ static void TrackConfigMenu(HWND hwndDlg, bool readFromControl)
         }
         catch(const std::exception &e)
         {
+            ENABLE_ITEM(DLOG_OK, FALSE);
+            ENABLE_ITEM(DLOG_Export, FALSE);
+            ENABLE_ITEM(DLOG_Convert_Radio, FALSE);
+            ENABLE_ITEM(DLOG_Display_Radio, FALSE);
+            ENABLE_ITEM(DLOG_Menu1_Label, FALSE);
+            ENABLE_ITEM(DLOG_Menu1_Menu, FALSE);
+            ENABLE_ITEM(DLOG_Menu1_Button, FALSE);
+            ENABLE_ITEM(DLOG_Menu2_Label, FALSE);
+            ENABLE_ITEM(DLOG_Menu2_Menu, FALSE);
+            ENABLE_ITEM(DLOG_Menu2_Button, FALSE);
+            ENABLE_ITEM(DLOG_Menu3_Label, FALSE);
+            ENABLE_ITEM(DLOG_Menu3_Menu, FALSE);
+            ENABLE_ITEM(DLOG_Invert_Check, FALSE);
+
             MessageBox(hwndDlg, e.what(), "OpenColorIO error", MB_OK);
 
             if(g_source != SOURCE_ENVIRONMENT)
@@ -633,6 +646,20 @@ static void TrackConfigMenu(HWND hwndDlg, bool readFromControl)
         }
         catch(...)
         {
+            ENABLE_ITEM(DLOG_OK, FALSE);
+            ENABLE_ITEM(DLOG_Export, FALSE);
+            ENABLE_ITEM(DLOG_Convert_Radio, FALSE);
+            ENABLE_ITEM(DLOG_Display_Radio, FALSE);
+            ENABLE_ITEM(DLOG_Menu1_Label, FALSE);
+            ENABLE_ITEM(DLOG_Menu1_Menu, FALSE);
+            ENABLE_ITEM(DLOG_Menu1_Button, FALSE);
+            ENABLE_ITEM(DLOG_Menu2_Label, FALSE);
+            ENABLE_ITEM(DLOG_Menu2_Menu, FALSE);
+            ENABLE_ITEM(DLOG_Menu2_Button, FALSE);
+            ENABLE_ITEM(DLOG_Menu3_Label, FALSE);
+            ENABLE_ITEM(DLOG_Menu3_Menu, FALSE);
+            ENABLE_ITEM(DLOG_Invert_Check, FALSE);
+
             MessageBox(hwndDlg, "Some unknown error", "OpenColorIO error", MB_OK);
 
             if(g_source != SOURCE_ENVIRONMENT)
@@ -648,6 +675,20 @@ static void TrackConfigMenu(HWND hwndDlg, bool readFromControl)
         delete g_context;
 
         g_context = NULL;
+
+        ENABLE_ITEM(DLOG_OK, FALSE);
+        ENABLE_ITEM(DLOG_Export, FALSE);
+        ENABLE_ITEM(DLOG_Convert_Radio, FALSE);
+        ENABLE_ITEM(DLOG_Display_Radio, FALSE);
+        ENABLE_ITEM(DLOG_Menu1_Label, FALSE);
+        ENABLE_ITEM(DLOG_Menu1_Menu, FALSE);
+        ENABLE_ITEM(DLOG_Menu1_Button, FALSE);
+        ENABLE_ITEM(DLOG_Menu2_Label, FALSE);
+        ENABLE_ITEM(DLOG_Menu2_Menu, FALSE);
+        ENABLE_ITEM(DLOG_Menu2_Button, FALSE);
+        ENABLE_ITEM(DLOG_Menu3_Label, FALSE);
+        ENABLE_ITEM(DLOG_Menu3_Menu, FALSE);
+        ENABLE_ITEM(DLOG_Invert_Check, FALSE);
 
         REMOVE_ALL_MENU_ITEMS(DLOG_Menu1_Menu);
         REMOVE_ALL_MENU_ITEMS(DLOG_Menu2_Menu);
@@ -731,11 +772,11 @@ static void DoExport(HWND hwndDlg)
                         
                         if(g_action == ACTION_CONVERT)
                         {
-                            processor = g_context->getConvertProcessor(g_inputSpace, g_outputSpace);
+                            processor = g_context->getConvertProcessor(g_inputSpace, g_outputSpace, g_invert);
                         }
                         else if(g_action == ACTION_DISPLAY)
                         {
-                            processor = g_context->getDisplayProcessor(g_inputSpace, g_device, g_transform);
+                            processor = g_context->getDisplayProcessor(g_inputSpace, g_display, g_view, g_invert);
                         }
                         else
                         {
@@ -747,9 +788,7 @@ static void DoExport(HWND hwndDlg)
                                                                 g_interpolation == INTERPO_CUBIC ? OCIO::INTERP_CUBIC :
                                                                 OCIO::INTERP_BEST);
                             
-                            const OCIO::TransformDirection direction = (g_invert ? OCIO::TRANSFORM_DIR_INVERSE : OCIO::TRANSFORM_DIR_FORWARD);
-                            
-                            processor = g_context->getLUTProcessor(interp, direction);
+                            processor = g_context->getLUTProcessor(interp, g_invert);
                         }
                         
                         
@@ -789,11 +828,11 @@ static void DoExport(HWND hwndDlg)
                     
                     if(g_action == ACTION_CONVERT)
                     {
-                        baker = g_context->getConvertBaker(g_inputSpace, g_outputSpace);
+                        baker = g_context->getConvertBaker(g_inputSpace, g_outputSpace, g_invert);
                     }
                     else if(g_action == ACTION_DISPLAY)
                     {
-                        baker = g_context->getDisplayBaker(g_inputSpace, g_device, g_transform);
+                        baker = g_context->getDisplayBaker(g_inputSpace, g_display, g_view, g_invert);
                     }
                     else
                     {
@@ -805,9 +844,7 @@ static void DoExport(HWND hwndDlg)
                                                             g_interpolation == INTERPO_CUBIC ? OCIO::INTERP_CUBIC :
                                                             OCIO::INTERP_BEST);
                         
-                        const OCIO::TransformDirection direction = (g_invert ? OCIO::TRANSFORM_DIR_INVERSE : OCIO::TRANSFORM_DIR_FORWARD);
-                        
-                        baker = g_context->getLUTBaker(interp, direction);
+                        baker = g_context->getLUTBaker(interp, g_invert);
                     }
                     
                     baker->setFormat( format.c_str() );
@@ -1001,8 +1038,8 @@ DialogResult OpenColorIO_PS_Dialog(DialogParams &params, const void *plugHndl, c
     g_interpolation = params.interpolation;
     g_inputSpace = params.inputSpace;
     g_outputSpace = params.outputSpace;
-    g_device = params.device;
-    g_transform = params.transform;
+    g_display = params.display;
+    g_view = params.view;
     
 
     const int status = DialogBox((HINSTANCE)plugHndl, (LPSTR)"OCIODIALOG", (HWND)mwnd, (DLGPROC)DialogProc);
@@ -1017,8 +1054,8 @@ DialogResult OpenColorIO_PS_Dialog(DialogParams &params, const void *plugHndl, c
         params.interpolation = g_interpolation;
         params.inputSpace = g_inputSpace;
         params.outputSpace = g_outputSpace;
-        params.device = g_device;
-        params.transform = g_transform;
+        params.display = g_display;
+        params.view = g_view;
 
         return RESULT_OK;
     }

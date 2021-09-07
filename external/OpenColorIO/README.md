@@ -5,10 +5,12 @@ OpenColorIO
 ===========
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![Build Status](https://github.com/AcademySoftwareFoundation/OpenColorIO/workflows/CI/badge.svg)](https://github.com/AcademySoftwareFoundation/OpenColorIO/actions?query=workflow%3ACI)
+[![CI Status](https://github.com/AcademySoftwareFoundation/OpenColorIO/workflows/CI/badge.svg)](https://github.com/AcademySoftwareFoundation/OpenColorIO/actions?query=workflow%3ACI)
+[![GPU CI Status](https://github.com/AcademySoftwareFoundation/OpenColorIO/workflows/GPU/badge.svg)](https://github.com/AcademySoftwareFoundation/OpenColorIO/actions?query=workflow%3AGPU)
 [![Analysis Status](https://github.com/AcademySoftwareFoundation/OpenColorIO/workflows/Analysis/badge.svg)](https://github.com/AcademySoftwareFoundation/OpenColorIO/actions?query=workflow%3AAnalysis)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=AcademySoftwareFoundation_OpenColorIO&metric=alert_status)](https://sonarcloud.io/dashboard?id=AcademySoftwareFoundation_OpenColorIO)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/2612/badge)](https://bestpractices.coreinfrastructure.org/projects/2612)
+[![Wheels](https://github.com/AcademySoftwareFoundation/OpenColorIO/workflows/Wheel/badge.svg)](https://github.com/AcademySoftwareFoundation/OpenColorIO/actions?query=workflow%3AWheel)
 
 Introduction
 ------------
@@ -27,13 +29,13 @@ configuration options suitable for high-end production usage. OCIO is
 compatible with the Academy Color Encoding Specification (ACES) and is
 LUT-format agnostic, supporting many popular formats.
 
-OpenColorIO is released as version 1.0 and has been in development since 2003.
+OpenColorIO is released as version 2.0 and has been in development since 2003.
 OCIO represents the culmination of years of production experience earned on
 such films as SpiderMan 2 (2004), Surf's Up (2007), Cloudy with a Chance of
 Meatballs (2009), Alice in Wonderland (2010), and many more. OpenColorIO is
 natively supported in commercial applications like Katana, Mari, Nuke, Maya,
 Houdini, Silhouette FX, and
-[others](https://opencolorio.org/CompatibleSoftware.html).
+[others](https://opencolorio.org/#supported_apps).
 
 OpenColorIO is free and open source software ([LICENSE](LICENSE)), and
 one of several projects actvively sponsored by the ASWF
@@ -69,13 +71,12 @@ operates.
 Web Resources
 -------------
 
-* Web page: <http://opencolorio.org>
-* Mail lists:
+* Website: <http://opencolorio.org>
+* Mailing lists:
   * Developer: <ocio-dev@lists.aswf.io>
   * User: <ocio-user@lists.aswf.io>
-* Slack channel: <https://opencolorio.slack.com>
-  * Please request access on the ocio-dev list with the email address you
-    would like to be invited on.
+* Slack workspace: <https://opencolorio.slack.com>
+  * New users can join via <http://slack.opencolorio.org>
 
 Reference Configs
 -----------------

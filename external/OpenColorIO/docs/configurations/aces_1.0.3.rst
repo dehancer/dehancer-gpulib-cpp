@@ -5,18 +5,30 @@
 aces_1.0.3
 ==========
 
-ACES 1.0.3 OpenColorIO configuration
+This section describes the ACES 1.0.3 OpenColorIO configuration.
+
+.. note::
+    There is a more recent version of the ACES config for ACES 1.2 available here:
+
+    - https://github.com/colour-science/OpenColorIO-Configs/tree/feature/aces-1.2-config
+
+    An ACES config that takes advantage of the new OCIO v2 features is under development.
+
 
 Information about ACES
 ***********************
 
 The **ACES** project home page is here: 
 
-- http://www.oscars.org/aces
+- https://acescentral.com/
 
 The latest documentation on the ACES transforms and specifications can be found here:
 
-- http://www.oscars.org/science-technology/aces/aces-documentation
+- https://acescentral.com/aces-documentation/
+
+The ACES discussion forum is here:
+
+- https://community.acescentral.com/
 
 
 Colorspaces
@@ -226,8 +238,8 @@ The standard *OCIO* roles are defined. They role assignments are:
 
 Additionally, a number of colorspaces that are gaining wider adoption have been added to the config. Their names and assignment are:
 
-- **compositing_linear**:: ACEScg
-- **rendering**:: ACEScg
+- **compositing_linear**: ACEScg
+- **rendering**: ACEScg
 
 
 Displays and Views

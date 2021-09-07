@@ -13,6 +13,10 @@
 #include "ops/exposurecontrast/ExposureContrastOpData.h"
 #include "ops/fixedfunction/FixedFunctionOpData.h"
 #include "ops/gamma/GammaOpData.h"
+#include "ops/gradingprimary/GradingPrimaryOpData.h"
+#include "ops/gradingrgbcurve/GradingRGBCurve.h"
+#include "ops/gradingrgbcurve/GradingRGBCurveOpData.h"
+#include "ops/gradingtone/GradingToneOpData.h"
 #include "ops/log/LogOpData.h"
 #include "ops/log/LogUtils.h"
 #include "ops/lut1d/Lut1DOpData.h"
@@ -20,11 +24,18 @@
 #include "ops/matrix/MatrixOpData.h"
 #include "ops/range/RangeOpData.h"
 #include "ops/reference/ReferenceOpData.h"
+#include "ParseUtils.h"
 #include "Platform.h"
 #include "transforms/CDLTransform.h"
 
 namespace OCIO_NAMESPACE
 {
+
+// Note: 17 would allow exactly restoring most doubles but anything higher than 15,
+// introduces some serialization issues such as: 81.9 -> 81.90000000000001.
+// This results in less pretty output and also causes problems for some unit tests.  
+static constexpr unsigned DOUBLE_PRECISION = 15;
+
 
 void CTFVersion::ReadVersion(const std::string & versionString, CTFVersion & versionOut)
 {
@@ -200,9 +211,9 @@ void GetElementsValues(const FormatMetadataImpl::Elements & elements,
 {
     for (auto & element : elements)
     {
-        if (0 == Platform::Strcasecmp(name.c_str(), element.getName()))
+        if (0 == Platform::Strcasecmp(name.c_str(), element.getElementName()))
         {
-            values.push_back(element.getValue());
+            values.push_back(element.getElementValue());
         }
     }
 }
@@ -234,6 +245,22 @@ CTFVersion GetOpMinimumVersion(const ConstOpDataRcPtr & op)
         break;
     }
     case OpData::FixedFunctionType:
+    {
+        minVersion = CTF_PROCESS_LIST_VERSION_2_0;
+
+        auto ff = OCIO_DYNAMIC_POINTER_CAST<const FixedFunctionOpData>(op);
+        
+        if (ff->getStyle() == FixedFunctionOpData::ACES_GAMUT_COMP_13_FWD 
+                || ff->getStyle() == FixedFunctionOpData::ACES_GAMUT_COMP_13_INV)
+        {
+            minVersion = CTF_PROCESS_LIST_VERSION_2_1;
+        }
+
+        break;
+    }
+    case OpData::GradingPrimaryType:
+    case OpData::GradingRGBCurveType:
+    case OpData::GradingToneType:
     case OpData::LogType:
     {
         minVersion = CTF_PROCESS_LIST_VERSION_2_0;
@@ -276,30 +303,31 @@ CTFVersion GetOpMinimumVersion(const ConstOpDataRcPtr & op)
     case OpData::Lut1DType:
     {
         auto lut = OCIO_DYNAMIC_POINTER_CAST<const Lut1DOpData>(op);
-        if (lut->getDirection() == TRANSFORM_DIR_FORWARD)
+        switch (lut->getDirection())
         {
-            minVersion = (lut->getHueAdjust() != HUE_NONE) ?
-                CTF_PROCESS_LIST_VERSION_1_4 :
-                CTF_PROCESS_LIST_VERSION_1_3;
-        }
-        else
-        {
+        case TRANSFORM_DIR_FORWARD:
+            minVersion = (lut->getHueAdjust() != HUE_NONE) ? CTF_PROCESS_LIST_VERSION_1_4 :
+                                                             CTF_PROCESS_LIST_VERSION_1_3;
+            break;
+        case TRANSFORM_DIR_INVERSE:
             minVersion = (lut->getHueAdjust() != HUE_NONE || lut->isInputHalfDomain()) ?
-                CTF_PROCESS_LIST_VERSION_1_6 :
-                CTF_PROCESS_LIST_VERSION_1_3;
+                         CTF_PROCESS_LIST_VERSION_1_6 :
+                         CTF_PROCESS_LIST_VERSION_1_3;
+            break;
         }
         break;
     }
     case OpData::Lut3DType:
     {
         auto lut = OCIO_DYNAMIC_POINTER_CAST<const Lut3DOpData>(op);
-        if (lut->getDirection() == TRANSFORM_DIR_FORWARD)
+        switch (lut->getDirection())
         {
+        case TRANSFORM_DIR_FORWARD:
             minVersion = CTF_PROCESS_LIST_VERSION_1_3;
-        }
-        else
-        {
+            break;
+        case TRANSFORM_DIR_INVERSE:
             minVersion = CTF_PROCESS_LIST_VERSION_1_6;
+            break;
         }
         break;
     }
@@ -346,9 +374,9 @@ const char * GetFirstElementValue(const FormatMetadataImpl::Elements & elements,
 {
     for (auto & it : elements)
     {
-        if (0 == Platform::Strcasecmp(name.c_str(), it.getName()))
+        if (0 == Platform::Strcasecmp(name.c_str(), it.getElementName()))
         {
-            return it.getValue();
+            return it.getElementValue();
         }
     }
     return "";
@@ -358,9 +386,9 @@ const char * GetLastElementValue(const FormatMetadataImpl::Elements & elements, 
 {
     for (auto it = elements.rbegin(); it != elements.rend(); ++it)
     {
-        if (0 == Platform::Strcasecmp(name.c_str(), it->getName()))
+        if (0 == Platform::Strcasecmp(name.c_str(), it->getElementName()))
         {
-            return it->getValue();
+            return it->getElementValue();
         }
     }
     return "";
@@ -384,9 +412,9 @@ const char * GetLastElementValue(const FormatMetadataImpl::Elements & elements, 
 void CTFReaderTransform::fromMetadata(const FormatMetadataImpl & metadata)
 {
     // Name & id handled as attributes of the root metadata.
-    m_name = metadata.getAttributeValue(METADATA_NAME);
-    m_id = metadata.getAttributeValue(METADATA_ID);
-    m_inverseOfId = metadata.getAttributeValue(ATTR_INVERSE_OF);
+    m_name = metadata.getAttributeValueString(METADATA_NAME);
+    m_id = metadata.getAttributeValueString(METADATA_ID);
+    m_inverseOfId = metadata.getAttributeValueString(ATTR_INVERSE_OF);
 
     // Preserve first InputDescriptor, last OutputDescriptor, and all Descriptions.
     m_inDescriptor = GetFirstElementValue(metadata.getChildrenElements(), METADATA_INPUT_DESCRIPTOR);
@@ -396,7 +424,7 @@ void CTFReaderTransform::fromMetadata(const FormatMetadataImpl & metadata)
     // Combine all Info elements.
     for (auto elt : metadata.getChildrenElements())
     {
-        if (0 == Platform::Strcasecmp(elt.getName(), METADATA_INFO))
+        if (0 == Platform::Strcasecmp(elt.getElementName(), METADATA_INFO))
         {
             m_infoMetadata.combine(elt);
         }
@@ -435,7 +463,7 @@ void CTFReaderTransform::toMetadata(FormatMetadataImpl & metadata) const
     {
         metadata.addChildElement(METADATA_DESCRIPTION, desc.c_str());
     }
-    const std::string infoValue(m_infoMetadata.getValue());
+    const std::string infoValue(m_infoMetadata.getElementValue());
     if (m_infoMetadata.getNumAttributes() || m_infoMetadata.getNumChildrenElements() ||
         !infoValue.empty())
     {
@@ -495,7 +523,7 @@ template <>
 void SetOStream<double>(double, std::ostream & xml)
 {
     xml.width(19);
-    xml.precision(15);
+    xml.precision(DOUBLE_PRECISION);
 }
 
 template<typename Iter, typename scaleType>
@@ -507,73 +535,101 @@ void WriteValues(XmlFormatter & formatter,
                  unsigned iterStep,
                  scaleType scale)
 {
-    std::ostream& xml = formatter.getStream();
+    // Method used to write an array of values of the same type.
+
+    std::ostream & xml = formatter.getStream();
+    std::ostringstream oss;
+
+    // The numbers in a CLF/CTF file may always contain fractional values, regardless of the
+    // bit-depth attributes.  E.g., even if the bit-depth is 8i, the array could contain values
+    // such as [-0.1, 8, 100.234, 305].  However, we do use the bit-depth to initialize the most
+    // likely formatting to use when printing arrays with large numbers of values such as LUTs.
+    // And if the array really does only have integers, it is nicer to print those without
+    // decimal points.
+
+    switch (bitDepth)
+    {
+    case BIT_DEPTH_UINT8:
+    {
+        oss.width(3);
+        break;
+    }
+    case BIT_DEPTH_UINT10:
+    {
+        oss.width(4);
+        break;
+    }
+
+    case BIT_DEPTH_UINT12:
+    {
+        oss.width(4);
+        break;
+    }
+
+    case BIT_DEPTH_UINT16:
+    {
+        oss.width(5);
+        break;
+    }
+
+    case BIT_DEPTH_F16:
+    {
+        oss.width(11);
+        oss.precision(5);
+        break;
+    }
+
+    case BIT_DEPTH_F32:
+    {
+        SetOStream(*valuesBegin, oss);
+        break;
+    }
+
+    case BIT_DEPTH_UINT14:
+    case BIT_DEPTH_UINT32:
+    {
+        throw Exception("Unsupported bitdepth.");
+        break;
+    }
+
+    case BIT_DEPTH_UNKNOWN:
+    {
+        throw Exception("Unknown bitdepth.");
+        break;
+    }
+    }
+
+    const bool floatValues = (bitDepth == BIT_DEPTH_F16) || (bitDepth == BIT_DEPTH_F32);
 
     for (Iter it(valuesBegin); it != valuesEnd; it += iterStep)
     {
-        switch (bitDepth)
+        oss.str("");
+
+        if (floatValues)
         {
-        case BIT_DEPTH_UINT8:
-        {
-            xml.width(3);
-            xml << (*it) * scale;
-            break;
+            WriteValue((*it) * scale, oss);
         }
-        case BIT_DEPTH_UINT10:
+        else
         {
-            xml.width(4);
-            xml << (*it) * scale;
-            break;
+            oss << (*it) * scale;
         }
 
-        case BIT_DEPTH_UINT12:
+        const std::string value = oss.str();
+        if (value.length() > (size_t)oss.width())
         {
-            xml.width(4);
-            xml << (*it) * scale;
-            break;
+            // The imposed precision requires more characters so the code
+            // recomputes the width to better align the values for the next lines. 
+            oss.width(value.length());
         }
 
-        case BIT_DEPTH_UINT16:
-        {
-            xml.width(5);
-            xml << (*it) * scale;
-            break;
-        }
+        xml << value;
 
-        case BIT_DEPTH_F16:
+        if (std::distance(valuesBegin, it) % valuesPerLine == valuesPerLine - 1)
         {
-            xml.width(11);
-            xml.precision(5);
-            WriteValue((*it) * scale, xml);
-            break;
-        }
-
-        case BIT_DEPTH_F32:
-        {
-            SetOStream(*it, xml);
-            WriteValue((*it) * scale, xml);
-            break;
-        }
-
-        case BIT_DEPTH_UINT14:
-        case BIT_DEPTH_UINT32:
-        {
-            throw Exception("Unsupported bitdepth.");
-            break;
-        }
-
-        case BIT_DEPTH_UNKNOWN:
-        {
-            throw Exception("Unknown bitdepth.");
-            break;
-        }
-
-        }
-
-        if (std::distance(valuesBegin, it) % valuesPerLine
-            == valuesPerLine - 1)
-        {
-            xml << std::endl;
+            // std::endln writes a newline and flushes the output buffer where '\n' only
+            // writes a newline. Flushing the buffer for all floats of large LUTs
+            // introduces a huge performance hit so only use '\n'.
+            xml << "\n";
         }
         else
         {
@@ -775,7 +831,14 @@ void CDLWriter::getAttributes(XmlFormatter::Attributes & attributes) const
 void CDLWriter::writeContent() const
 {
     XmlFormatter::Attributes attributes;
+
     auto op = getOp();
+
+    std::ostringstream oss;
+    oss.precision(DOUBLE_PRECISION);
+
+    CDLOpData::ChannelParams params;
+
     // SOPNode.
     m_formatter.writeStartTag(TAG_SOPNODE, attributes);
     {
@@ -786,9 +849,20 @@ void CDLWriter::writeContent() const
                           METADATA_SOP_DESCRIPTION, desc);
         WriteDescriptions(m_formatter, TAG_DESCRIPTION, desc);
 
-        m_formatter.writeContentTag(TAG_SLOPE, m_cdl->getSlopeString());
-        m_formatter.writeContentTag(TAG_OFFSET, m_cdl->getOffsetString());
-        m_formatter.writeContentTag(TAG_POWER, m_cdl->getPowerString());
+        oss.str("");
+        params = m_cdl->getSlopeParams();
+        oss << params[0] << ", " << params[1] << ", " << params[2];
+        m_formatter.writeContentTag(TAG_SLOPE, oss.str());
+
+        oss.str("");
+        params = m_cdl->getOffsetParams();
+        oss << params[0] << ", " << params[1] << ", " << params[2];
+        m_formatter.writeContentTag(TAG_OFFSET, oss.str());
+
+        oss.str("");
+        params = m_cdl->getPowerParams();
+        oss << params[0] << ", " << params[1] << ", " << params[2];
+        m_formatter.writeContentTag(TAG_POWER, oss.str());
     }
     m_formatter.writeEndTag(TAG_SOPNODE);
 
@@ -802,7 +876,9 @@ void CDLWriter::writeContent() const
                           METADATA_SAT_DESCRIPTION, desc);
         WriteDescriptions(m_formatter, TAG_DESCRIPTION, desc);
 
-        m_formatter.writeContentTag(TAG_SATURATION, m_cdl->getSaturationString());
+        oss.str("");
+        oss << m_cdl->getSaturation();
+        m_formatter.writeContentTag(TAG_SATURATION, oss.str());
     }
     m_formatter.writeEndTag(TAG_SATNODE);
 }
@@ -877,41 +953,41 @@ void ExposureContrastWriter::getAttributes(XmlFormatter::Attributes& attributes)
 
 void ExposureContrastWriter::writeContent() const
 {
+    std::ostringstream oss;
+    oss.precision(DOUBLE_PRECISION);
+
     XmlFormatter::Attributes attributes;
     {
-        std::stringstream expAttr;
-        WriteValue(m_ec->getExposure(), expAttr);
-        attributes.push_back(XmlFormatter::Attribute(ATTR_EXPOSURE,
-                                                     expAttr.str()));
+        oss.str("");
+        WriteValue(m_ec->getExposure(), oss);
+        attributes.push_back(XmlFormatter::Attribute(ATTR_EXPOSURE, oss.str()));
     }
     {
-        std::stringstream contAttr;
-        WriteValue(m_ec->getContrast(), contAttr);
-        attributes.push_back(XmlFormatter::Attribute(ATTR_CONTRAST,
-                                                     contAttr.str()));
+        oss.str("");
+        WriteValue(m_ec->getContrast(), oss);
+        attributes.push_back(XmlFormatter::Attribute(ATTR_CONTRAST, oss.str()));
     }
     {
-        std::stringstream gammaAttr;
-        WriteValue(m_ec->getGamma(), gammaAttr);
-        attributes.push_back(XmlFormatter::Attribute(ATTR_GAMMA,
-                                                     gammaAttr.str()));
+        oss.str("");
+        WriteValue(m_ec->getGamma(), oss);
+        attributes.push_back(XmlFormatter::Attribute(ATTR_GAMMA, oss.str()));
     }
     {
-        std::ostringstream oss;
+        oss.str("");
         WriteValue(m_ec->getPivot(), oss);
         attributes.push_back(XmlFormatter::Attribute(ATTR_PIVOT, oss.str()));
     }
 
     if (m_ec->getLogExposureStep() != ExposureContrastOpData::LOGEXPOSURESTEP_DEFAULT)
     {
-        std::ostringstream oss;
+        oss.str("");
         WriteValue(m_ec->getLogExposureStep(), oss);
         attributes.push_back(XmlFormatter::Attribute(ATTR_LOGEXPOSURESTEP, oss.str()));
     }
 
     if (m_ec->getLogMidGray() != ExposureContrastOpData::LOGMIDGRAY_DEFAULT)
     {
-        std::ostringstream oss;
+        oss.str("");
         WriteValue(m_ec->getLogMidGray(), oss);
         attributes.push_back(XmlFormatter::Attribute(ATTR_LOGMIDGRAY, oss.str()));
     }
@@ -995,6 +1071,7 @@ void FixedFunctionWriter::getAttributes(XmlFormatter::Attributes& attributes) co
     {
         size_t i = 0;
         std::stringstream ffParams;
+        ffParams.precision(DOUBLE_PRECISION);
         WriteValue(params[i], ffParams);
         while (++i < numParams)
         {
@@ -1074,11 +1151,12 @@ void AddGammaParams(XmlFormatter::Attributes & attributes,
                     const GammaOpData::Style style,
                     bool useGamma)
 {
-    std::stringstream gammaAttr;
-    gammaAttr << params[0];
+    std::stringstream oss;
+    oss.precision(DOUBLE_PRECISION);
 
+    oss << params[0];
     attributes.push_back(XmlFormatter::Attribute(useGamma ? ATTR_GAMMA : ATTR_EXPONENT,
-                                                 gammaAttr.str()));
+                                                 oss.str()));
 
     switch (style)
     {
@@ -1087,10 +1165,9 @@ void AddGammaParams(XmlFormatter::Attributes & attributes,
     case GammaOpData::MONCURVE_MIRROR_FWD:
     case GammaOpData::MONCURVE_MIRROR_REV:
     {
-        std::stringstream offsetAttr;
-        offsetAttr << params[1];
-        attributes.push_back(XmlFormatter::Attribute(ATTR_OFFSET,
-                                                     offsetAttr.str()));
+        oss.str("");
+        oss << params[1];
+        attributes.push_back(XmlFormatter::Attribute(ATTR_OFFSET, oss.str()));
         break;
     }
     case GammaOpData::BASIC_FWD:
@@ -1163,6 +1240,486 @@ void GammaWriter::writeContent() const
 
             m_formatter.writeEmptyTag(paramsTag, attributesA);
         }
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+class GradingPrimaryWriter : public OpWriter
+{
+public:
+    GradingPrimaryWriter() = delete;
+    GradingPrimaryWriter(const GradingPrimaryWriter&) = delete;
+    GradingPrimaryWriter& operator=(const GradingPrimaryWriter&) = delete;
+    GradingPrimaryWriter(XmlFormatter & formatter, ConstGradingPrimaryOpDataRcPtr primary);
+    virtual ~GradingPrimaryWriter();
+
+protected:
+    ConstOpDataRcPtr getOp() const override;
+    const char * getTagName() const override;
+    void getAttributes(XmlFormatter::Attributes & attributes) const override;
+    void writeContent() const override;
+
+private:
+    void writeRGBM(const char * tag,
+                   const GradingRGBM & defaultVal,
+                   const GradingRGBM & val) const;
+    void writeScalarElement(const char * tag, double defaultVal, double val) const;
+    void addAttribute(XmlFormatter::Attributes & attributes, const char * attr,
+                      double val) const;
+    void addAttribute(XmlFormatter::Attributes & attributes, const char * attr,
+                      double defaultVal, double val) const;
+
+    ConstGradingPrimaryOpDataRcPtr m_primary;
+};
+
+GradingPrimaryWriter::GradingPrimaryWriter(XmlFormatter & formatter,
+                                           ConstGradingPrimaryOpDataRcPtr primary)
+    : OpWriter(formatter)
+    , m_primary(primary)
+{
+}
+
+GradingPrimaryWriter::~GradingPrimaryWriter()
+{
+}
+
+ConstOpDataRcPtr GradingPrimaryWriter::getOp() const
+{
+    return m_primary;
+}
+
+const char * GradingPrimaryWriter::getTagName() const
+{
+    return TAG_PRIMARY;
+}
+
+void GradingPrimaryWriter::getAttributes(XmlFormatter::Attributes& attributes) const
+{
+    OpWriter::getAttributes(attributes);
+
+    const auto style = m_primary->getStyle();
+    const auto dir = m_primary->getDirection();
+
+    const auto styleStr = ConvertGradingStyleAndDirToString(style, dir);
+    attributes.push_back(XmlFormatter::Attribute(ATTR_STYLE, styleStr));
+}
+
+void GradingPrimaryWriter::writeRGBM(const char * tag,
+                                     const GradingRGBM & defaultVal,
+                                     const GradingRGBM & val) const
+{
+    if (val != defaultVal)
+    {
+        XmlFormatter::Attributes attributes;
+
+        std::stringstream rgb;
+        rgb.precision(DOUBLE_PRECISION);
+        rgb << val.m_red << " " << val.m_green << " " << val.m_blue;
+        attributes.push_back(XmlFormatter::Attribute(ATTR_RGB, rgb.str()));
+        std::stringstream master;
+        master.precision(DOUBLE_PRECISION);
+        master << val.m_master;
+        attributes.push_back(XmlFormatter::Attribute(ATTR_MASTER, master.str()));
+
+        m_formatter.writeEmptyTag(tag, attributes);
+    }
+}
+
+void GradingPrimaryWriter::writeScalarElement(const char * tag,
+                                              double defaultVal,
+                                              double val) const
+{
+    if (val != defaultVal)
+    {
+        XmlFormatter::Attributes attributes;
+        std::stringstream stream;
+        stream.precision(DOUBLE_PRECISION);
+        stream << val;
+        attributes.push_back(XmlFormatter::Attribute(ATTR_MASTER, stream.str()));
+        m_formatter.writeEmptyTag(tag, attributes);
+    }
+}
+
+void GradingPrimaryWriter::addAttribute(XmlFormatter::Attributes & attributes, const char * attr,
+                                        double defaultVal, double val) const
+{
+    if (val != defaultVal)
+    {
+        addAttribute(attributes, attr, val);
+    }
+}
+
+void GradingPrimaryWriter::addAttribute(XmlFormatter::Attributes & attributes, const char * attr,
+                                        double val) const
+{
+    std::stringstream master;
+    master.precision(DOUBLE_PRECISION);
+    master << val;
+    attributes.push_back(XmlFormatter::Attribute(attr, master.str()));
+}
+
+void GradingPrimaryWriter::writeContent() const
+{
+    const auto style = m_primary->getStyle();
+    const auto & vals = m_primary->getValue();
+    switch (style)
+    {
+    case GRADING_LOG:
+    {
+        GradingPrimary defaultVals(style);
+        writeRGBM(TAG_PRIMARY_BRIGHTNESS, defaultVals.m_brightness, vals.m_brightness);
+        writeRGBM(TAG_PRIMARY_CONTRAST, defaultVals.m_contrast, vals.m_contrast);
+        writeRGBM(TAG_PRIMARY_GAMMA, defaultVals.m_gamma, vals.m_gamma);
+
+        writeScalarElement(TAG_PRIMARY_SATURATION, defaultVals.m_saturation, vals.m_saturation);
+
+        // Pivot.
+        {
+            XmlFormatter::Attributes attributes;
+            if (defaultVals.m_contrast != vals.m_contrast)
+            {
+                // Always write pivot contrast when constrast is not default.
+                addAttribute(attributes, ATTR_PRIMARY_CONTRAST, vals.m_pivot);
+            }
+            else
+            {
+                addAttribute(attributes, ATTR_PRIMARY_CONTRAST, defaultVals.m_pivot, vals.m_pivot);
+            }
+            addAttribute(attributes, ATTR_PRIMARY_BLACK, defaultVals.m_pivotBlack, vals.m_pivotBlack);
+            addAttribute(attributes, ATTR_PRIMARY_WHITE, defaultVals.m_pivotWhite, vals.m_pivotWhite);
+            if (!attributes.empty())
+            {
+                m_formatter.writeEmptyTag(TAG_PRIMARY_PIVOT, attributes);
+            }
+        }
+        break;
+    }
+    case GRADING_LIN:
+    {
+        GradingPrimary defaultVals(style);
+        writeRGBM(TAG_PRIMARY_OFFSET, defaultVals.m_offset, vals.m_offset);
+        writeRGBM(TAG_PRIMARY_EXPOSURE, defaultVals.m_exposure, vals.m_exposure);
+        writeRGBM(TAG_PRIMARY_CONTRAST, defaultVals.m_contrast, vals.m_contrast);
+
+        writeScalarElement(TAG_PRIMARY_SATURATION, defaultVals.m_saturation, vals.m_saturation);
+
+        // Pivot.
+        {
+            XmlFormatter::Attributes attributes;
+            if (defaultVals.m_contrast != vals.m_contrast)
+            {
+                // Always write pivot contrast when constrast is not default.
+                addAttribute(attributes, ATTR_PRIMARY_CONTRAST, vals.m_pivot);
+            }
+            else
+            {
+                addAttribute(attributes, ATTR_PRIMARY_CONTRAST, defaultVals.m_pivot, vals.m_pivot);
+            }
+            if (!attributes.empty())
+            {
+                m_formatter.writeEmptyTag(TAG_PRIMARY_PIVOT, attributes);
+            }
+        }
+        break;
+    }
+    case GRADING_VIDEO:
+    {
+        GradingPrimary defaultVals(style);
+        writeRGBM(TAG_PRIMARY_LIFT, defaultVals.m_lift, vals.m_lift);
+        writeRGBM(TAG_PRIMARY_GAMMA, defaultVals.m_gamma, vals.m_gamma);
+        writeRGBM(TAG_PRIMARY_GAIN, defaultVals.m_gain, vals.m_gain);
+        writeRGBM(TAG_PRIMARY_OFFSET, defaultVals.m_offset, vals.m_offset);
+
+        writeScalarElement(TAG_PRIMARY_SATURATION, defaultVals.m_saturation, vals.m_saturation);
+
+        // Pivot.
+        {
+            XmlFormatter::Attributes attributes;
+            addAttribute(attributes, ATTR_PRIMARY_BLACK, defaultVals.m_pivotBlack, vals.m_pivotBlack);
+            addAttribute(attributes, ATTR_PRIMARY_WHITE, defaultVals.m_pivotWhite, vals.m_pivotWhite);
+            if (!attributes.empty())
+            {
+                m_formatter.writeEmptyTag(TAG_PRIMARY_PIVOT, attributes);
+            }
+        }
+        break;
+    }
+    }
+    // Clamp.
+    {
+        GradingPrimary defaultVals(GRADING_LOG);
+        XmlFormatter::Attributes attributes;
+        addAttribute(attributes, ATTR_PRIMARY_BLACK, defaultVals.m_clampBlack, vals.m_clampBlack);
+        addAttribute(attributes, ATTR_PRIMARY_WHITE, defaultVals.m_clampWhite, vals.m_clampWhite);
+        if (!attributes.empty())
+        {
+            m_formatter.writeEmptyTag(TAG_PRIMARY_CLAMP, attributes);
+        }
+    }
+    if (m_primary->isDynamic())
+    {
+        XmlFormatter::Attributes attributes;
+        attributes.push_back(XmlFormatter::Attribute(ATTR_PARAM, TAG_DYN_PROP_PRIMARY));
+        m_formatter.writeEmptyTag(TAG_DYNAMIC_PARAMETER, attributes);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+class GradingRGBCurveWriter : public OpWriter
+{
+public:
+    GradingRGBCurveWriter() = delete;
+    GradingRGBCurveWriter(const GradingRGBCurveWriter&) = delete;
+    GradingRGBCurveWriter& operator=(const GradingRGBCurveWriter&) = delete;
+    GradingRGBCurveWriter(XmlFormatter & formatter, ConstGradingRGBCurveOpDataRcPtr primary);
+    virtual ~GradingRGBCurveWriter();
+
+protected:
+    ConstOpDataRcPtr getOp() const override;
+    const char * getTagName() const override;
+    void getAttributes(XmlFormatter::Attributes & attributes) const override;
+    void writeContent() const override;
+
+private:
+    void writeCurve(const char * tag, const ConstGradingBSplineCurveRcPtr & curve) const;
+    ConstGradingRGBCurveOpDataRcPtr m_curves;
+};
+
+GradingRGBCurveWriter::GradingRGBCurveWriter(XmlFormatter & formatter,
+                                             ConstGradingRGBCurveOpDataRcPtr curves)
+    : OpWriter(formatter)
+    , m_curves(curves)
+{
+}
+
+GradingRGBCurveWriter::~GradingRGBCurveWriter()
+{
+}
+
+ConstOpDataRcPtr GradingRGBCurveWriter::getOp() const
+{
+    return m_curves;
+}
+
+const char * GradingRGBCurveWriter::getTagName() const
+{
+    return TAG_RGB_CURVE;
+}
+
+void GradingRGBCurveWriter::getAttributes(XmlFormatter::Attributes& attributes) const
+{
+    OpWriter::getAttributes(attributes);
+
+    const auto style = m_curves->getStyle();
+    const auto dir = m_curves->getDirection();
+
+    const auto styleStr = ConvertGradingStyleAndDirToString(style, dir);
+    attributes.push_back(XmlFormatter::Attribute(ATTR_STYLE, styleStr));
+
+    if (m_curves->getBypassLinToLog())
+    {
+        attributes.push_back(XmlFormatter::Attribute(ATTR_BYPASS_LIN_TO_LOG, "true"));
+    }
+}
+
+void GradingRGBCurveWriter::writeCurve(const char * tag,
+                                       const ConstGradingBSplineCurveRcPtr & curve) const
+{
+    m_formatter.writeStartTag(tag, XmlFormatter::Attributes());
+    {
+        XmlScopeIndent si0(m_formatter);
+        m_formatter.writeStartTag(TAG_CURVE_CTRL_PNTS, XmlFormatter::Attributes());
+        {
+            XmlScopeIndent si1(m_formatter);
+            const size_t numPnts = curve->getNumControlPoints();
+
+            // Write 1 control point per line in the form of "X Y"
+            for (size_t i = 0; i < numPnts; ++i)
+            {
+                const auto & ctPt = curve->getControlPoint(i);
+                std::ostringstream oss;
+                SetOStream(0.f, oss);
+                oss << ctPt.m_x << " " << ctPt.m_y;
+                m_formatter.writeContent(oss.str());
+            }
+        }
+        m_formatter.writeEndTag(TAG_CURVE_CTRL_PNTS);
+
+        if (!curve->slopesAreDefault())
+        {
+            m_formatter.writeStartTag(TAG_CURVE_SLOPES, XmlFormatter::Attributes());
+            {
+                XmlScopeIndent si1(m_formatter);
+                // (Number of slopes is always the same as control points.)
+                const size_t numSlopes = curve->getNumControlPoints();
+                std::ostringstream oss;
+                SetOStream(0.f, oss);
+                for (size_t i = 0; i < numSlopes; ++i)
+                {
+                    const float val = curve->getSlope(i);
+                    oss << val << " ";
+                }
+                m_formatter.writeContent(oss.str());
+            }
+            m_formatter.writeEndTag(TAG_CURVE_SLOPES);
+        }
+    }
+
+    m_formatter.writeEndTag(tag);
+}
+
+void GradingRGBCurveWriter::writeContent() const
+{
+    const auto & vals = m_curves->getValue();
+
+    auto & defCurve = m_curves->getStyle() == GRADING_LIN ? GradingRGBCurveImpl::DefaultLin :
+                                                            GradingRGBCurveImpl::Default;
+
+    static const std::vector<const char *> curveTags = {
+        TAG_RGB_CURVE_RED,
+        TAG_RGB_CURVE_GREEN,
+        TAG_RGB_CURVE_BLUE,
+        TAG_RGB_CURVE_MASTER };
+    for (int c = 0; c < RGB_NUM_CURVES; ++c)
+    {
+        const auto & curve = vals->getCurve(static_cast<RGBCurveType>(c));
+        if ((*curve != defCurve) || !(curve->slopesAreDefault()))
+        {
+            writeCurve(curveTags[c], curve);
+        }
+    }
+    if (m_curves->isDynamic())
+    {
+        XmlFormatter::Attributes attributes;
+        attributes.push_back(XmlFormatter::Attribute(ATTR_PARAM, TAG_DYN_PROP_RGBCURVE));
+        m_formatter.writeEmptyTag(TAG_DYNAMIC_PARAMETER, attributes);
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+class GradingToneWriter : public OpWriter
+{
+public:
+    GradingToneWriter() = delete;
+    GradingToneWriter(const GradingToneWriter&) = delete;
+    GradingToneWriter& operator=(const GradingToneWriter&) = delete;
+    GradingToneWriter(XmlFormatter & formatter, ConstGradingToneOpDataRcPtr tone);
+    virtual ~GradingToneWriter();
+
+protected:
+    ConstOpDataRcPtr getOp() const override;
+    const char * getTagName() const override;
+    void getAttributes(XmlFormatter::Attributes & attributes) const override;
+    void writeContent() const override;
+
+private:
+    void writeRGBMSW(const char * tag,
+                     const GradingRGBMSW & defaultVal,
+                     const GradingRGBMSW & val,
+                     bool center, bool pivot) const;
+    void writeScalarElement(const char * tag, double defaultVal, double val) const;
+
+    ConstGradingToneOpDataRcPtr m_tone;
+};
+
+GradingToneWriter::GradingToneWriter(XmlFormatter & formatter,
+                                     ConstGradingToneOpDataRcPtr tone)
+    : OpWriter(formatter)
+    , m_tone(tone)
+{
+}
+
+GradingToneWriter::~GradingToneWriter()
+{
+}
+
+ConstOpDataRcPtr GradingToneWriter::getOp() const
+{
+    return m_tone;
+}
+
+const char * GradingToneWriter::getTagName() const
+{
+    return TAG_TONE;
+}
+
+void GradingToneWriter::getAttributes(XmlFormatter::Attributes& attributes) const
+{
+    OpWriter::getAttributes(attributes);
+
+    const auto style = m_tone->getStyle();
+    const auto dir = m_tone->getDirection();
+
+    const auto styleStr = ConvertGradingStyleAndDirToString(style, dir);
+    attributes.push_back(XmlFormatter::Attribute(ATTR_STYLE, styleStr));
+}
+
+void GradingToneWriter::writeRGBMSW(const char * tag,
+                                    const GradingRGBMSW & defaultVal,
+                                    const GradingRGBMSW & val,
+                                    bool center, bool pivot) const
+{
+    if (val != defaultVal)
+    {
+        XmlFormatter::Attributes attributes;
+
+        std::ostringstream oss;
+        oss.precision(DOUBLE_PRECISION);
+        oss << val.m_red << " " << val.m_green << " " << val.m_blue;
+        attributes.push_back(XmlFormatter::Attribute(ATTR_RGB, oss.str()));
+
+        oss.str("");
+        oss << val.m_master;
+        attributes.push_back(XmlFormatter::Attribute(ATTR_MASTER, oss.str()));
+
+        oss.str("");
+        oss << val.m_start;
+        attributes.push_back(XmlFormatter::Attribute(center ? ATTR_CENTER : ATTR_START,
+                                                     oss.str()));
+
+        oss.str("");
+        oss << val.m_width;
+        attributes.push_back(XmlFormatter::Attribute(pivot ? ATTR_PIVOT : ATTR_WIDTH,
+                                                     oss.str()));
+
+        m_formatter.writeEmptyTag(tag, attributes);
+    }
+}
+
+void GradingToneWriter::writeScalarElement(const char * tag,
+                                           double defaultVal, double val) const
+{
+    if (val != defaultVal)
+    {
+        XmlFormatter::Attributes attributes;
+        std::stringstream stream;
+        stream.precision(DOUBLE_PRECISION);
+        stream << val;
+        attributes.push_back(XmlFormatter::Attribute(ATTR_MASTER, stream.str()));
+        m_formatter.writeEmptyTag(tag, attributes);
+    }
+}
+
+void GradingToneWriter::writeContent() const
+{
+    const auto & vals = m_tone->getValue();
+    GradingTone defaultVals(m_tone->getStyle());
+
+    writeRGBMSW(TAG_TONE_BLACKS, defaultVals.m_blacks, vals.m_blacks, false, false);
+    writeRGBMSW(TAG_TONE_SHADOWS, defaultVals.m_shadows, vals.m_shadows, false, true);
+    writeRGBMSW(TAG_TONE_MIDTONES, defaultVals.m_midtones, vals.m_midtones, true, false);
+    writeRGBMSW(TAG_TONE_HIGHLIGHTS, defaultVals.m_highlights, vals.m_highlights, false, true);
+    writeRGBMSW(TAG_TONE_WHITES, defaultVals.m_whites, vals.m_whites, false, false);
+    writeScalarElement(TAG_TONE_SCONTRAST, defaultVals.m_scontrast, vals.m_scontrast);
+
+    if (m_tone->isDynamic())
+    {
+        XmlFormatter::Attributes attributes;
+        attributes.push_back(XmlFormatter::Attribute(ATTR_PARAM, TAG_DYN_PROP_TONE));
+        m_formatter.writeEmptyTag(TAG_DYNAMIC_PARAMETER, attributes);
     }
 }
 
@@ -1244,6 +1801,7 @@ void AddLogParam(XmlFormatter::Attributes & attributes,
                  double attrValue)
 {
     std::stringstream stream;
+    stream.precision(DOUBLE_PRECISION);
     stream << attrValue;
     attributes.push_back(XmlFormatter::Attribute(attrName, stream.str()));
 }
@@ -1743,7 +2301,7 @@ const char * RangeWriter::getTagName() const
 void WriteTag(XmlFormatter & fmt, const char * tag, double value)
 {
     std::ostringstream o;
-    o.precision(15);
+    o.precision(DOUBLE_PRECISION);
     o << value;
     fmt.writeContentTag(tag, ' ' + o.str() + ' ');
 }
@@ -1882,19 +2440,20 @@ void TransformWriter::writeProcessListMetadata(const FormatMetadataImpl& m) cons
 {
     if (m.getChildrenElements().size() == 0)
     {
-        const std::string infoValue(m.getValue());
+        const std::string infoValue(m.getElementValue());
         if (m.getNumAttributes() || !infoValue.empty())
         {
-            m_formatter.writeContentTag(m.getName(), m.getAttributes(), m.getValue());
+            m_formatter.writeContentTag(m.getElementName(), m.getAttributes(),
+                                        m.getElementValue());
         }
     }
     else
     {
-        m_formatter.writeStartTag(m.getName(), m.getAttributes());
-        const std::string value{ m.getValue() };
+        m_formatter.writeStartTag(m.getElementName(), m.getAttributes());
+        const std::string value{ m.getElementValue() };
         if (!value.empty())
         {
-            m_formatter.writeContent(m.getValue());
+            m_formatter.writeContent(m.getElementValue());
         }
 
         const auto items = m.getChildrenElements();
@@ -1904,7 +2463,7 @@ void TransformWriter::writeProcessListMetadata(const FormatMetadataImpl& m) cons
             writeProcessListMetadata(*it);
         }
 
-        m_formatter.writeEndTag(m.getName());
+        m_formatter.writeEndTag(m.getElementName());
     }
 }
 
@@ -2049,6 +2608,48 @@ void TransformWriter::writeOps(const CTFVersion & version) const
                 opWriter.write();
                 break;
             }
+            case OpData::GradingPrimaryType:
+            {
+                if (m_isCLF)
+                {
+                    ThrowWriteOp("GradingPrimary");
+                }
+
+                auto prim = OCIO_DYNAMIC_POINTER_CAST<const GradingPrimaryOpData>(op);
+                GradingPrimaryWriter opWriter(m_formatter, prim);
+                opWriter.setInputBitdepth(inBD);
+                opWriter.setOutputBitdepth(outBD);
+                opWriter.write();
+                break;
+            }
+            case OpData::GradingRGBCurveType:
+            {
+                if (m_isCLF)
+                {
+                    ThrowWriteOp("GradingRGBCurve");
+                }
+
+                auto rgb = OCIO_DYNAMIC_POINTER_CAST<const GradingRGBCurveOpData>(op);
+                GradingRGBCurveWriter opWriter(m_formatter, rgb);
+                opWriter.setInputBitdepth(inBD);
+                opWriter.setOutputBitdepth(outBD);
+                opWriter.write();
+                break;
+            }
+            case OpData::GradingToneType:
+            {
+                if (m_isCLF)
+                {
+                    ThrowWriteOp("GradingTone");
+                }
+
+                auto tone = OCIO_DYNAMIC_POINTER_CAST<const GradingToneOpData>(op);
+                GradingToneWriter opWriter(m_formatter, tone);
+                opWriter.setInputBitdepth(inBD);
+                opWriter.setOutputBitdepth(outBD);
+                opWriter.write();
+                break;
+            }
             case OpData::LogType:
             {
                 auto log = OCIO_DYNAMIC_POINTER_CAST<const LogOpData>(op);
@@ -2147,7 +2748,7 @@ void TransformWriter::writeOps(const CTFVersion & version) const
             }
             case OpData::NoOpType:
             {
-                break;
+                throw Exception("Noop ops should have been removed.");
             }
             }
 

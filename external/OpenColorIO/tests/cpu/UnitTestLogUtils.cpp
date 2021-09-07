@@ -12,7 +12,7 @@ namespace OCIO_NAMESPACE
 namespace
 {
 
-void MuteLoggingFunction(const char * message)
+void MuteLoggingFunction(const char *)
 {
     // Does nothing on purpose.
 }
@@ -55,9 +55,13 @@ bool LogGuard::empty() const
 }
 
 MuteLogging::MuteLogging()
-    :   LogGuard()
 {
-    SetLoggingFunction(MuteLoggingFunction);
+    SetLoggingFunction(&MuteLoggingFunction);
+}
+
+MuteLogging::~MuteLogging()
+{
+    ResetToDefaultLoggingFunction();
 }
 
 } // namespace OCIO_NAMESPACE

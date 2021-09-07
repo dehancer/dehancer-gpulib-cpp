@@ -6,10 +6,11 @@ set -ex
 
 OPENEXR_VERSION="$1"
 
-git clone https://github.com/openexr/openexr.git
+git clone https://github.com/AcademySoftwareFoundation/openexr.git
 cd openexr
 
 if [ "$OPENEXR_VERSION" == "latest" ]; then
+    git checkout release
     LATEST_TAG=$(git describe --abbrev=0 --tags)
     git checkout tags/${LATEST_TAG} -b ${LATEST_TAG}
 else
@@ -18,10 +19,10 @@ fi
 
 mkdir build
 cd build
-cmake -DCMAKE_INSTALL_PREFIX=/usr/local \
-      -DBUILD_TESTING=OFF \
+cmake -DBUILD_TESTING=OFF \
       -DOPENEXR_BUILD_UTILS=OFF \
       -DOPENEXR_VIEWERS_ENABLE=OFF \
+      -DINSTALL_OPENEXR_EXAMPLES=OFF \
       -DPYILMBASE_ENABLE=OFF \
       -DCMAKE_C_FLAGS="-fPIC" \
       -DCMAKE_CXX_FLAGS="-fPIC" \

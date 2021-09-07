@@ -29,12 +29,6 @@ public:
     explicit GammaOp(GammaOpDataRcPtr & gamma);
     GammaOp(const GammaOp &) = delete;
 
-    GammaOp(GammaOpData::Style style,
-            GammaOpData::Params red,
-            GammaOpData::Params green,
-            GammaOpData::Params blue,
-            GammaOpData::Params alpha);
-
     virtual ~GammaOp();
 
     std::string getInfo() const override;
@@ -48,7 +42,7 @@ public:
 
     std::string getCacheID() const override;
 
-    ConstOpCPURcPtr getCPUOp() const override;
+    ConstOpCPURcPtr getCPUOp(bool fastLogExpPow) const override;
 
     void extractGpuShaderInfo(GpuShaderCreatorRcPtr & shaderCreator) const override;
 
@@ -61,18 +55,6 @@ protected:
 GammaOp::GammaOp(GammaOpDataRcPtr & gamma)
     :   Op()
 {
-    data() = gamma;
-}
-
-GammaOp::GammaOp(GammaOpData::Style style,
-                 GammaOpData::Params red,
-                 GammaOpData::Params green,
-                 GammaOpData::Params blue,
-                 GammaOpData::Params alpha)
-    :   Op()
-{
-    GammaOpDataRcPtr gamma = std::make_shared<GammaOpData>(style, red, green, blue, alpha);
-
     data() = gamma;
 }
 
@@ -135,10 +117,10 @@ std::string GammaOp::getCacheID() const
     return cacheIDStream.str();
 }
 
-ConstOpCPURcPtr GammaOp::getCPUOp() const
+ConstOpCPURcPtr GammaOp::getCPUOp(bool fastLogExpPow) const
 {
     ConstGammaOpDataRcPtr data = gammaData();
-    return GetGammaRenderer(data);
+    return GetGammaRenderer(data, fastLogExpPow);
 }
 
 void GammaOp::extractGpuShaderInfo(GpuShaderCreatorRcPtr & shaderCreator) const
@@ -195,7 +177,6 @@ void CreateGammaTransform(GroupTransformRcPtr & group, ConstOpRcPtr & op)
 }
 
 void BuildExponentWithLinearOp(OpRcPtrVec & ops,
-                               const Config & /*config*/,
                                const ExponentWithLinearTransform & transform,
                                TransformDirection dir)
 {

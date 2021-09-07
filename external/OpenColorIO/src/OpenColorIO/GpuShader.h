@@ -13,90 +13,6 @@ namespace OCIO_NAMESPACE
 
 ///////////////////////////////////////////////////////////////////////////
 
-// LegacyGpuShaderDesc
-// *************
-// 
-// The class holds all the information to build a 'baked' shader program
-// (i.e. which contains at most one 3D Texture).
-// 
-
-class LegacyGpuShaderDesc : public GpuShaderDesc
-{
-public:
-    static GpuShaderDescRcPtr Create(unsigned edgelen);
-
-    unsigned getEdgelen() const;
-
-    // Accessors to the 3D textures built from 3D LUT
-    //
-    unsigned getNum3DTextures() const noexcept override;
-    void add3DTexture(const char * textureName,
-                      const char * samplerName,
-                      const char * uid,
-                      unsigned edgelen,
-                      Interpolation interpolation,
-                      const float * values) override;
-    void get3DTexture(unsigned index,
-                      const char *& textureName,
-                      const char *& samplerName,
-                      const char *& uid,
-                      unsigned & edgelen,
-                      Interpolation & interpolation) const override;
-    void get3DTextureValues(unsigned index, const float *& value) const override;
-
-protected:
-
-    unsigned getTextureMaxWidth() const noexcept override;
-    void setTextureMaxWidth(unsigned maxWidth) override;
-
-    // Uniforms are not used by the legacy shader builder
-    //
-    unsigned getNumUniforms() const noexcept override;
-    void getUniform(unsigned index, const char *& name,
-                    DynamicPropertyRcPtr & value) const override;
-    bool addUniform(const char * name,
-                    const DynamicPropertyRcPtr & value) override;
-
-    // 1D & 2D textures are not used by the legacy shader builder
-    //
-    unsigned getNumTextures() const noexcept override;
-    void addTexture(const char * textureName,
-                    const char * samplerName,
-                    const char * uid,
-                    unsigned width, unsigned height,
-                    TextureType channel, Interpolation interpolation,
-                    const float * values) override;
-    // Get the texture 1D or 2D information
-    void getTexture(unsigned index,
-                    const char *& textureName,
-                    const char *& samplerName,
-                    const char *& uid,
-                    unsigned & width, unsigned & height,
-                    TextureType & channel,
-                    Interpolation & interpolation) const override;
-    // Get the texture 1D or 2D values only
-    void getTextureValues(unsigned index, const float *& values) const override;
-
-private:
-    LegacyGpuShaderDesc();
-    explicit LegacyGpuShaderDesc(unsigned edgelen);
-    virtual ~LegacyGpuShaderDesc();
-
-    LegacyGpuShaderDesc(const LegacyGpuShaderDesc &) = delete;
-    LegacyGpuShaderDesc& operator= (const LegacyGpuShaderDesc &) = delete;
-
-    static void Deleter(LegacyGpuShaderDesc* c);
-
-    class Impl;
-    Impl * m_impl;
-
-    Impl * getImpl() { return m_impl; }
-    const Impl * getImpl() const { return m_impl; }
-};
-
-
-///////////////////////////////////////////////////////////////////////////
-
 // GenericGpuShaderDesc
 // *************
 //
@@ -116,17 +32,22 @@ public:
     // Accessors to the uniforms
     //
     unsigned getNumUniforms() const noexcept override;
-    void getUniform(unsigned index, const char *& name,
-                    DynamicPropertyRcPtr & value) const override;
+    const char * getUniform(unsigned index, GpuShaderDesc::UniformData & data) const override;
+    bool addUniform(const char * name, const DoubleGetter & getDouble) override;
+    bool addUniform(const char * name, const BoolGetter & getBool) override;
+    bool addUniform(const char * name, const Float3Getter & getter) override;
     bool addUniform(const char * name,
-                    const DynamicPropertyRcPtr & value) override;
+                    const SizeGetter & getSize,
+                    const VectorFloatGetter & getVectorFloat) override;
+    bool addUniform(const char * name,
+                    const SizeGetter & getSize,
+                    const VectorIntGetter & getVectorInt) override;
 
     // Accessors to the 1D & 2D textures built from 1D LUT
     //
     unsigned getNumTextures() const noexcept override;
     void addTexture(const char * textureName,
                     const char * samplerNName,
-                    const char * uid,
                     unsigned width, unsigned height,
                     TextureType channel,
                     Interpolation interpolation,
@@ -134,7 +55,6 @@ public:
     void getTexture(unsigned index,
                     const char *& textureName,
                     const char *& samplerName,
-                    const char *& uid,
                     unsigned & width, unsigned & height,
                     TextureType & channel,
                     Interpolation & interpolation) const override;
@@ -145,14 +65,12 @@ public:
     unsigned getNum3DTextures() const noexcept override;
     void add3DTexture(const char * textureName,
                       const char * samplerName,
-                      const char * uid,
                       unsigned edgelen,
                       Interpolation interpolation,
                       const float * values) override;
     void get3DTexture(unsigned index,
                       const char *& textureName,
                       const char *& samplerName,
-                      const char *& uid,
                       unsigned & edgelen,
                       Interpolation & interpolation) const override;
     void get3DTextureValues(unsigned index, const float *& value) const override;
@@ -167,11 +85,11 @@ private:
 
     static void Deleter(GenericGpuShaderDesc* c);
 
-    class Impl;
-    Impl * m_impl;
+    class ImplGeneric;
+    ImplGeneric * m_implGeneric;
 
-    Impl * getImpl() { return m_impl; }
-    const Impl * getImpl() const { return m_impl; }
+    ImplGeneric * getImplGeneric() { return m_implGeneric; }
+    const ImplGeneric * getImplGeneric() const { return m_implGeneric; }
 };
 
 } // namespace OCIO_NAMESPACE

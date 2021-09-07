@@ -20,12 +20,11 @@ OCIO_ADD_TEST(ExponentOp, value)
     OCIO_CHECK_NO_THROW(OCIO::CreateExponentOp(ops, exp1, OCIO::TRANSFORM_DIR_INVERSE));
     OCIO_CHECK_EQUAL(ops.size(), 2);
 
-    OCIO_CHECK_NO_THROW(ops.validate());
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(ops.finalize());
 
     float error = 1e-6f;
 
-    const float source[] = {  0.1f, 0.3f, 0.9f, 0.5f, };
+    const float source[] = {  0.1f, 0.3f, 0.9f, 0.5f };
 
     const float result1[] = { 0.0630957261f, 0.209053621f,
                               0.862858355f, 0.353553385f };
@@ -65,23 +64,23 @@ OCIO_ADD_TEST(ExponentOp, value_limits)
     OCIO::OpRcPtrVec ops;
     OCIO_CHECK_NO_THROW(OCIO::CreateExponentOp(ops, exp1, OCIO::TRANSFORM_DIR_FORWARD));
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(ops.finalize());
 
     float error = 1e-6f;
 
-    const float source1[] = { 1.0f, 1.0f, 1.0f, 1.0f, };
+    const float source1[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     const float result1[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     ValidateOp(source1, ops[0], result1, error);
 
-    const float source2[] = { 2.0f, 2.0f, 2.0f, 2.0f, };
+    const float source2[] = { 2.0f, 2.0f, 2.0f, 2.0f };
     const float result2[] = { 1.0f, 4.0f, 0.25f, 2.82842708f };
     ValidateOp(source2, ops[0], result2, error);
 
-    const float source3[] = { -2.0f, -2.0f, 1.0f, -2.0f, };
+    const float source3[] = { -2.0f, -2.0f, 1.0f, -2.0f };
     const float result3[] = { 1.0f, 0.0f, 1.0f, 0.0f };
     ValidateOp(source3, ops[0], result3, error);
 
-    const float source4[] = { 0.0f, 0.0f, 1.0f, 0.0f, };
+    const float source4[] = { 0.0f, 0.0f, 1.0f, 0.0f };
     const float result4[] = { 1.0f, 0.0f, 1.0f, 0.0f };
     ValidateOp(source4, ops[0], result4, error);
 }
@@ -108,8 +107,7 @@ OCIO_ADD_TEST(ExponentOp, combining)
     OCIO_CHECK_NO_THROW(OCIO::CreateExponentOp(ops, expData2, OCIO::TRANSFORM_DIR_FORWARD));
     OCIO_REQUIRE_EQUAL(ops.size(), 2);
 
-    OCIO_CHECK_NO_THROW(ops.validate());
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(ops.finalize());
 
     OCIO::ConstOpRcPtr op1 = ops[1];
 
@@ -138,18 +136,18 @@ OCIO_ADD_TEST(ExponentOp, combining)
     OCIO_CHECK_EQUAL(combinedData->getID(), "ID1 + ID2");
     OCIO_REQUIRE_EQUAL(combinedData->getFormatMetadata().getNumChildrenElements(), 2);
     const auto & child0 = combinedData->getFormatMetadata().getChildElement(0);
-    OCIO_CHECK_EQUAL(std::string(child0.getName()), OCIO::METADATA_DESCRIPTION);
-    OCIO_CHECK_EQUAL(std::string(child0.getValue()), "First exponent");
+    OCIO_CHECK_EQUAL(std::string(child0.getElementName()), OCIO::METADATA_DESCRIPTION);
+    OCIO_CHECK_EQUAL(std::string(child0.getElementValue()), "First exponent");
     const auto & child1 = combinedData->getFormatMetadata().getChildElement(1);
-    OCIO_CHECK_EQUAL(std::string(child1.getName()), OCIO::METADATA_DESCRIPTION);
-    OCIO_CHECK_EQUAL(std::string(child1.getValue()), "Second exponent");
+    OCIO_CHECK_EQUAL(std::string(child1.getElementName()), OCIO::METADATA_DESCRIPTION);
+    OCIO_CHECK_EQUAL(std::string(child1.getElementValue()), "Second exponent");
     // 3 attributes: name, id and Attrib.
     OCIO_CHECK_EQUAL(combinedData->getFormatMetadata().getNumAttributes(), 3);
     auto & attribs = combinedData->getFormatMetadata().getAttributes();
     OCIO_CHECK_EQUAL(attribs[2].first, "Attrib");
     OCIO_CHECK_EQUAL(attribs[2].second, "value");
 
-    OCIO_CHECK_NO_THROW(combined.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(combined.finalize());
 
     float tmp2[4];
     memcpy(tmp2, source, 4*sizeof(float));
@@ -169,7 +167,7 @@ OCIO_ADD_TEST(ExponentOp, combining)
     OCIO_CHECK_NO_THROW(OCIO::CreateExponentOp(ops, exp1, OCIO::TRANSFORM_DIR_FORWARD));
     OCIO_CHECK_NO_THROW(OCIO::CreateExponentOp(ops, exp1, OCIO::TRANSFORM_DIR_INVERSE));
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(ops.finalize());
     OCIO_REQUIRE_EQUAL(ops.size(), 2);
 
     OCIO::ConstOpRcPtr op1 = ops[1];
@@ -188,7 +186,7 @@ OCIO_ADD_TEST(ExponentOp, combining)
     OCIO_CHECK_NO_THROW(OCIO::CreateExponentOp(ops, exp1, OCIO::TRANSFORM_DIR_FORWARD));
     OCIO_CHECK_NO_THROW(OCIO::CreateExponentOp(ops, exp1, OCIO::TRANSFORM_DIR_FORWARD));
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(ops.finalize());
     OCIO_CHECK_EQUAL(ops.size(), 3);
 
     const float source[] = { 0.1f, 0.5f, 0.9f, 0.5f, };
@@ -206,7 +204,8 @@ OCIO_ADD_TEST(ExponentOp, combining)
         OCIO_CHECK_CLOSE(tmp[i], result[i], error);
     }
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_CHECK_EQUAL(ops.size(), 1);
 
     memcpy(tmp, source, 4 * sizeof(float));
@@ -224,9 +223,6 @@ OCIO_ADD_TEST(ExponentOp, throw_create)
     const double exp1[4] = { 0.0, 1.3, 1.4, 1.5 };
 
     OCIO::OpRcPtrVec ops;
-    OCIO_CHECK_THROW_WHAT(
-        OCIO::CreateExponentOp(ops, exp1, OCIO::TRANSFORM_DIR_UNKNOWN),
-        OCIO::Exception, "unspecified transform direction");
 
     OCIO_CHECK_THROW_WHAT(
         OCIO::CreateExponentOp(ops, exp1, OCIO::TRANSFORM_DIR_INVERSE),
@@ -262,7 +258,8 @@ OCIO_ADD_TEST(ExponentOp, noop)
     OCIO_CHECK_ASSERT(ops[1]->isNoOp());
 
     // Optimize it.
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_CHECK_EQUAL(ops.size(), 0);
 }
 

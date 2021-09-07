@@ -122,6 +122,7 @@ case in:                                              \
 void CreateCPUEngine(const OpRcPtrVec & ops, 
                      BitDepth in, 
                      BitDepth out,
+                     OptimizationFlags oFlags,
                      // The bit-depth 'cast' or the first CPU Op.
                      ConstOpCPURcPtr & inBitDepthOp,
                      // The remaining CPU Ops.
@@ -130,6 +131,7 @@ void CreateCPUEngine(const OpRcPtrVec & ops,
                      ConstOpCPURcPtr & outBitDepthOp)
 {
     const size_t maxOps = ops.size();
+    const bool fastLogExpPow = HasFlag(oFlags, OPTIMIZATION_FAST_LOG_EXP_POW);
     for(size_t idx=0; idx<maxOps; ++idx)
     {
         ConstOpRcPtr op = ops[idx];
@@ -144,12 +146,12 @@ void CreateCPUEngine(const OpRcPtrVec & ops,
             }
             else if(in==BIT_DEPTH_F32)
             {
-                inBitDepthOp = op->getCPUOp();
+                inBitDepthOp = op->getCPUOp(fastLogExpPow);
             }
             else
             {
                 inBitDepthOp = CreateGenericBitDepthHelper(in, BIT_DEPTH_F32);
-                cpuOps.push_back(op->getCPUOp());
+                cpuOps.push_back(op->getCPUOp(fastLogExpPow));
             }
 
             if(maxOps==1)
@@ -166,17 +168,17 @@ void CreateCPUEngine(const OpRcPtrVec & ops,
             }
             else if(out==BIT_DEPTH_F32)
             {
-                outBitDepthOp = op->getCPUOp();
+                outBitDepthOp = op->getCPUOp(fastLogExpPow);
             }
             else
             {
                 outBitDepthOp = CreateGenericBitDepthHelper(BIT_DEPTH_F32, out);
-                cpuOps.push_back(op->getCPUOp());
+                cpuOps.push_back(op->getCPUOp(fastLogExpPow));
             }
         }
         else
         {
-            cpuOps.push_back(op->getCPUOp());
+            cpuOps.push_back(op->getCPUOp(fastLogExpPow));
         }
     }
 }
@@ -268,34 +270,25 @@ void FinalizeOpsForCPU(OpRcPtrVec & ops, const OpRcPtrVec & rawOps,
 
     if(!ops.empty())
     {
+        // Finalize of all ops.
+        ops.finalize();
+
         // Optimize the ops.
-        ops.finalize(oFlags);
+        ops.optimize(oFlags);
         ops.optimizeForBitdepth(in, out, oFlags);
     }
 
+    // The previous code could change the list of ops so an explicit check to empty is still needed.
     if(ops.empty())
     {
-        // Support an empty list.
-
-        const double scale = GetBitDepthMaxValue(out) / GetBitDepthMaxValue(in);
-
-        if(scale==1.0f)
-        {
-            // Needs at least one op (even an identity one) as the input
-            // and output buffers could be different.
-            CreateIdentityMatrixOp(ops);
-        }
-        else
-        {
-            // Note: CreateScaleOp will not add an op if scale == 1.
-            const double scale4[4] = {scale, scale, scale, scale};
-            CreateScaleOp(ops, scale4, TRANSFORM_DIR_FORWARD);
-        }
+        // Needs at least one op (even an identity one) as the input and output buffers could be
+        // different.
+        CreateIdentityMatrixOp(ops);
     }
 
     if (!((oFlags & OPTIMIZATION_NO_DYNAMIC_PROPERTIES) == OPTIMIZATION_NO_DYNAMIC_PROPERTIES))
     {
-        ops.unifyDynamicProperties();
+        ops.validateDynamicProperties();
     }
 }
 
@@ -304,6 +297,8 @@ void CPUProcessor::Impl::finalize(const OpRcPtrVec & rawOps,
                                   OptimizationFlags oFlags)
 {
     AutoMutex lock(m_mutex);
+
+    // Get the ops of the color transformation without the bit-depth adjustments.
 
     OpRcPtrVec ops;
     FinalizeOpsForCPU(ops, rawOps, in, out, oFlags);
@@ -322,7 +317,7 @@ void CPUProcessor::Impl::finalize(const OpRcPtrVec & rawOps,
     m_cpuOps.clear();
     m_inBitDepthOp = nullptr;
     m_outBitDepthOp = nullptr;
-    CreateCPUEngine(ops, in, out, m_inBitDepthOp, m_cpuOps, m_outBitDepthOp);
+    CreateCPUEngine(ops, in, out, oFlags, m_inBitDepthOp, m_cpuOps, m_outBitDepthOp);
 
     // Compute the cache id.
 
@@ -330,11 +325,7 @@ void CPUProcessor::Impl::finalize(const OpRcPtrVec & rawOps,
     ss << "CPU Processor: from " << BitDepthToString(in)
        << " to "  << BitDepthToString(out)
        << " oFlags " << oFlags
-       << " ops:";
-    for(const auto & op : ops)
-    {
-        ss << " " << op->getCacheID();
-    }
+       << " ops: " << ops.getCacheID();
 
     m_cacheID = ss.str();
 }
@@ -404,7 +395,7 @@ void CPUProcessor::Impl::applyRGB(float * pixel) const
     const size_t numOps = m_cpuOps.size();
     for(size_t i = 0; i<numOps; ++i)
     {
-        m_cpuOps[i]->apply(pixel, pixel, 1);
+        m_cpuOps[i]->apply(v, v, 1);
     }
 
     m_outBitDepthOp->apply(v, v, 1);

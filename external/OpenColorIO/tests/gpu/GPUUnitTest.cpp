@@ -136,6 +136,7 @@ OCIOGPUTest::~OCIOGPUTest()
 void OCIOGPUTest::setProcessor(OCIO::TransformRcPtr transform)
 {
     OCIO::ConfigRcPtr config = OCIO::Config::Create();
+    config->setProcessorCacheFlags(OCIO::PROCESSOR_CACHE_OFF);
     setProcessor(config, transform);
 }
 
@@ -159,15 +160,9 @@ OCIO::GpuShaderDescRcPtr & OCIOGPUTest::getShaderDesc()
 {
     if (!m_shaderDesc)
     {
-        if (isLegacyShader())
-        {
-            m_shaderDesc = OCIO::GpuShaderDesc::CreateLegacyShaderDesc(getLegacyShaderLutEdge());
-        }
-        else
-        {
-            m_shaderDesc = OCIO::GpuShaderDesc::CreateShaderDesc();
-        }
-        m_shaderDesc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_3);
+        m_shaderDesc = OCIO::GpuShaderDesc::CreateShaderDesc();
+        m_shaderDesc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_2);
+        m_shaderDesc->setPixelName("myPixel");
     }
     return m_shaderDesc;
 }
@@ -198,12 +193,12 @@ namespace
     static constexpr unsigned g_winHeight  = 256;
     static constexpr unsigned g_components = 4;
 
-    void AllocateImageTexture(OCIO::OglApp & app)
+    void AllocateImageTexture(OCIO::OglAppRcPtr & app)
     {
         const unsigned numEntries = g_winWidth * g_winHeight * g_components;
         OCIOGPUTest::CustomValues::Values image(numEntries, 0.0f);
 
-        app.initImage(g_winWidth, g_winHeight, OCIO::OglApp::COMPONENTS_RGBA, &image[0]);
+        app->initImage(g_winWidth, g_winHeight, OCIO::OglApp::COMPONENTS_RGBA, &image[0]);
     }
 
     void SetTestValue(float * image, float val, unsigned numComponents)
@@ -218,13 +213,12 @@ namespace
         }
     }
 
-    void UpdateImageTexture(OCIO::OglApp & app, OCIOGPUTestRcPtr & test)
+    void UpdateImageTexture(OCIO::OglAppRcPtr & app, OCIOGPUTestRcPtr & test)
     {
         // Note: User-specified custom values are padded out
         // to the preferred size (g_winWidth x g_winHeight).
 
-        const unsigned predefinedNumEntries
-            = g_winWidth * g_winHeight * g_components;
+        const unsigned predefinedNumEntries = g_winWidth * g_winHeight * g_components;
 
         if (test->getCustomValues().m_inputValues.empty())
         {
@@ -240,8 +234,7 @@ namespace
 
             OCIOGPUTest::CustomValues tmp;
             tmp.m_originalInputValueSize = predefinedNumEntries;
-            tmp.m_inputValues
-                = OCIOGPUTest::CustomValues::Values(predefinedNumEntries, min);
+            tmp.m_inputValues = OCIOGPUTest::CustomValues::Values(predefinedNumEntries, min);
 
             unsigned idx = 0;
             unsigned numEntries = predefinedNumEntries;
@@ -320,17 +313,31 @@ namespace
             throw OCIO::Exception("Missing some expected input values");
         }
 
-        app.updateImage(&values.m_inputValues[0]);
+        app->updateImage(&values.m_inputValues[0]);
     }
 
-    void UpdateOCIOGLState(OCIO::OglApp & app, OCIOGPUTestRcPtr & test)
+    void UpdateOCIOGLState(OCIO::OglAppRcPtr & app, OCIOGPUTestRcPtr & test)
     {
-        app.setPrintShader(test->isVerbose());
+        app->setPrintShader(test->isVerbose());
+
         OCIO::ConstProcessorRcPtr & processor = test->getProcessor();
         OCIO::GpuShaderDescRcPtr & shaderDesc = test->getShaderDesc();
+
+        OCIO::ConstGPUProcessorRcPtr gpu;
+        if (test->isLegacyShader())
+        {
+            gpu = processor->getOptimizedLegacyGPUProcessor(OCIO::OPTIMIZATION_DEFAULT, 
+                                                            test->getLegacyShaderLutEdge());
+        }
+        else
+        {
+            gpu = processor->getDefaultGPUProcessor();
+        }
+
         // Collect the shader program information for a specific processor.
-        processor->getDefaultGPUProcessor()->extractGpuShaderInfo(shaderDesc);
-        app.setShader(shaderDesc);
+        gpu->extractGpuShaderInfo(shaderDesc);
+
+        app->setShader(shaderDesc);
     }
 
     void DiffComponent(const std::vector<float> & cpuImage,
@@ -366,18 +373,17 @@ namespace
     static constexpr size_t invalidIndex = std::numeric_limits<size_t>::max();
 
     // Validate the GPU processing against the CPU one.
-    void ValidateImageTexture(OCIO::OglApp & app, OCIOGPUTestRcPtr & test)
+    void ValidateImageTexture(OCIO::OglAppRcPtr & app, OCIOGPUTestRcPtr & test)
     {
-        OCIO::ConstCPUProcessorRcPtr processor
-            = test->getProcessor()->getDefaultCPUProcessor();
+        // Each retest is rebuilding a cpu proc.
+        OCIO::ConstCPUProcessorRcPtr processor = test->getProcessor()->getDefaultCPUProcessor();
 
         const float epsilon = test->getErrorThreshold();
         const float expectMinValue = test->getExpectedMinimalValue();
 
         // Compute the width & height to avoid testing the padded values.
 
-        const size_t numPixels
-            = test->getCustomValues().m_originalInputValueSize / g_components;
+        const size_t numPixels = test->getCustomValues().m_originalInputValueSize / g_components;
 
         size_t width, height = 0;
         if(numPixels<=g_winWidth)
@@ -406,7 +412,7 @@ namespace
         // Step 2: Grab the GPU output from the rendering buffer.
 
         OCIOGPUTest::CustomValues::Values gpuImage(g_winWidth*g_winHeight*g_components, 0.0f);
-        app.readImage(&gpuImage[0]);
+        app->readImage(&gpuImage[0]);
 
         // Step 3: Compare the two results.
 
@@ -459,7 +465,7 @@ namespace
                 err << std::setprecision(10)
                     << "\nLarge number error: " << diff << " at pixel: " << pixelIdx
                     << " on component " << componentIdx
-                    << ".\nscr = {"
+                    << ".\nsrc = {"
                     << image[4 * pixelIdx + 0] << ", " << image[4 * pixelIdx + 1] << ", "
                     << image[4 * pixelIdx + 2] << ", " << image[4 * pixelIdx + 3] << "}"
                     << "\ncpu = {"
@@ -476,7 +482,7 @@ namespace
                 err << std::setprecision(10)
                     << "\nNAN error: " << diff << " at pixel: " << pixelIdx
                     << " on component " << componentIdx
-                    << ".\nscr = {"
+                    << ".\nsrc = {"
                     << image[4 * pixelIdx + 0] << ", " << image[4 * pixelIdx + 1] << ", "
                     << image[4 * pixelIdx + 2] << ", " << image[4 * pixelIdx + 3] << "}"
                     << "\ncpu = {"
@@ -501,7 +507,7 @@ int main(int, char **)
     OCIO::OglAppRcPtr app;
     try
     {
-        app = std::make_shared<OCIO::OglApp>("GPU tests", 10, 10);
+        app = OCIO::OglApp::CreateOglApp("GPU tests", 10, 10);
     }
     catch (const OCIO::Exception & e)
     {
@@ -512,7 +518,7 @@ int main(int, char **)
     app->printGLInfo();
 
     // Step 2: Allocate the texture that holds the image.
-    AllocateImageTexture(*app);
+    AllocateImageTexture(app);
 
     // Step 3: Create the frame buffer and render buffer.
     app->createGLBuffers();
@@ -558,10 +564,10 @@ int main(int, char **)
             if(test->isValid() && enabledTest)
             {
                 // Initialize the texture with the RGBA values to be processed.
-                UpdateImageTexture(*app, test);
+                UpdateImageTexture(app, test);
 
                 // Update the GPU shader program.
-                UpdateOCIOGLState(*app, test);
+                UpdateOCIOGLState(app, test);
 
                 const size_t numRetest = test->getNumRetests();
                 // Need to run once and for each retest.
@@ -571,8 +577,6 @@ int main(int, char **)
                     {
                         // Call the retest callback.
                         test->retestSetup(idx - 1);
-                        // Update uniforms with dynamic properties.
-                        app->updateUniforms();
                     }
 
                     // Process the image texture into the rendering buffer.
@@ -580,7 +584,7 @@ int main(int, char **)
 
                     // Compute the expected values using the CPU and compare
                     // against the GPU values.
-                    ValidateImageTexture(*app, test);
+                    ValidateImageTexture(app, test);
                 }
             }
         }

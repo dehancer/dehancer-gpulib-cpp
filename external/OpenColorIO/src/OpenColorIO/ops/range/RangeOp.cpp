@@ -7,7 +7,7 @@
 #include <OpenColorIO/OpenColorIO.h>
 
 #include "GpuShaderUtils.h"
-#include "OpenEXR/half.h"
+#include "utils/Half.h"
 #include "HashUtils.h"
 #include "MathUtils.h"
 #include "ops/lut1d/Lut1DOpData.h"
@@ -48,7 +48,7 @@ public:
     void finalize() override;
     std::string getCacheID() const override;
 
-    ConstOpCPURcPtr getCPUOp() const override;
+    ConstOpCPURcPtr getCPUOp(bool fastLogExpPow) const override;
 
     void extractGpuShaderInfo(GpuShaderCreatorRcPtr & shaderCreator) const override;
 
@@ -87,7 +87,7 @@ bool RangeOp::isSameType(ConstOpRcPtr & op) const
     return (bool)typedRcPtr;
 }
 
-bool RangeOp::isInverse(ConstOpRcPtr & op) const
+bool RangeOp::isInverse(ConstOpRcPtr & /* op */) const
 {
     // It is simpler to handle a pair of inverses by combining them and then removing
     // the identity.  So we just return false here.
@@ -192,7 +192,7 @@ std::string RangeOp::getCacheID() const
     return cacheIDStream.str();
 }
 
-ConstOpCPURcPtr RangeOp::getCPUOp() const
+ConstOpCPURcPtr RangeOp::getCPUOp(bool /*fastLogExpPow*/) const
 {
     ConstRangeOpDataRcPtr data = rangeData();
     return GetRangeRenderer(data);
@@ -260,7 +260,6 @@ void CreateRangeTransform(GroupTransformRcPtr & group, ConstOpRcPtr & op)
 }
 
 void BuildRangeOp(OpRcPtrVec & ops,
-                  const Config & /*config*/,
                   const RangeTransform & transform,
                   TransformDirection dir)
 {

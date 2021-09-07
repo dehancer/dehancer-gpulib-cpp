@@ -3,21 +3,21 @@
 
 #import <Cocoa/Cocoa.h>
 
-typedef enum ControllerSource
+enum ControllerSource
 {
     CSOURCE_ENVIRONMENT,
     CSOURCE_STANDARD,
     CSOURCE_CUSTOM
 };
 
-typedef enum ControllerAction
+enum ControllerAction
 {
     CACTION_LUT,
     CACTION_CONVERT,
     CACTION_DISPLAY
 };
 
-typedef enum ControllerInterp
+enum ControllerInterp
 {
     CINTERP_NEAREST,
     CINTERP_LINEAR,
@@ -31,15 +31,17 @@ typedef enum ControllerInterp
 
 @interface OpenColorIO_PS_Dialog_Controller : NSObject
 {
+    IBOutlet NSButton *okButton;
+    IBOutlet NSButton *exportButton;
     IBOutlet NSPopUpButton *configurationMenu;
     IBOutlet NSMatrix *actionRadios;
+    IBOutlet NSButton *invertCheck;
     IBOutlet NSTextField *label1;
     IBOutlet NSTextField *label2;
     IBOutlet NSTextField *label3;
     IBOutlet NSPopUpButton *menu1;
     IBOutlet NSPopUpButton *menu2;
     IBOutlet NSPopUpButton *menu3;
-    IBOutlet NSButton *invertCheck;
     IBOutlet NSButton *inputSpaceButton;
     IBOutlet NSButton *outputSpaceButton;
     
@@ -53,8 +55,8 @@ typedef enum ControllerInterp
     ControllerAction action;
     NSString *inputSpace;
     NSString *outputSpace;
-    NSString *device;
-    NSString *transform;
+    NSString *display;
+    NSString *view;
     
     ControllerInterp interpolation;
     BOOL invert;
@@ -67,8 +69,8 @@ typedef enum ControllerInterp
         interpolation:(ControllerInterp)interpolation
         inputSpace:(NSString *)inputSpace
         outputSpace:(NSString *)outputSpace
-        device:(NSString *)device
-        transform:(NSString *)transform;
+        display:(NSString *)display
+        view:(NSString *)view;
         
 - (IBAction)clickedOK:(id)sender;
 - (IBAction)clickedCancel:(id)sender;
@@ -93,7 +95,7 @@ typedef enum ControllerInterp
 - (ControllerInterp)interpolation;
 - (NSString *)inputSpace;
 - (NSString *)outputSpace;
-- (NSString *)device;
-- (NSString *)transform;
+- (NSString *)display;
+- (NSString *)view;
 
 @end

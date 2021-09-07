@@ -11,18 +11,15 @@
 #include "OpBuilders.h"
 #include "Platform.h"
 #include "transforms/builtins/ACES.h"
-#include "transforms/builtins/BuiltinTransformRegistry.h"
-#include "utils/StringUtils.h"
-
-#ifdef ADD_EXTRA_BUILTINS
-
 #include "transforms/builtins/ArriCameras.h"
-#include "transforms/builtins/PanasonicCameras.h"
+#include "transforms/builtins/BuiltinTransformRegistry.h"
 #include "transforms/builtins/CanonCameras.h"
+#include "transforms/builtins/Displays.h"
+#include "transforms/builtins/PanasonicCameras.h"
 #include "transforms/builtins/RedCameras.h"
 #include "transforms/builtins/SonyCameras.h"
+#include "utils/StringUtils.h"
 
-#endif // ADD_EXTRA_BUILTINS
 
 namespace OCIO_NAMESPACE
 {
@@ -32,21 +29,6 @@ namespace
 
 static BuiltinTransformRegistryRcPtr globalRegistry;
 static Mutex globalRegistryMutex;
-
-
-void AddCameraBuiltins(BuiltinTransformRegistryImpl & registry)
-{
-#ifdef ADD_EXTRA_BUILTINS
-
-    // Camera support.
-    CAMERA::ARRI::RegisterAll(registry);
-    CAMERA::CANON::RegisterAll(registry);
-    CAMERA::PANASONIC::RegisterAll(registry);
-    CAMERA::RED::RegisterAll(registry);
-    CAMERA::SONY::RegisterAll(registry);
-
-#endif // ADD_EXTRA_BUILTINS
-}
 
 } // anon.
 
@@ -123,9 +105,18 @@ void BuiltinTransformRegistryImpl::registerAll() noexcept
                                                 CreateIdentityMatrixOp(ops);
                                             } } );
 
+    // ACES support.
     ACES::RegisterAll(*this);
 
-    AddCameraBuiltins(*this);
+    // Camera support.
+    CAMERA::ARRI::RegisterAll(*this);
+    CAMERA::CANON::RegisterAll(*this);
+    CAMERA::PANASONIC::RegisterAll(*this);
+    CAMERA::RED::RegisterAll(*this);
+    CAMERA::SONY::RegisterAll(*this);
+
+    // Display support.
+    DISPLAY::RegisterAll(*this);
 }
 
 
@@ -136,25 +127,25 @@ void CreateBuiltinTransformOps(OpRcPtrVec & ops, size_t nameIndex, TransformDire
         throw Exception("Invalid built-in transform name.");
     }
 
-    if (direction == TRANSFORM_DIR_UNKNOWN)
-    {
-        throw Exception("Unsupported direction.");
-    }
-
     const BuiltinTransformRegistryImpl * registry
         = dynamic_cast<const BuiltinTransformRegistryImpl *>(BuiltinTransformRegistry::Get().get());
 
-    if (direction == TRANSFORM_DIR_FORWARD)
+    switch (direction)
+    {
+    case TRANSFORM_DIR_FORWARD:
     {
         registry->createOps(nameIndex, ops);
+        break;
     }
-    else
+    case TRANSFORM_DIR_INVERSE:
     {
         OpRcPtrVec tmp;
         registry->createOps(nameIndex, tmp);
 
         OpRcPtrVec t = tmp.invert();
         ops.insert(ops.end(), t.begin(), t.end());
+        break;
+    }
     }
 }
 

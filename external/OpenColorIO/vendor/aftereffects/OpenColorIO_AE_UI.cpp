@@ -9,6 +9,7 @@
 
 #include "DrawbotBot.h"
 
+#include <assert.h>
 
 
 // UI drawing constants
@@ -67,6 +68,7 @@ typedef enum {
     REGION_PATH,
     REGION_CONVERT_BUTTON,
     REGION_DISPLAY_BUTTON,
+    REGION_INVERT_BUTTON,
     REGION_EXPORT_BUTTON,
     REGION_MENU1,
     REGION_MENU2,
@@ -76,13 +78,13 @@ typedef enum {
 
 static UIRegion WhichRegion(PF_Point ui_point, bool menus, bool third_menu)
 {
-    int field_top = TOP_MARGIN;
-    int field_bottom = field_top + FIELD_HEIGHT;
+    const int field_top = TOP_MARGIN;
+    const int field_bottom = field_top + FIELD_HEIGHT;
     
     if(ui_point.v >= field_top && ui_point.v <= field_bottom)
     {
-        int menu_left = LEFT_MARGIN + MENUS_INDENT_H + MENU_LABEL_WIDTH;
-        int menu_right = menu_left + MENU_WIDTH;
+        const int menu_left = LEFT_MARGIN + MENUS_INDENT_H + MENU_LABEL_WIDTH;
+        const int menu_right = menu_left + MENU_WIDTH;
         
         if(ui_point.h >= menu_left && ui_point.h <= menu_right)
         {
@@ -90,7 +92,7 @@ static UIRegion WhichRegion(PF_Point ui_point, bool menus, bool third_menu)
         }
         else
         {
-            int field_left = MENUS_INDENT_H + MENU_LABEL_WIDTH + MENU_LABEL_SPACE +
+            const int field_left = MENUS_INDENT_H + MENU_LABEL_WIDTH + MENU_LABEL_SPACE +
                                 MENU_WIDTH + FIELD_TEXT_INDENT_H;
             
             if(ui_point.h >= field_left)
@@ -99,38 +101,41 @@ static UIRegion WhichRegion(PF_Point ui_point, bool menus, bool third_menu)
     }
     else
     {
-        int buttons_top = field_bottom + BUTTONS_GAP_V;
-        int buttons_bottom = buttons_top + BUTTON_HEIGHT;
+        const int buttons_top = field_bottom + BUTTONS_GAP_V;
+        const int buttons_bottom = buttons_top + BUTTON_HEIGHT;
         
         if(ui_point.v >= buttons_top && ui_point.v <= buttons_bottom)
         {
-            int convert_left = BUTTONS_INDENT_H;
-            int convert_right = convert_left + BUTTON_WIDTH;
-            int display_left = convert_right + BUTTONS_GAP_H;
-            int display_right = display_left + BUTTON_WIDTH;
-            int export_left = display_right + BUTTONS_GAP_H;
-            int export_right = export_left + BUTTON_WIDTH;
+            const int convert_left = BUTTONS_INDENT_H;
+            const int convert_right = convert_left + BUTTON_WIDTH;
+            const int display_left = convert_right + BUTTONS_GAP_H;
+            const int display_right = display_left + BUTTON_WIDTH;
+            const int invert_left = display_right + BUTTONS_GAP_H + BUTTONS_GAP_H;
+            const int invert_right = invert_left + BUTTON_WIDTH;
+            const int export_left = invert_right + BUTTONS_GAP_H;
+            const int export_right = export_left + BUTTON_WIDTH;
             
             if(ui_point.h >= convert_left && ui_point.h <= convert_right)
                 return REGION_CONVERT_BUTTON;
             else if(ui_point.h >= display_left && ui_point.h <= display_right)
                 return REGION_DISPLAY_BUTTON;
+            else if(ui_point.h >= invert_left && ui_point.h <= invert_right)
+                return REGION_INVERT_BUTTON;
             else if(ui_point.h >= export_left && ui_point.h <= export_right)
                 return REGION_EXPORT_BUTTON;
         }
         else if(menus)
         {
-            int menu_left = LEFT_MARGIN + MENUS_INDENT_H + MENU_LABEL_WIDTH;
-            int menu_right = menu_left + MENU_WIDTH;
+            const int menu_left = LEFT_MARGIN + MENUS_INDENT_H + MENU_LABEL_WIDTH;
         
-            if(ui_point.h >= menu_left && ui_point.h <= menu_right)
+            if(ui_point.h >= menu_left)
             {
-                int menu1_top = buttons_bottom + MENUS_GAP_V;
-                int menu1_bottom = menu1_top + MENU_HEIGHT;
-                int menu2_top = menu1_bottom + MENU_SPACE_V;
-                int menu2_bottom = menu2_top + MENU_HEIGHT;
-                int menu3_top = menu2_bottom + MENU_SPACE_V;
-                int menu3_bottom = menu3_top + MENU_HEIGHT;
+                const int menu1_top = buttons_bottom + MENUS_GAP_V;
+                const int menu1_bottom = menu1_top + MENU_HEIGHT;
+                const int menu2_top = menu1_bottom + MENU_SPACE_V;
+                const int menu2_bottom = menu2_top + MENU_HEIGHT;
+                const int menu3_top = menu2_bottom + MENU_SPACE_V;
+                const int menu3_bottom = menu3_top + MENU_HEIGHT;
                 
                 if(ui_point.v >= menu1_top && ui_point.v <= menu1_bottom)
                     return REGION_MENU1;
@@ -146,11 +151,11 @@ static UIRegion WhichRegion(PF_Point ui_point, bool menus, bool third_menu)
 }
 
 
-static void DrawMenu(DrawbotBot &bot, const char *label, const char *item)
+static void DrawMenu(DrawbotBot &bot, int menu_width, const char *label, const char *item)
 {
     DRAWBOT_PointF32 original = bot.Pos();
     
-    float text_height = bot.FontSize();
+    const float text_height = bot.FontSize();
     
     bot.Move(MENU_LABEL_WIDTH, MENU_TEXT_INDENT_V + text_height);
     
@@ -163,14 +168,14 @@ static void DrawMenu(DrawbotBot &bot, const char *label, const char *item)
     
     bot.Move(MENU_SHADOW_OFFSET, MENU_SHADOW_OFFSET);
     bot.SetColor(PF_App_Color_BLACK, 0.3f);
-    bot.PaintRect(MENU_WIDTH, MENU_HEIGHT);
+    bot.PaintRect(menu_width, MENU_HEIGHT);
     bot.MoveTo(menu_corner);
     
     bot.SetColor(PF_App_Color_SHADOW);
-    bot.PaintRect(MENU_WIDTH, MENU_HEIGHT);
+    bot.PaintRect(menu_width, MENU_HEIGHT);
     
     bot.SetColor(PF_App_Color_HILITE);
-    bot.DrawRect(MENU_WIDTH, MENU_HEIGHT);
+    bot.DrawRect(menu_width, MENU_HEIGHT);
     
     bot.Move(MENU_TEXT_INDENT_H, MENU_TEXT_INDENT_V + text_height);
     
@@ -178,10 +183,10 @@ static void DrawMenu(DrawbotBot &bot, const char *label, const char *item)
     bot.DrawString(item,
                     kDRAWBOT_TextAlignment_Left,
                     kDRAWBOT_TextTruncation_EndEllipsis,
-                    MENU_WIDTH - MENU_TEXT_INDENT_H - MENU_TEXT_INDENT_H -
+                    menu_width - MENU_TEXT_INDENT_H - MENU_TEXT_INDENT_H -
                         MENU_ARROW_WIDTH - MENU_ARROW_SPACE_H - MENU_ARROW_SPACE_H);
     
-    bot.MoveTo(menu_corner.x + MENU_WIDTH - MENU_ARROW_SPACE_H - MENU_ARROW_WIDTH,
+    bot.MoveTo(menu_corner.x + menu_width - MENU_ARROW_SPACE_H - MENU_ARROW_WIDTH,
                 menu_corner.y + MENU_ARROW_SPACE_V);
     
     bot.SetColor(PF_App_Color_LIGHT_TINGE);
@@ -195,7 +200,7 @@ static void DrawButton(DrawbotBot &bot, const char *label, int width, bool press
 {
     DRAWBOT_PointF32 original = bot.Pos();
     
-    float text_height = bot.FontSize();
+    const float text_height = bot.FontSize();
     
     
     PF_App_ColorType button_color = (pressed ? PF_App_Color_BUTTON_PRESSED_FILL : PF_App_Color_BUTTON_FILL);
@@ -253,7 +258,6 @@ static PF_Err DrawEvent(
 {
     PF_Err          err     =   PF_Err_NONE;
     
-
     if(!(event_extra->evt_in_flags & PF_EI_DONT_DRAW) &&
         params[OCIO_DATA]->u.arb_d.value != NULL)
     {
@@ -265,11 +269,14 @@ static PF_Err DrawEvent(
             DrawbotBot bot(in_data->pica_basicP, event_extra->contextH, in_data->appl_id);
             
             
-            int panel_left = event_extra->effect_win.current_frame.left;
-            int panel_top = event_extra->effect_win.current_frame.top;
-            int panel_width = event_extra->effect_win.current_frame.right;
-            int panel_height = event_extra->effect_win.current_frame.bottom;
-            float text_height = bot.FontSize();
+            const int panel_left = event_extra->effect_win.current_frame.left;
+            const int panel_top = event_extra->effect_win.current_frame.top;
+            const int panel_width = event_extra->effect_win.current_frame.right;
+            const int panel_height = event_extra->effect_win.current_frame.bottom;
+            const float text_height = bot.FontSize();
+            
+            const int config_menu_width = MENU_WIDTH;
+            const int menu_width = MAX(panel_width - (MENUS_INDENT_H + MENU_LABEL_WIDTH + MENU_LABEL_SPACE) - RIGHT_MARGIN, MENU_WIDTH);
             
             if(in_data->appl_id != 'FXTC')
             {
@@ -298,19 +305,19 @@ static PF_Err DrawEvent(
                 config_menu_text = (arb_data->action == OCIO_ACTION_LUT ? "LUT" : "Custom");
             }
             
-            DrawMenu(bot, "Configuration:", config_menu_text.c_str());
+            DrawMenu(bot, config_menu_width, "Configuration:", config_menu_text.c_str());
             
             
             if(arb_data->source == OCIO_SOURCE_CUSTOM ||
                 arb_data->source == OCIO_SOURCE_ENVIRONMENT)
             {
                 // path text field
-                int field_left = panel_left + MENUS_INDENT_H + MENU_LABEL_WIDTH +
+                const int field_left = panel_left + MENUS_INDENT_H + MENU_LABEL_WIDTH +
                                     MENU_LABEL_SPACE + MENU_WIDTH + FIELD_TEXT_INDENT_H;
                 
                 bot.MoveTo(field_left, panel_top + TOP_MARGIN);
                 
-                int field_width = MAX(panel_width - field_left + panel_left - RIGHT_MARGIN, 60);
+                const int field_width = MAX(panel_width - field_left + panel_left - RIGHT_MARGIN, 60);
                 
                 bot.SetColor(PF_App_Color_SHADOW);
                 bot.PaintRect(field_width, FIELD_HEIGHT);
@@ -364,8 +371,8 @@ static PF_Err DrawEvent(
             else
             {
                 // buttons
-                int field_bottom = panel_top + TOP_MARGIN + FIELD_HEIGHT;
-                int buttons_top = field_bottom + BUTTONS_GAP_V;
+                const int field_bottom = panel_top + TOP_MARGIN + FIELD_HEIGHT;
+                const int buttons_top = field_bottom + BUTTONS_GAP_V;
                 
                 // GPU alert
                 if(seq_data->gpu_err != GPU_ERR_NONE)
@@ -403,30 +410,30 @@ static PF_Err DrawEvent(
                 }
             #endif
                 
-                // Export button
                 if(arb_data->action != OCIO_ACTION_NONE)
                 {
-                    bot.MoveTo(panel_left + BUTTONS_INDENT_H + (2 * (BUTTON_WIDTH + BUTTONS_GAP_H)), buttons_top);
+                    // Export button
+                    bot.MoveTo(panel_left + BUTTONS_INDENT_H + (3 * (BUTTON_WIDTH + BUTTONS_GAP_H)) + BUTTONS_GAP_H, buttons_top);
                     
                     DrawButton(bot, "Export...", BUTTON_WIDTH, false);
-                }
-                
-                if(arb_data->action == OCIO_ACTION_LUT)
-                {
+                    
                     // Invert button
-                    bot.MoveTo(panel_left + BUTTONS_INDENT_H, buttons_top);
+                    bot.Move(-(BUTTON_WIDTH + BUTTONS_GAP_H));
                     
                     DrawButton(bot, "Invert", BUTTON_WIDTH, arb_data->invert > OCIO_INVERT_OFF);
                     
                     if(arb_data->invert == OCIO_INVERT_EXACT)
                     {
-                        bot.Move(BUTTON_WIDTH + FIELD_TEXT_INDENT_H, BUTTON_HEIGHT * 3 / 4);
+                        bot.Move((BUTTON_WIDTH / 2) + 2, (BUTTON_HEIGHT * 7 / 4) - 2);
                         
-                        bot.DrawString("Exact");
+                        bot.DrawString("Exact", kDRAWBOT_TextAlignment_Center);
                     }
-                    
+                }
+                
+                if(arb_data->action == OCIO_ACTION_LUT)
+                {
                     // interpolation menu
-                    int buttons_bottom = buttons_top + BUTTON_HEIGHT;
+                    const int buttons_bottom = buttons_top + BUTTON_HEIGHT;
                     
                     bot.MoveTo(panel_left + MENUS_INDENT_H, buttons_bottom + MENUS_GAP_V);
                     
@@ -437,10 +444,9 @@ static PF_Err DrawEvent(
                                         arb_data->interpolation == OCIO_INTERP_BEST ? "Best" :
                                         "Unknown";
                     
-                    DrawMenu(bot, "Interpolation:", txt);
+                    DrawMenu(bot, menu_width, "Interpolation:", txt);
                 }
-                else if(arb_data->action == OCIO_ACTION_CONVERT ||
-                        arb_data->action == OCIO_ACTION_DISPLAY)
+                else if(arb_data->action == OCIO_ACTION_CONVERT || arb_data->action == OCIO_ACTION_DISPLAY)
                 {
                     // Convert/Display buttons
                     bot.MoveTo(panel_left + BUTTONS_INDENT_H, buttons_top);
@@ -455,30 +461,30 @@ static PF_Err DrawEvent(
                     
                     
                     // menus
-                    int buttons_bottom = buttons_top + BUTTON_HEIGHT;
+                    const int buttons_bottom = buttons_top + BUTTON_HEIGHT;
                     
                     bot.MoveTo(panel_left + MENUS_INDENT_H, buttons_bottom + MENUS_GAP_V);
                     
                     if(arb_data->action == OCIO_ACTION_CONVERT)
                     {
-                        DrawMenu(bot, "Input Space:", arb_data->input);
+                        DrawMenu(bot, menu_width, "Input Space:", arb_data->input);
                         
                         bot.Move(0, MENU_HEIGHT + MENU_SPACE_V);
                         
-                        DrawMenu(bot, "Output Space:", arb_data->output);
+                        DrawMenu(bot, menu_width, "Output Space:", arb_data->output);
                     }
                     else if(arb_data->action == OCIO_ACTION_DISPLAY)
                     {
                         // color space transformations
-                        DrawMenu(bot, "Input Space:", arb_data->input);
+                        DrawMenu(bot, menu_width, "Input Space:", arb_data->input);
                         
                         bot.Move(0, MENU_HEIGHT + MENU_SPACE_V);
                         
-                        DrawMenu(bot, "Device:", arb_data->device);
+                        DrawMenu(bot, menu_width, "Display:", arb_data->display);
                         
                         bot.Move(0, MENU_HEIGHT + MENU_SPACE_V);
                         
-                        DrawMenu(bot, "Transform:", arb_data->transform);
+                        DrawMenu(bot, menu_width, "View:", arb_data->view);
                     }
                 }
             }
@@ -573,10 +579,10 @@ static void DoClickPath(
 {
     ExtensionMap extensions;
     
-    for(int i=0; i < OCIO::FileTransform::getNumFormats(); i++)
+    for(int i=0; i < OCIO::FileTransform::GetNumFormats(); i++)
     {
-        const char *extension = OCIO::FileTransform::getFormatExtensionByIndex(i);
-        const char *format = OCIO::FileTransform::getFormatNameByIndex(i);
+        const char *extension = OCIO::FileTransform::GetFormatExtensionByIndex(i);
+        const char *format = OCIO::FileTransform::GetFormatNameByIndex(i);
     
         if(extension != std::string("ccc")) // .ccc files require an ID parameter
             extensions[ extension ] = format;
@@ -616,11 +622,11 @@ static void DoClickPath(
         
         arb_data->source = seq_data->source = OCIO_SOURCE_CUSTOM;
         
-        strncpy(arb_data->path, path.full_path().c_str(), ARB_PATH_LEN);
-        strncpy(arb_data->relative_path, path.relative_path(false).c_str(), ARB_PATH_LEN);
+        nt_strncpy(arb_data->path, path.full_path().c_str(), ARB_PATH_LEN+1);
+        nt_strncpy(arb_data->relative_path, path.relative_path(false).c_str(), ARB_PATH_LEN+1);
         
-        strncpy(seq_data->path, arb_data->path, ARB_PATH_LEN);
-        strncpy(seq_data->relative_path, arb_data->relative_path, ARB_PATH_LEN);
+        nt_strncpy(seq_data->path, arb_data->path, ARB_PATH_LEN+1);
+        nt_strncpy(seq_data->relative_path, arb_data->relative_path, ARB_PATH_LEN+1);
         
         
         // try to retain settings if it looks like the same situation,
@@ -629,10 +635,9 @@ static void DoClickPath(
             (OCIO_ACTION_LUT == new_context->getAction() && OCIO_ACTION_LUT != arb_data->action) ||
             (OCIO_ACTION_LUT != new_context->getAction() && OCIO_ACTION_LUT == arb_data->action) ||
             (OCIO_ACTION_LUT != new_context->getAction() &&
-               (-1 == FindInVec(new_context->getInputs(), arb_data->input) ||
-                -1 == FindInVec(new_context->getInputs(), arb_data->output) ||
-                -1 == FindInVec(new_context->getTransforms(), arb_data->transform) ||
-                -1 == FindInVec(new_context->getDevices(), arb_data->device) ) ) )
+               (-1 == FindInVec(new_context->getColorSpaces(), arb_data->input) ||
+                -1 == FindInVec(new_context->getColorSpaces(), arb_data->output) ||
+                -1 == FindInVec(new_context->getDisplays(), arb_data->display) ) ) )
         {
             // Configuration is different, so initialize defaults
             arb_data->action = seq_data->context->getAction();
@@ -644,10 +649,10 @@ static void DoClickPath(
             }
             else
             {
-                strncpy(arb_data->input, seq_data->context->getInput().c_str(), ARB_SPACE_LEN);
-                strncpy(arb_data->output, seq_data->context->getOutput().c_str(), ARB_SPACE_LEN);
-                strncpy(arb_data->transform, seq_data->context->getTransform().c_str(), ARB_SPACE_LEN);
-                strncpy(arb_data->device, seq_data->context->getDevice().c_str(), ARB_SPACE_LEN);
+                nt_strncpy(arb_data->input, seq_data->context->getInput().c_str(), ARB_SPACE_LEN+1);
+                nt_strncpy(arb_data->output, seq_data->context->getOutput().c_str(), ARB_SPACE_LEN+1);
+                nt_strncpy(arb_data->view, seq_data->context->getView().c_str(), ARB_SPACE_LEN+1);
+                nt_strncpy(arb_data->display, seq_data->context->getDisplay().c_str(), ARB_SPACE_LEN+1);
             }
         }
         else
@@ -659,14 +664,14 @@ static void DoClickPath(
             }
             else if(arb_data->action == OCIO_ACTION_CONVERT)
             {
-                seq_data->context->setupConvert(arb_data->input, arb_data->output);
+                seq_data->context->setupConvert(arb_data->input, arb_data->output, arb_data->invert);
             }
             else if(arb_data->action == OCIO_ACTION_DISPLAY)
             {
-                seq_data->context->setupDisplay(arb_data->input, arb_data->device, arb_data->transform);
+                seq_data->context->setupDisplay(arb_data->input, arb_data->display, arb_data->view, arb_data->invert);
                 
-                // transform may have changed
-                strncpy(arb_data->transform, seq_data->context->getTransform().c_str(), ARB_SPACE_LEN);
+                // view may have changed
+                nt_strncpy(arb_data->view, seq_data->context->getView().c_str(), ARB_SPACE_LEN+1);
             }
         }
         
@@ -755,8 +760,8 @@ static void DoClickConfig(
                 
                 arb_data->source = seq_data->source = OCIO_SOURCE_ENVIRONMENT;
                 
-                strncpy(arb_data->path, path.full_path().c_str(), ARB_PATH_LEN);
-                strncpy(arb_data->relative_path, path.relative_path(false).c_str(), ARB_PATH_LEN);
+                nt_strncpy(arb_data->path, path.full_path().c_str(), ARB_PATH_LEN+1);
+                nt_strncpy(arb_data->relative_path, path.relative_path(false).c_str(), ARB_PATH_LEN+1);
             }
             else
                 throw OCIO::Exception("No $OCIO environment variable defined."); 
@@ -774,8 +779,8 @@ static void DoClickConfig(
                 
                 arb_data->source = seq_data->source = OCIO_SOURCE_STANDARD;
                 
-                strncpy(arb_data->path, config.c_str(), ARB_PATH_LEN);
-                strncpy(arb_data->relative_path, path.c_str(), ARB_PATH_LEN);
+                nt_strncpy(arb_data->path, config.c_str(), ARB_PATH_LEN+1);
+                nt_strncpy(arb_data->relative_path, path.c_str(), ARB_PATH_LEN+1);
             }
             else
                 throw OCIO::Exception("Problem loading OCIO configuration."); 
@@ -792,8 +797,8 @@ static void DoClickConfig(
             seq_data->context = new_context;
             
             
-            strncpy(seq_data->path, arb_data->path, ARB_PATH_LEN);
-            strncpy(seq_data->relative_path, arb_data->relative_path, ARB_PATH_LEN);
+            nt_strncpy(seq_data->path, arb_data->path, ARB_PATH_LEN+1);
+            nt_strncpy(seq_data->relative_path, arb_data->relative_path, ARB_PATH_LEN+1);
             
             // try to retain settings if it looks like the same situation,
             // possibly fixing a moved path
@@ -801,10 +806,9 @@ static void DoClickConfig(
                 (OCIO_ACTION_LUT == new_context->getAction() && OCIO_ACTION_LUT != arb_data->action) ||
                 (OCIO_ACTION_LUT != new_context->getAction() && OCIO_ACTION_LUT == arb_data->action) ||
                 (OCIO_ACTION_LUT != new_context->getAction() &&
-                   (-1 == FindInVec(new_context->getInputs(), arb_data->input) ||
-                    -1 == FindInVec(new_context->getInputs(), arb_data->output) ||
-                    -1 == FindInVec(new_context->getTransforms(), arb_data->transform) ||
-                    -1 == FindInVec(new_context->getDevices(), arb_data->device) ) ) )
+                   (-1 == FindInVec(new_context->getColorSpaces(), arb_data->input) ||
+                    -1 == FindInVec(new_context->getColorSpaces(), arb_data->output) ||
+                    -1 == FindInVec(new_context->getDisplays(), arb_data->display) ) ) )
             {
                 // Configuration is different, so initialize defaults
                 arb_data->action = seq_data->context->getAction();
@@ -816,10 +820,10 @@ static void DoClickConfig(
                 }
                 else
                 {
-                    strncpy(arb_data->input, seq_data->context->getInput().c_str(), ARB_SPACE_LEN);
-                    strncpy(arb_data->output, seq_data->context->getOutput().c_str(), ARB_SPACE_LEN);
-                    strncpy(arb_data->transform, seq_data->context->getTransform().c_str(), ARB_SPACE_LEN);
-                    strncpy(arb_data->device, seq_data->context->getDevice().c_str(), ARB_SPACE_LEN);
+                    nt_strncpy(arb_data->input, seq_data->context->getInput().c_str(), ARB_SPACE_LEN+1);
+                    nt_strncpy(arb_data->output, seq_data->context->getOutput().c_str(), ARB_SPACE_LEN+1);
+                    nt_strncpy(arb_data->view, seq_data->context->getView().c_str(), ARB_SPACE_LEN+1);
+                    nt_strncpy(arb_data->display, seq_data->context->getDisplay().c_str(), ARB_SPACE_LEN+1);
                 }
             }
             else
@@ -831,14 +835,14 @@ static void DoClickConfig(
                 }
                 else if(arb_data->action == OCIO_ACTION_CONVERT)
                 {
-                    seq_data->context->setupConvert(arb_data->input, arb_data->output);
+                    seq_data->context->setupConvert(arb_data->input, arb_data->output, arb_data->invert);
                 }
                 else if(arb_data->action == OCIO_ACTION_DISPLAY)
                 {
-                    seq_data->context->setupDisplay(arb_data->input, arb_data->device, arb_data->transform);
+                    seq_data->context->setupDisplay(arb_data->input, arb_data->display, arb_data->view, arb_data->invert);
                     
-                    // transform may have changed
-                    strncpy(arb_data->transform, seq_data->context->getTransform().c_str(), ARB_SPACE_LEN);
+                    // view may have changed
+                    nt_strncpy(arb_data->view, seq_data->context->getView().c_str(), ARB_SPACE_LEN+1);
                 }
             }
             
@@ -860,46 +864,61 @@ static void DoClickConvertDisplay(
     SequenceData    *seq_data,
     UIRegion        reg )
 {
+    if(reg == REGION_CONVERT_BUTTON && arb_data->action == OCIO_ACTION_DISPLAY)
+    {
+        arb_data->action = OCIO_ACTION_CONVERT;
+        
+        seq_data->context->setupConvert(arb_data->input, arb_data->output, arb_data->invert);
+    
+        params[OCIO_DATA]->uu.change_flags = PF_ChangeFlag_CHANGED_VALUE;
+    }
+    else if(reg == REGION_DISPLAY_BUTTON && arb_data->action == OCIO_ACTION_CONVERT)
+    {
+        arb_data->action = OCIO_ACTION_DISPLAY;
+        
+        seq_data->context->setupDisplay(arb_data->input, arb_data->display, arb_data->view, arb_data->invert);
+        
+        // view may have changed
+        nt_strncpy(arb_data->view, seq_data->context->getView().c_str(), ARB_SPACE_LEN+1);
+        
+        params[OCIO_DATA]->uu.change_flags = PF_ChangeFlag_CHANGED_VALUE;
+    }
+}
+
+
+static void DoClickInvert(
+    PF_InData       *in_data,
+    PF_OutData      *out_data,
+    PF_ParamDef     *params[],
+    PF_LayerDef     *output,
+    PF_EventExtra   *event_extra,
+    ArbitraryData   *arb_data,
+    SequenceData    *seq_data,
+    UIRegion        reg )
+{
+    // doing it this way so that any exceptions thrown by setupXXX
+    // because the LUT can't be inverted are thrown before
+    // I actually chenge the ArbData setting
+    const OCIO_Invert new_invert = (arb_data->invert == OCIO_INVERT_OFF ?
+                                    (event_extra->u.do_click.modifiers == PF_Mod_NONE ? OCIO_INVERT_ON : OCIO_INVERT_EXACT) :
+                                    OCIO_INVERT_OFF);
+
     if(arb_data->action == OCIO_ACTION_LUT)
     {
-        if(reg == REGION_CONVERT_BUTTON) // i.e. Invert
-        {
-            // doing it this way so that any exceptions thrown by setupLUT
-            // because the LUT can't be inverted are thrown before
-            // I actually chenge the ArbData setting
-            const OCIO_Invert new_invert = (arb_data->invert == OCIO_INVERT_OFF ?
-                                            (event_extra->u.do_click.modifiers == PF_Mod_NONE ? OCIO_INVERT_ON : OCIO_INVERT_EXACT) :
-                                            OCIO_INVERT_OFF);
-            
-            seq_data->context->setupLUT(new_invert, arb_data->interpolation);
-            
-            arb_data->invert = new_invert;
-        
-            params[OCIO_DATA]->uu.change_flags = PF_ChangeFlag_CHANGED_VALUE;
-        }
+        seq_data->context->setupLUT(new_invert, arb_data->interpolation);
     }
-    else if(arb_data->action == OCIO_ACTION_CONVERT || arb_data->action == OCIO_ACTION_DISPLAY)
+    else if(arb_data->action == OCIO_ACTION_CONVERT)
     {
-        if(reg == REGION_CONVERT_BUTTON && arb_data->action != OCIO_ACTION_CONVERT)
-        {
-            arb_data->action = OCIO_ACTION_CONVERT;
-            
-            seq_data->context->setupConvert(arb_data->input, arb_data->output);
-        
-            params[OCIO_DATA]->uu.change_flags = PF_ChangeFlag_CHANGED_VALUE;
-        }
-        else if(reg == REGION_DISPLAY_BUTTON && arb_data->action != OCIO_ACTION_DISPLAY)
-        {
-            arb_data->action = OCIO_ACTION_DISPLAY;
-            
-            seq_data->context->setupDisplay(arb_data->input, arb_data->device, arb_data->transform);
-            
-            // transform may have changed
-            strncpy(arb_data->transform, seq_data->context->getTransform().c_str(), ARB_SPACE_LEN);
-            
-            params[OCIO_DATA]->uu.change_flags = PF_ChangeFlag_CHANGED_VALUE;
-        }
+        seq_data->context->setupConvert(arb_data->input, arb_data->output, new_invert);
     }
+    else if(arb_data->action == OCIO_ACTION_DISPLAY)
+    {
+        seq_data->context->setupDisplay(arb_data->input, arb_data->display, arb_data->view, new_invert);
+    }
+    
+    arb_data->invert = new_invert;
+    
+    params[OCIO_DATA]->uu.change_flags = PF_ChangeFlag_CHANGED_VALUE;
 }
 
 
@@ -913,6 +932,13 @@ static void DoClickExport(
     SequenceData    *seq_data,
     UIRegion        reg )
 {
+    if(seq_data->context == NULL)
+    {
+        assert(FALSE);
+        
+        return;
+    }
+
     ExtensionMap extensions;
     
     for(int i=0; i < OCIO::Baker::getNumFormats(); ++i)
@@ -957,7 +983,12 @@ static void DoClickExport(
         }
         
         if(do_export)
-            seq_data->context->ExportLUT(the_path, monitor_icc_path);
+        {
+            const bool exported = seq_data->context->ExportLUT(the_path, monitor_icc_path);
+            
+            if(!exported)
+                throw OCIO::Exception("Failed to Export LUT");
+        }
     }
 }
 
@@ -1003,13 +1034,22 @@ static void DoClickMenus(
             {
                 if(reg == REGION_MENU1)
                 {
-                    strncpy(arb_data->input, selected_item.c_str(), ARB_SPACE_LEN);
+                    nt_strncpy(arb_data->input, selected_item.c_str(), ARB_SPACE_LEN+1);
                 }
                 else
                 {
-                    strncpy(arb_data->output, selected_item.c_str(), ARB_SPACE_LEN);
+                    nt_strncpy(arb_data->output, selected_item.c_str(), ARB_SPACE_LEN+1);
                 }
                 
+                if(arb_data->action == OCIO_ACTION_CONVERT)
+                {
+                    seq_data->context->setupConvert(arb_data->input, arb_data->output, arb_data->invert);
+                }
+                else if(arb_data->action == OCIO_ACTION_DISPLAY)
+                {
+                    seq_data->context->setupDisplay(arb_data->input, arb_data->display, arb_data->view, arb_data->invert);
+                }
+
                 params[OCIO_DATA]->uu.change_flags = PF_ChangeFlag_CHANGED_VALUE;
             }
         }
@@ -1040,7 +1080,9 @@ static void DoClickMenus(
             }
             else if(arb_data->action == OCIO_ACTION_CONVERT)
             {
-                menu_items = seq_data->context->getInputs();
+                assert(FALSE);
+            
+                menu_items = seq_data->context->getColorSpaces();
                 
                 if(reg == REGION_MENU1)
                 {
@@ -1055,21 +1097,23 @@ static void DoClickMenus(
             {
                 if(reg == REGION_MENU1)
                 {
-                    menu_items = seq_data->context->getInputs();
+                    assert(FALSE);
+                
+                    menu_items = seq_data->context->getColorSpaces();
                     
                     selected_item = FindInVec(menu_items, arb_data->input);
                 }
                 else if(reg == REGION_MENU2)
                 {
-                    menu_items = seq_data->context->getDevices();
+                    menu_items = seq_data->context->getDisplays();
                     
-                    selected_item = FindInVec(menu_items, arb_data->device);
+                    selected_item = FindInVec(menu_items, arb_data->display);
                 }
                 else if(reg == REGION_MENU3)
                 {
-                    menu_items = seq_data->context->getTransforms();
+                    menu_items = seq_data->context->getViews();
                     
-                    selected_item = FindInVec(menu_items, arb_data->transform);
+                    selected_item = FindInVec(menu_items, arb_data->view);
                 }
             }
             
@@ -1103,36 +1147,40 @@ static void DoClickMenus(
                 }
                 else if(arb_data->action == OCIO_ACTION_CONVERT)
                 {
+                    assert(FALSE);
+                
                     if(reg == REGION_MENU1)
                     {
-                        strncpy(arb_data->input, color_space.c_str(), ARB_SPACE_LEN);
+                        nt_strncpy(arb_data->input, color_space.c_str(), ARB_SPACE_LEN+1);
                     }
                     else if(reg == REGION_MENU2)
                     {
-                        strncpy(arb_data->output, color_space.c_str(), ARB_SPACE_LEN);
+                        nt_strncpy(arb_data->output, color_space.c_str(), ARB_SPACE_LEN+1);
                     }
                     
-                    seq_data->context->setupConvert(arb_data->input, arb_data->output);
+                    seq_data->context->setupConvert(arb_data->input, arb_data->output, arb_data->invert);
                 }
                 else if(arb_data->action == OCIO_ACTION_DISPLAY)
                 {
                     if(reg == REGION_MENU1)
                     {
-                        strncpy(arb_data->input, color_space.c_str(), ARB_SPACE_LEN);
+                        assert(FALSE);
+                    
+                        nt_strncpy(arb_data->input, color_space.c_str(), ARB_SPACE_LEN+1);
                     }
                     else if(reg == REGION_MENU2)
                     {
-                        strncpy(arb_data->device, color_space.c_str(), ARB_SPACE_LEN);
+                        nt_strncpy(arb_data->display, color_space.c_str(), ARB_SPACE_LEN+1);
                     }
                     else if(reg == REGION_MENU3)
                     {
-                        strncpy(arb_data->transform, color_space.c_str(), ARB_SPACE_LEN);
+                        nt_strncpy(arb_data->view, color_space.c_str(), ARB_SPACE_LEN+1);
                     }
                     
-                    seq_data->context->setupDisplay(arb_data->input, arb_data->device, arb_data->transform);
+                    seq_data->context->setupDisplay(arb_data->input, arb_data->display, arb_data->view, arb_data->invert);
                     
-                    // transform may have changed
-                    strncpy(arb_data->transform, seq_data->context->getTransform().c_str(), ARB_SPACE_LEN);
+                    // view may have changed
+                    nt_strncpy(arb_data->view, seq_data->context->getView().c_str(), ARB_SPACE_LEN+1);
                 }
                         
                 params[OCIO_DATA]->uu.change_flags = PF_ChangeFlag_CHANGED_VALUE;
@@ -1197,6 +1245,11 @@ static PF_Err DoClick(
                     {
                         DoClickConvertDisplay(in_data, out_data, params, output,
                                                 event_extra, arb_data, seq_data, reg);
+                    }
+                    else if(reg == REGION_INVERT_BUTTON)
+                    {
+                        DoClickInvert(in_data, out_data, params, output,
+                                        event_extra, arb_data, seq_data, reg);
                     }
                     else if(reg == REGION_EXPORT_BUTTON)
                     {

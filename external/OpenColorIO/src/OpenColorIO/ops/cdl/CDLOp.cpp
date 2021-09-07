@@ -34,12 +34,6 @@ public:
 
     CDLOp(CDLOpDataRcPtr & cdl);
 
-    CDLOp(CDLOpData::Style style,
-          const double * slope3,
-          const double * offset3,
-          const double * power3,
-          double saturation);
-
     virtual ~CDLOp();
 
     OpRcPtr clone() const override;
@@ -54,7 +48,7 @@ public:
 
     std::string getCacheID() const override;
 
-    ConstOpCPURcPtr getCPUOp() const override;
+    ConstOpCPURcPtr getCPUOp(bool fastLogExpPow) const override;
 
     void extractGpuShaderInfo(GpuShaderCreatorRcPtr & shaderCreator) const override;
 
@@ -68,26 +62,6 @@ CDLOp::CDLOp(CDLOpDataRcPtr & cdl)
     :   Op()
 {
     data() = cdl;
-}
-
-CDLOp::CDLOp(CDLOpData::Style style,
-             const double * slope3,
-             const double * offset3,
-             const double * power3,
-             double saturation)
-    :   Op()
-{
-    if (!slope3 || !offset3 || !power3)
-    {
-        throw Exception("CDLOp: NULL pointer.");
-    }
-
-    data().reset(
-        new CDLOpData(style,
-                      CDLOpData::ChannelParams(slope3[0], slope3[1], slope3[2]),
-                      CDLOpData::ChannelParams(offset3[0], offset3[1], offset3[2]),
-                      CDLOpData::ChannelParams(power3[0], power3[1], power3[2]),
-                      saturation));
 }
 
 OpRcPtr CDLOp::clone() const
@@ -153,10 +127,10 @@ std::string CDLOp::getCacheID() const
     return cacheIDStream.str();
 }
 
-ConstOpCPURcPtr CDLOp::getCPUOp() const
+ConstOpCPURcPtr CDLOp::getCPUOp(bool fastLogExpPow) const
 {
     ConstCDLOpDataRcPtr data = cdlData();
-    return CDLOpCPU::GetRenderer(data);
+    return GetCDLCPURenderer(data, fastLogExpPow);
 }
 
 void CDLOp::extractGpuShaderInfo(GpuShaderCreatorRcPtr & shaderCreator) const
@@ -246,7 +220,9 @@ void BuildCDLOp(OpRcPtrVec & ops,
 
         double sat = cdlTransform.getSat();
 
-        if (combinedDir == TRANSFORM_DIR_FORWARD)
+        switch (combinedDir)
+        {
+        case TRANSFORM_DIR_FORWARD:
         {
             // 1) Scale + Offset
             CreateScaleOffsetOp(ops, slope4, offset4, TRANSFORM_DIR_FORWARD);
@@ -258,8 +234,9 @@ void BuildCDLOp(OpRcPtrVec & ops,
             // 3) Saturation (NB: Does not clamp at 0 and 1
             //    as per ASC v1.2 spec)
             CreateSaturationOp(ops, sat, lumaCoef3, TRANSFORM_DIR_FORWARD);
+            break;
         }
-        else if (combinedDir == TRANSFORM_DIR_INVERSE)
+        case TRANSFORM_DIR_INVERSE:
         {
             // 3) Saturation (NB: Does not clamp at 0 and 1
             //    as per ASC v1.2 spec)
@@ -271,6 +248,8 @@ void BuildCDLOp(OpRcPtrVec & ops,
 
             // 1) Scale + Offset
             CreateScaleOffsetOp(ops, slope4, offset4, TRANSFORM_DIR_INVERSE);
+            break;
+        }
         }
     }
     else

@@ -21,7 +21,7 @@ HINSTANCE hDllInstance = NULL;
 #endif
 
 
-// some of the lame-ass supporting code needs this
+// some of the supporting code needs this
 SPBasicSuite * sSPBasic = NULL;
 FilterRecord * gFilterRecord = NULL;
 
@@ -37,8 +37,8 @@ typedef struct {
     OCIO_Interp interpolation;
     Str255      inputSpace;
     Str255      outputSpace;
-    Str255      transform;
-    Str255      device;
+    Str255      view;
+    Str255      display;
 } Param;
 
 
@@ -150,13 +150,13 @@ static Boolean ReadScriptParams(GPtr globals)
                 {
                     PIGetStr(token, &globals->outputSpace);
                 }
-                else if(key == ocioKeyDevice)
+                else if(key == ocioKeyDisplay)
                 {
-                    PIGetStr(token, &globals->device);
+                    PIGetStr(token, &globals->display);
                 }
-                else if(key == ocioKeyTransform)
+                else if(key == ocioKeyView)
                 {
-                    PIGetStr(token, &globals->transform);
+                    PIGetStr(token, &globals->view);
                 }
             }
 
@@ -200,7 +200,6 @@ static OSErr WriteScriptParams(GPtr globals)
             
             if(globals->action == OCIO_ACTION_LUT)
             {
-                PIPutBool(token, ocioKeyInvert, globals->invert);
                 PIPutEnum(token, ocioKeyInterpolation, typeInterpolation, (globals->interpolation == OCIO_INTERP_NEAREST ? interpNearest :
                                                                         globals->interpolation == OCIO_INTERP_LINEAR ? interpLinear :
                                                                         globals->interpolation == OCIO_INTERP_TETRAHEDRAL ? interpTetrahedral :
@@ -211,8 +210,8 @@ static OSErr WriteScriptParams(GPtr globals)
             else if(globals->action == OCIO_ACTION_DISPLAY)
             {
                 PIPutStr(token, ocioKeyInputSpace, globals->inputSpace);
-                PIPutStr(token, ocioKeyDevice, globals->device);
-                PIPutStr(token, ocioKeyTransform, globals->transform);
+                PIPutStr(token, ocioKeyDisplay, globals->display);
+                PIPutStr(token, ocioKeyView, globals->view);
             }
             else
             {
@@ -222,7 +221,8 @@ static OSErr WriteScriptParams(GPtr globals)
                 PIPutStr(token, ocioKeyOutputSpace, globals->outputSpace);
             }
             
-            
+			PIPutBool(token, ocioKeyInvert, globals->invert);
+
             gotErr = CloseWriter(&token); // closes and sets dialog optional
         }
     }
@@ -269,8 +269,8 @@ void ValidateParameters(GPtr globals)
                 param->interpolation    = globals->interpolation;
                 myP2PString(param->inputSpace, globals->inputSpace);
                 myP2PString(param->outputSpace, globals->outputSpace);
-                myP2PString(param->device, globals->device);
-                myP2PString(param->transform, globals->transform);
+                myP2PString(param->display, globals->display);
+                myP2PString(param->view, globals->view);
 
                 PIUnlockHandle(gStuff->parameters);
             }
@@ -298,8 +298,8 @@ static void InitGlobals(Ptr globalPtr)
     globals->interpolation      = OCIO_INTERP_LINEAR;
     myC2PString(globals->inputSpace, "");
     myC2PString(globals->outputSpace, "");
-    myC2PString(globals->transform, "");
-    myC2PString(globals->device, "");
+    myC2PString(globals->view, "");
+    myC2PString(globals->display, "");
     
     
     // set default with environment variable if it's set
@@ -326,16 +326,16 @@ static void InitGlobals(Ptr globalPtr)
                     const std::string &defaultInputName = context.getDefaultColorSpace();
                     const std::string &defaultOutputName = defaultInputName;
                     
-                    const std::string &defaultDevice = context.getDefaultDevice();
-                    const std::string defaultTransform = context.getDefaultTransform(defaultDevice);
+                    const std::string &defaultDisplay = context.getDefaultDisplay();
+                    const std::string defaultView = context.getDefaultView(defaultDisplay);
                     
                     
                     globals->source = OCIO_SOURCE_ENVIRONMENT;
                     globals->action = OCIO_ACTION_CONVERT;
                     myC2PString(globals->inputSpace, defaultInputName.c_str());
                     myC2PString(globals->outputSpace, defaultOutputName.c_str());
-                    myC2PString(globals->device, defaultDevice.c_str());
-                    myC2PString(globals->transform, defaultTransform.c_str());
+                    myC2PString(globals->display, defaultDisplay.c_str());
+                    myC2PString(globals->view, defaultView.c_str());
                 }
             }
             catch(const std::exception &e)
@@ -507,8 +507,8 @@ static void DoStart(GPtr globals)
                                         
         dialogParams.inputSpace = myP2CString(globals->inputSpace);
         dialogParams.outputSpace = myP2CString(globals->outputSpace);
-        dialogParams.device = myP2CString(globals->device);
-        dialogParams.transform = myP2CString(globals->transform);
+        dialogParams.display = myP2CString(globals->display);
+        dialogParams.view = myP2CString(globals->view);
         
     
     #ifdef __PIMac__
@@ -556,8 +556,8 @@ static void DoStart(GPtr globals)
                                         
             myC2PString(globals->inputSpace, dialogParams.inputSpace.c_str());
             myC2PString(globals->outputSpace, dialogParams.outputSpace.c_str());
-            myC2PString(globals->device, dialogParams.device.c_str());
-            myC2PString(globals->transform, dialogParams.transform.c_str());
+            myC2PString(globals->display, dialogParams.display.c_str());
+            myC2PString(globals->view, dialogParams.view.c_str());
         }
         else
             gResult = userCanceledErr;
@@ -646,21 +646,19 @@ static void DoStart(GPtr globals)
                                                             globals->interpolation == OCIO_INTERP_CUBIC ? OCIO::INTERP_CUBIC :
                                                             OCIO::INTERP_BEST);
                                                             
-                const OCIO::TransformDirection direction = (globals->invert ? OCIO::TRANSFORM_DIR_INVERSE : OCIO::TRANSFORM_DIR_FORWARD);
-                
-                 processor = context.getLUTProcessor(interpolation, direction);
+                processor = context.getLUTProcessor(interpolation, globals->invert);
             }
             else
             {
                 if(globals->action == OCIO_ACTION_DISPLAY)
                 {
-                    processor = context.getDisplayProcessor(myP2CString(globals->inputSpace), myP2CString(globals->device), myP2CString(globals->transform));
+                    processor = context.getDisplayProcessor(myP2CString(globals->inputSpace), myP2CString(globals->display), myP2CString(globals->view), globals->invert);
                 }
                 else
                 {
                     assert(globals->action == OCIO_ACTION_CONVERT);
                     
-                    processor = context.getConvertProcessor(myP2CString(globals->inputSpace), myP2CString(globals->outputSpace));
+                    processor = context.getConvertProcessor(myP2CString(globals->inputSpace), myP2CString(globals->outputSpace), globals->invert);
                 }
             }
             
@@ -786,12 +784,63 @@ DLLExport SPAPI void PluginMain(const int16 selector,
         GPtr globals = NULL;        // actual globals
 
 
-        globalPtr = AllocateGlobals ((void *)result,
-                                        (void *)filterRecord,
-                                        filterRecord->handleProcs,
-                                        sizeof(Globals),
-                                        (intptr_t *)data,
-                                        InitGlobals);
+		if(filterRecord->handleProcs)
+		{
+			bool must_init = false;
+			
+			if(*data == NULL)
+			{
+				*data = (intptr_t)filterRecord->handleProcs->newProc(sizeof(Globals));
+				
+				must_init = true;
+			}
+
+			if(*data != NULL)
+			{
+				globalPtr = filterRecord->handleProcs->lockProc((Handle)*data, TRUE);
+				globals = (GPtr)globalPtr;
+				
+				globals->result = result;
+				globals->filterParamBlock = filterRecord;
+
+				if(must_init)
+					InitGlobals(globalPtr);
+			}
+			else
+			{
+				*result = memFullErr;
+				return;
+			}
+		}
+		else
+		{
+			if(*data == NULL)
+			{
+				*data = (intptr_t)malloc(sizeof(Globals));
+				
+				if(*data == NULL)
+				{
+					*result = memFullErr;
+					return;
+				}
+				
+				globalPtr = (Ptr)*data;
+				globals = (GPtr)globalPtr;
+				
+				globals->result = result;
+				globals->filterParamBlock = filterRecord;
+
+				InitGlobals(globalPtr);
+			}
+			else
+			{
+				globalPtr = (Ptr)*data;
+				globals = (GPtr)globalPtr;
+				
+				globals->result = result;
+				globals->filterParamBlock = filterRecord;
+			}
+		}
 
         if(globalPtr == NULL)
         {       
@@ -799,8 +848,7 @@ DLLExport SPAPI void PluginMain(const int16 selector,
             return;
         }
 
-        globals = (GPtr)globalPtr;
-
+		
 
         if (gStuff->bigDocumentData != NULL)
             gStuff->bigDocumentData->PluginUsing32BitCoordinates = true;

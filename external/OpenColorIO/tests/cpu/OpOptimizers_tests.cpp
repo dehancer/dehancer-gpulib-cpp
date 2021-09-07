@@ -216,7 +216,8 @@ OCIO_ADD_TEST(OpOptimizers, remove_inverse_ops)
 {
     OCIO::OpRcPtrVec ops;
 
-    auto func = std::make_shared<OCIO::FixedFunctionOpData>();
+    auto func = std::make_shared<OCIO::FixedFunctionOpData>(
+        OCIO::FixedFunctionOpData::ACES_RED_MOD_03_FWD);
 
     const double logSlope[3]  = {0.18, 0.18, 0.18};
     const double linSlope[3]  = {2.0, 2.0, 2.0};
@@ -330,7 +331,7 @@ OCIO_ADD_TEST(OpOptimizers, combine_ops)
         OCIO::CreateScaleOp(ops, m1, OCIO::TRANSFORM_DIR_FORWARD);
         OCIO::CreateScaleOp(ops, m1, OCIO::TRANSFORM_DIR_INVERSE);
 
-        OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+        OCIO_CHECK_NO_THROW(ops.finalize());
         OCIO_CHECK_EQUAL(ops.size(), 2);
         OCIO::CombineOps(ops, AllBut(OCIO::OPTIMIZATION_COMP_MATRIX));
         OCIO_CHECK_EQUAL(ops.size(), 2);
@@ -360,7 +361,7 @@ OCIO_ADD_TEST(OpOptimizers, combine_ops)
         OCIO::CreateScaleOp(ops, m2, OCIO::TRANSFORM_DIR_FORWARD);
         OCIO::CreateExponentOp(ops, exp, OCIO::TRANSFORM_DIR_INVERSE);
 
-        OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+        OCIO_CHECK_NO_THROW(ops.finalize());
         OCIO_CHECK_EQUAL(ops.size(), 4);
         OCIO::CombineOps(ops, AllBut(OCIO::OPTIMIZATION_COMP_MATRIX));
         OCIO_CHECK_EQUAL(ops.size(), 4);
@@ -382,7 +383,8 @@ OCIO_ADD_TEST(OpOptimizers, non_optimizable)
 
     OCIO_CHECK_EQUAL(ops.size(), 1);
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
 
     OCIO_REQUIRE_EQUAL(ops.size(), 1);
 
@@ -408,7 +410,8 @@ OCIO_ADD_TEST(OpOptimizers, optimizable)
 
     OCIO_CHECK_EQUAL(ops.size(), 1);
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
 
     // Identity matrix is a no-op and is removed. CPU processor will re-add an identity matrix
     // if there are no ops left.
@@ -425,7 +428,8 @@ OCIO_ADD_TEST(OpOptimizers, optimizable)
 
     OCIO_CHECK_EQUAL(ops.size(), 2);
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
 
     OCIO_REQUIRE_EQUAL(ops.size(), 1);
 
@@ -454,12 +458,14 @@ OCIO_ADD_TEST(OpOptimizers, optimization)
     // First one is the file no op.
     OCIO_CHECK_EQUAL(ops.size(), 5);
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_NONE));
     OCIO_CHECK_EQUAL(ops.size(), 4);
 
     OCIO::OpRcPtrVec optOps = ops.clone();
     OCIO_CHECK_EQUAL(optOps.size(), 4);
-    OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(optOps.finalize());
+    OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
 
     OCIO_REQUIRE_EQUAL(optOps.size(), 1);
     OCIO_CHECK_EQUAL(optOps[0]->getInfo(), "<RangeOp>");
@@ -494,14 +500,16 @@ OCIO_ADD_TEST(OpOptimizers, optimization2)
     // First one is the file no op.
     OCIO_CHECK_EQUAL(ops.size(), 14);
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_NONE));
     OCIO_CHECK_EQUAL(ops.size(), 13);
 
     OCIO::OpRcPtrVec optOps = ops.clone();
     OCIO_CHECK_EQUAL(optOps.size(), 13);
 
     // No need to remove OPTIMIZATION_COMP_SEPARABLE_PREFIX because optimization is for F32.
-    OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_GOOD));
+    OCIO_CHECK_NO_THROW(optOps.finalize());
+    OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_GOOD));
     OCIO_REQUIRE_EQUAL(optOps.size(), 4);
 
     // Op 1 is exactly an identity except for the first value which is 0.000001. Since the
@@ -552,12 +560,14 @@ OCIO_ADD_TEST(OpOptimizers, lut1d_identities)
     OCIO_CHECK_ASSERT(false == ops[5]->isIdentity());
     OCIO_CHECK_ASSERT(ops[6]->isIdentity());
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_NONE));
 
     OCIO::OpRcPtrVec optOps = ops.clone();
     OCIO_CHECK_EQUAL(optOps.size(), 6);
 
-    OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(optOps.finalize());
+    OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
 
     OCIO_REQUIRE_EQUAL(optOps.size(), 2);
 
@@ -595,16 +605,28 @@ OCIO_ADD_TEST(OpOptimizers, lut1d_identity_replacement)
 
         OCIO_CHECK_EQUAL(ops.size(), 1);
 
-        OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+        OCIO_CHECK_NO_THROW(ops.finalize());
+        OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
         OCIO_REQUIRE_EQUAL(ops.size(), 1);
 
         OCIO_CHECK_EQUAL(ops[0]->getInfo(), "<RangeOp>");
     }
     {
+        // By setting the filterNaNs argument to true, the constructor replaces NaN values with 0
+        // and this causes the LUT to technically no longer be an identity since the values are no
+        // longer exactly what is in a half float.
+        OCIO::Lut1DOpDataRcPtr lutData
+            = std::make_shared<OCIO::Lut1DOpData>(OCIO::Lut1DOpData::LUT_INPUT_OUTPUT_HALF_CODE,
+                                                  65536, true);
+        lutData->setFileOutputBitDepth(OCIO::BIT_DEPTH_F32);
+        OCIO_CHECK_ASSERT(!lutData->isIdentity());
+        OCIO_CHECK_ASSERT(lutData->isInputHalfDomain());
+    }
+    {
         // By default, this constructor creates an 'identity lut'.
         OCIO::Lut1DOpDataRcPtr lutData
             = std::make_shared<OCIO::Lut1DOpData>(OCIO::Lut1DOpData::LUT_INPUT_OUTPUT_HALF_CODE,
-                                                  65536);
+                                                  65536, false);
         lutData->setFileOutputBitDepth(OCIO::BIT_DEPTH_F32);
         OCIO_CHECK_ASSERT(lutData->isIdentity());
         OCIO_CHECK_ASSERT(lutData->isInputHalfDomain());
@@ -614,7 +636,8 @@ OCIO_ADD_TEST(OpOptimizers, lut1d_identity_replacement)
 
         OCIO_CHECK_EQUAL(ops.size(), 1);
 
-        OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+        OCIO_CHECK_NO_THROW(ops.finalize());
+        OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
 
         // Half domain LUT 1d is a no-op.
         // CPU processor will add an identity matrix.
@@ -631,7 +654,7 @@ OCIO_ADD_TEST(OpOptimizers, lut1d_half_domain_keep_prior_range)
 
     OCIO::Lut1DOpDataRcPtr lutData
         = std::make_shared<OCIO::Lut1DOpData>(OCIO::Lut1DOpData::LUT_INPUT_OUTPUT_HALF_CODE,
-                                              65536);
+                                              65536, false);
     lutData->setFileOutputBitDepth(OCIO::BIT_DEPTH_F32);
 
     // Add no-op LUT.
@@ -646,12 +669,13 @@ OCIO_ADD_TEST(OpOptimizers, lut1d_half_domain_keep_prior_range)
     }
     OCIO::CreateLut1DOp(ops, lutData, OCIO::TRANSFORM_DIR_FORWARD);
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(ops.finalize());
     OCIO_CHECK_EQUAL(ops.size(), 3);
 
     OCIO::OpRcPtrVec optOps = ops.clone();
     OCIO_CHECK_EQUAL(optOps.size(), 3);
-    OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(optOps.finalize());
+    OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_CHECK_EQUAL(optOps.size(), 2);
 
     OCIO_CHECK_EQUAL(optOps[0]->getInfo(), "<RangeOp>");
@@ -670,11 +694,12 @@ OCIO_ADD_TEST(OpOptimizers, range_composition)
         OCIO::CreateRangeOp(ops, 0., emptyValue, 0., emptyValue, OCIO::TRANSFORM_DIR_FORWARD);
         OCIO::CreateRangeOp(ops, 0., emptyValue, 0., emptyValue, OCIO::TRANSFORM_DIR_FORWARD);
 
-        OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+        OCIO_CHECK_NO_THROW(ops.finalize());
         OCIO_CHECK_EQUAL(ops.size(), 2);
 
         OCIO::OpRcPtrVec optOps = ops.clone();
-        OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+        OCIO_CHECK_NO_THROW(optOps.finalize());
+        OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
         OCIO_REQUIRE_EQUAL(optOps.size(), 1);
         OCIO_CHECK_EQUAL(optOps[0]->getInfo(), "<RangeOp>");
         CompareRender(ops, optOps, __LINE__, 1e-6f);
@@ -685,11 +710,12 @@ OCIO_ADD_TEST(OpOptimizers, range_composition)
         OCIO::CreateRangeOp(ops, 0.1, emptyValue, 0.1, emptyValue, OCIO::TRANSFORM_DIR_FORWARD);
         OCIO::CreateRangeOp(ops, 0.2, emptyValue, 0.2, emptyValue, OCIO::TRANSFORM_DIR_FORWARD);
 
-        OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+        OCIO_CHECK_NO_THROW(ops.finalize());
         OCIO_CHECK_EQUAL(ops.size(), 2);
 
         OCIO::OpRcPtrVec optOps = ops.clone();
-        OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+        OCIO_CHECK_NO_THROW(optOps.finalize());
+        OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
         OCIO_REQUIRE_EQUAL(optOps.size(), 1);
         OCIO_CHECK_EQUAL(optOps[0]->getInfo(), "<RangeOp>");
         CompareRender(ops, optOps, __LINE__, 1e-6f);
@@ -700,11 +726,12 @@ OCIO_ADD_TEST(OpOptimizers, range_composition)
         OCIO::CreateRangeOp(ops, 0.1, emptyValue, 0.1, emptyValue, OCIO::TRANSFORM_DIR_FORWARD);
         OCIO::CreateRangeOp(ops, 0.1, emptyValue, 0.1, emptyValue, OCIO::TRANSFORM_DIR_INVERSE);
 
-        OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+        OCIO_CHECK_NO_THROW(ops.finalize());
         OCIO_REQUIRE_EQUAL(ops.size(), 2);
 
         OCIO::OpRcPtrVec optOps = ops.clone();
-        OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+        OCIO_CHECK_NO_THROW(optOps.finalize());
+        OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
         OCIO_REQUIRE_EQUAL(optOps.size(), 1);
         OCIO_CHECK_EQUAL(optOps[0]->getInfo(), "<RangeOp>");
         CompareRender(ops, optOps, __LINE__, 1e-6f);
@@ -715,11 +742,12 @@ OCIO_ADD_TEST(OpOptimizers, range_composition)
         OCIO::CreateRangeOp(ops, -0.1, emptyValue, -0.1, emptyValue, OCIO::TRANSFORM_DIR_FORWARD);
         OCIO::CreateRangeOp(ops, -0.1, emptyValue, -0.1, emptyValue, OCIO::TRANSFORM_DIR_INVERSE);
 
-        OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+        OCIO_CHECK_NO_THROW(ops.finalize());
         OCIO_REQUIRE_EQUAL(ops.size(), 2);
 
         OCIO::OpRcPtrVec optOps = ops.clone();
-        OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+        OCIO_CHECK_NO_THROW(optOps.finalize());
+        OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
         OCIO_REQUIRE_EQUAL(optOps.size(), 1);
         OCIO_CHECK_EQUAL(optOps[0]->getInfo(), "<RangeOp>");
         CompareRender(ops, optOps, __LINE__, 1e-6f);
@@ -730,11 +758,12 @@ OCIO_ADD_TEST(OpOptimizers, range_composition)
         OCIO::CreateRangeOp(ops, 0., emptyValue, 0., emptyValue, OCIO::TRANSFORM_DIR_FORWARD);
         OCIO::CreateRangeOp(ops, 0.1, 2., 0., 2., OCIO::TRANSFORM_DIR_FORWARD);
 
-        OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+        OCIO_CHECK_NO_THROW(ops.finalize());
         OCIO_CHECK_EQUAL(ops.size(), 2);
 
         OCIO::OpRcPtrVec optOps = ops.clone();
-        OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+        OCIO_CHECK_NO_THROW(optOps.finalize());
+        OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
         OCIO_REQUIRE_EQUAL(optOps.size(), 1);
         OCIO_CHECK_EQUAL(optOps[0]->getInfo(), "<RangeOp>");
         CompareRender(ops, optOps, __LINE__, 1e-6f);
@@ -744,11 +773,12 @@ OCIO_ADD_TEST(OpOptimizers, range_composition)
         OCIO::CreateRangeOp(ops, 0., 0.5, 0., 0.5, OCIO::TRANSFORM_DIR_FORWARD);
         OCIO::CreateRangeOp(ops, 0.1, 1., 0.1, 1., OCIO::TRANSFORM_DIR_FORWARD);
 
-        OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+        OCIO_CHECK_NO_THROW(ops.finalize());
         OCIO_CHECK_EQUAL(ops.size(), 2);
 
         OCIO::OpRcPtrVec optOps = ops.clone();
-        OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+        OCIO_CHECK_NO_THROW(optOps.finalize());
+        OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
         OCIO_REQUIRE_EQUAL(optOps.size(), 1);
         OCIO_CHECK_EQUAL(optOps[0]->getInfo(), "<RangeOp>");
         CompareRender(ops, optOps, __LINE__, 1e-6f);
@@ -759,11 +789,12 @@ OCIO_ADD_TEST(OpOptimizers, range_composition)
         OCIO::CreateRangeOp(ops, 0.1, 1., 0.2, 1., OCIO::TRANSFORM_DIR_FORWARD);
         OCIO::CreateRangeOp(ops, 0., 1., 0., 2., OCIO::TRANSFORM_DIR_FORWARD);
 
-        OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+        OCIO_CHECK_NO_THROW(ops.finalize());
         OCIO_CHECK_EQUAL(ops.size(), 3);
 
         OCIO::OpRcPtrVec optOps = ops.clone();
-        OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+        OCIO_CHECK_NO_THROW(optOps.finalize());
+        OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
         OCIO_REQUIRE_EQUAL(optOps.size(), 1);
         OCIO_CHECK_EQUAL(optOps[0]->getInfo(), "<RangeOp>");
         CompareRender(ops, optOps, __LINE__, 1e-6f);
@@ -773,12 +804,13 @@ OCIO_ADD_TEST(OpOptimizers, range_composition)
         OCIO::CreateRangeOp(ops, 0., 0.5, 0., 0.5, OCIO::TRANSFORM_DIR_FORWARD);
         OCIO::CreateRangeOp(ops, 0.6, 1., 0.6, 1., OCIO::TRANSFORM_DIR_FORWARD);
 
-        OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+        OCIO_CHECK_NO_THROW(ops.finalize());
         OCIO_CHECK_EQUAL(ops.size(), 2);
 
         OCIO::OpRcPtrVec optOps = ops.clone();
         // Two Ranges with non-overlapping pass regions are replaced with a clamp to a constant.
-        OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+        OCIO_CHECK_NO_THROW(optOps.finalize());
+        OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
         OCIO_REQUIRE_EQUAL(optOps.size(), 1);
         OCIO_CHECK_EQUAL(optOps[0]->getInfo(), "<RangeOp>");
         CompareRender(ops, optOps, __LINE__, 1e-6f);
@@ -788,13 +820,14 @@ OCIO_ADD_TEST(OpOptimizers, range_composition)
         OCIO::CreateRangeOp(ops, 0.6, 1., 0.6, 1., OCIO::TRANSFORM_DIR_FORWARD);
         OCIO::CreateRangeOp(ops, 0., 0.5, 0., 0.5, OCIO::TRANSFORM_DIR_FORWARD);
 
-        OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+        OCIO_CHECK_NO_THROW(ops.finalize());
         OCIO_CHECK_EQUAL(ops.size(), 2);
 
         OCIO::OpRcPtrVec optOps = ops.clone();
         // Ranges can not be combined out domain of the first does not intersect
         // with in domain of the second.
-        OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+        OCIO_CHECK_NO_THROW(optOps.finalize());
+        OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
         OCIO_REQUIRE_EQUAL(optOps.size(), 1);
         OCIO_CHECK_EQUAL(optOps[0]->getInfo(), "<RangeOp>");
         CompareRender(ops, optOps, __LINE__, 1e-6f);
@@ -808,11 +841,12 @@ OCIO_ADD_TEST(OpOptimizers, range_composition)
         OCIO::CreateRangeOp(ops, 0.1, 0.8, 0.2, 1., OCIO::TRANSFORM_DIR_INVERSE);
         OCIO::CreateRangeOp(ops, 0.2, 0.6, 0.1, 0.7, OCIO::TRANSFORM_DIR_INVERSE);
 
-        OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+        OCIO_CHECK_NO_THROW(ops.finalize());
         OCIO_CHECK_EQUAL(ops.size(), 6);
 
         OCIO::OpRcPtrVec optOps = ops.clone();
-        OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+        OCIO_CHECK_NO_THROW(optOps.finalize());
+        OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
         OCIO_REQUIRE_EQUAL(optOps.size(), 1);
         OCIO_CHECK_EQUAL(optOps[0]->getInfo(), "<RangeOp>");
         CompareRender(ops, optOps, __LINE__, 1e-6f);
@@ -834,13 +868,15 @@ OCIO_ADD_TEST(OpOptimizers, invlut_pair_identities)
     OCIO_CHECK_EQUAL(ops.size(), 5);
 
     // Remove no ops & finalize for computation.
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_NONE));
 
     OCIO_CHECK_EQUAL(ops.size(), 4);
 
     OCIO::OpRcPtrVec optOps = ops.clone();
     OCIO_CHECK_EQUAL(optOps.size(), 4);
-    OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(optOps.finalize());
+    OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
 
     OCIO_REQUIRE_EQUAL(optOps.size(), 1);
     OCIO_CHECK_EQUAL(optOps[0]->getInfo(), "<RangeOp>");
@@ -864,11 +900,13 @@ OCIO_ADD_TEST(OpOptimizers, mntr_identities)
     OCIO_CHECK_EQUAL(ops.size(), 5);
 
     // Remove no ops & finalize for computation.
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_NONE));
 
     OCIO_CHECK_EQUAL(ops.size(), 4);
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
 
     // Identity transform.
     OCIO_CHECK_EQUAL(ops.size(), 0);
@@ -891,7 +929,8 @@ OCIO_ADD_TEST(OpOptimizers, gamma_comp)
     OCIO_CHECK_EQUAL(ops.size(), 5);
 
     // Remove no ops & finalize for computation.
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_NONE));
 
     OCIO_CHECK_EQUAL(ops.size(), 4);
 
@@ -900,7 +939,8 @@ OCIO_ADD_TEST(OpOptimizers, gamma_comp)
     OCIO::OpRcPtrVec optOps_noIdentity = ops.clone();
 
     OCIO_CHECK_EQUAL(optOps_noComp.size(), 4);
-    OCIO_CHECK_NO_THROW(optOps_noComp.finalize(AllBut(OCIO::OPTIMIZATION_COMP_GAMMA)));
+    OCIO_CHECK_NO_THROW(optOps_noComp.finalize());
+    OCIO_CHECK_NO_THROW(optOps_noComp.optimize(AllBut(OCIO::OPTIMIZATION_COMP_GAMMA)));
     // Identity matrix is removed but gamma are not combined.
     OCIO_CHECK_EQUAL(optOps_noComp.size(), 3);
     OCIO_CHECK_EQUAL(optOps_noComp[0]->getInfo(), "<GammaOp>");
@@ -910,7 +950,8 @@ OCIO_ADD_TEST(OpOptimizers, gamma_comp)
     CompareRender(ops, optOps_noComp, __LINE__, 1e-6f);
 
     OCIO_CHECK_EQUAL(optOps_noIdentity.size(), 4);
-    OCIO_CHECK_NO_THROW(optOps_noIdentity.finalize(AllBut(OCIO::OPTIMIZATION_IDENTITY_GAMMA)));
+    OCIO_CHECK_NO_THROW(optOps_noIdentity.finalize());
+    OCIO_CHECK_NO_THROW(optOps_noIdentity.optimize(AllBut(OCIO::OPTIMIZATION_IDENTITY_GAMMA)));
     // Identity matrix is removed and gammas are combined into an identity gamma
     // but it is not removed.
     OCIO_CHECK_EQUAL(optOps_noIdentity.size(), 1);
@@ -918,7 +959,9 @@ OCIO_ADD_TEST(OpOptimizers, gamma_comp)
 
     CompareRender(ops, optOps_noIdentity, __LINE__, 5e-5f);
 
-    OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(optOps.finalize());
+    OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
+
     // Identity matrix is removed and gammas combined and optimized as a range.
     OCIO_REQUIRE_EQUAL(optOps.size(), 1);
     OCIO_CHECK_EQUAL(optOps[0]->getInfo(), "<RangeOp>");
@@ -946,13 +989,14 @@ OCIO_ADD_TEST(OpOptimizers, gamma_comp_identity)
     OCIO_CHECK_NO_THROW(OCIO::CreateGammaOp(ops, gamma1, OCIO::TRANSFORM_DIR_FORWARD));
     OCIO_CHECK_NO_THROW(OCIO::CreateGammaOp(ops, gamma2, OCIO::TRANSFORM_DIR_FORWARD));
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(ops.finalize());
     OCIO_CHECK_EQUAL(ops.size(), 2);
 
     OCIO::OpRcPtrVec optOps = ops.clone();
 
     // BASIC gamma are composed resulting into identity, that get optimized as a range.
-    OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(optOps.finalize());
+    OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
 
     OCIO_REQUIRE_EQUAL(optOps.size(), 1);
     OCIO_CHECK_EQUAL(optOps[0]->getInfo(), "<RangeOp>");
@@ -971,13 +1015,14 @@ OCIO_ADD_TEST(OpOptimizers, gamma_comp_identity)
     OCIO_CHECK_NO_THROW(OCIO::CreateGammaOp(ops, gamma1, OCIO::TRANSFORM_DIR_FORWARD));
     OCIO_CHECK_NO_THROW(OCIO::CreateGammaOp(ops, gamma2, OCIO::TRANSFORM_DIR_FORWARD));
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(ops.finalize());
     OCIO_CHECK_EQUAL(ops.size(), 2);
 
     optOps = ops.clone();
 
     // MONCURVE composition is not supported yet.
-    OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(optOps.finalize());
+    OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
 
     OCIO_REQUIRE_EQUAL(optOps.size(), 2);
     OCIO_CHECK_EQUAL(optOps[0]->getInfo(), "<GammaOp>");
@@ -1001,7 +1046,8 @@ OCIO_ADD_TEST(OpOptimizers, log_identities)
     OCIO_CHECK_EQUAL(ops.size(), 6);
 
     // Remove no ops & finalize for computation.
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_NONE));
 
     OCIO_CHECK_EQUAL(ops.size(), 5);
 
@@ -1009,12 +1055,14 @@ OCIO_ADD_TEST(OpOptimizers, log_identities)
     OCIO::OpRcPtrVec optOpsOff = ops.clone();
 
     OCIO_CHECK_EQUAL(optOpsOff.size(), 5);
-    OCIO_CHECK_NO_THROW(optOpsOff.finalize(AllBut(OCIO::OPTIMIZATION_PAIR_IDENTITY_LOG)));
+    OCIO_CHECK_NO_THROW(optOpsOff.finalize());
+    OCIO_CHECK_NO_THROW(optOpsOff.optimize(AllBut(OCIO::OPTIMIZATION_PAIR_IDENTITY_LOG)));
     // Only the identity matrix is optimized.
     OCIO_CHECK_EQUAL(optOpsOff.size(), 4);
 
     OCIO_CHECK_EQUAL(optOps.size(), 5);
-    OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(optOps.finalize());
+    OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
     // Identity matrix is optimized and forward/inverse log are combined.
     OCIO_REQUIRE_EQUAL(optOps.size(), 1);
 
@@ -1040,13 +1088,15 @@ OCIO_ADD_TEST(OpOptimizers, range_lut)
     OCIO_CHECK_EQUAL(ops.size(), 3);
 
     // Remove no ops & finalize for computation.
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_NONE));
 
     OCIO_CHECK_EQUAL(ops.size(), 2);
 
     OCIO::OpRcPtrVec optOps = ops.clone();
     OCIO_CHECK_EQUAL(optOps.size(), 2);
-    OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(optOps.finalize());
+    OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_REQUIRE_EQUAL(optOps.size(), 2);
     OCIO_CHECK_EQUAL(optOps[0]->getInfo(), "<RangeOp>");
     OCIO_CHECK_EQUAL(optOps[1]->getInfo(), "<Lut1DOp>");
@@ -1077,7 +1127,8 @@ OCIO_ADD_TEST(OpOptimizers, dynamic_ops)
         OCIO_CHECK_ASSERT(!ops[0]->isIdentity());
         OCIO_CHECK_ASSERT(ops[1]->isIdentity());
 
-        OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+        OCIO_CHECK_NO_THROW(ops.finalize());
+        OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
         // It gets optimized.
         OCIO_REQUIRE_EQUAL(ops.size(), 1);
         OCIO_CHECK_EQUAL(ops[0]->getInfo(), "<MatrixOffsetOp>");
@@ -1100,7 +1151,8 @@ OCIO_ADD_TEST(OpOptimizers, dynamic_ops)
         OCIO_CHECK_ASSERT(!ops[2]->isIdentity());
 
         // It does not get optimized with default flags (OPTIMIZATION_NO_DYNAMIC_PROPERTIES off).
-        OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+        OCIO_CHECK_NO_THROW(ops.finalize());
+        OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
         OCIO_REQUIRE_EQUAL(ops.size(), 3);
         OCIO_CHECK_EQUAL(ops[0]->getInfo(), "<MatrixOffsetOp>");
         OCIO_CHECK_EQUAL(ops[1]->getInfo(), "<ExposureContrastOp>");
@@ -1109,7 +1161,8 @@ OCIO_ADD_TEST(OpOptimizers, dynamic_ops)
         // It does get optimized if flag is set.
         // OPTIMIZATION_ALL includes OPTIMIZATION_NO_DYNAMIC_PROPERTIES.
         // Exposure contrast will get optimized and the 2 matrix will be composed.
-        OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_ALL));
+        OCIO_CHECK_NO_THROW(ops.finalize());
+        OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_ALL));
         OCIO_REQUIRE_EQUAL(ops.size(), 1);
         OCIO_CHECK_EQUAL(ops[0]->getInfo(), "<MatrixOffsetOp>");
     }
@@ -1132,7 +1185,8 @@ OCIO_ADD_TEST(OpOptimizers, gamma_prefix)
     OCIO::OpRcPtrVec optimizedOps = originalOps.clone();
 
     // Optimize it.
-    OCIO_CHECK_NO_THROW(optimizedOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(optimizedOps.finalize());
+    OCIO_CHECK_NO_THROW(optimizedOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_CHECK_NO_THROW(optimizedOps.optimizeForBitdepth(OCIO::BIT_DEPTH_UINT16,
                                                          OCIO::BIT_DEPTH_F32,
                                                          OCIO::OPTIMIZATION_COMP_SEPARABLE_PREFIX));
@@ -1158,7 +1212,8 @@ OCIO_ADD_TEST(OpOptimizers, gamma_prefix)
     OCIO_REQUIRE_EQUAL(originalOps.size(), 1);
 
     // Optimize it.
-    OCIO_CHECK_NO_THROW(originalOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(originalOps.finalize());
+    OCIO_CHECK_NO_THROW(originalOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
 
     OCIO_REQUIRE_EQUAL(originalOps.size(), 1);
     OCIO::ConstOpRcPtr o2 = originalOps[0];
@@ -1186,7 +1241,8 @@ OCIO_ADD_TEST(OpOptimizers, multi_op_prefix)
     OCIO::OpRcPtrVec optimizedOps = originalOps.clone();
 
     // Nothing to optimize.
-    OCIO_CHECK_NO_THROW(optimizedOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(optimizedOps.finalize());
+    OCIO_CHECK_NO_THROW(optimizedOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_CHECK_NO_THROW(optimizedOps.optimizeForBitdepth(OCIO::BIT_DEPTH_UINT8,
                                                          OCIO::BIT_DEPTH_F32,
                                                          OCIO::OPTIMIZATION_COMP_SEPARABLE_PREFIX));
@@ -1219,13 +1275,14 @@ OCIO_ADD_TEST(OpOptimizers, multi_op_prefix)
 
     OCIO_CHECK_NO_THROW(OCIO::CreateCDLOp(originalOps, cdl, OCIO::TRANSFORM_DIR_FORWARD));
 
-    OCIO_CHECK_NO_THROW(originalOps.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(originalOps.finalize());
     OCIO_REQUIRE_EQUAL(originalOps.size(), 3);
 
     optimizedOps = originalOps.clone();
 
     // Optimize it.
-    OCIO_CHECK_NO_THROW(optimizedOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(optimizedOps.finalize());
+    OCIO_CHECK_NO_THROW(optimizedOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_CHECK_NO_THROW(optimizedOps.optimizeForBitdepth(OCIO::BIT_DEPTH_UINT8,
                                                          OCIO::BIT_DEPTH_F32,
                                                          OCIO::OPTIMIZATION_COMP_SEPARABLE_PREFIX));
@@ -1240,7 +1297,7 @@ OCIO_ADD_TEST(OpOptimizers, multi_op_prefix)
     OCIO_CHECK_EQUAL(oData->getArray().getLength(), 256);
 
     // Make sure originalOps are ready to render.
-    OCIO_CHECK_NO_THROW(originalOps.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(originalOps.finalize());
 
     // Although finalized for UINT8, the transform may still be evaluated at 32f to verify that
     // it is a good approximation to the original.
@@ -1278,7 +1335,8 @@ OCIO_ADD_TEST(OpOptimizers, dyn_properties_prefix)
     OCIO::OpRcPtrVec optimizedOps = originalOps.clone();
 
     // Optimize it.
-    OCIO_CHECK_NO_THROW(optimizedOps.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(optimizedOps.finalize());
+    OCIO_CHECK_NO_THROW(optimizedOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_CHECK_NO_THROW(optimizedOps.optimizeForBitdepth(OCIO::BIT_DEPTH_UINT8,
                                                          OCIO::BIT_DEPTH_F32,
                                                          OCIO::OPTIMIZATION_COMP_SEPARABLE_PREFIX));
@@ -1323,7 +1381,8 @@ OCIO_ADD_TEST(OpOptimizers, opt_prefix_test1)
     OCIO::OpRcPtrVec optOps = ops.clone();
     OCIO_CHECK_EQUAL(optOps.size(), 11);
     // Ignore dynamic properties.
-    OCIO_CHECK_NO_THROW(optOps.finalize(OCIO::OPTIMIZATION_ALL));
+    OCIO_CHECK_NO_THROW(optOps.finalize());
+    OCIO_CHECK_NO_THROW(optOps.optimize(OCIO::OPTIMIZATION_ALL));
     OCIO_CHECK_NO_THROW(optOps.optimizeForBitdepth(OCIO::BIT_DEPTH_F16, OCIO::BIT_DEPTH_F32,
                                                    OCIO::OPTIMIZATION_COMP_SEPARABLE_PREFIX));
 
@@ -1342,3 +1401,105 @@ OCIO_ADD_TEST(OpOptimizers, opt_prefix_test1)
     OCIO_CHECK_EQUAL(lut0->getArray().getLength(), 65536u);
 }
 
+OCIO_ADD_TEST(OpOptimizers, replace_ops)
+{
+    auto cdlData = std::make_shared<OCIO::CDLOpData>();
+    OCIO::CDLOpData::ChannelParams newOffsetParams(0.09);
+    cdlData->setOffsetParams(newOffsetParams);
+    cdlData->setSaturation(1.23);
+    cdlData->setSlopeParams(OCIO::CDLOpData::ChannelParams(0.8, 0.9, 1.1));
+    cdlData->setStyle(OCIO::CDLOpData::CDL_NO_CLAMP_FWD);
+
+    OCIO::OpRcPtrVec originalOps;
+
+    OCIO_CHECK_NO_THROW(
+        OCIO::CreateCDLOp(originalOps, cdlData, OCIO::TRANSFORM_DIR_FORWARD));
+    OCIO_REQUIRE_EQUAL(originalOps.size(), 1);
+
+    OCIO::OpRcPtrVec optimizedOps = originalOps.clone();
+
+    // Verify that default optimization includes replacing ops.
+    OCIO_CHECK_ASSERT(OCIO::HasFlag(OCIO::OPTIMIZATION_DEFAULT,
+                                    OCIO::OPTIMIZATION_SIMPLIFY_OPS));
+
+    // Optimize it: CDL is replaced by a matrix.
+    OCIO_CHECK_NO_THROW(optimizedOps.finalize());
+    OCIO_CHECK_NO_THROW(optimizedOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_REQUIRE_EQUAL(optimizedOps.size(), 1);
+
+    OCIO::ConstOpRcPtr o = optimizedOps[0];
+    auto oData = o->data();
+    OCIO_CHECK_EQUAL(oData->getType(), OCIO::OpData::MatrixType);
+
+    // No optimization: keep CDL.
+    optimizedOps = originalOps.clone();
+    OCIO_CHECK_NO_THROW(optimizedOps.finalize());
+    OCIO_REQUIRE_EQUAL(optimizedOps.size(), 1);
+
+    o = optimizedOps[0];
+    oData = o->data();
+    OCIO_CHECK_EQUAL(oData->getType(), OCIO::OpData::CDLType);
+
+    // Only replace. CDL is replaced by 2 matrices, one for offset and slope, one for saturation.
+    // Default optimization would combine them.
+    optimizedOps = originalOps.clone();
+    OCIO_CHECK_NO_THROW(optimizedOps.finalize());
+    OCIO_CHECK_NO_THROW(optimizedOps.optimize(OCIO::OPTIMIZATION_SIMPLIFY_OPS));
+    OCIO_REQUIRE_EQUAL(optimizedOps.size(), 2);
+
+    o = optimizedOps[0];
+    oData = o->data();
+    OCIO_CHECK_EQUAL(oData->getType(), OCIO::OpData::MatrixType);
+
+    o = optimizedOps[1];
+    oData = o->data();
+    OCIO_CHECK_EQUAL(oData->getType(), OCIO::OpData::MatrixType);
+
+    // Use clamping style.
+    cdlData->setStyle(OCIO::CDLOpData::CDL_V1_2_FWD);
+
+    optimizedOps.clear();
+
+    OCIO_CHECK_NO_THROW(
+        OCIO::CreateCDLOp(optimizedOps, cdlData, OCIO::TRANSFORM_DIR_FORWARD));
+    OCIO_REQUIRE_EQUAL(optimizedOps.size(), 1);
+
+    // Optimize it: CDL replaced by 2 matrices and 2 clamps.
+    OCIO_CHECK_NO_THROW(optimizedOps.finalize());
+    OCIO_CHECK_NO_THROW(optimizedOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_REQUIRE_EQUAL(optimizedOps.size(), 4);
+
+    o = optimizedOps[0];
+    oData = o->data();
+    OCIO_CHECK_EQUAL(oData->getType(), OCIO::OpData::MatrixType);
+
+    o = optimizedOps[1];
+    oData = o->data();
+    OCIO_CHECK_EQUAL(oData->getType(), OCIO::OpData::RangeType);
+
+    o = optimizedOps[2];
+    oData = o->data();
+    OCIO_CHECK_EQUAL(oData->getType(), OCIO::OpData::MatrixType);
+
+    o = optimizedOps[3];
+    oData = o->data();
+    OCIO_CHECK_EQUAL(oData->getType(), OCIO::OpData::RangeType);
+
+    // With a non-identity power.
+    cdlData->setPowerParams(OCIO::CDLOpData::ChannelParams(1, 1, 1.0001));
+
+    optimizedOps.clear();
+
+    OCIO_CHECK_NO_THROW(
+        OCIO::CreateCDLOp(optimizedOps, cdlData, OCIO::TRANSFORM_DIR_FORWARD));
+    OCIO_REQUIRE_EQUAL(optimizedOps.size(), 1);
+
+    // Optimize it: CDL is not replaced.
+    OCIO_CHECK_NO_THROW(optimizedOps.finalize());
+    OCIO_CHECK_NO_THROW(optimizedOps.optimize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_REQUIRE_EQUAL(optimizedOps.size(), 1);
+
+    o = optimizedOps[0];
+    oData = o->data();
+    OCIO_CHECK_EQUAL(oData->getType(), OCIO::OpData::CDLType);
+}

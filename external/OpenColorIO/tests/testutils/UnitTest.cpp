@@ -125,7 +125,7 @@ int UnitTestMain(int argc, const char ** argv)
         const bool passing = (_tmp == unit_test_failures);
         if (!passing)
         {
-            ++unit_test_failed;
+            ++unit_test_failed; 
         }
 
         std::string name(utestGroup);
@@ -137,7 +137,7 @@ int UnitTestMain(int argc, const char ** argv)
             name.resize(maxCharToDisplay);
         }
 
-        std::cerr << "[" << std::right << std::setw(3)
+        std::cerr << "[" << std::right << std::setw(4)
                   << (index+1) << "/" << numTests << "] ["
                   << std::left << std::setw(maxCharToDisplay+1)
                   << name << "] - "
@@ -154,6 +154,7 @@ int UnitTestMain(int argc, const char ** argv)
               << unit_test_failures << " errors.\n\n";
 
     GetUnitTests().clear();
+
 
     return unit_test_failures;
 }

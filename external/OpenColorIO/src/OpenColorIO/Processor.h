@@ -7,9 +7,11 @@
 
 #include <OpenColorIO/OpenColorIO.h>
 
+#include "Caching.h"
 #include "Mutex.h"
 #include "Op.h"
 #include "PrivateTypes.h"
+
 
 namespace OCIO_NAMESPACE
 {
@@ -25,11 +27,18 @@ private:
 
     mutable Mutex m_resultsCacheMutex;
 
+    ProcessorCacheFlags m_cacheFlags { PROCESSOR_CACHE_DEFAULT };
+
+    // Speedup GPU & CPU Processor accesses by using a cache.
+    mutable ProcessorCache<std::size_t, ProcessorRcPtr>    m_optProcessorCache;
+    mutable ProcessorCache<std::size_t, GPUProcessorRcPtr> m_gpuProcessorCache;
+    mutable ProcessorCache<std::size_t, CPUProcessorRcPtr> m_cpuProcessorCache;
+
 public:
     Impl();
-    ~Impl();
-
+    Impl(Impl &) = delete;
     Impl & operator=(const Impl & rhs);
+    ~Impl();
 
     bool isNoOp() const;
     bool hasChannelCrosstalk() const;
@@ -41,27 +50,28 @@ public:
     int getNumTransforms() const;
     const FormatMetadata & getTransformFormatMetadata(int index) const;
 
-    bool hasDynamicProperty(DynamicPropertyType type) const;
+    bool isDynamic() const noexcept;
+    bool hasDynamicProperty(DynamicPropertyType type) const noexcept;
     DynamicPropertyRcPtr getDynamicProperty(DynamicPropertyType type) const;
 
     const char * getCacheID() const;
 
     GroupTransformRcPtr createGroupTransform() const;
 
-    void write(const char * formatName, std::ostream & os) const;
-
-    void apply(ImageDesc& img) const;
-
     ConstProcessorRcPtr getOptimizedProcessor(OptimizationFlags oFlags) const;
 
-    ConstProcessorRcPtr getOptimizedProcessor(BitDepth inBD, BitDepth outBD,
-        OptimizationFlags oFlags) const;
+    ConstProcessorRcPtr getOptimizedProcessor(BitDepth inBD,
+                                              BitDepth outBD,
+                                              OptimizationFlags oFlags) const;
 
     // Get an optimized GPU processor instance for F32 images with default optimizations.
     ConstGPUProcessorRcPtr getDefaultGPUProcessor() const;
 
     // Get an optimized GPU processor instance for F32 images.
     ConstGPUProcessorRcPtr getOptimizedGPUProcessor(OptimizationFlags oFlags) const;
+
+    // Get an optimized legacy GPU processor for F32 images.
+    ConstGPUProcessorRcPtr getOptimizedLegacyGPUProcessor(OptimizationFlags oFlags, unsigned edgelen) const;
 
     // Get an optimized CPU processor instance for F32 images with default optimizations.
     ConstCPUProcessorRcPtr getDefaultCPUProcessor() const;
@@ -73,6 +83,9 @@ public:
     ConstCPUProcessorRcPtr getOptimizedCPUProcessor(BitDepth inBitDepth,
                                                     BitDepth outBitDepth,
                                                     OptimizationFlags oFlags) const;
+
+    // Enable or disable the internal caches.
+    void setProcessorCacheFlags(ProcessorCacheFlags flags) noexcept;
 
     ////////////////////////////////////////////
     //
@@ -91,6 +104,10 @@ public:
     void concatenate(ConstProcessorRcPtr & p1, ConstProcessorRcPtr & p2);
 
     void computeMetadata();
+
+protected:
+    ConstGPUProcessorRcPtr getGPUProcessor(const OpRcPtrVec & gpuOps,
+                                           OptimizationFlags oFlags) const;
 };
 
 } // namespace OCIO_NAMESPACE

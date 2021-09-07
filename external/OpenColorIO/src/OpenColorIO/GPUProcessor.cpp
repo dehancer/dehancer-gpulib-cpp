@@ -34,12 +34,21 @@ void WriteShaderHeader(GpuShaderCreatorRcPtr & shaderCreator)
     ss.newLine() << "// Declaration of the OCIO shader function";
     ss.newLine();
 
-    ss.newLine() << ss.vec4fKeyword() << " " << fcnName
-                 << "(in "  << ss.vec4fKeyword() << " inPixel)";
-    ss.newLine() << "{";
-    ss.indent();
-    ss.newLine() << ss.vec4fKeyword() << " "
-                 << shaderCreator->getPixelName() << " = inPixel;";
+    if (shaderCreator->getLanguage() == LANGUAGE_OSL_1)
+    {
+        ss.newLine() << "color4 " << fcnName << "(color4 inPixel)";
+        ss.newLine() << "{";
+        ss.indent();
+        ss.newLine() << "color4 " << shaderCreator->getPixelName() << " = inPixel;";
+    }
+    else
+    {
+        ss.newLine() << ss.float4Keyword() << " " << fcnName 
+                     << "(" << ss.float4Keyword() << " inPixel)";
+        ss.newLine() << "{";
+        ss.indent();
+        ss.newLine() << ss.float4Decl(shaderCreator->getPixelName()) << " = inPixel;";
+    }
 
     shaderCreator->addToFunctionHeaderShaderCode(ss.string().c_str());
 }
@@ -59,49 +68,9 @@ void WriteShaderFooter(GpuShaderCreatorRcPtr & shaderCreator)
 }
 
 
-OpRcPtrVec Create3DLut(const OpRcPtrVec & ops, unsigned edgelen)
-{
-    if(ops.size()==0) return OpRcPtrVec();
-
-    const unsigned lut3DEdgeLen   = edgelen;
-    const unsigned lut3DNumPixels = lut3DEdgeLen*lut3DEdgeLen*lut3DEdgeLen;
-
-    Lut3DOpDataRcPtr lut = std::make_shared<Lut3DOpData>(lut3DEdgeLen);
-
-    // Allocate 3D LUT image, RGBA
-    std::vector<float> lut3D(lut3DNumPixels*4);
-    GenerateIdentityLut3D(&lut3D[0], lut3DEdgeLen, 4, LUT3DORDER_FAST_BLUE);
-
-    // Apply the lattice ops to it
-    for(const auto & op : ops)
-    {
-        op->apply(&lut3D[0], &lut3D[0], lut3DNumPixels);
-    }
-
-    // Convert the RGBA image to an RGB image, in place.
-    auto & lutArray = lut->getArray();
-    for(unsigned i=0; i<lut3DNumPixels; ++i)
-    {
-        lutArray[3*i+0] = lut3D[4*i+0];
-        lutArray[3*i+1] = lut3D[4*i+1];
-        lutArray[3*i+2] = lut3D[4*i+2];
-    }
-
-    OpRcPtrVec newOps;
-    CreateLut3DOp(newOps, lut, TRANSFORM_DIR_FORWARD);
-    return newOps;
 }
 
-}
-
-
-DynamicPropertyRcPtr GPUProcessor::Impl::getDynamicProperty(DynamicPropertyType type) const
-{
-    return m_ops.getDynamicProperty(type);
-}
-
-void GPUProcessor::Impl::finalize(const OpRcPtrVec & rawOps,
-                                  OptimizationFlags oFlags)
+void GPUProcessor::Impl::finalize(const OpRcPtrVec & rawOps, OptimizationFlags oFlags)
 {
     AutoMutex lock(m_mutex);
 
@@ -109,8 +78,9 @@ void GPUProcessor::Impl::finalize(const OpRcPtrVec & rawOps,
 
     m_ops = rawOps;
 
-    m_ops.finalize(oFlags);
-    m_ops.unifyDynamicProperties();
+    m_ops.finalize();
+    m_ops.optimize(oFlags);
+    m_ops.validateDynamicProperties();
 
     // Is NoOp ?
     m_isNoOp  = m_ops.isNoOp();
@@ -122,11 +92,7 @@ void GPUProcessor::Impl::finalize(const OpRcPtrVec & rawOps,
 
     std::stringstream ss;
     ss << "GPU Processor: oFlags " << oFlags
-       << " ops :";
-    for(const auto & op : m_ops)
-    {
-        ss << " " << op->getCacheID();
-    }
+       << " ops : " << m_ops.getCacheID();
 
     m_cacheID = ss.str();
 }
@@ -135,52 +101,8 @@ void GPUProcessor::Impl::extractGpuShaderInfo(GpuShaderCreatorRcPtr & shaderCrea
 {
     AutoMutex lock(m_mutex);
 
-    OpRcPtrVec gpuOps;
-
-    LegacyGpuShaderDesc * legacy = dynamic_cast<LegacyGpuShaderDesc*>(shaderCreator.get());
-    if(legacy)
-    {
-        gpuOps = m_ops;
-
-        // GPU Process setup
-        //
-        // Partition the original, raw opvec into 3 segments for GPU Processing
-        //
-        // Interior index range does not support the gpu shader.
-        // This is used to bound our analytical shader text generation
-        // start index and end index are inclusive.
-
-        // These 3 op vecs represent the 3 stages in our gpu pipe.
-        // 1) preprocess shader text
-        // 2) 3D LUT process lookup
-        // 3) postprocess shader text
-
-        OpRcPtrVec gpuOpsHwPreProcess;
-        OpRcPtrVec gpuOpsCpuLatticeProcess;
-        OpRcPtrVec gpuOpsHwPostProcess;
-
-        PartitionGPUOps(gpuOpsHwPreProcess,
-                        gpuOpsCpuLatticeProcess,
-                        gpuOpsHwPostProcess,
-                        gpuOps);
-
-        LogDebug("GPU Ops: 3DLUT");
-        OpRcPtrVec gpuLut = Create3DLut(gpuOpsCpuLatticeProcess, legacy->getEdgelen());
-
-        gpuOps.clear();
-        gpuOps += gpuOpsHwPreProcess;
-        gpuOps += gpuLut;
-        gpuOps += gpuOpsHwPostProcess;
-
-        gpuOps.finalize(OPTIMIZATION_DEFAULT);
-    }
-    else
-    {
-        gpuOps = m_ops;
-    }
-
     // Create the shader program information.
-    for(const auto & op : gpuOps)
+    for(const auto & op : m_ops)
     {
         op->extractGpuShaderInfo(shaderCreator);
     }
@@ -224,11 +146,6 @@ bool GPUProcessor::hasChannelCrosstalk() const
 const char * GPUProcessor::getCacheID() const
 {
     return getImpl()->getCacheID();
-}
-
-DynamicPropertyRcPtr GPUProcessor::getDynamicProperty(DynamicPropertyType type) const
-{
-    return getImpl()->getDynamicProperty(type);
 }
 
 void GPUProcessor::extractGpuShaderInfo(GpuShaderDescRcPtr & shaderDesc) const

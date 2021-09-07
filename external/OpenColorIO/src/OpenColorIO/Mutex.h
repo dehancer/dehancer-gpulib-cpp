@@ -7,6 +7,7 @@
 
 
 #include <mutex> 
+#include <thread>
 #include <assert.h>
 
 
@@ -16,34 +17,49 @@ namespace OCIO_NAMESPACE
 {
 
 #ifndef NDEBUG
-// In debug mode, try to trap recursive cases and lock/unlock debalancing cases
+
+// In debug mode, try to trap recursive cases and lock/unlock debalancing cases.
 class DebugLock
 {
 public:
     DebugLock() = default;
     DebugLock(const DebugLock &) = delete;
     DebugLock& operator=(const DebugLock &) = delete;
-    ~DebugLock() { assert(!m_locked); }
+    ~DebugLock() { assert(m_owner == std::thread::id()); }
 
-    void lock()   { assert(!m_locked); m_mutex.lock(); m_locked = true; }
-    void unlock() { assert(m_locked); m_mutex.unlock(); m_locked = false; }
-    void try_lock() { assert(!m_locked); m_locked = m_mutex.try_lock(); }
-
-    bool locked() const { return m_locked; }
+    void lock()
+    {
+        assert(m_owner != std::this_thread::get_id());
+        m_mutex.lock();
+        m_owner = std::this_thread::get_id();
+    }
+    void unlock()
+    {
+        assert(m_owner == std::this_thread::get_id());
+        m_owner = std::thread::id();
+        m_mutex.unlock();
+    }
+    bool try_lock()
+    {
+      assert(m_owner != std::this_thread::get_id());
+      return m_mutex.try_lock();
+    }
 
 private:
-    std::mutex m_mutex;
-    bool       m_locked = false;
+    // An exclusive and non-recursive ownership lock.
+    std::mutex      m_mutex;
+    std::thread::id m_owner;
 };
-#endif
 
-#ifndef NDEBUG
-// add debug wrappers to mutex
 typedef DebugLock Mutex;
+
 #else
+
 typedef std::mutex Mutex;
+
 #endif
 
+// A non-copyable lock guard i.e. no copy and move semantics.
 typedef std::lock_guard<Mutex> AutoMutex;
 
 } // namespace OCIO_NAMESPACE

@@ -77,14 +77,14 @@ OCIO_ADD_TEST(Builtins, aces)
 
     {
         ops.clear();
-        CreateOps("ACES-AP0_to_CIE-XYZ-D65_BFD", OCIO::TRANSFORM_DIR_FORWARD, ops, __LINE__);
+        CreateOps("UTILITY - ACES-AP0_to_CIE-XYZ-D65_BFD", OCIO::TRANSFORM_DIR_FORWARD, ops, __LINE__);
         OCIO_REQUIRE_EQUAL(ops.size(), 1);
         OCIO_REQUIRE_EQUAL(std::string(ops[0]->getInfo()), "<MatrixOffsetOp>");
     }
 
     {
         ops.clear();
-        CreateOps("ACEScct-LOG_to_LIN", OCIO::TRANSFORM_DIR_FORWARD, ops, __LINE__);
+        CreateOps("CURVE - ACEScct-LOG_to_LINEAR", OCIO::TRANSFORM_DIR_FORWARD, ops, __LINE__);
         OCIO_REQUIRE_EQUAL(ops.size(), 1);
         OCIO_REQUIRE_EQUAL(std::string(ops[0]->getInfo()), "<LogOp>");
     }
@@ -92,10 +92,14 @@ OCIO_ADD_TEST(Builtins, aces)
 
 OCIO_ADD_TEST(Builtins, read_write)
 {
+    // The unit test validates the read/write and the processor creation for all the existing
+    // builtin transforms.
 
     static constexpr char CONFIG_BUILTIN_TRANSFORMS[] {
-R"(ocio_profile_version: 2
+R"(ocio_profile_version: 2.1
 
+environment:
+  {}
 search_path: ""
 strictparsing: true
 luma: [0.2126, 0.7152, 0.0722]
@@ -129,7 +133,7 @@ colorspaces:
     bitdepth: unknown
     isdata: false
     allocation: uniform
-    from_reference: !<GroupTransform>
+    from_scene_reference: !<GroupTransform>
       children:)" };
 
     // Tests all built-in transforms.
@@ -139,6 +143,8 @@ colorspaces:
 
     std::string configStr;
     configStr += CONFIG_BUILTIN_TRANSFORMS;
+
+    // Add all the existing builtin transforms.
 
     const size_t numBuiltins = reg->getNumBuiltins();
     for (size_t idx = 0; idx < numBuiltins; ++idx)
@@ -158,7 +164,7 @@ colorspaces:
 
     OCIO::ConstConfigRcPtr config;
     OCIO_CHECK_NO_THROW(config = OCIO::Config::CreateFromStream(iss));
-    OCIO_CHECK_NO_THROW(config->sanityCheck());
+    OCIO_CHECK_NO_THROW(config->validate());
 
     // Serialize all the existing builtin transforms.
 
@@ -175,3 +181,83 @@ colorspaces:
         OCIO_CHECK_NO_THROW(processor = config->getProcessor("ref", "test"));
     }
 }
+
+OCIO_ADD_TEST(Builtins, version_1_validation)
+{
+    // The unit test validates that the config reader throws for version 1 configs containing
+    // a builtin transform.
+
+    static constexpr char CONFIG[] {
+R"(ocio_profile_version: 1
+
+search_path: ""
+strictparsing: true
+luma: [0.2126, 0.7152, 0.0722]
+
+roles:
+  default: ref
+
+displays:
+  Disp1:
+    - !<View> {name: View1, colorspace: test}
+
+colorspaces:
+  - !<ColorSpace>
+    name: ref
+
+  - !<ColorSpace>
+    name: test
+    to_reference: !<BuiltinTransform> {style: ACEScct_to_ACES2065-1})" };
+
+    std::istringstream iss;
+    iss.str(CONFIG);
+
+    OCIO_CHECK_THROW_WHAT(OCIO::Config::CreateFromStream(iss),
+                          OCIO::Exception,
+                          "Only config version 2 (or higher) can have BuiltinInTransform.");
+}
+
+OCIO_ADD_TEST(Builtins, version_2_validation)
+{
+    // The unit test validates that the config reader throws for version 2 configs containing
+    // a builtin transform with the style 'ACES-LMT - ACES 1.3 Reference Gamut Compression'.
+
+    static constexpr char CONFIG[] {
+R"(ocio_profile_version: 2
+
+environment:
+  {}
+search_path: ""
+strictparsing: true
+luma: [0.2126, 0.7152, 0.0722]
+
+roles:
+  default: ref
+
+file_rules:
+  - !<Rule> {name: Default, colorspace: default}
+
+displays:
+  Disp1:
+    - !<View> {name: View1, colorspace: test}
+
+active_displays: []
+active_views: []
+
+colorspaces:
+  - !<ColorSpace>
+    name: ref
+
+  - !<ColorSpace>
+    name: test
+    from_scene_reference: !<BuiltinTransform> {style: ACES-LMT - ACES 1.3 Reference Gamut Compression})" };
+
+    std::istringstream iss;
+    iss.str(CONFIG);
+
+    OCIO_CHECK_THROW_WHAT(OCIO::Config::CreateFromStream(iss),
+                          OCIO::Exception,
+                          "Only config version 2.1 (or higher) can have BuiltinTransform style "\
+                          "'ACES-LMT - ACES 1.3 Reference Gamut Compression'.");
+}
+

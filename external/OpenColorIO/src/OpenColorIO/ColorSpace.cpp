@@ -7,7 +7,7 @@
 
 #include <OpenColorIO/OpenColorIO.h>
 
-#include "Categories.h"
+#include "TokensManager.h"
 #include "PrivateTypes.h"
 #include "utils/StringUtils.h"
 
@@ -15,13 +15,15 @@
 namespace OCIO_NAMESPACE
 {
 
-class ColorSpace::Impl : public CategoriesManager
+class ColorSpace::Impl
 {
 public:
     std::string m_name;
     std::string m_family;
     std::string m_equalityGroup;
     std::string m_description;
+    std::string m_encoding;
+    StringUtils::StringVec m_aliases;
 
     BitDepth m_bitDepth{ BIT_DEPTH_UNKNOWN };
     bool m_isData{ false };
@@ -37,11 +39,11 @@ public:
     bool m_toRefSpecified{ false };
     bool m_fromRefSpecified{ false };
 
-    Impl() = delete;
+    TokensManager m_categories;
 
+    Impl() = delete;
     explicit Impl(ReferenceSpaceType referenceSpace)
-        : CategoriesManager()
-        , m_referenceSpaceType(referenceSpace)
+        : m_referenceSpaceType(referenceSpace)
     {
     }
 
@@ -53,13 +55,12 @@ public:
     {
         if (this != &rhs)
         {
-            *dynamic_cast<CategoriesManager*>(this)
-                = *dynamic_cast<const CategoriesManager*>(&rhs);
- 
             m_name = rhs.m_name;
+            m_aliases = rhs.m_aliases;
             m_family = rhs.m_family;
             m_equalityGroup = rhs.m_equalityGroup;
             m_description = rhs.m_description;
+            m_encoding = rhs.m_encoding;
             m_bitDepth = rhs.m_bitDepth;
             m_isData = rhs.m_isData;
             m_referenceSpaceType = rhs.m_referenceSpaceType;
@@ -76,6 +77,7 @@ public:
 
             m_toRefSpecified = rhs.m_toRefSpecified;
             m_fromRefSpecified = rhs.m_fromRefSpecified;
+            m_categories = rhs.m_categories;
         }
         return *this;
     }
@@ -124,9 +126,53 @@ const char * ColorSpace::getName() const noexcept
     return getImpl()->m_name.c_str();
 }
 
-void ColorSpace::setName(const char * name)
+void ColorSpace::setName(const char * name) noexcept
 {
-    getImpl()->m_name = name;
+    getImpl()->m_name = name ? name : "";
+    // Name can no longer be an alias.
+    StringUtils::Remove(getImpl()->m_aliases, getImpl()->m_name);
+}
+
+size_t ColorSpace::getNumAliases() const noexcept
+{
+    return getImpl()->m_aliases.size();
+}
+
+const char * ColorSpace::getAlias(size_t idx) const noexcept
+{
+    if (idx < getImpl()->m_aliases.size())
+    {
+        return getImpl()->m_aliases[idx].c_str();
+    }
+    return "";
+}
+
+void ColorSpace::addAlias(const char * alias) noexcept
+{
+    if (alias && *alias)
+    {
+        if (!StringUtils::Compare(alias, getImpl()->m_name))
+        {
+            if (!StringUtils::Contain(getImpl()->m_aliases, alias))
+            {
+                getImpl()->m_aliases.push_back(alias);
+            }
+        }
+    }
+}
+
+void ColorSpace::removeAlias(const char * name) noexcept
+{
+    if (name && *name)
+    {
+        const std::string alias{ name };
+        StringUtils::Remove(getImpl()->m_aliases, alias);
+    }
+}
+
+void ColorSpace::clearAliases() noexcept
+{
+    getImpl()->m_aliases.clear();
 }
 
 const char * ColorSpace::getFamily() const noexcept
@@ -171,55 +217,65 @@ void ColorSpace::setBitDepth(BitDepth bitDepth)
 
 bool ColorSpace::hasCategory(const char * category) const
 {
-    return getImpl()->hasCategory(category);
+    return getImpl()->m_categories.hasToken(category);
 }
 
 void ColorSpace::addCategory(const char * category)
 {
-    getImpl()->addCategory(category);
+    getImpl()->m_categories.addToken(category);
 }
 
 void ColorSpace::removeCategory(const char * category)
 {
-    getImpl()->removeCategory(category);
+    getImpl()->m_categories.removeToken(category);
 }
 
 int ColorSpace::getNumCategories() const
 {
-    return getImpl()->getNumCategories();
+    return getImpl()->m_categories.getNumTokens();
 }
 
 const char * ColorSpace::getCategory(int index) const
 {
-    return getImpl()->getCategory(index);
+    return getImpl()->m_categories.getToken(index);
 }
 
 void ColorSpace::clearCategories()
 {
-    getImpl()->clearCategories();
+    getImpl()->m_categories.clearTokens();
 }
 
-bool ColorSpace::isData() const
+const char * ColorSpace::getEncoding() const noexcept
+{
+    return getImpl()->m_encoding.c_str();
+}
+
+void ColorSpace::setEncoding(const char * encoding)
+{
+    getImpl()->m_encoding = encoding;
+}
+
+bool ColorSpace::isData() const noexcept
 {
     return getImpl()->m_isData;
 }
 
-void ColorSpace::setIsData(bool val)
+void ColorSpace::setIsData(bool val) noexcept
 {
     getImpl()->m_isData = val;
 }
 
-ReferenceSpaceType ColorSpace::getReferenceSpaceType() const
+ReferenceSpaceType ColorSpace::getReferenceSpaceType() const noexcept
 {
     return getImpl()->m_referenceSpaceType;
 }
 
-Allocation ColorSpace::getAllocation() const
+Allocation ColorSpace::getAllocation() const noexcept
 {
     return getImpl()->m_allocation;
 }
 
-void ColorSpace::setAllocation(Allocation allocation)
+void ColorSpace::setAllocation(Allocation allocation) noexcept
 {
     getImpl()->m_allocation = allocation;
 }
@@ -251,14 +307,16 @@ void ColorSpace::setAllocationVars(int numvars, const float * vars)
     }
 }
 
-ConstTransformRcPtr ColorSpace::getTransform(ColorSpaceDirection dir) const
+ConstTransformRcPtr ColorSpace::getTransform(ColorSpaceDirection dir) const noexcept
 {
-    if(dir == COLORSPACE_DIR_TO_REFERENCE)
+    switch (dir)
+    {
+    case COLORSPACE_DIR_TO_REFERENCE:
         return getImpl()->m_toRefTransform;
-    else if(dir == COLORSPACE_DIR_FROM_REFERENCE)
+    case COLORSPACE_DIR_FROM_REFERENCE:
         return getImpl()->m_fromRefTransform;
-
-    throw Exception("Unspecified ColorSpaceDirection");
+    }
+    return ConstTransformRcPtr();
 }
 
 void ColorSpace::setTransform(const ConstTransformRcPtr & transform,
@@ -267,19 +325,25 @@ void ColorSpace::setTransform(const ConstTransformRcPtr & transform,
     TransformRcPtr transformCopy;
     if(transform) transformCopy = transform->createEditableCopy();
 
-    if(dir == COLORSPACE_DIR_TO_REFERENCE)
+    switch (dir)
+    {
+    case COLORSPACE_DIR_TO_REFERENCE:
         getImpl()->m_toRefTransform = transformCopy;
-    else if(dir == COLORSPACE_DIR_FROM_REFERENCE)
+        break;
+    case COLORSPACE_DIR_FROM_REFERENCE:
         getImpl()->m_fromRefTransform = transformCopy;
-    else
-        throw Exception("Unspecified ColorSpaceDirection");
+        break;
+    }
 }
 
 std::ostream & operator<< (std::ostream & os, const ColorSpace & cs)
 {
-    int numVars(cs.getAllocationNumVars());
+    const int numVars(cs.getAllocationNumVars());
     std::vector<float> vars(numVars);
-    cs.getAllocationVars(&vars[0]);
+    if (numVars > 0)
+    {
+        cs.getAllocationVars(&vars[0]);
+    }
 
     os << "<ColorSpace referenceSpaceType=";
 
@@ -294,11 +358,37 @@ std::ostream & operator<< (std::ostream & os, const ColorSpace & cs)
         break;
     }
     os << "name=" << cs.getName() << ", ";
-    os << "family=" << cs.getFamily() << ", ";
-    os << "equalityGroup=" << cs.getEqualityGroup() << ", ";
-    os << "bitDepth=" << BitDepthToString(cs.getBitDepth()) << ", ";
+    std::string str{ cs.getFamily() };
+    const auto numAliases = cs.getNumAliases();
+    if (numAliases == 1)
+    {
+        os << "alias= " << cs.getAlias(0) << ", ";
+    }
+    else if (numAliases > 1)
+    {
+        os << "aliases=[" << cs.getAlias(0);
+        for (size_t aidx = 1; aidx < numAliases; ++aidx)
+        {
+            os << ", " << cs.getAlias(aidx);
+        }
+        os << "], ";
+    }
+    if (!str.empty())
+    {
+        os << "family=" << str << ", ";
+    }
+    str = cs.getEqualityGroup();
+    if (!str.empty())
+    {
+        os << "equalityGroup=" << str << ", ";
+    }
+    const auto bd = cs.getBitDepth();
+    if (bd != BIT_DEPTH_UNKNOWN)
+    {
+        os << "bitDepth=" << BitDepthToString(bd) << ", ";
+    }
     os << "isData=" << BoolToString(cs.isData());
-    if (numVars)
+    if (numVars > 0)
     {
         os << ", allocation=" << AllocationToString(cs.getAllocation()) << ", ";
         os << "vars=" << vars[0];
@@ -307,19 +397,36 @@ std::ostream & operator<< (std::ostream & os, const ColorSpace & cs)
             os << " " << vars[i];
         }
     }
-    os << ">";
-
+    if (cs.getNumCategories())
+    {
+        StringUtils::StringVec categories;
+        for (int i = 0; i < cs.getNumCategories(); ++i)
+        {
+            categories.push_back(cs.getCategory(i));
+        }
+        os << ", categories=" << StringUtils::Join(categories, ',');
+    }
+    str = cs.getEncoding();
+    if (!str.empty())
+    {
+        os << ", encoding=" << str;
+    }
+    str = cs.getDescription();
+    if (!str.empty())
+    {
+        os << ", description=" << str;
+    }
     if(cs.getTransform(COLORSPACE_DIR_TO_REFERENCE))
     {
-        os << "\n    " << cs.getName() << " --> Reference";
-        os << "\n\t" << *cs.getTransform(COLORSPACE_DIR_TO_REFERENCE);
+        os << ",\n    " << cs.getName() << " --> Reference";
+        os << "\n        " << *cs.getTransform(COLORSPACE_DIR_TO_REFERENCE);
     }
-
     if(cs.getTransform(COLORSPACE_DIR_FROM_REFERENCE))
     {
-        os << "\n    Reference --> " << cs.getName();
-        os << "\n\t" << *cs.getTransform(COLORSPACE_DIR_FROM_REFERENCE);
+        os << ",\n    Reference --> " << cs.getName();
+        os << "\n        " << *cs.getTransform(COLORSPACE_DIR_FROM_REFERENCE);
     }
+    os << ">";
     return os;
 }
 } // namespace OCIO_NAMESPACE
