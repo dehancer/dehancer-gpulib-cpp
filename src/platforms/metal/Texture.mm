@@ -127,7 +127,7 @@ namespace dehancer::metal {
     }
     
     dehancer::Error TextureHolder::get_contents(std::vector<float>& buffer) const {
-      buffer.resize( get_length());
+      buffer.resize( get_length()/sizeof(float) );
       return get_contents(buffer.data(), get_length());
     }
     

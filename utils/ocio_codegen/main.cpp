@@ -81,40 +81,40 @@ int main(int argc, char** argv) {
     OCIO::ConstProcessorRcPtr proc_forward = config->getProcessor(cube_transform);
     OCIO::ConstCPUProcessorRcPtr cpu_forward = proc_forward->getDefaultCPUProcessor();
     
-    auto identity_cube = dehancer::CLut3DIdentity(command_queue, 64);
-    std::vector<float> identity_data;
+    auto identity_cube = dehancer::CLut3DIdentity(command_queue, lut_size);
+    std::vector<float> identity_data; //identity_data.resize(lut_size*lut_size*lut_size*lut_channels);
     identity_cube.get_texture()->get_contents(identity_data);
     
     /* IN */
     OCIO::PackedImageDesc in_desc(
             (void *)identity_data.data(),
-            long(identity_data.size() / identity_cube.get_channels()),
+            long(identity_data.size() / lut_channels),
             1,
-            identity_cube.get_channels());
+            lut_channels);
     
     /* FORWARD */
     std::vector<float> vals_froward(identity_data.size(), -1.0f);
     OCIO::PackedImageDesc out_forward_desc(
             vals_froward.data(),
-            long(vals_froward.size() / identity_cube.get_channels()),
+            long(vals_froward.size() / lut_channels),
             1,
-            identity_cube.get_channels());
+            lut_channels);
     
     
     /* INVERSE */
     std::vector<float> vals_inverese(identity_data.size(), -1.0f);
     OCIO::PackedImageDesc out_inverse_desc(
             vals_inverese.data(),
-            long(vals_inverese.size() / identity_cube.get_channels()),
+            long(vals_inverese.size() / lut_channels),
             1,
-            identity_cube.get_channels());
+            lut_channels);
     
     /***
      * Configureing inverse transformation
      */
   
     OCIO::FileTransformRcPtr cube_transform_inverese = OCIO::FileTransform::Create();
-    cube_transform_inverese->setInterpolation(OCIO::INTERP_TETRAHEDRAL);
+    cube_transform_inverese->setInterpolation(OCIO::INTERP_LINEAR);
     cube_transform_inverese->setDirection(OCIO::TRANSFORM_DIR_INVERSE);
     cube_transform_inverese->setSrc(file_forward_path.c_str());
     cube_transform_inverese->validate();
@@ -122,10 +122,10 @@ int main(int argc, char** argv) {
     OCIO::ConstProcessorRcPtr    proc_inverse = config->getProcessor(cube_transform_inverese);
     OCIO::ConstCPUProcessorRcPtr cpu_inverese = proc_inverse->getDefaultCPUProcessor();
     
-    cpu_forward->apply(in_desc, out_forward_desc);
+    //cpu_forward->apply(in_desc, out_forward_desc);
     cpu_inverese->apply(in_desc, out_inverse_desc);
   
-    luts_data[0] = vals_froward;
+    //luts_data[0] = vals_froward;
     luts_data[1] = vals_inverese;
     
     /* Release GPU */
@@ -152,16 +152,15 @@ int main(int argc, char** argv) {
          << "namespace dehancer::ocio::"<<ocio_namespace<<"::"<< namesp << " {" << std::endl
          << "\tsize_t __lut__size__ = " << lut_size << ";" << std::endl
          << "\tsize_t __lut__channels__ = " << lut_channels << ";" << std::endl
-         << "\tfloat __lut__data__[" << size * 4 << "] = {" << std::endl;
+         << "\tfloat __lut__data__[" << size * lut_channels << "] = {" << std::endl;
       
       size_t i = 0;
-      for (; i < data.size();) {
+      size_t len = data.size();
+      for (; i < len; ) {
         os << "\t\t"
            << std::fixed << std::setw(1) << std::setprecision(6)
-           << data[i++] << "f, " << data[i++] << "f, " << data[i++]
-           << "f, 1.0f";
-        i++;
-        if (i < data.size()) os << ", ";
+           << data[i++] << "f, " << data[i++] << "f, " << data[i++] << "f, " << data[i++];
+        if (i < len) os << ", ";
         os << std::endl;
       }
       
@@ -173,6 +172,10 @@ int main(int argc, char** argv) {
     return EXIT_SUCCESS;
   }
   catch (const std::exception &e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+    return EXIT_FAILURE;
+  }
+  catch (const std::runtime_error &e) {
     std::cerr << "Error: " << e.what() << std::endl;
     return EXIT_FAILURE;
   }
