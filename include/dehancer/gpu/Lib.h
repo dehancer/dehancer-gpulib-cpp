@@ -56,5 +56,7 @@
 #include "dehancer/gpu/spaces/StreamTransform.h"
 #include "dehancer/gpu/ocio/cs/Aces.h"
 #include "dehancer/gpu/ocio/cs/Deh2020.h"
+#include "dehancer/gpu/ocio/cs/DvrWG.h"
+#include "dehancer/gpu/ocio/cs/Cineon.h"
 #include "dehancer/gpu/ocio/cs/Rec2020.h"
 #include "dehancer/gpu/ocio/cs/Rec709.h"

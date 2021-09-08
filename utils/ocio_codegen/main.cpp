@@ -16,8 +16,8 @@ namespace OCIO = OCIO_NAMESPACE;
 
 int main(int argc, char** argv) {
   
-  if (argc != 6) {
-    std::cerr << "Usage: " << argv[0] << " <ocio namespace> <Forward transform 3D Cube file-path> <Inverse transform 3D Cube file-path> <c++-file-path-forward> <c++-file-path-inverse>" << std::endl;
+  if (argc != 5) {
+    std::cerr << "Usage: " << argv[0] << " <ocio namespace> <Forward transform 3D Cube file-path> <c++-file-path-forward> <c++-file-path-inverse>" << std::endl;
     return EXIT_FAILURE;
   }
   
@@ -45,7 +45,6 @@ int main(int argc, char** argv) {
     dehancer::CLutCubeInput forward_cube(command_queue);
     
     std::string file_forward_path = argv[++argc_next];
-    std::string file_inverse_path = argv[++argc_next];
     
     {
       /***
@@ -122,10 +121,10 @@ int main(int argc, char** argv) {
     OCIO::ConstProcessorRcPtr    proc_inverse = config->getProcessor(cube_transform_inverese);
     OCIO::ConstCPUProcessorRcPtr cpu_inverese = proc_inverse->getDefaultCPUProcessor();
     
-    //cpu_forward->apply(in_desc, out_forward_desc);
+    cpu_forward->apply(in_desc, out_forward_desc);
     cpu_inverese->apply(in_desc, out_inverse_desc);
   
-    //luts_data[0] = vals_froward;
+    luts_data[0] = vals_froward;
     luts_data[1] = vals_inverese;
     
     /* Release GPU */
