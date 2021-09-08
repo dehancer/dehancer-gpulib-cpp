@@ -39,7 +39,7 @@ int main(int argc, char** argv) {
   
     dehancer::CLutCubeInput forward_cube(command_queue);
     dehancer::CLutCubeInput inverse_cube(command_queue);
-  
+    
     std::string file_forward_path = argv[++argc_next];
     std::string file_inverse_path = argv[++argc_next];
     
@@ -70,11 +70,11 @@ int main(int argc, char** argv) {
     auto lut_size = forward_cube.get_lut_size();
     auto lut_channels = forward_cube.get_channels();
   
+    //auto identity_cube = dehancer::CLut3DIdentity(command_queue, lut_size);
+  
     forward_cube.get_texture()->get_contents(luts_data[0]);
     inverse_cube.get_texture()->get_contents(luts_data[1]);
-    
-    /* Release GPU */
-    dehancer::DeviceCache::Instance().return_command_queue(command_queue);
+    //identity_cube.get_texture()->get_contents(luts_data[1]);
     
     /**
      * Generate embedded lut data
@@ -104,7 +104,9 @@ int main(int argc, char** argv) {
       for (; i < len; ) {
         os << "\t\t"
            << std::fixed << std::setw(1) << std::setprecision(6)
-           << data[i++] << "f, " << data[i++] << "f, " << data[i++] << "f, " << data[i++];
+           << data[i++] << "f, " << data[i++] << "f, " << data[i++] << "f, "
+           << "1.0f"; i++;
+           //<< data[i++] << "f";
         if (i < len) os << ", ";
         os << std::endl;
       }
@@ -113,7 +115,10 @@ int main(int argc, char** argv) {
          << "\t};" << std::endl
          << "}" << std::endl;
     }
-    
+  
+    /* Release GPU */
+    dehancer::DeviceCache::Instance().return_command_queue(command_queue);
+  
     return EXIT_SUCCESS;
   }
   catch (const std::exception &e) {

@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
      */
   
     OCIO::FileTransformRcPtr cube_transform_inverese = OCIO::FileTransform::Create();
-    cube_transform_inverese->setInterpolation(OCIO::INTERP_LINEAR);
+    cube_transform_inverese->setInterpolation(OCIO::INTERP_TETRAHEDRAL);
     cube_transform_inverese->setDirection(OCIO::TRANSFORM_DIR_INVERSE);
     cube_transform_inverese->setSrc(file_forward_path.c_str());
     cube_transform_inverese->validate();

@@ -7,7 +7,9 @@ if (DEHANCER_GPU_METAL)
     ## TODO: OPENCL/Cuda version
     ##
     add_subdirectory(shaders)
-    add_subdirectory(ocio_codegen)
+    if (USE_OPENCOLORIO)
+        add_subdirectory(ocio_codegen)
+    endif ()
     add_subdirectory(lut_codegen)
 
 endif ()
