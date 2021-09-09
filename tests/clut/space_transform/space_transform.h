@@ -38,31 +38,31 @@ void load_from_cache(const std::string& platform) {
 //            .name="ACEScct (AP1)",
 //    };
 
-    auto space = (dehancer::StreamSpace) {
-            .type = dehancer::DHCR_ColorSpace,
-            .expandable = false,
-            .transform_func = transform_function,
-            .transform_lut = {
-                    .is_identity = false,
-                    .forward = dehancer::ocio::DVRWG::forward::lut::params,
-                    .inverse = dehancer::ocio::DVRWG::inverse::lut::params
-            },
-            .id = "dvr_wg_intermediate",
-            .name="DVR WG/Intermediate",
-    };
-  
 //    auto space = (dehancer::StreamSpace) {
 //            .type = dehancer::DHCR_ColorSpace,
 //            .expandable = false,
 //            .transform_func = transform_function,
 //            .transform_lut = {
 //                    .is_identity = false,
-//                    .forward = dehancer::ocio::Cineon::forward::lut::params,
-//                    .inverse = dehancer::ocio::Cineon::inverse::lut::params
+//                    .forward = dehancer::ocio::DVRWG::forward::lut::params,
+//                    .inverse = dehancer::ocio::DVRWG::inverse::lut::params
 //            },
-//            .id = "cineon",
-//            .name="Cineon Log",
+//            .id = "dvr_wg_intermediate",
+//            .name="DVR WG/Intermediate",
 //    };
+  
+    auto space = (dehancer::StreamSpace) {
+            .type = dehancer::DHCR_ColorSpace,
+            .expandable = false,
+            .transform_func = transform_function,
+            .transform_lut = {
+                    .is_identity = false,
+                    .forward = dehancer::ocio::CineonLog::forward::lut::params,
+                    .inverse = dehancer::ocio::CineonLog::inverse::lut::params
+            },
+            .id = "cineon_log",
+            .name="Cineon Log",
+    };
     
     for (auto device: dehancer::DeviceCache::Instance().get_device_list()) {
       

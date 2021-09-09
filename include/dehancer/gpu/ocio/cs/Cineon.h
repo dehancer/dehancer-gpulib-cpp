@@ -6,7 +6,7 @@
 
 #include "dehancer/gpu/ocio/LutParams.h"
 
-namespace dehancer::ocio::Cineon {
+namespace dehancer::ocio::CineonLog {
 
     namespace forward {
         struct lut {
@@ -14,6 +14,21 @@ namespace dehancer::ocio::Cineon {
         };
     }
 
+    namespace inverse {
+        struct lut {
+            static DHCR_LutParameters params;
+        };
+    }
+}
+
+namespace dehancer::ocio::CineonDeLog {
+    
+    namespace forward {
+        struct lut {
+            static DHCR_LutParameters params;
+        };
+    }
+    
     namespace inverse {
         struct lut {
             static DHCR_LutParameters params;
