@@ -44,8 +44,8 @@ void load_from_cache(const std::string& platform) {
 //            .transform_func = transform_function,
 //            .transform_lut = {
 //                    .is_identity = false,
-//                    .forward = dehancer::ocio::DVRWG::forward::lut::params,
-//                    .inverse = dehancer::ocio::DVRWG::inverse::lut::params
+//                    .forward = dehancer::ocio::DVRWGIntermediate::forward::lut::params,
+//                    .inverse = dehancer::ocio::DVRWGIntermediate::inverse::lut::params
 //            },
 //            .id = "dvr_wg_intermediate",
 //            .name="DVR WG/Intermediate",
@@ -57,13 +57,13 @@ void load_from_cache(const std::string& platform) {
             .transform_func = transform_function,
             .transform_lut = {
                     .is_identity = false,
-                    .forward = dehancer::ocio::CineonLog::forward::lut::params,
-                    .inverse = dehancer::ocio::CineonLog::inverse::lut::params
+                    .forward = dehancer::ocio::DVRWGRec709::forward::lut::params,
+                    .inverse = dehancer::ocio::DVRWGRec709::inverse::lut::params
             },
-            .id = "cineon_log",
-            .name="Cineon Log",
+            .id = "dvr_wg_rec709",
+            .name="DVR WG/Rec709",
     };
-    
+  
     for (auto device: dehancer::DeviceCache::Instance().get_device_list()) {
       
       auto command_queue = dehancer::DeviceCache::Instance().get_command_queue(dehancer::device::get_id(device));

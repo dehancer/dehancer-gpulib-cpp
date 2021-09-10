@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
     /**
      * Initializes
      */
-    std::vector<std::string> namesapces = {"forward","inverse"};
+    std::vector<std::string> namespaces = {"forward", "inverse"};
     std::vector<std::vector<float>> luts_data;
     
     luts_data.emplace_back();
@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
       std::cerr << "Could not get default command queue" << std::endl;
       return EXIT_FAILURE;
     }
-  
+    
     dehancer::CLutCubeInput forward_cube(command_queue);
     dehancer::CLutCubeInput inverse_cube(command_queue);
     
@@ -69,9 +69,9 @@ int main(int argc, char** argv) {
     
     auto lut_size = forward_cube.get_lut_size();
     auto lut_channels = forward_cube.get_channels();
-  
+    
     //auto identity_cube = dehancer::CLut3DIdentity(command_queue, lut_size);
-  
+    
     forward_cube.get_texture()->get_contents(luts_data[0]);
     inverse_cube.get_texture()->get_contents(luts_data[1]);
     //identity_cube.get_texture()->get_contents(luts_data[1]);
@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
     for(auto& data: luts_data ) {
       
       std::ofstream os(argv[index+argc_next]);
-      auto namesp = namesapces[index++];
+      auto namesp = namespaces[index++];
       
       auto size = lut_size;
       size = size * size * size;
@@ -106,7 +106,6 @@ int main(int argc, char** argv) {
            << std::fixed << std::setw(1) << std::setprecision(6)
            << data[i++] << "f, " << data[i++] << "f, " << data[i++] << "f, "
            << "1.0f"; i++;
-           //<< data[i++] << "f";
         if (i < len) os << ", ";
         os << std::endl;
       }
@@ -115,10 +114,83 @@ int main(int argc, char** argv) {
          << "\t};" << std::endl
          << "}" << std::endl;
     }
+    
+    std::string hpp_file_string1 = "#pragma once \n\n"
+                                   "#include \"dehancer/gpu/ocio/LutParams.h\"\n\n"
+                                   "namespace dehancer::ocio::";
+    hpp_file_string1.append(ocio_namespace);
   
+    std::string hpp_file_string2 = "{\n\n"
+                                   "namespace forward {\n"
+                                   "      struct lut {\n"
+                                   "            static DHCR_LutParameters params;\n"
+                                   "      };\n"
+                                   "}\n"
+                                   "\n"
+                                   "namespace inverse {\n"
+                                   "        struct lut {\n"
+                                   "            static DHCR_LutParameters params;\n"
+                                   "        };\n"
+                                   "    };\n"
+                                   "}\n";
+    
+    std::string cpp_file_str1 = "#include \"dehancer/gpu/ocio/cs/\"";
+    cpp_file_str1.append(ocio_namespace);
+    cpp_file_str1.append("\n");
+    cpp_file_str1.append("namespace dehancer::ocio::");
+    cpp_file_str1.append(ocio_namespace);
+  
+    std::string cpp_file_str2 = "{\n\n"
+                                " namespace forward {\n"
+                                "        extern float __lut__data__[];\n"
+                                "        extern size_t  __lut__size__;\n"
+                                "        extern size_t  __lut__channels__;\n"
+                                "    \n"
+                                "        DHCR_LutParameters lut::params = {\n"
+                                "                .enabled = true,\n"
+                                "                .size = static_cast<uint>(forward::__lut__size__),\n"
+                                "                .channels = static_cast<uint>(forward::__lut__channels__),\n"
+                                "                .data = forward::__lut__data__,\n"
+                                "        };\n"
+                                "\n"
+                                "    }\n"
+                                "\n"
+                                "    namespace inverse {\n"
+                                "\n"
+                                "        extern float __lut__data__[];\n"
+                                "        extern size_t  __lut__size__;\n"
+                                "        extern size_t  __lut__channels__;\n"
+                                "    \n"
+                                "        DHCR_LutParameters lut::params = {\n"
+                                "                .enabled = true,\n"
+                                "                .size = static_cast<uint>(__lut__size__),\n"
+                                "                .channels = static_cast<uint>(__lut__channels__),\n"
+                                "                .data = __lut__data__\n"
+                                "        };\n"
+                                "    }"
+                                "}";
+  
+  
+    std::string file_code_prefix = "./";
+    
+    {
+      auto file = file_code_prefix+ocio_namespace + ".h";
+      std::ofstream hpp_os(file);
+      std::cout <<"["<<file<<"] >> " << hpp_file_string1 << hpp_file_string2 << std::endl;
+      hpp_os << hpp_file_string1 << hpp_file_string2 << std::endl;
+    }
+  
+    {
+      auto file = file_code_prefix+ocio_namespace + ".cpp";
+      std::ofstream hpp_os(file);
+      std::cout <<"["<<file<<"] >> " << cpp_file_str1 << cpp_file_str2 << std::endl;
+      std::ofstream cpp_os(file);
+      cpp_os << cpp_file_str1 << cpp_file_str2 << std::flush;
+    }
+    
     /* Release GPU */
     dehancer::DeviceCache::Instance().return_command_queue(command_queue);
-  
+    
     return EXIT_SUCCESS;
   }
   catch (const std::exception &e) {
