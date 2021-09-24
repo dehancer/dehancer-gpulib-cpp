@@ -177,12 +177,12 @@ void InitOCIO(const char * filename)
     OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
     g_display = config->getDefaultDisplay();
     g_transformName = config->getDefaultView(g_display.c_str());
-    g_look = config->getDisplayLooks(g_display.c_str(), g_transformName.c_str());
+    g_look = config->getDisplayViewLooks(g_display.c_str(), g_transformName.c_str());
 
     g_inputColorSpace = OCIO::ROLE_SCENE_LINEAR;
     if(filename && *filename)
     {
-        std::string cs = config->parseColorSpaceFromString(filename);
+        std::string cs = config->getColorSpaceFromFilepath(filename);
         if(!cs.empty())
         {
             g_inputColorSpace = cs;
@@ -324,11 +324,15 @@ void UpdateOCIOGLState()
     // Step 0: Get the processor using any of the pipelines mentioned above.
     OCIO::ConstConfigRcPtr config = OCIO::GetCurrentConfig();
 
-    OCIO::DisplayTransformRcPtr transform = OCIO::DisplayTransform::Create();
-    transform->setInputColorSpaceName( g_inputColorSpace.c_str() );
+    OCIO::DisplayViewTransformRcPtr transform = OCIO::DisplayViewTransform::Create();
+    transform->setSrc( g_inputColorSpace.c_str() );
     transform->setDisplay( g_display.c_str() );
     transform->setView( g_transformName.c_str() );
-    transform->setLooksOverride( g_look.c_str() );
+
+    OCIO::LegacyViewingPipelineRcPtr vp = OCIO::LegacyViewingPipeline::Create();
+    vp->setDisplayViewTransform(transform);
+    vp->setLooksOverrideEnabled(true);
+    vp->setLooksOverride(g_look.c_str());
 
     if(g_verbose)
     {
@@ -368,7 +372,7 @@ void UpdateOCIOGLState()
         OCIO::MatrixTransformRcPtr mtx =  OCIO::MatrixTransform::Create();
         mtx->setMatrix(m44);
         mtx->setOffset(offset4);
-        transform->setLinearCC(mtx);
+        vp->setLinearCC(mtx);
     }
 
     // Channel swizzling
@@ -381,7 +385,7 @@ void UpdateOCIOGLState()
         OCIO::MatrixTransformRcPtr swizzle = OCIO::MatrixTransform::Create();
         swizzle->setMatrix(m44);
         swizzle->setOffset(offset);
-        transform->setChannelView(swizzle);
+        vp->setChannelView(swizzle);
     }
 
     // Post-display transform gamma
@@ -390,13 +394,13 @@ void UpdateOCIOGLState()
         const double exponent4f[4] = { exponent, exponent, exponent, exponent };
         OCIO::ExponentTransformRcPtr expTransform =  OCIO::ExponentTransform::Create();
         expTransform->setValue(exponent4f);
-        transform->setDisplayCC(expTransform);
+        vp->setDisplayCC(expTransform);
     }
 
     OCIO::ConstProcessorRcPtr processor;
     try
     {
-        processor = config->getProcessor(transform);
+        processor = vp->getProcessor(config, config->getCurrentContext());
     }
     catch(OCIO::Exception & e)
     {
@@ -408,20 +412,18 @@ void UpdateOCIOGLState()
         return;
     }
 
-    // Set shader.
-    OCIO::GpuShaderDescRcPtr shaderDesc;
-    if (g_gpulegacy)
-    {
-        shaderDesc = OCIO::GpuShaderDesc::CreateLegacyShaderDesc(32);
-    }
-    else
-    {
-        shaderDesc = OCIO::GpuShaderDesc::CreateShaderDesc();
-    }
-    shaderDesc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_3);
+    // Set the shader context.
+    OCIO::GpuShaderDescRcPtr shaderDesc = OCIO::GpuShaderDesc::CreateShaderDesc();
+    shaderDesc->setLanguage(OCIO::GPU_LANGUAGE_GLSL_1_2);
     shaderDesc->setFunctionName("OCIODisplay");
     shaderDesc->setResourcePrefix("ocio_");
-    processor->getOptimizedGPUProcessor(g_optimization)->extractGpuShaderInfo(shaderDesc);
+
+    // Extract the shader information.
+    OCIO::ConstGPUProcessorRcPtr gpu
+        = g_gpulegacy ? processor->getOptimizedLegacyGPUProcessor(g_optimization, 32)
+                      : processor->getOptimizedGPUProcessor(g_optimization);
+    gpu->extractGpuShaderInfo(shaderDesc);
+
     g_oglApp->setShader(shaderDesc);
 }
 
@@ -450,13 +452,13 @@ void displayDevice_CB(int id)
 
     g_display = display;
 
-    const char * csname = config->getDisplayColorSpaceName(g_display.c_str(), g_transformName.c_str());
-    if(!csname)
+    const char * csname = config->getDisplayViewColorSpaceName(g_display.c_str(), g_transformName.c_str());
+    if (!csname || !*csname)
     {
         g_transformName = config->getDefaultView(g_display.c_str());
     }
 
-    g_look = config->getDisplayLooks(g_display.c_str(), g_transformName.c_str());
+    g_look = config->getDisplayViewLooks(g_display.c_str(), g_transformName.c_str());
 
     UpdateOCIOGLState();
     glutPostRedisplay();
@@ -471,7 +473,7 @@ void transform_CB(int id)
 
     g_transformName = transform;
 
-    g_look = config->getDisplayLooks(g_display.c_str(), g_transformName.c_str());
+    g_look = config->getDisplayViewLooks(g_display.c_str(), g_transformName.c_str());
 
     UpdateOCIOGLState();
     glutPostRedisplay();
@@ -638,7 +640,7 @@ int main(int argc, char **argv)
 
     try
     {
-        g_oglApp = std::make_shared<OCIO::OglApp>("ociodisplay", 512, 512);
+        g_oglApp = std::make_shared<OCIO::ScreenApp>("ociodisplay", 512, 512);
     }
     catch (const OCIO::Exception & e)
     {
@@ -690,8 +692,10 @@ int main(int argc, char **argv)
         if(env && *env)
         {
             std::cout << std::endl;
-            std::cout << "OCIO Configuration: '" << env << "'" << std::endl;
-            std::cout << "OCIO search_path:    " << config->getSearchPath() << std::endl;
+            std::cout << "OCIO Config. file   : '" << env << "'" << std::endl;
+            std::cout << "OCIO Config. version: " << config->getMajorVersion() << "." 
+                                                  << config->getMinorVersion() << std::endl;
+            std::cout << "OCIO search_path    : " << config->getSearchPath() << std::endl;
         }
     }
 

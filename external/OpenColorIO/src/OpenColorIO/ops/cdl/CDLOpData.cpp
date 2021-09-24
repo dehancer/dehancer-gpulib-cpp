@@ -7,7 +7,7 @@
 
 #include "BitDepthUtils.h"
 #include "ops/cdl/CDLOpData.h"
-#include "ops/matrix/MatrixOp.h"
+#include "ops/matrix/MatrixOpData.h"
 #include "ops/range/RangeOpData.h"
 #include "Platform.h"
 
@@ -176,7 +176,7 @@ void CDLOpData::setStyle(CDLOpData::Style style)
     m_style = style;
 }
 
-TransformDirection CDLOpData::getDirection() const
+TransformDirection CDLOpData::getDirection() const noexcept
 {
     switch (m_style)
     {
@@ -190,17 +190,12 @@ TransformDirection CDLOpData::getDirection() const
     return TRANSFORM_DIR_FORWARD;
 }
 
-void CDLOpData::setDirection(TransformDirection dir)
+void CDLOpData::setDirection(TransformDirection dir) noexcept
 {
-    if (dir != TRANSFORM_DIR_UNKNOWN)
+    if (getDirection() != dir)
     {
-        const auto curDir = getDirection();
-        if (curDir != dir)
-        {
-            invert();
-        }
+        invert();
     }
-
 }
 
 void CDLOpData::setSlopeParams(const ChannelParams & slopeParams)
@@ -308,14 +303,11 @@ OpDataRcPtr CDLOpData::getIdentityReplacement() const
     OpDataRcPtr op;
     switch(getStyle())
     {
-        // These clamp values below 0 -- replace with range.
+        // These clamp values -- replace with range.
         case CDL_V1_2_FWD:
         case CDL_V1_2_REV:
         {
-            op = std::make_shared<RangeOpData>(0.,
-                                               RangeOpData::EmptyValue(), // don't clamp high end
-                                               0.,
-                                               RangeOpData::EmptyValue());
+            op = std::make_shared<RangeOpData>(0., 1., 0., 1.);
             break;
         }
 
@@ -328,6 +320,77 @@ OpDataRcPtr CDLOpData::getIdentityReplacement() const
         }
     }
     return op;
+}
+
+void CDLOpData::getSimplerReplacement(OpDataVec & tmpops) const
+{
+    // If identity, let the identityReplacement mechanism handle the situation.
+    if (m_powerParams != kOneParams || isIdentity())
+    {
+        return;
+    }
+
+    // Power is identity, we can replace CDL by simpler ops that the optimizer might be able to
+    // combine with other ones.
+
+    // Slope + offset.
+    double scale4[4]{ 1.0 };
+    getSlopeParams().getRGB(scale4);
+
+    double m44[16]{ 0.0 };
+    m44[0] = scale4[0];
+    m44[5] = scale4[1];
+    m44[10] = scale4[2];
+    m44[15] = 1.0;
+
+    double offset4[4]{ 0.0 };
+    getOffsetParams().getRGB(offset4);
+    offset4[3] = 0.;
+
+    auto matSO = std::make_shared<MatrixOpData>();
+    matSO->setRGBA(m44);
+    matSO->setRGBAOffsets(offset4);
+
+    matSO->setDirection(getDirection());
+
+    tmpops.push_back(matSO);
+
+    // Saturation.
+    if (m_saturation != 1.)
+    {
+        if (isClamping())
+        {
+            // Same in both directions.
+            auto range = std::make_shared<RangeOpData>(0., 1., 0., 1.);
+            tmpops.push_back(range);
+        }
+
+        static constexpr double lumaCoef3[3]{ 0.2126, 0.7152, 0.0722 };
+
+        double matrix[16];
+        double offsetSat[4];
+        MatrixTransform::Sat(matrix, offsetSat, m_saturation, lumaCoef3);
+
+        auto mat = std::make_shared<MatrixOpData>();
+        mat->setRGBA(matrix);
+        mat->setRGBAOffsets(offsetSat);
+
+        mat->setDirection(getDirection());
+
+        tmpops.push_back(mat);
+    }
+
+    // Clamping
+    if (isClamping())
+    {
+        auto range = std::make_shared<RangeOpData>(0., 1., 0., 1.);
+        tmpops.push_back(range);
+    }
+
+    if (getDirection() == TRANSFORM_DIR_INVERSE)
+    {
+        std::reverse(tmpops.begin(), tmpops.end());
+    }
 }
 
 bool CDLOpData::hasChannelCrosstalk() const
@@ -404,7 +467,7 @@ bool CDLOpData::isInverse(ConstCDLOpDataRcPtr & r) const
     return *r == *inverse();
 }
 
-void CDLOpData::invert()
+void CDLOpData::invert() noexcept
 {
     switch (m_style)
     {

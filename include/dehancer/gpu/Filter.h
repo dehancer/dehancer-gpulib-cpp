@@ -63,7 +63,7 @@ namespace dehancer {
          * @param enabled - initial state of processing, true means the kernel processes source, false do nothing
          * @return the current Filter object
          */
-        Filter &add (const KernelItem &kernel, bool enabled = true);
+        Filter &add (const KernelItem &kernel, bool enabled = true, bool emplace = false);
         
         /***
          * Add GPU Filter instance

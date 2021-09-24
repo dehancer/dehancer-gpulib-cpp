@@ -91,38 +91,29 @@ OCIO_ADD_TEST(ParseUtils, transform_direction)
     OCIO_CHECK_EQUAL("forward", resStr);
     resStr = OCIO::TransformDirectionToString(OCIO::TRANSFORM_DIR_INVERSE);
     OCIO_CHECK_EQUAL("inverse", resStr);
-    resStr = OCIO::TransformDirectionToString(OCIO::TRANSFORM_DIR_UNKNOWN);
-    OCIO_CHECK_EQUAL("unknown", resStr);
 
-    OCIO::TransformDirection resDir;
-    resDir = OCIO::TransformDirectionFromString("forward");
+    OCIO::TransformDirection resDir = OCIO::TRANSFORM_DIR_INVERSE;
+    OCIO_CHECK_NO_THROW(resDir = OCIO::TransformDirectionFromString("forward"));
     OCIO_CHECK_EQUAL(OCIO::TRANSFORM_DIR_FORWARD, resDir);
-    resDir = OCIO::TransformDirectionFromString("inverse");
+    OCIO_CHECK_NO_THROW(resDir = OCIO::TransformDirectionFromString("inverse"));
     OCIO_CHECK_EQUAL(OCIO::TRANSFORM_DIR_INVERSE, resDir);
-    resDir = OCIO::TransformDirectionFromString("Forward");
+    OCIO_CHECK_NO_THROW(resDir = OCIO::TransformDirectionFromString("Forward"));
     OCIO_CHECK_EQUAL(OCIO::TRANSFORM_DIR_FORWARD, resDir);
-    resDir = OCIO::TransformDirectionFromString("Inverse");
+    OCIO_CHECK_NO_THROW(resDir = OCIO::TransformDirectionFromString("Inverse"));
     OCIO_CHECK_EQUAL(OCIO::TRANSFORM_DIR_INVERSE, resDir);
-    resDir = OCIO::TransformDirectionFromString("FORWARD");
+    OCIO_CHECK_NO_THROW(resDir = OCIO::TransformDirectionFromString("FORWARD"));
     OCIO_CHECK_EQUAL(OCIO::TRANSFORM_DIR_FORWARD, resDir);
-    resDir = OCIO::TransformDirectionFromString("INVERSE");
+    OCIO_CHECK_NO_THROW(resDir = OCIO::TransformDirectionFromString("INVERSE"));
     OCIO_CHECK_EQUAL(OCIO::TRANSFORM_DIR_INVERSE, resDir);
-    resDir = OCIO::TransformDirectionFromString("unknown");
-    OCIO_CHECK_EQUAL(OCIO::TRANSFORM_DIR_UNKNOWN, resDir);
-    resDir = OCIO::TransformDirectionFromString("");
-    OCIO_CHECK_EQUAL(OCIO::TRANSFORM_DIR_UNKNOWN, resDir);
-    resDir = OCIO::TransformDirectionFromString("anything");
-    OCIO_CHECK_EQUAL(OCIO::TRANSFORM_DIR_UNKNOWN, resDir);
+    OCIO_CHECK_THROW_WHAT(resDir = OCIO::TransformDirectionFromString("unknown"), OCIO::Exception,
+                          "Unrecognized transform direction: 'unknown'");
+    OCIO_CHECK_THROW_WHAT(resDir = OCIO::TransformDirectionFromString(""), OCIO::Exception,
+                          "Unrecognized transform direction: ''");
+    OCIO_CHECK_THROW_WHAT(resDir = OCIO::TransformDirectionFromString("anything"), OCIO::Exception,
+                          "Unrecognized transform direction: 'anything'");
+    OCIO_CHECK_THROW_WHAT(resDir = OCIO::TransformDirectionFromString(nullptr), OCIO::Exception,
+                          "Unrecognized transform direction: ''");
 
-    resDir = OCIO::CombineTransformDirections(OCIO::TRANSFORM_DIR_UNKNOWN,
-                                              OCIO::TRANSFORM_DIR_FORWARD);
-    OCIO_CHECK_EQUAL(OCIO::TRANSFORM_DIR_UNKNOWN, resDir);
-    resDir = OCIO::CombineTransformDirections(OCIO::TRANSFORM_DIR_INVERSE,
-                                              OCIO::TRANSFORM_DIR_UNKNOWN);
-    OCIO_CHECK_EQUAL(OCIO::TRANSFORM_DIR_UNKNOWN, resDir);
-    resDir = OCIO::CombineTransformDirections(OCIO::TRANSFORM_DIR_UNKNOWN,
-                                              OCIO::TRANSFORM_DIR_UNKNOWN);
-    OCIO_CHECK_EQUAL(OCIO::TRANSFORM_DIR_UNKNOWN, resDir);
     resDir = OCIO::CombineTransformDirections(OCIO::TRANSFORM_DIR_INVERSE,
                                               OCIO::TRANSFORM_DIR_INVERSE);
     OCIO_CHECK_EQUAL(OCIO::TRANSFORM_DIR_FORWARD, resDir);
@@ -136,33 +127,10 @@ OCIO_ADD_TEST(ParseUtils, transform_direction)
                                               OCIO::TRANSFORM_DIR_INVERSE);
     OCIO_CHECK_EQUAL(OCIO::TRANSFORM_DIR_INVERSE, resDir);
 
-    resDir = OCIO::GetInverseTransformDirection(OCIO::TRANSFORM_DIR_UNKNOWN);
-    OCIO_CHECK_EQUAL(OCIO::TRANSFORM_DIR_UNKNOWN, resDir);
     resDir = OCIO::GetInverseTransformDirection(OCIO::TRANSFORM_DIR_INVERSE);
     OCIO_CHECK_EQUAL(OCIO::TRANSFORM_DIR_FORWARD, resDir);
     resDir = OCIO::GetInverseTransformDirection(OCIO::TRANSFORM_DIR_FORWARD);
     OCIO_CHECK_EQUAL(OCIO::TRANSFORM_DIR_INVERSE, resDir);
-}
-
-OCIO_ADD_TEST(ParseUtils, color_space)
-{
-    std::string resStr;
-    resStr = OCIO::ColorSpaceDirectionToString(OCIO::COLORSPACE_DIR_TO_REFERENCE);
-    OCIO_CHECK_EQUAL("to_reference", resStr);
-    resStr = OCIO::ColorSpaceDirectionToString(OCIO::COLORSPACE_DIR_FROM_REFERENCE);
-    OCIO_CHECK_EQUAL("from_reference", resStr);
-    resStr = OCIO::ColorSpaceDirectionToString(OCIO::COLORSPACE_DIR_UNKNOWN);
-    OCIO_CHECK_EQUAL("unknown", resStr);
-
-    OCIO::ColorSpaceDirection resCSD;
-    resCSD = OCIO::ColorSpaceDirectionFromString("to_reference");
-    OCIO_CHECK_EQUAL(OCIO::COLORSPACE_DIR_TO_REFERENCE, resCSD);
-    resCSD = OCIO::ColorSpaceDirectionFromString("from_reference");
-    OCIO_CHECK_EQUAL(OCIO::COLORSPACE_DIR_FROM_REFERENCE, resCSD);
-    resCSD = OCIO::ColorSpaceDirectionFromString("unkwon");
-    OCIO_CHECK_EQUAL(OCIO::COLORSPACE_DIR_UNKNOWN, resCSD);
-    resCSD = OCIO::ColorSpaceDirectionFromString("");
-    OCIO_CHECK_EQUAL(OCIO::COLORSPACE_DIR_UNKNOWN, resCSD);
 }
 
 OCIO_ADD_TEST(ParseUtils, bitdepth)
@@ -420,33 +388,33 @@ OCIO_ADD_TEST(ParseUtils, string_vec_to_int_vec)
 OCIO_ADD_TEST(ParseUtils, split_string_env_style)
 {
     StringUtils::StringVec outputvec;
-    OCIO::SplitStringEnvStyle(outputvec, "This:is:a:test");
+    outputvec = OCIO::SplitStringEnvStyle("This:is:a:test");
     OCIO_CHECK_EQUAL(4, outputvec.size());
     OCIO_CHECK_EQUAL("This", outputvec[0]);
     OCIO_CHECK_EQUAL("is", outputvec[1]);
     OCIO_CHECK_EQUAL("a", outputvec[2]);
     OCIO_CHECK_EQUAL("test", outputvec[3]);
     outputvec.clear();
-    OCIO::SplitStringEnvStyle(outputvec, "   This  : is   :   a:   test  ");
+    outputvec = OCIO::SplitStringEnvStyle("   This  : is   :   a:   test  ");
     OCIO_CHECK_EQUAL(4, outputvec.size());
     OCIO_CHECK_EQUAL("This", outputvec[0]);
     OCIO_CHECK_EQUAL("is", outputvec[1]);
     OCIO_CHECK_EQUAL("a", outputvec[2]);
     OCIO_CHECK_EQUAL("test", outputvec[3]);
     outputvec.clear();
-    OCIO::SplitStringEnvStyle(outputvec, "   This  , is   ,   a,   test  ");
+    outputvec = OCIO::SplitStringEnvStyle("   This  , is   ,   a,   test  ");
     OCIO_CHECK_EQUAL(4, outputvec.size());
     OCIO_CHECK_EQUAL("This", outputvec[0]);
     OCIO_CHECK_EQUAL("is", outputvec[1]);
     OCIO_CHECK_EQUAL("a", outputvec[2]);
     OCIO_CHECK_EQUAL("test", outputvec[3]);
     outputvec.clear();
-    OCIO::SplitStringEnvStyle(outputvec, "This:is   ,   a:test  ");
+    outputvec = OCIO::SplitStringEnvStyle("This:is   ,   a:test  ");
     OCIO_CHECK_EQUAL(2, outputvec.size());
     OCIO_CHECK_EQUAL("This:is", outputvec[0]);
     OCIO_CHECK_EQUAL("a:test", outputvec[1]);
     outputvec.clear();
-    OCIO::SplitStringEnvStyle(outputvec, ",,");
+    outputvec = OCIO::SplitStringEnvStyle(",,");
     OCIO_CHECK_EQUAL(3, outputvec.size());
     OCIO_CHECK_EQUAL("", outputvec[0]);
     OCIO_CHECK_EQUAL("", outputvec[1]);

@@ -41,9 +41,17 @@ namespace OCIO_NAMESPACE
 namespace Platform
 {
 
-void Getenv(const char * name, std::string & value);
+// Return true if the environment variable exists.
+bool Getenv(const char * name, std::string & value);
 
+// Set a new value to a new or existing environment variable.
 void Setenv(const char * name, const std::string & value);
+
+// Remove the environment variable.
+void Unsetenv(const char * name);
+
+// Only test the presence of the envvar i.e the value does not matter.
+bool isEnvPresent(const char * name);
 
 // Case insensitive string comparison
 int Strcasecmp(const char * str1, const char * str2);

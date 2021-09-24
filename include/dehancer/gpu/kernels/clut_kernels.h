@@ -70,6 +70,10 @@ DHCR_KERNEL void kernel_make3DLut(
                              get_texture_height(d3DLut)-1,
                              get_texture_depth(d3DLut)-1);
   
+//  float3 denom = make_float3(get_texture_width(d3DLut),
+//                             get_texture_height(d3DLut),
+//                             get_texture_depth(d3DLut));
+
   float4 input_color  = to_float4(compress(to_float3(tex.gid)/denom, compression),1.0f);
   
   write_image(d3DLut, input_color, tex.gid);

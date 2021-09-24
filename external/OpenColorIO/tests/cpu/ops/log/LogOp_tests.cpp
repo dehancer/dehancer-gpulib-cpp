@@ -39,7 +39,8 @@ OCIO_ADD_TEST(LogOp, lin_to_log)
     OCIO_REQUIRE_EQUAL(ops.size(), 1);
     OCIO_REQUIRE_ASSERT((bool)ops[0]);
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
 
     // Validate properties.
     std::string opCache;
@@ -85,7 +86,8 @@ OCIO_ADD_TEST(LogOp, log_to_lin)
                                           linSlope, linOffset,
                                           OCIO::TRANSFORM_DIR_INVERSE));
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
 
     // Apply the result.
     for(OCIO::OpRcPtrVec::size_type i = 0, size = ops.size(); i < size; ++i)
@@ -167,7 +169,8 @@ OCIO_ADD_TEST(LogOp, inverse)
         data[i] = result[i];
     }
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_NONE));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_NONE));
 
     ops[0]->apply(data, 3);
     // Note: Skip testing alpha channels.
@@ -222,7 +225,8 @@ OCIO_ADD_TEST(LogOp, cache_id)
     OCIO_REQUIRE_ASSERT((bool)ops[1]);
     OCIO_REQUIRE_ASSERT((bool)ops[2]);
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
 
     std::string opCacheID0;
     OCIO_CHECK_NO_THROW(opCacheID0 = ops[0]->getCacheID());
@@ -232,21 +236,6 @@ OCIO_ADD_TEST(LogOp, cache_id)
     OCIO_CHECK_NO_THROW(opCacheID2 = ops[2]->getCacheID());
     OCIO_CHECK_EQUAL(opCacheID0, opCacheID2);
     OCIO_CHECK_NE(opCacheID0, opCacheID1);
-}
-
-OCIO_ADD_TEST(LogOp, throw_direction)
-{
-    const double base = 10.0;
-    const double logSlope[3] = { 0.18, 0.18, 0.18 };
-    const double linSlope[3] = { 2.0, 2.0, 2.0 };
-    const double linOffset[3] = { 0.1, 0.1, 0.1 };
-    const double logOffset[3] = { 1.0, 1.0, 1.0 };
-
-    OCIO::OpRcPtrVec ops;
-    OCIO_CHECK_THROW_WHAT(OCIO::CreateLogOp(ops, base, logSlope, logOffset,
-                                            linSlope, linOffset,
-                                            OCIO::TRANSFORM_DIR_UNKNOWN),
-                          OCIO::Exception, "unspecified transform direction");
 }
 
 OCIO_ADD_TEST(LogOp, create_transform)

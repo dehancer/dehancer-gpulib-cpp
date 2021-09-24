@@ -31,12 +31,11 @@ void Lut1DTransformImpl::deleter(Lut1DTransform* t)
 }
 
 Lut1DTransformImpl::Lut1DTransformImpl()
-    : m_data(2)
 {
 }
 
 Lut1DTransformImpl::Lut1DTransformImpl(Lut1DOpData::HalfFlags halfFlag, unsigned long length)
-    : m_data(halfFlag, length)
+    : m_data(halfFlag, length, false)
 {
 }
 
@@ -64,7 +63,7 @@ void Lut1DTransformImpl::validate() const
         Transform::validate();
         data().validate();
     }
-    catch (Exception & ex)
+    catch (const Exception & ex)
     {
         std::ostringstream oss;
         oss << "Lut1DTransform validation failed: ";
@@ -102,7 +101,8 @@ bool Lut1DTransformImpl::equals(const Lut1DTransform & other) const noexcept
 void Lut1DTransformImpl::setLength(unsigned long length)
 {
     auto & lutArray = m_data.getArray();
-    lutArray = Lut1DOpData::Lut3by1DArray(m_data.getHalfFlags(), 3, length);
+    // Use NaNs for the 2048 NaN values in the domain.
+    lutArray = Lut1DOpData::Lut3by1DArray(m_data.getHalfFlags(), 3, length, false);
 }
 
 namespace
@@ -138,7 +138,7 @@ void Lut1DTransformImpl::setOutputRawHalfs(bool isRawHalfs) noexcept
     data().setOutputRawHalfs(isRawHalfs);
 }
 
-void Lut1DTransformImpl::setHueAdjust(Lut1DHueAdjust algo) noexcept
+void Lut1DTransformImpl::setHueAdjust(Lut1DHueAdjust algo)
 {
     data().setHueAdjust(algo);
 }
@@ -209,9 +209,9 @@ std::ostream & operator<< (std::ostream & os, const Lut1DTransform & t)
             rMin = std::min(rMin, r);
             gMin = std::min(gMin, g);
             bMin = std::min(bMin, b);
-            rMax = std::max(rMin, r);
-            gMax = std::max(gMin, g);
-            bMax = std::max(bMin, b);
+            rMax = std::max(rMax, r);
+            gMax = std::max(gMax, g);
+            bMax = std::max(bMax, b);
         }
         os << "minrgb=[";
         os << rMin << " " << gMin << " " << bMin << "], ";

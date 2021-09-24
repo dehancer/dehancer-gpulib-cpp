@@ -20,7 +20,9 @@ void ApplyGamma(const OCIO::OpRcPtr & op,
                 long numPixels, unsigned line,
                 float errorThreshold)
 {
-    OCIO_CHECK_NO_THROW_FROM(op->apply(image, numPixels), line);
+    const auto cpu = op->getCPUOp(true);
+
+    OCIO_CHECK_NO_THROW_FROM(cpu->apply(image, image, numPixels), line);
 
     for(long idx=0; idx<(numPixels*4); ++idx)
     {
@@ -114,7 +116,8 @@ OCIO_ADD_TEST(GammaOpCPU, apply_basic_style_fwd)
 
     OCIO_CHECK_NO_THROW(OCIO::CreateGammaOp(ops, gammaData, OCIO::TRANSFORM_DIR_FORWARD));
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_REQUIRE_EQUAL(ops.size(), 1);
 
     ApplyGamma(ops[0], input_32f, expected_32f, numPixels, __LINE__, errorThreshold);
@@ -177,7 +180,8 @@ OCIO_ADD_TEST(GammaOpCPU, apply_basic_style_rev)
 
     OCIO_CHECK_NO_THROW(OCIO::CreateGammaOp(ops, gammaData, OCIO::TRANSFORM_DIR_FORWARD));
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_REQUIRE_EQUAL(ops.size(), 1);
 
     ApplyGamma(ops[0], input_32f, expected_32f, numPixels, __LINE__, errorThreshold);
@@ -268,7 +272,8 @@ OCIO_ADD_TEST(GammaOpCPU, apply_basic_mirror_style_fwd)
 
     OCIO_CHECK_NO_THROW(OCIO::CreateGammaOp(ops, gammaData, OCIO::TRANSFORM_DIR_FORWARD));
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_REQUIRE_EQUAL(ops.size(), 1);
 
     ApplyGamma(ops[0], input_32f, expected_32f, numPixels, __LINE__, errorThreshold);
@@ -358,7 +363,8 @@ OCIO_ADD_TEST(GammaOpCPU, apply_basic_mirror_style_rev)
 
     OCIO_CHECK_NO_THROW(OCIO::CreateGammaOp(ops, gammaData, OCIO::TRANSFORM_DIR_FORWARD));
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_REQUIRE_EQUAL(ops.size(), 1);
 
     ApplyGamma(ops[0], input_32f, expected_32f, numPixels, __LINE__, errorThreshold);
@@ -436,7 +442,8 @@ OCIO_ADD_TEST(GammaOpCPU, apply_basic_pass_thru_style_fwd)
 
     OCIO_CHECK_NO_THROW(OCIO::CreateGammaOp(ops, gammaData, OCIO::TRANSFORM_DIR_FORWARD));
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_REQUIRE_EQUAL(ops.size(), 1);
 
     ApplyGamma(ops[0], input_32f, expected_32f, numPixels, __LINE__, errorThreshold);
@@ -514,7 +521,8 @@ OCIO_ADD_TEST(GammaOpCPU, apply_basic_pass_thru_style_rev)
 
     OCIO_CHECK_NO_THROW(OCIO::CreateGammaOp(ops, gammaData, OCIO::TRANSFORM_DIR_FORWARD));
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_REQUIRE_EQUAL(ops.size(), 1);
 
     ApplyGamma(ops[0], input_32f, expected_32f, numPixels, __LINE__, errorThreshold);
@@ -568,7 +576,8 @@ OCIO_ADD_TEST(GammaOpCPU, apply_moncurve_style_fwd)
                                                          alphaParams);
     OCIO_CHECK_NO_THROW(OCIO::CreateGammaOp(ops, gammaData, OCIO::TRANSFORM_DIR_FORWARD));
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_REQUIRE_EQUAL(ops.size(), 1);
 
     ApplyGamma(ops[0], input_32f, expected_32f, numPixels, __LINE__, errorThreshold);
@@ -622,7 +631,8 @@ OCIO_ADD_TEST(GammaOpCPU, apply_moncurve_style_rev)
                                                          alphaParams);
     OCIO_CHECK_NO_THROW(OCIO::CreateGammaOp(ops, gammaData, OCIO::TRANSFORM_DIR_FORWARD));
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_REQUIRE_EQUAL(ops.size(), 1);
 
     ApplyGamma(ops[0], input_32f, expected_32f, numPixels, __LINE__, errorThreshold);
@@ -682,7 +692,8 @@ OCIO_ADD_TEST(GammaOpCPU, apply_moncurve_mirror_style_fwd)
                                                          alphaParams);
     OCIO_CHECK_NO_THROW(OCIO::CreateGammaOp(ops, gammaData, OCIO::TRANSFORM_DIR_FORWARD));
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_REQUIRE_EQUAL(ops.size(), 1);
 
     ApplyGamma(ops[0], input_32f, expected_32f, numPixels, __LINE__, errorThreshold);
@@ -742,7 +753,8 @@ OCIO_ADD_TEST(GammaOpCPU, apply_moncurve_mirror_style_rev)
                                                          alphaParams);
     OCIO_CHECK_NO_THROW(OCIO::CreateGammaOp(ops, gammaData, OCIO::TRANSFORM_DIR_FORWARD));
 
-    OCIO_CHECK_NO_THROW(ops.finalize(OCIO::OPTIMIZATION_DEFAULT));
+    OCIO_CHECK_NO_THROW(ops.finalize());
+    OCIO_CHECK_NO_THROW(ops.optimize(OCIO::OPTIMIZATION_DEFAULT));
     OCIO_REQUIRE_EQUAL(ops.size(), 1);
 
     ApplyGamma(ops[0], input_32f, expected_32f, numPixels, __LINE__, errorThreshold);

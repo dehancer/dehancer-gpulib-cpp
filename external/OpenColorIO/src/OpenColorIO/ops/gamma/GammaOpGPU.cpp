@@ -14,106 +14,154 @@ namespace
 {
 
 // Create shader for basic gamma style
-void AddBasicFwdShader(ConstGammaOpDataRcPtr gamma, GpuShaderText & ss)
+void AddBasicFwdShader(GpuShaderCreatorRcPtr & shaderCreator,
+                       ConstGammaOpDataRcPtr gamma,
+                       GpuShaderText & ss)
 {
     const double redGamma   = gamma->getRedParams()[0];
     const double grnGamma   = gamma->getGreenParams()[0];
     const double bluGamma   = gamma->getBlueParams()[0];
     const double alphaGamma = gamma->getAlphaParams()[0];
 
-    ss.declareVec4f( "gamma", redGamma, grnGamma, bluGamma, alphaGamma);
+    const std::string pxl(shaderCreator->getPixelName());
 
-    ss.newLine() << "outColor = pow( max( "
-                 << ss.vec4fConst(0.0f)
-                 << ", outColor ), gamma );";
+    ss.declareFloat4( "gamma", redGamma, grnGamma, bluGamma, alphaGamma);
+
+    ss.newLine() << ss.float4Decl("res") << " = pow( max( "
+                 << ss.float4Const(0.0f)
+                 << ", " << pxl 
+                 << " ), gamma );";
+
+    ss.newLine() << pxl << ".rgb = " << ss.float3Const("res.x", "res.y", "res.z") << ";";
+    ss.newLine() << pxl << ".a = res.w;";
 }
 
-void AddBasicRevShader(ConstGammaOpDataRcPtr gamma, GpuShaderText & ss)
+void AddBasicRevShader(GpuShaderCreatorRcPtr & shaderCreator,
+                       ConstGammaOpDataRcPtr gamma,
+                       GpuShaderText & ss)
 {
     const double redGamma   = 1. / gamma->getRedParams()[0];
     const double grnGamma   = 1. / gamma->getGreenParams()[0];
     const double bluGamma   = 1. / gamma->getBlueParams()[0];
     const double alphaGamma = 1. / gamma->getAlphaParams()[0];
 
-    ss.declareVec4f( "gamma", redGamma, grnGamma, bluGamma, alphaGamma);
+    const std::string pxl(shaderCreator->getPixelName());
 
-    ss.newLine() << "outColor = pow( max( " 
-                 << ss.vec4fConst(0.0f) 
-                 << ", outColor ), gamma );";
+    ss.declareFloat4( "gamma", redGamma, grnGamma, bluGamma, alphaGamma);
+
+    ss.newLine() << ss.float4Decl("res") << " = pow( max( " 
+                 << ss.float4Const(0.0f)
+                 << ", " << pxl 
+                 << " ), gamma );";
+
+    ss.newLine() << pxl << ".rgb = " << ss.float3Const("res.x", "res.y", "res.z") << ";";
+    ss.newLine() << pxl << ".a = res.w;";
 }
 
 // Create shader for basic mirror gamma style
-void AddBasicMirrorFwdShader(ConstGammaOpDataRcPtr gamma, GpuShaderText & ss)
+void AddBasicMirrorFwdShader(GpuShaderCreatorRcPtr & shaderCreator,
+                             ConstGammaOpDataRcPtr gamma,
+                             GpuShaderText & ss)
 {
     const double redGamma = gamma->getRedParams()[0];
     const double grnGamma = gamma->getGreenParams()[0];
     const double bluGamma = gamma->getBlueParams()[0];
     const double alphaGamma = gamma->getAlphaParams()[0];
 
-    ss.declareVec4f("gamma", redGamma, grnGamma, bluGamma, alphaGamma);
+    const std::string pxl(shaderCreator->getPixelName());
 
-    ss.newLine() << ss.vec4fDecl("signcol") << " = sign(outColor);";
-    ss.newLine() << "outColor = signcol * pow( abs( outColor ), gamma );";
+    ss.declareFloat4("gamma", redGamma, grnGamma, bluGamma, alphaGamma);
+
+    ss.newLine() << ss.float4Decl("signcol") << " = " << ss.sign(pxl) << ";";
+    ss.newLine() << ss.float4Decl("res")     << " = signcol * pow( abs( " << pxl << " ), gamma );";
+
+    ss.newLine() << pxl << ".rgb = " << ss.float3Const("res.x", "res.y", "res.z") << ";";
+    ss.newLine() << pxl << ".a = res.w;";
 }
 
-void AddBasicMirrorRevShader(ConstGammaOpDataRcPtr gamma, GpuShaderText & ss)
+void AddBasicMirrorRevShader(GpuShaderCreatorRcPtr & shaderCreator,
+                             ConstGammaOpDataRcPtr gamma,
+                             GpuShaderText & ss)
 {
     const double redGamma = 1. / gamma->getRedParams()[0];
     const double grnGamma = 1. / gamma->getGreenParams()[0];
     const double bluGamma = 1. / gamma->getBlueParams()[0];
     const double alphaGamma = 1. / gamma->getAlphaParams()[0];
 
-    ss.declareVec4f("gamma", redGamma, grnGamma, bluGamma, alphaGamma);
+    const std::string pxl(shaderCreator->getPixelName());
 
-    ss.newLine() << ss.vec4fDecl("signcol") << " = sign(outColor);";
-    ss.newLine() << "outColor = signcol * pow( abs( outColor ), gamma );";
+    ss.declareFloat4("gamma", redGamma, grnGamma, bluGamma, alphaGamma);
+
+    ss.newLine() << ss.float4Decl("signcol") << " = " << ss.sign(pxl) << ";";
+    ss.newLine() << ss.float4Decl("res")     << " = signcol * pow( abs( " << pxl << " ), gamma );";
+
+    ss.newLine() << pxl << ".rgb = " << ss.float3Const("res.x", "res.y", "res.z") << ";";
+    ss.newLine() << pxl << ".a = res.w;";
 }
 
 // Create shader for basic pass thru gamma style
-void AddBasicPassThruFwdShader(ConstGammaOpDataRcPtr gamma, GpuShaderText & ss)
+void AddBasicPassThruFwdShader(GpuShaderCreatorRcPtr & shaderCreator,
+                               ConstGammaOpDataRcPtr gamma,
+                               GpuShaderText & ss)
 {
     const double redGamma = gamma->getRedParams()[0];
     const double grnGamma = gamma->getGreenParams()[0];
     const double bluGamma = gamma->getBlueParams()[0];
     const double alphaGamma = gamma->getAlphaParams()[0];
 
-    ss.declareVec4f("gamma", redGamma, grnGamma, bluGamma, alphaGamma);
-    ss.declareVec4f("breakPnt", 0.f, 0.f, 0.f, 0.f);
+    const std::string pxl(shaderCreator->getPixelName());
+    const std::string pxlrgb(pxl + ".rgb");
 
-    ss.newLine() << ss.vec4fDecl("isAboveBreak") << " = "
-                 << ss.vec4fGreaterThan("outColor", "breakPnt") << ";";
+    ss.declareFloat4("gamma", redGamma, grnGamma, bluGamma, alphaGamma);
+    ss.declareFloat4("breakPnt", 0.f, 0.f, 0.f, 0.f);
 
-    ss.newLine() << ss.vec4fDecl("powSeg") << " = pow(max( " 
-                                           << ss.vec4fConst(0.0f)
-                                           << ", outColor ), gamma);";
+    ss.newLine() << ss.float4Decl("isAboveBreak") << " = "
+                 << ss.float4GreaterThan(pxl, "breakPnt") << ";";
 
-    ss.newLine() << "outColor = isAboveBreak * powSeg + ( "
-                 << ss.vec4fConst(1.0f) << " - isAboveBreak ) * outColor;";
+    ss.newLine() << ss.float4Decl("powSeg") << " = pow(max( "
+                                            << ss.float4Const(0.0f)
+                                            << ", " << pxl << " ), gamma);";
+
+    ss.newLine() << ss.float4Decl("res") << " = isAboveBreak * powSeg + ( "
+                 << ss.float4Const(1.0f) << " - isAboveBreak ) * " << pxl << ";";
+
+    ss.newLine() << pxl << ".rgb = " << ss.float3Const("res.x", "res.y", "res.z") << ";";
+    ss.newLine() << pxl << ".a = res.w;";
 }
 
-void AddBasicPassThruRevShader(ConstGammaOpDataRcPtr gamma, GpuShaderText & ss)
+void AddBasicPassThruRevShader(GpuShaderCreatorRcPtr & shaderCreator,
+                               ConstGammaOpDataRcPtr gamma,
+                               GpuShaderText & ss)
 {
     const double redGamma = 1. / gamma->getRedParams()[0];
     const double grnGamma = 1. / gamma->getGreenParams()[0];
     const double bluGamma = 1. / gamma->getBlueParams()[0];
     const double alphaGamma = 1. / gamma->getAlphaParams()[0];
 
-    ss.declareVec4f("gamma", redGamma, grnGamma, bluGamma, alphaGamma);
-    ss.declareVec4f("breakPnt", 0.f, 0.f, 0.f, 0.f);
+    const std::string pxl(shaderCreator->getPixelName());
+    const std::string pxlrgb(pxl + ".rgb");
 
-    ss.newLine() << ss.vec4fDecl("isAboveBreak") << " = "
-                 << ss.vec4fGreaterThan("outColor", "breakPnt") << ";";
+    ss.declareFloat4("gamma", redGamma, grnGamma, bluGamma, alphaGamma);
+    ss.declareFloat4("breakPnt", 0.f, 0.f, 0.f, 0.f);
 
-    ss.newLine() << ss.vec4fDecl("powSeg") << " = pow(max( " 
-                                           << ss.vec4fConst(0.0f)
-                                           << ", outColor ), gamma);";
+    ss.newLine() << ss.float4Decl("isAboveBreak") << " = "
+                 << ss.float4GreaterThan(pxl, "breakPnt") << ";";
 
-    ss.newLine() << "outColor = isAboveBreak * powSeg + ( "
-                 << ss.vec4fConst(1.0f) << " - isAboveBreak ) * outColor;";
+    ss.newLine() << ss.float4Decl("powSeg") << " = pow(max( "
+                                            << ss.float4Const(0.0f)
+                                            << ", " << pxl << " ), gamma);";
+
+    ss.newLine() << ss.float4Decl("res") << " = isAboveBreak * powSeg + ( "
+                 << ss.float4Const(1.0f) << " - isAboveBreak ) * " << pxl << ";";
+
+    ss.newLine() << pxl << ".rgb = " << ss.float3Const("res.x", "res.y", "res.z") << ";";
+    ss.newLine() << pxl << ".a = res.w;";
 }
 
 // Create shader for moncurveFwd style
-void AddMoncurveFwdShader(ConstGammaOpDataRcPtr gamma, GpuShaderText & ss)
+void AddMoncurveFwdShader(GpuShaderCreatorRcPtr & shaderCreator,
+                          ConstGammaOpDataRcPtr gamma,
+                          GpuShaderText & ss)
 {
     RendererParams red, green, blue, alpha;
 
@@ -122,29 +170,37 @@ void AddMoncurveFwdShader(ConstGammaOpDataRcPtr gamma, GpuShaderText & ss)
     ComputeParamsFwd(gamma->getBlueParams(),  blue);
     ComputeParamsFwd(gamma->getAlphaParams(), alpha);
 
+    const std::string pxl(shaderCreator->getPixelName());
+    const std::string pxlrgb(pxl + ".rgb");
+
     // Even if all components are the same, on OS X, a vec4 needs to be
     // declared.  This code will work in both cases.
 
-    ss.declareVec4f( "breakPnt", red.breakPnt, green.breakPnt, blue.breakPnt, alpha.breakPnt);
-    ss.declareVec4f( "slope" , red.slope, green.slope, blue.slope, alpha.slope);
-    ss.declareVec4f( "scale" , red.scale, green.scale, blue.scale, alpha.scale);
-    ss.declareVec4f( "offset", red.offset, green.offset, blue.offset, alpha.offset);
-    ss.declareVec4f( "gamma" , red.gamma, green.gamma, blue.gamma, alpha.gamma);
+    ss.declareFloat4( "breakPnt", red.breakPnt, green.breakPnt, blue.breakPnt, alpha.breakPnt);
+    ss.declareFloat4( "slope" , red.slope, green.slope, blue.slope, alpha.slope);
+    ss.declareFloat4( "scale" , red.scale, green.scale, blue.scale, alpha.scale);
+    ss.declareFloat4( "offset", red.offset, green.offset, blue.offset, alpha.offset);
+    ss.declareFloat4( "gamma" , red.gamma, green.gamma, blue.gamma, alpha.gamma);
 
-    ss.newLine() << ss.vec4fDecl("isAboveBreak") << " = "
-                 << ss.vec4fGreaterThan("outColor", "breakPnt") << ";";
+    ss.newLine() << ss.float4Decl("isAboveBreak") << " = "
+                 << ss.float4GreaterThan(pxl, "breakPnt") << ";";
 
-    ss.newLine() << ss.vec4fDecl("linSeg") << " = outColor * slope;";
+    ss.newLine() << ss.float4Decl("linSeg") << " = " << pxl << " * slope;";
 
-    ss.newLine() << ss.vec4fDecl("powSeg") << " = pow( max( "
-                 << ss.vec4fConst(0.0f) << ", scale * outColor + offset), gamma);";
+    ss.newLine() << ss.float4Decl("powSeg") << " = pow( max( "
+                 << ss.float4Const(0.0f) << ", scale * " << pxl << " + offset), gamma);";
 
-    ss.newLine() << "outColor = isAboveBreak * powSeg + ( "
-                 << ss.vec4fConst(1.0f) << " - isAboveBreak ) * linSeg;";
+    ss.newLine() << ss.float4Decl("res") << " = isAboveBreak * powSeg + ( "
+                 << ss.float4Const(1.0f) << " - isAboveBreak ) * linSeg;";
+
+    ss.newLine() << pxl << ".rgb = " << ss.float3Const("res.x", "res.y", "res.z") << ";";
+    ss.newLine() << pxl << ".a = res.w;";
 }
 
 // Create shader for moncurveRev style
-void AddMoncurveRevShader(ConstGammaOpDataRcPtr gamma, GpuShaderText & ss)
+void AddMoncurveRevShader(GpuShaderCreatorRcPtr & shaderCreator,
+                          ConstGammaOpDataRcPtr gamma,
+                          GpuShaderText & ss)
 {
     RendererParams red, green, blue, alpha;
 
@@ -153,28 +209,36 @@ void AddMoncurveRevShader(ConstGammaOpDataRcPtr gamma, GpuShaderText & ss)
     ComputeParamsRev(gamma->getBlueParams(),  blue);
     ComputeParamsRev(gamma->getAlphaParams(), alpha);
 
+    const std::string pxl(shaderCreator->getPixelName());
+    const std::string pxlrgb(pxl + ".rgb");
+
     // Even if all components are the same, on OS X, a vec4 needs to be
     // declared.  This code will work in both cases.
 
-    ss.declareVec4f( "breakPnt", red.breakPnt, green.breakPnt, blue.breakPnt, alpha.breakPnt);
-    ss.declareVec4f( "slope" , red.slope, green.slope, blue.slope, alpha.slope);
-    ss.declareVec4f( "scale" , red.scale, green.scale, blue.scale, alpha.scale);
-    ss.declareVec4f( "offset", red.offset, green.offset, blue.offset, alpha.offset);
-    ss.declareVec4f( "gamma" , red.gamma, green.gamma, blue.gamma, alpha.gamma);
+    ss.declareFloat4( "breakPnt", red.breakPnt, green.breakPnt, blue.breakPnt, alpha.breakPnt);
+    ss.declareFloat4( "slope" , red.slope, green.slope, blue.slope, alpha.slope);
+    ss.declareFloat4( "scale" , red.scale, green.scale, blue.scale, alpha.scale);
+    ss.declareFloat4( "offset", red.offset, green.offset, blue.offset, alpha.offset);
+    ss.declareFloat4( "gamma" , red.gamma, green.gamma, blue.gamma, alpha.gamma);
 
-    ss.newLine() << ss.vec4fDecl("isAboveBreak") << " = "
-                 << ss.vec4fGreaterThan("outColor", "breakPnt") << ";";
+    ss.newLine() << ss.float4Decl("isAboveBreak") << " = "
+                 << ss.float4GreaterThan(pxl, "breakPnt") << ";";
 
-    ss.newLine() << ss.vec4fDecl("linSeg") << " = outColor * slope;";
-    ss.newLine() << ss.vec4fDecl("powSeg") << " = pow( max( "
-                 << ss.vec4fConst(0.0f) << ", outColor ), gamma ) * scale - offset;";
+    ss.newLine() << ss.float4Decl("linSeg") << " = " << pxl << " * slope;";
+    ss.newLine() << ss.float4Decl("powSeg") << " = pow( max( "
+                 << ss.float4Const(0.0f) << ", " << pxl << " ), gamma ) * scale - offset;";
 
-    ss.newLine() << "outColor = isAboveBreak * powSeg + ( "
-                 << ss.vec4fConst(1.0f) << " - isAboveBreak ) * linSeg;";
+    ss.newLine() << ss.float4Decl("res") << " = isAboveBreak * powSeg + ( "
+                 << ss.float4Const(1.0f) << " - isAboveBreak ) * linSeg;";
+
+    ss.newLine() << pxl << ".rgb = " << ss.float3Const("res.x", "res.y", "res.z") << ";";
+    ss.newLine() << pxl << ".a = res.w;";
 }
 
 // Create shader for moncurveMirrorFwd style
-void AddMoncurveMirrorFwdShader(ConstGammaOpDataRcPtr gamma, GpuShaderText & ss)
+void AddMoncurveMirrorFwdShader(GpuShaderCreatorRcPtr & shaderCreator,
+                                ConstGammaOpDataRcPtr gamma,
+                                GpuShaderText & ss)
 {
     RendererParams red, green, blue, alpha;
 
@@ -183,34 +247,40 @@ void AddMoncurveMirrorFwdShader(ConstGammaOpDataRcPtr gamma, GpuShaderText & ss)
     ComputeParamsFwd(gamma->getBlueParams(), blue);
     ComputeParamsFwd(gamma->getAlphaParams(), alpha);
 
+    const std::string pxl(shaderCreator->getPixelName());
+
     // Even if all components are the same, on OS X, a vec4 needs to be
     // declared.  This code will work in both cases.
-    ss.declareVec4f("breakPnt", red.breakPnt, green.breakPnt, blue.breakPnt, alpha.breakPnt);
-    ss.declareVec4f("slope", red.slope, green.slope, blue.slope, alpha.slope);
-    ss.declareVec4f("scale", red.scale, green.scale, blue.scale, alpha.scale);
-    ss.declareVec4f("offset", red.offset, green.offset, blue.offset, alpha.offset);
-    ss.declareVec4f("gamma", red.gamma, green.gamma, blue.gamma, alpha.gamma);
+    ss.declareFloat4("breakPnt", red.breakPnt, green.breakPnt, blue.breakPnt, alpha.breakPnt);
+    ss.declareFloat4("slope", red.slope, green.slope, blue.slope, alpha.slope);
+    ss.declareFloat4("scale", red.scale, green.scale, blue.scale, alpha.scale);
+    ss.declareFloat4("offset", red.offset, green.offset, blue.offset, alpha.offset);
+    ss.declareFloat4("gamma", red.gamma, green.gamma, blue.gamma, alpha.gamma);
 
-    ss.newLine() << ss.vec4fDecl("signcol") << " = sign( outColor );";
+    ss.newLine() << ss.float4Decl("signcol") << " = " << ss.sign(pxl) << ";";
+    ss.newLine() << pxl << " = abs( " << pxl << " );";
 
-    ss.newLine() << "outColor = abs( outColor );";
+    ss.newLine() << ss.float4Decl("isAboveBreak") << " = "
+                 << ss.float4GreaterThan(pxl, "breakPnt") << ";";
 
-    ss.newLine() << ss.vec4fDecl("isAboveBreak") << " = "
-                 << ss.vec4fGreaterThan("outColor", "breakPnt") << ";";
-
-    ss.newLine() << ss.vec4fDecl("linSeg") << " = outColor * slope;";
+    ss.newLine() << ss.float4Decl("linSeg") << " = " << pxl << " * slope;";
 
     // Max() not needed since offset cannot be negative.
-    ss.newLine() << ss.vec4fDecl("powSeg") << " = pow( scale * outColor + offset, gamma);";
+    ss.newLine() << ss.float4Decl("powSeg") << " = pow( scale * " << pxl << " + offset, gamma);";
 
-    ss.newLine() << "outColor = isAboveBreak * powSeg + ( "
-                 << ss.vec4fConst(1.0f) << " - isAboveBreak ) * linSeg;";
+    ss.newLine() << ss.float4Decl("res") << " = isAboveBreak * powSeg + ( "
+                 << ss.float4Const(1.0f) << " - isAboveBreak ) * linSeg;";
 
-    ss.newLine() << "outColor = signcol * outColor;";
+    ss.newLine() << "res = signcol * res;";
+
+    ss.newLine() << pxl << ".rgb = " << ss.float3Const("res.x", "res.y", "res.z") << ";";
+    ss.newLine() << pxl << ".a = res.w;";
 }
 
 // Create shader for moncurveMirrorRev style
-void AddMoncurveMirrorRevShader(ConstGammaOpDataRcPtr gamma, GpuShaderText & ss)
+void AddMoncurveMirrorRevShader(GpuShaderCreatorRcPtr & shaderCreator,
+                                ConstGammaOpDataRcPtr gamma,
+                                GpuShaderText & ss)
 {
     RendererParams red, green, blue, alpha;
 
@@ -219,28 +289,32 @@ void AddMoncurveMirrorRevShader(ConstGammaOpDataRcPtr gamma, GpuShaderText & ss)
     ComputeParamsRev(gamma->getBlueParams(), blue);
     ComputeParamsRev(gamma->getAlphaParams(), alpha);
 
+    const std::string pxl(shaderCreator->getPixelName());
+
     // Even if all components are the same, on OS X, a vec4 needs to be
     // declared.  This code will work in both cases.
-    ss.declareVec4f("breakPnt", red.breakPnt, green.breakPnt, blue.breakPnt, alpha.breakPnt);
-    ss.declareVec4f("slope", red.slope, green.slope, blue.slope, alpha.slope);
-    ss.declareVec4f("scale", red.scale, green.scale, blue.scale, alpha.scale);
-    ss.declareVec4f("offset", red.offset, green.offset, blue.offset, alpha.offset);
-    ss.declareVec4f("gamma", red.gamma, green.gamma, blue.gamma, alpha.gamma);
+    ss.declareFloat4("breakPnt", red.breakPnt, green.breakPnt, blue.breakPnt, alpha.breakPnt);
+    ss.declareFloat4("slope", red.slope, green.slope, blue.slope, alpha.slope);
+    ss.declareFloat4("scale", red.scale, green.scale, blue.scale, alpha.scale);
+    ss.declareFloat4("offset", red.offset, green.offset, blue.offset, alpha.offset);
+    ss.declareFloat4("gamma", red.gamma, green.gamma, blue.gamma, alpha.gamma);
 
-    ss.newLine() << ss.vec4fDecl("signcol") << " = sign( outColor );";
+    ss.newLine() << ss.float4Decl("signcol") << " = " << ss.sign(pxl) << ";";
+    ss.newLine() << pxl << " = abs( " << pxl << " );";
 
-    ss.newLine() << "outColor = abs( outColor );";
+    ss.newLine() << ss.float4Decl("isAboveBreak") << " = "
+                 << ss.float4GreaterThan(pxl, "breakPnt") << ";";
 
-    ss.newLine() << ss.vec4fDecl("isAboveBreak") << " = "
-                 << ss.vec4fGreaterThan("outColor", "breakPnt") << ";";
+    ss.newLine() << ss.float4Decl("linSeg") << " = " << pxl << " * slope;";
+    ss.newLine() << ss.float4Decl("powSeg") << " = pow( " << pxl << ", gamma ) * scale - offset;";
 
-    ss.newLine() << ss.vec4fDecl("linSeg") << " = outColor * slope;";
-    ss.newLine() << ss.vec4fDecl("powSeg") << " = pow( outColor, gamma ) * scale - offset;";
+    ss.newLine() << ss.float4Decl("res") << " = isAboveBreak * powSeg + ( "
+                 << ss.float4Const(1.0f) << " - isAboveBreak ) * linSeg;";
 
-    ss.newLine() << "outColor = isAboveBreak * powSeg + ( "
-                 << ss.vec4fConst(1.0f) << " - isAboveBreak ) * linSeg;";
+    ss.newLine() << "res = signcol * res;";
 
-    ss.newLine() << "outColor = signcol * outColor;";
+    ss.newLine() << pxl << ".rgb = " << ss.float3Const("res.x", "res.y", "res.z") << ";";
+    ss.newLine() << pxl << ".a = res.w;";
 }
 
 }  // Anon namespace
@@ -252,9 +326,9 @@ void GetGammaGPUShaderProgram(GpuShaderCreatorRcPtr & shaderCreator,
     ss.indent();
 
     ss.newLine() << "";
-    ss.newLine() << "// Add Gamma "
-        << GammaOpData::ConvertStyleToString(gammaData->getStyle())
-        << " processing";
+    ss.newLine() << "// Add Gamma '"
+                 << GammaOpData::ConvertStyleToString(gammaData->getStyle())
+                 << "' processing";
     ss.newLine() << "";
 
     ss.newLine() << "{";
@@ -264,52 +338,52 @@ void GetGammaGPUShaderProgram(GpuShaderCreatorRcPtr & shaderCreator,
     {
     case GammaOpData::MONCURVE_FWD:
     {
-        AddMoncurveFwdShader(gammaData, ss);
+        AddMoncurveFwdShader(shaderCreator, gammaData, ss);
         break;
     }
     case GammaOpData::MONCURVE_REV:
     {
-        AddMoncurveRevShader(gammaData, ss);
+        AddMoncurveRevShader(shaderCreator, gammaData, ss);
         break;
     }
     case GammaOpData::MONCURVE_MIRROR_FWD:
     {
-        AddMoncurveMirrorFwdShader(gammaData, ss);
+        AddMoncurveMirrorFwdShader(shaderCreator, gammaData, ss);
         break;
     }
     case GammaOpData::MONCURVE_MIRROR_REV:
     {
-        AddMoncurveMirrorRevShader(gammaData, ss);
+        AddMoncurveMirrorRevShader(shaderCreator, gammaData, ss);
         break;
     }
     case GammaOpData::BASIC_FWD:
     {
-        AddBasicFwdShader(gammaData, ss);
+        AddBasicFwdShader(shaderCreator, gammaData, ss);
         break;
     }
     case GammaOpData::BASIC_REV:
     {
-        AddBasicRevShader(gammaData, ss);
+        AddBasicRevShader(shaderCreator, gammaData, ss);
         break;
     }
     case GammaOpData::BASIC_MIRROR_FWD:
     {
-        AddBasicMirrorFwdShader(gammaData, ss);
+        AddBasicMirrorFwdShader(shaderCreator, gammaData, ss);
         break;
     }
     case GammaOpData::BASIC_MIRROR_REV:
     {
-        AddBasicMirrorRevShader(gammaData, ss);
+        AddBasicMirrorRevShader(shaderCreator, gammaData, ss);
         break;
     }
     case GammaOpData::BASIC_PASS_THRU_FWD:
     {
-        AddBasicPassThruFwdShader(gammaData, ss);
+        AddBasicPassThruFwdShader(shaderCreator, gammaData, ss);
         break;
     }
     case GammaOpData::BASIC_PASS_THRU_REV:
     {
-        AddBasicPassThruRevShader(gammaData, ss);
+        AddBasicPassThruRevShader(shaderCreator, gammaData, ss);
         break;
     }
     }

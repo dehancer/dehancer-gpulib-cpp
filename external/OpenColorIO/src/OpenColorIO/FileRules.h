@@ -16,10 +16,6 @@ namespace OCIO_NAMESPACE
 namespace FileRuleUtils
 {
 
-// Reserved rule names.
-constexpr char DefaultName[] { "Default" };
-constexpr char ParseName[]   { "ColorSpaceNamePathSearch" };
-
 constexpr char Name[]       { "name" };
 constexpr char ColorSpace[] { "colorspace" };
 constexpr char Pattern[]    { "pattern" };
@@ -63,7 +59,7 @@ public:
 
     bool filepathOnlyMatchesDefaultRule(const Config & config, const char * filePath) const;
 
-    void sanityCheck(std::function<ConstColorSpaceRcPtr(const char *)> colorSpaceAccessor) const;
+    void validate(const Config & cfg) const;
 
 private:
 
@@ -72,6 +68,12 @@ private:
     // All rules, default rule always at the end.
     std::vector<FileRuleRcPtr> m_rules;
 };
+
+
+// Helper method to build valid v2 file rules from a v1 config. Note that it does not change
+// the config instance version.
+void UpdateFileRulesFromV1ToV2(const Config & config, FileRulesRcPtr & fileRules);
+
 
 } // namespace OCIO_NAMESPACE
 

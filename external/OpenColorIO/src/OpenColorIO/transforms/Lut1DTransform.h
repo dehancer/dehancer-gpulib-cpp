@@ -50,7 +50,7 @@ public:
     void setOutputRawHalfs(bool isRawHalfs) noexcept override;
 
     Lut1DHueAdjust getHueAdjust() const noexcept override;
-    void setHueAdjust(Lut1DHueAdjust algo) noexcept override;
+    void setHueAdjust(Lut1DHueAdjust algo) override;
 
     Interpolation getInterpolation() const override;
     void setInterpolation(Interpolation algo) override;
@@ -61,7 +61,7 @@ public:
     static void deleter(Lut1DTransform * t);
 
 private:
-    Lut1DOpData m_data;
+    Lut1DOpData m_data{ 2 };
 };
 
 

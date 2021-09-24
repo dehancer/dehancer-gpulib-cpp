@@ -19,8 +19,14 @@ if(NOT BUILD_SHARED_LIBS)
     )
 endif()
 
+set(CUSTOM_COMPILE_FLAGS ${PLATFORM_COMPILE_FLAGS})
+if(APPLE)
+    # Mute the deprecated warning for some GLUT methods.
+    set(CUSTOM_COMPILE_FLAGS "${CUSTOM_COMPILE_FLAGS} -DGL_SILENCE_DEPRECATION")
+endif()
+
 set_target_properties(ociodisplay PROPERTIES 
-	COMPILE_FLAGS "${PLATFORM_COMPILE_FLAGS}")
+	COMPILE_FLAGS "${CUSTOM_COMPILE_FLAGS}")
 
 target_include_directories(ociodisplay 
 	SYSTEM
@@ -33,10 +39,10 @@ target_link_libraries(ociodisplay
 	PRIVATE 
 		${GLEW_LIBRARIES}
 		${GLUT_LIBRARIES}
-        oglapphelpers
+		oglapphelpers
 		OpenColorIO
 		${OPENGL_LIBRARIES}
-		OpenImageIO
+		OpenImageIO::OpenImageIO
 )
 install(TARGETS ociodisplay
     RUNTIME DESTINATION bin

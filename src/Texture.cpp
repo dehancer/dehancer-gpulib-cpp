@@ -39,7 +39,28 @@ namespace dehancer {
       }
     }
     
-   
+    Texture TextureHolder::Make (const void *command_queue, const void *from_memory) {
+      try {
+        return std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::TextureHolder>(command_queue,from_memory);
+      }
+  
+      catch (const dehancer::texture::memory_exception &e) {
+        dehancer::log::error(true, "TextureHolder::Make: memory error: %s", e.what());
+        throw dehancer::texture::memory_exception(e.what());
+      }
+  
+      catch (const std::runtime_error &e) {
+        dehancer::log::error(true, "TextureHolder::Make: %s", e.what());
+        throw dehancer::texture::memory_exception(e.what());
+      }
+  
+      catch (...) {
+        dehancer::log::error(true, "TextureHolder::Make: unknown error");
+        throw dehancer::texture::memory_exception("Texture GPU memory allocation error");
+      }
+    }
+    
+    
     TextureHolder::~TextureHolder () = default;
     
     Texture TextureDesc::make(const void *command_queue, const float *from_memory) const {

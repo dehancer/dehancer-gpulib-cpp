@@ -11,9 +11,32 @@
 namespace OCIO_NAMESPACE
 {
 
-FixedFunctionTransformRcPtr FixedFunctionTransform::Create()
+FixedFunctionTransformRcPtr FixedFunctionTransform::Create(FixedFunctionStyle style)
 {
-    return FixedFunctionTransformRcPtr(new FixedFunctionTransformImpl(), &FixedFunctionTransformImpl::deleter);
+    return FixedFunctionTransformRcPtr(new FixedFunctionTransformImpl(style),
+                                       &FixedFunctionTransformImpl::deleter);
+}
+
+FixedFunctionTransformRcPtr FixedFunctionTransform::Create(FixedFunctionStyle style,
+                                                           const double * params,
+                                                           size_t num)
+{
+    FixedFunctionOpData::Params p(num);
+    std::copy(params, params + num, p.begin());
+
+    return FixedFunctionTransformRcPtr(new FixedFunctionTransformImpl(style, p),
+                                       &FixedFunctionTransformImpl::deleter);
+}
+
+FixedFunctionTransformImpl::FixedFunctionTransformImpl(FixedFunctionStyle style)
+    : m_data(FixedFunctionOpData::ConvertStyle(style, TRANSFORM_DIR_FORWARD))
+{
+}
+
+FixedFunctionTransformImpl::FixedFunctionTransformImpl(FixedFunctionStyle style,
+                                                       const FixedFunctionOpData::Params & p)
+    : m_data(FixedFunctionOpData::ConvertStyle(style, TRANSFORM_DIR_FORWARD), p)
+{
 }
 
 void FixedFunctionTransformImpl::deleter(FixedFunctionTransform * t)
@@ -23,7 +46,21 @@ void FixedFunctionTransformImpl::deleter(FixedFunctionTransform * t)
 
 TransformRcPtr FixedFunctionTransformImpl::createEditableCopy() const
 {
-    TransformRcPtr transform = FixedFunctionTransform::Create();
+    TransformRcPtr transform;
+
+    const FixedFunctionOpData::Params & params = data().getParams();
+    if (params.empty())
+    {
+        transform = FixedFunctionTransform::Create(getStyle());
+    }
+    else
+    {
+        // A validation is done when creating the instance so the params are mandatory.
+        const double * values = &params[0];
+        transform = FixedFunctionTransform::Create(getStyle(), values, params.size());
+    }
+
+    // Also copy the Format Metadata if any.
     dynamic_cast<FixedFunctionTransformImpl*>(transform.get())->data() = data();
     return transform;
 }

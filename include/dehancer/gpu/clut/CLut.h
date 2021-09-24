@@ -29,6 +29,11 @@ namespace dehancer {
         [[nodiscard]] virtual const Texture& get_texture() const = 0;
         [[nodiscard]] virtual size_t get_lut_size() const = 0;
         [[nodiscard]] virtual Type get_lut_type() const = 0;
+    
+        [[nodiscard]] virtual size_t get_channels() {
+          return get_texture() ? get_texture()->get_channels() : 0;
+        };
+    
         virtual ~CLut() = default;
     };
 

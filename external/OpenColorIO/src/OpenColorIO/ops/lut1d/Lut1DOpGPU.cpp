@@ -145,6 +145,11 @@ void CreatePaddedRedChannel(unsigned long width,
 void GetLut1DGPUShaderProgram(GpuShaderCreatorRcPtr & shaderCreator,
                               ConstLut1DOpDataRcPtr & lutData)
 {
+    if (shaderCreator->getLanguage() == LANGUAGE_OSL_1)
+    {
+        throw Exception("The Lut1DOp is not yet supported by the 'Open Shading language (OSL)' translation");
+    }
+
     const unsigned long defaultMaxWidth = shaderCreator->getTextureMaxWidth();
 
     const unsigned long length      = lutData->getArray().getLength();
@@ -187,8 +192,8 @@ void GetLut1DGPUShaderProgram(GpuShaderCreatorRcPtr & shaderCreator,
     // (Using CacheID here to potentially allow reuse of existing textures.)
     shaderCreator->addTexture(name.c_str(),
                               GpuShaderText::getSamplerName(name).c_str(),
-                              lutData->getCacheID().c_str(),
-                              width, height,
+                              width,
+                              height,
                               singleChannel ? GpuShaderCreator::TEXTURE_RED_CHANNEL
                                             : GpuShaderCreator::TEXTURE_RGB_CHANNEL,
                               lutData->getConcreteInterpolation(),
@@ -210,7 +215,7 @@ void GetLut1DGPUShaderProgram(GpuShaderCreatorRcPtr & shaderCreator,
         {
             GpuShaderText ss(shaderCreator->getLanguage());
 
-            ss.newLine() << ss.vec2fKeyword() << " " << name << "_computePos(float f)";
+            ss.newLine() << ss.float2Keyword() << " " << name << "_computePos(float f)";
             ss.newLine() << "{";
             ss.indent();
 
@@ -225,7 +230,7 @@ void GetLut1DGPUShaderProgram(GpuShaderCreatorRcPtr & shaderCreator,
                 ss.newLine() << "if (abs_f > " << (float)HALF_NRM_MIN << ")";
                 ss.newLine() << "{";
                 ss.indent();
-                ss.declareVec3f("fComp", NEG_MIN_EXP, NEG_MIN_EXP, NEG_MIN_EXP);
+                ss.declareFloat3("fComp", NEG_MIN_EXP, NEG_MIN_EXP, NEG_MIN_EXP);
                 ss.newLine() << "float absarr = min( abs_f, " << (float)HALF_MAX << ");";
                 // Compute the exponent, scaled [-14,15].
                 ss.newLine() << "fComp.x = floor( log2( absarr ) );";
@@ -235,7 +240,7 @@ void GetLut1DGPUShaderProgram(GpuShaderCreatorRcPtr & shaderCreator,
                 ss.newLine() << "fComp.y = ( absarr - lower ) / lower;";
                 // The dot product recombines the parts into a raw half without the sign component:
                 //   dep = [ exponent + mantissa + NEG_MIN_EXP] * scale
-                ss.declareVec3f("scale", EXP_SCALE, EXP_SCALE, EXP_SCALE);
+                ss.declareFloat3("scale", EXP_SCALE, EXP_SCALE, EXP_SCALE);
                 ss.newLine() << "dep = dot( fComp, scale );";
                 ss.dedent();
                 ss.newLine() << "}";
@@ -253,7 +258,7 @@ void GetLut1DGPUShaderProgram(GpuShaderCreatorRcPtr & shaderCreator,
                 // At this point 'dep' contains the raw half
                 // Note: Raw halfs for NaN floats cannot be computed using
                 //       floating-point operations.
-                ss.newLine() << ss.vec2fDecl("retVal") << ";";
+                ss.newLine() << ss.float2Decl("retVal") << ";";
                 ss.newLine() << "retVal.y = floor(dep / " << float(width - 1) << ");";       // floor( dep / (width-1) ))
                 ss.newLine() << "retVal.x = dep - retVal.y * " << float(width - 1) << ";";   // dep - retVal.y * (width-1)
 
@@ -262,11 +267,11 @@ void GetLut1DGPUShaderProgram(GpuShaderCreatorRcPtr & shaderCreator,
             }
             else
             {
-                // Need min() to protect against f > 1 causing a bogus x value.
-                // min( f, 1.) * (dim - 1)
-                ss.newLine() << "float dep = min(f, 1.0) * " << float(length - 1) << ";";
+                // Need clamp() to protect against f outside [0,1] causing a bogus x value.
+                // clamp( f, 0., 1.) * (dim - 1)
+                ss.newLine() << "float dep = clamp(f, 0.0, 1.0) * " << float(length - 1) << ";";
 
-                ss.newLine() << ss.vec2fDecl("retVal") << ";";
+                ss.newLine() << ss.float2Decl("retVal") << ";";
                 // float(int( dep / (width-1) ))
                 ss.newLine() << "retVal.y = float(int(dep / " << float(width - 1) << "));";
                 // dep - retVal.y * (width-1)
@@ -296,7 +301,7 @@ void GetLut1DGPUShaderProgram(GpuShaderCreatorRcPtr & shaderCreator,
     ss.indent();
 
     ss.newLine() << "";
-    ss.newLine() << "// Add a LUT 1D processing for " << name;
+    ss.newLine() << "// Add LUT 1D processing for " << name;
     ss.newLine() << "";
 
     ss.newLine() << "{";
@@ -305,14 +310,14 @@ void GetLut1DGPUShaderProgram(GpuShaderCreatorRcPtr & shaderCreator,
     if (lutData->getHueAdjust() == HUE_DW3)
     {
         ss.newLine() << "// Add the pre hue adjustment";
-        ss.newLine() << ss.vec3fDecl("maxval")
+        ss.newLine() << ss.float3Decl("maxval")
                         << " = max(" << shaderCreator->getPixelName() << ".rgb, max("
                         << shaderCreator->getPixelName() << ".gbr, " << shaderCreator->getPixelName() << ".brg));";
-        ss.newLine() << ss.vec3fDecl("minval")
+        ss.newLine() << ss.float3Decl("minval")
                         << " = min(" << shaderCreator->getPixelName() << ".rgb, min("
                         << shaderCreator->getPixelName() << ".gbr, " << shaderCreator->getPixelName() << ".brg));";
         ss.newLine() << "float oldChroma = max(1e-8, maxval.r - minval.r);";
-        ss.newLine() << ss.vec3fDecl("delta") << " = " << shaderCreator->getPixelName() << ".rgb - minval;";
+        ss.newLine() << ss.float3Decl("delta") << " = " << shaderCreator->getPixelName() << ".rgb - minval;";
         ss.newLine() << "";
     }
 
@@ -333,11 +338,11 @@ void GetLut1DGPUShaderProgram(GpuShaderCreatorRcPtr & shaderCreator,
     {
         const float dim = (float)lutData->getArray().getLength();
 
-        ss.newLine() << ss.vec3fDecl(name + "_coords")
+        ss.newLine() << ss.float3Decl(name + "_coords")
                         << " = (" << shaderCreator->getPixelName() << ".rgb * "
-                        << ss.vec3fConst(dim - 1)
-                        << " + " << ss.vec3fConst(0.5f) << " ) / "
-                        << ss.vec3fConst(dim) << ";";
+                        << ss.float3Const(dim - 1)
+                        << " + " << ss.float3Const(0.5f) << " ) / "
+                        << ss.float3Const(dim) << ";";
 
         ss.newLine() << shaderCreator->getPixelName() << ".r = "
                         << ss.sampleTex1D(name, name + "_coords.r") << ".r;";
@@ -353,10 +358,10 @@ void GetLut1DGPUShaderProgram(GpuShaderCreatorRcPtr & shaderCreator,
     {
         ss.newLine() << "";
         ss.newLine() << "// Add the post hue adjustment";
-        ss.newLine() << ss.vec3fDecl("maxval2") << " = max(" << shaderCreator->getPixelName()
+        ss.newLine() << ss.float3Decl("maxval2") << " = max(" << shaderCreator->getPixelName()
                         << ".rgb, max(" << shaderCreator->getPixelName() << ".gbr, "
                         << shaderCreator->getPixelName() << ".brg));";
-        ss.newLine() << ss.vec3fDecl("minval2") << " = min(" << shaderCreator->getPixelName()
+        ss.newLine() << ss.float3Decl("minval2") << " = min(" << shaderCreator->getPixelName()
                         << ".rgb, min(" << shaderCreator->getPixelName() << ".gbr, "
                         << shaderCreator->getPixelName() << ".brg));";
         ss.newLine() << "float newChroma = maxval2.r - minval2.r;";

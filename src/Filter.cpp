@@ -4,6 +4,7 @@
 
 #include "dehancer/gpu/Filter.h"
 #include "dehancer/gpu/operations/PassKernel.h"
+#include "dehancer/gpu/Log.h"
 
 namespace dehancer {
     
@@ -64,11 +65,12 @@ namespace dehancer {
       return *this;
     }
     
-    Filter &Filter::add (const std::shared_ptr<Kernel> &kernel, bool enabled) {
+    Filter &Filter::add (const std::shared_ptr<Kernel> &kernel, bool enabled, bool emplace) {
       
       auto item = std::make_shared<impl::Item>((impl::Item){
               .kernel = kernel,
-              .enabled = enabled
+              .enabled = enabled,
+              .emplace = emplace
       });
       
       impl_->list.push_back(item);
@@ -82,6 +84,7 @@ namespace dehancer {
       if (!impl_->source) return *this;
       
       if (impl_->list.empty()) {
+        
         if (impl_->source == impl_->destination) {
           return *this;
         }
@@ -114,11 +117,17 @@ namespace dehancer {
           impl_->ping_pong.at(0) = ping;
         }
       }
+  
+      #ifdef PRINT_DEBUG
+      dehancer::log::print(" ### Filter::process: ping=%p pong=%p", impl_->ping_pong.at(0).get(), impl_->ping_pong.at(1).get());
+      #endif
       
       int next_index = 0;
       
       int index = 0;
+      
       bool make_last_copy = true;
+      
       for (const auto& f: impl_->list) {
         
         if (!f->enabled) continue;
@@ -269,6 +278,4 @@ namespace dehancer {
     const void *Filter::get_command_queue () const {
       return impl_->command_queue;
     }
- 
-  
 }

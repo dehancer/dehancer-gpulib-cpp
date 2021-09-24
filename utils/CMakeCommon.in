@@ -1,0 +1,88 @@
+
+file(GLOB SOURCES ${SOURCES}
+        ./*.cpp
+        ./*.mm
+        ${EMBEDDED_OVERLAYS}
+        )
+
+include_directories(
+        ./
+        ${CMAKE_BINARY_DIR}/external/include
+)
+
+set(EXTERNAL_LIBS "")
+
+if (DEHANCER_CURRENT_PLATFORM_METAL)
+
+    set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_metal)
+    add_executable(${UTIL_NAME} ${SOURCES})
+
+elseif (DEHANCER_CURRENT_PLATFORM_CUDA)
+
+    set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_cuda)
+    add_executable(${UTIL_NAME} ${SOURCES})
+
+elseif(DEHANCER_CURRENT_PLATFORM_OPENCL)
+
+    file (GLOB DEPENDS_OPENCL_SOURCES ${DEPENDS_OPENCL_SOURCES}
+            ${CMAKE_SOURCE_DIR}/include/dehancer/gpu/kernels/opencl/*.h
+            )
+
+    set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_opencl)
+
+    file (GLOB REGISTRY_SOURCES ${REGISTRY_SOURCES}
+            ${CMAKE_SOURCE_DIR}/utils/shaders/opencl/Registry.cpp
+            )
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES}; ${CURRENT_KERNEL_TARGET_NAME}_opencl)
+
+    set(EXTERNAL_LIBS "${EXTERNAL_LIBS};clHelperLib")
+
+    add_executable(${UTIL_NAME}
+            ${SOURCES}
+            ${REGISTRY_SOURCES}
+            ${EMBEDDED_OPENCL_KERNELS}
+            ${DEPENDS_OPENCL_SOURCES}
+            )
+endif ()
+
+target_link_libraries(
+        ${UTIL_NAME}
+        ${PROJECT_LIB_PLATFORM}
+        ${EXTERNAL_LIBS}
+        ${COMMON_LIBRARIES}
+        ${CMAKE_DL_LIBS}
+)
+
+add_dependencies(
+        ${UTIL_NAME}
+        ${PROJECT_LIB_PLATFORM}
+)
+
+if (COMMON_DEPENDENCIES)
+    add_dependencies(
+            ${UTIL_NAME}
+            ${COMMON_DEPENDENCIES}
+    )
+endif ()
+
+if(DEHANCER_GPU_METAL)
+    add_dependencies(
+            ${UTIL_NAME}
+            ${CURRENT_KERNEL_TARGET_NAME}_metal
+    )
+endif()
+
+if(DEHANCER_GPU_OPENCL)
+    add_dependencies(
+            ${UTIL_NAME}
+            ${CURRENT_KERNEL_TARGET_NAME}_opencl
+    )
+endif()
+
+if(DEHANCER_GPU_CUDA)
+    add_dependencies(
+            ${UTIL_NAME}
+            ${CURRENT_KERNEL_TARGET_NAME}_cuda
+    )
+endif()
+

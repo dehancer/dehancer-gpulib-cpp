@@ -8,9 +8,76 @@
 namespace dehancer::metal {
     
     TextureItem::~TextureItem(){
-      if (texture) {
+      if (texture && releasable) {
         [texture release];
       }
+    }
+    
+    
+    TextureHolder::TextureHolder (const void *command_queue, const void *from_memory):
+            dehancer::TextureHolder(),
+            Context(command_queue),
+            desc_(),
+            texture_item_(nullptr)
+    {
+      
+      if (!from_memory) return;
+  
+      texture_item_ = std::make_shared<TextureItem>();
+      
+      texture_item_->texture = static_cast<id <MTLTexture>>(from_memory);
+      
+      [texture_item_->texture retain];
+      
+      switch ([texture_item_->texture textureType]) {
+        case MTLTextureType1D:
+          desc_.type = TextureDesc::Type::i1d;
+          break;
+        
+        case MTLTextureType2D:
+          desc_.type = TextureDesc::Type::i2d;
+          break;
+        
+        case MTLTextureType3D:
+          desc_.type = TextureDesc::Type::i3d;
+          break;
+        
+        default:
+          throw std::runtime_error("Unsupported texture type");
+      }
+      
+      switch ([texture_item_->texture pixelFormat]) {
+        case MTLPixelFormatRGBA32Float:
+          desc_.pixel_format = TextureDesc::PixelFormat::rgba32float;
+          break;
+        
+        case MTLPixelFormatRGBA16Float:
+          desc_.pixel_format = TextureDesc::PixelFormat::rgba16float;
+          break;
+        
+        case MTLPixelFormatRGBA32Uint:
+          desc_.pixel_format = TextureDesc::PixelFormat::rgba32uint;
+          break;
+        
+        case MTLPixelFormatRGBA16Uint:
+          desc_.pixel_format = TextureDesc::PixelFormat::rgba16uint;
+          break;
+        
+        case MTLPixelFormatRGBA8Uint:
+          desc_.pixel_format = TextureDesc::PixelFormat::rgba8uint;
+          break;
+        
+        default:
+          throw std::runtime_error("Unsupported texture pixel format");
+      }
+  
+      desc_.width = [texture_item_->texture width];
+      desc_.height = [texture_item_->texture height];
+      desc_.depth = [texture_item_->texture depth];
+      desc_.channels = 4;
+      
+      texture_item_->hash = desc_.get_hash();
+      
     }
     
     TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory) :
@@ -21,7 +88,6 @@ namespace dehancer::metal {
     {
       
       auto text_hash = desc_.get_hash();
-      auto dev_hash  = reinterpret_cast<size_t>(command_queue);
       
       MTLTextureDescriptor *descriptor = [[MTLTextureDescriptor new] autorelease];
       
@@ -115,18 +181,19 @@ namespace dehancer::metal {
                                 bytesPerImage: bytes_per_pixel * region.size.width * region.size.height];
         
         id <MTLCommandBuffer> commandBuffer = [get_command_queue() commandBuffer];
-
+        
         id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
         [blitEncoder synchronizeTexture:texture_item_->texture slice:0 level:0];
         [blitEncoder endEncoding];
-
+        
         [commandBuffer commit];
         [commandBuffer waitUntilCompleted];
+        
       }
     }
     
     dehancer::Error TextureHolder::get_contents(std::vector<float>& buffer) const {
-      buffer.resize( get_length());
+      buffer.resize( get_length()/sizeof(float) );
       return get_contents(buffer.data(), get_length());
     }
     
@@ -239,14 +306,14 @@ namespace dehancer::metal {
       return desc_.type;
     }
     
-    TextureHolder::~TextureHolder() = default;
-//    {
-//      if (texture_item_->texture) {
-//        #ifdef PRINT_DEBUG
-//        dehancer::log::print(" ### ~TextureHolder(Metal): %p", texture_item_->texture);
-//        #endif
-//        //[texture_ release];
-//      }
-//    }
-
+    TextureHolder::~TextureHolder()
+    {
+      if (texture_item_->texture) {
+        #ifdef PRINT_DEBUG
+        dehancer::log::print(" ### ~TextureHolder(Metal): %p", texture_item_->texture);
+        #endif
+      }
+    }
+  
+  
 }

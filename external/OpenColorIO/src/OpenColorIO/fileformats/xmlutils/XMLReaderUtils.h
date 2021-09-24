@@ -4,6 +4,8 @@
 #ifndef INCLUDED_OCIO_FILEFORMATS_XML_XMLREADERUTILS_H
 #define INCLUDED_OCIO_FILEFORMATS_XML_XMLREADERUTILS_H
 
+
+#include <type_traits>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -13,12 +15,17 @@
 #include "MathUtils.h"
 #include "Platform.h"
 
+
 namespace OCIO_NAMESPACE
 {
 
-// Used by both CDL parsers and CLF parsers.
+// Strings used by CDL and CLF parsers or writers.
 
 static constexpr char ATTR_ID[] = "id";
+static constexpr char ATTR_NAME[] = "name";
+
+static constexpr char CDL_TAG_COLOR_CORRECTION[] = "ColorCorrection";
+
 static constexpr char TAG_DESCRIPTION[] = "Description";
 static constexpr char TAG_OFFSET[] = "Offset";
 static constexpr char TAG_POWER[] = "Power";
@@ -28,20 +35,19 @@ static constexpr char TAG_SATURATION[] = "Saturation";
 static constexpr char TAG_SLOPE[] = "Slope";
 static constexpr char TAG_SOPNODE[] = "SOPNode";
 
+
 // This method truncates a string (mainly used for display purpose).
+inline std::string TruncateString(const char * pStr, size_t len, size_t limit)
+{
+    const size_t new_len = (limit < len) ? limit : len;
+    return std::string(pStr, new_len);
+}
+
+// This method truncates a string (mainly used for display purpose) to a default limit.
 inline std::string TruncateString(const char * pStr, size_t len)
 {
-    static const unsigned MAX_SIZE = 17;
-
-    std::string s(pStr, len);
-
-    if (s.size()>MAX_SIZE)
-    {
-        s.resize(MAX_SIZE);
-        s += "...";
-    }
-
-    return s;
+    static constexpr size_t MAX_SIZE = 17;
+    return TruncateString(pStr, len, MAX_SIZE);
 }
 
 void Trim(std::string & s);
@@ -118,14 +124,18 @@ inline size_t FindDelim(const char * str, size_t len, size_t pos)
 
 namespace
 {
+
 // When using an integer ParseNumber template, it is an error if the string
 // actually contains a number with a decimal part.
 template<typename T>
-bool IsValid(T value, double val) { return (double)value == val; }
-template<>
-bool IsValid(float, double) { return true; }
-template<>
-bool IsValid(double, double) { return true; }
+bool IsValid(T value, double val)
+{
+    // Returns true, if T is the type float, double or long double.
+    if (std::is_floating_point<T>::value) return true;
+
+    return static_cast<double>(value) == val;
+}
+
 }
 
 // Get first number from a string between startPos & endPos.
@@ -163,7 +173,7 @@ void ParseNumber(const char * str, size_t startPos, size_t endPos, T & value)
         oss << "ParserNumber: Characters '"
             << parsedStr
             << "' can not be parsed to numbers in '"
-            << TruncateString(fullStr.c_str(), 100) << "'.";
+            << TruncateString(fullStr.c_str(), endPos, 100) << "'.";
         throw Exception(oss.str().c_str());
     }
     else if (!IsValid(value, val))
@@ -174,7 +184,7 @@ void ParseNumber(const char * str, size_t startPos, size_t endPos, T & value)
         oss << "ParserNumber: Characters '"
             << parsedStr
             << "' are illegal in '"
-            << TruncateString(fullStr.c_str(), 100) << "'.";
+            << TruncateString(fullStr.c_str(), endPos, 100) << "'.";
         throw Exception(oss.str().c_str());
     }
     else if (endParse != str + endPos)
@@ -186,7 +196,7 @@ void ParseNumber(const char * str, size_t startPos, size_t endPos, T & value)
         oss << "ParserNumber: '"
             << parsedStr
             << "' number is followed by unexpected characters in '"
-            << TruncateString(fullStr.c_str(), 100) << "'.";
+            << TruncateString(fullStr.c_str(), endPos, 100) << "'.";
         throw Exception(oss.str().c_str());
     }
 }

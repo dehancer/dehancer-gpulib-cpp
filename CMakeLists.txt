@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.12)
 #
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 1.0.4)
+project(${PROJECT_LIB} VERSION 1.1.0)
 
 #
 # Options
@@ -20,6 +20,7 @@ option (DEHANCER_COMMON_DIR "")
 option (PRINT_KERNELS_DEBUG OFF)
 option (PRINT_DEBUG ON)
 option (DEHANCER_DEBUG OFF)
+option (USE_OPENCOLORIO OFF)
 
 if (NOT DEHANCER_COMMON_DIR)
     set(DEHANCER_COMMON_DIR "${CMAKE_BINARY_DIR}/tmp")
@@ -96,6 +97,8 @@ elseif(APPLE)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Foundation ")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Cocoa")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Security")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework IOKit")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework CoreVideo")
         set_target_properties(${CURRENT_TARGET_NAME} PROPERTIES LINK_FLAGS "-Xlinker,-rpath,@loader_path/../Frameworks")
     elseif(DEHANCER_GPU_OPENCL)
         message(STATUS "Apple uses OpenCL...")
@@ -160,6 +163,14 @@ find_package (PkgConfig REQUIRED)
 find_package (ZLIB REQUIRED)
 find_package (EXPAT REQUIRED)
 find_package (Iconv REQUIRED)
+if(USE_OPENCOLORIO)
+    message("USE OPENCOLORIO")
+    #pkg_check_modules(OpenColorIO OpenColorIO)
+    #pkg_check_modules(yaml_cpp yaml-cpp REQUIRED)
+    #find_package (yaml_cpp REQUIRED)
+else()
+    message("Skip OPENCOLORIO")
+endif()
 
 if (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
     find_package (OpenCV REQUIRED PATHS /usr/local/arm64)
@@ -584,7 +595,7 @@ else()
     set(COMMON_LIBRARIES  dehancer_xmp_cpp;exiv2;exiv2-xmp;${COMMON_LIBRARIES})
 endif()
 
-if(DEHANCER_USE_OPEN_COLOR)
+if(USE_OPENCOLORIO)
     #
     # AcademySoftwareFoundation OpenColorIO. ACES and etc...
     # https://github.com/AcademySoftwareFoundation/OpenColorIO
@@ -593,7 +604,7 @@ if(DEHANCER_USE_OPEN_COLOR)
             #GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/OpenColorIO
             SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/OpenColorIO
             INSTALL_DIR ${EXTERNAL_INSTALL_LOCATION}
-            PREFIX OpenColorIO
+            #PREFIX OpenColorIO
             CMAKE_ARGS
             -Wno-error=dev -Wno-dev
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
@@ -601,7 +612,7 @@ if(DEHANCER_USE_OPEN_COLOR)
             -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
             -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
             -DCMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DCMAKE_BUILD_TYPE=Release #${CMAKE_BUILD_TYPE}
             -DOCIO_BUILD_TESTS=OFF
             -DOCIO_USE_SSE=${DEHANCER_USE_SSE}
             -DOCIO_BUILD_GPU_TESTS=OFF
@@ -617,10 +628,16 @@ if(DEHANCER_USE_OPEN_COLOR)
             -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
             -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
-            PREFIX ${DEHANCER_COMMON_DIR}
+            PREFIX OpenColorIO #${DEHANCER_COMMON_DIR}
             )
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES}; OpenColorIO)
-    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES}; libOpenColorIO.a; libOpenColorIOapphelpers.a)
+    set(COMMON_LIBRARIES   libOpenColorIO.a; ${COMMON_LIBRARIES}) #libOpenColorIOapphelpers.a;
+    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES}; libpystring.a; libyaml-cpp.a; libImath-3_1.a;${EXPAT_LIBRARIES};${Iconv_LIBRARIES};${ZLIB_LIBRARIES};) # libHalf-2_3_s.a)
+
+    link_directories(
+            ${CMAKE_BINARY_DIR}/OpenColorIO/src/OpenColorIO-build/ext/dist/lib
+    )
+
 endif()
 
 set(clHelper_DIR ${CMAKE_SOURCE_DIR}/lib/cmake)
@@ -633,7 +650,6 @@ include_directories(
         ${CMAKE_BINARY_DIR}/generated
         ${CMAKE_BINARY_DIR}/external/include
         ${CMAKE_SOURCE_DIR}/include
-        ${CMAKE_SOURCE_DIR}/external/OpenColorIO/src/OpenColorIO
         ${OpenCV_INCLUDE_DIRS}
         ./
 )
@@ -662,6 +678,12 @@ set(COMMON_LIBRARIES
         ${OpenCV_LIBS};
         ${CMAKE_DL_LIBS};
         )
+
+add_subdirectory(utils)
+
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ignore:4099")
+#set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /ignore:4099")
+#set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} /ignore:4099")
 
 if(BUILD_TESTING)
 
