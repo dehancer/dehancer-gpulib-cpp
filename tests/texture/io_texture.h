@@ -17,11 +17,16 @@ auto io_texture_test = [] (int dev_num,
     std::cout << "Load file: " << input_image << std::endl;
 
     auto input_text = dehancer::TextureInput(command_queue);
-
+    
     std::ifstream ifs(input_image, std::ios::binary);
     ifs >> input_text;
-
-    auto output_text = dehancer::TextureOutput(command_queue, input_text.get_texture(), {
+    
+    auto texture = input_text.get_texture();
+    auto native_texture = texture->get_memory();
+    
+    auto texture_from_native = dehancer::TextureHolder::Make(command_queue,native_texture);
+    
+    auto output_text = dehancer::TextureOutput(command_queue, texture_from_native, {
             .type = test::type,
             .compression = test::compression
     });

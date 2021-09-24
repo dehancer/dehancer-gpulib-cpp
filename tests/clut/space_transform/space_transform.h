@@ -57,8 +57,8 @@ void load_from_cache(const std::string& platform) {
             .transform_func = transform_function,
             .transform_lut = {
                     .is_identity = false,
-                    .forward = dehancer::ocio::DVRWGRec709::forward::lut::params,
-                    .inverse = dehancer::ocio::DVRWGRec709::inverse::lut::params
+                    .forward = dehancer::ocio::CineonLog::forward::lut::params,
+                    .inverse = dehancer::ocio::CineonLog::inverse::lut::params
             },
             .id = "dvr_wg_rec709",
             .name="DVR WG/Rec709",
