@@ -132,7 +132,7 @@ namespace dehancer {
          * @param from_memory - from device native texture
          * @return Texture object
          */
-        static Texture Make(const void *command_queue, const void *from_memory);
+        static Texture Make(const void *command_queue, const void *from_native_memory);
     
         /***
          * Get a weak shared pointer to texture object.
