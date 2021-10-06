@@ -100,4 +100,11 @@ static inline float3x3 __attribute__((overloadable)) make_float3x3(float3 r0, fl
                     r2.x, r2.y, r2.z};
 }
 
+static inline float3 __attribute__((overloadable)) matrix_mul(float3x3 m, float3 v) {
+  return (float3){
+          m.m11*v.x + m.m12*v.y + m.m13*v.z,
+          m.m21*v.x + m.m22*v.y + m.m23*v.z,
+          m.m31*v.x + m.m32*v.y + m.m33*v.z};
+}
+
 #endif //DEHANCER_GPULIB_OPENCL_TYPES_H
