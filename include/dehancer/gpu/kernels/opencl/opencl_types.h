@@ -67,7 +67,17 @@ typedef struct  {
 #define texture3d_write_t DHCR_WRITE_ONLY image3d_t
 
 #define float2x2 float4
-#define float3x3 float8
+//#define float3x3 float8
 #define float4x4 float16
+
+typedef union {
+    struct {
+        float m11; float m12; float m13;
+        float m21; float m22; float m23;
+        float m31; float m32; float m33;
+    };
+    float entries[9];
+    float entries2[3][3];
+} float3x3;
 
 #endif //DEHANCER_GPULIB_OPENCL_TYPES_H
