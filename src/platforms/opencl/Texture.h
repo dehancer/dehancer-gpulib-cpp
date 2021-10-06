@@ -11,6 +11,7 @@ namespace dehancer::opencl {
 
     struct TextureHolder: public dehancer::TextureHolder, public Context {
         TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory);
+        TextureHolder(const void *command_queue, const void *from_native_memory);
         ~TextureHolder() override ;
 
         [[nodiscard]] const void*  get_memory() const override;

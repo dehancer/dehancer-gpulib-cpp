@@ -7,7 +7,16 @@
 #include <cstring>
 
 namespace dehancer::opencl {
-
+    
+    TextureHolder::TextureHolder (const void *command_queue, const void *from_native_memory):
+            dehancer::TextureHolder(),
+            Context(command_queue),
+            desc_(),
+            memobj_(nullptr)
+    {
+      assert(mem_);
+    }
+    
     TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory) :
             dehancer::TextureHolder(),
             Context(command_queue),
@@ -186,5 +195,5 @@ namespace dehancer::opencl {
 
       return Error(CommonError::OK);
     }
-
+  
 }
