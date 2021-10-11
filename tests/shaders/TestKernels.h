@@ -28,7 +28,7 @@ DHCR_KERNEL void kernel_vec_add(
           
   float3 cc = to_float3(1);
   
-  cc = matrix_mul(m,cc);
+//  cc = matrix_mul(m,cc);
   
   DHCR_LogParameters d=data2;
   int tid; get_kernel_tid1d(tid);
