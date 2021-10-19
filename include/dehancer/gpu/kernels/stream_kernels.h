@@ -40,10 +40,10 @@ DHCR_KERNEL void  kernel_stream_transform(
       float4 a_high = to_float4(1.009f);
       color = (color - a_low) / (a_high - a_low);
     }
-    color = read_image(transform_lut, to_float3(color));
+    color = read_image(transform_lut, clamp(to_float3(color), 0.0f, 1.0f));
   }
 
-  color = mix(inColor, color, impact);
+  color = mix(clamp(inColor, 0.0f, 1.0f), color, impact);
 
   write_image(destination, to_float4(to_float3(color),inColor.w), tex.gid);
 }
