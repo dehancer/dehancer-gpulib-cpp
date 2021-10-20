@@ -8,6 +8,7 @@
 #include "dehancer/Utils.h"
 #include "tests/dotenv/dotenv_utils.h"
 #include "tests/test_config.h"
+#include "gtest/gtest.h"
 
 void load_from_cache(const std::string& platform) {
   
@@ -44,7 +45,7 @@ void load_from_cache(const std::string& platform) {
       
       auto lut = dehancer::StreamSpaceCache::Instance().get_lut(command_queue, space, DHCR_Forward);
   
-      GTEST_EXPECT_TRUE(lut!= nullptr);
+      EXPECT_TRUE(lut!= nullptr);
       
       auto transformed2d = dehancer::CLutTransform(command_queue, *lut, dehancer::CLut::Type::lut_2d);
       
