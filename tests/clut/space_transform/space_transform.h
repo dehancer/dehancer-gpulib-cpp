@@ -60,8 +60,8 @@ void load_from_cache(const std::string& platform) {
                     .forward = dehancer::ocio::CineonLog::forward::lut::params,
                     .inverse = dehancer::ocio::CineonLog::inverse::lut::params
             },
-            .id = "dvr_wg_rec709",
-            .name="DVR WG/Rec709",
+            .id = "cineon_film_log",
+            .name="Cineon Film Log",
     };
   
     for (auto device: dehancer::DeviceCache::Instance().get_device_list()) {
@@ -90,7 +90,7 @@ void load_from_cache(const std::string& platform) {
                                                    nullptr,
                                                    nullptr,
                                                    space,
-                                                   DHCR_Forward);
+                                                   DHCR_Inverse);
       
       transformer.set_impact(1.0f);
       transformer.set_source(clut_2d_identity.get_texture());
@@ -98,7 +98,7 @@ void load_from_cache(const std::string& platform) {
       
       transformer.process();
       
-      std::string output_file =  "space-transform-"+platform+"-"+"forward"+"-";
+      std::string output_file =  "space-transform-"+platform+"-"+"inverse"+"-";
       output_file.append(dev_name);
       output_file.append(ext);
       
@@ -107,12 +107,12 @@ void load_from_cache(const std::string& platform) {
         os << output;
       }
       
-      transformer.set_direction(DHCR_Inverse);
+      transformer.set_direction(DHCR_Forward);
       transformer.set_source(output.get_texture());
       
       transformer.process();
       
-      output_file =  "space-transform-"+platform+"-"+"inverse"+"-";
+      output_file =  "space-transform-"+platform+"-"+"forward"+"-";
       output_file.append(dev_name);
       output_file.append(ext);
       
