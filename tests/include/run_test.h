@@ -6,6 +6,7 @@
 
 #include "dehancer/gpu/Lib.h"
 #include "tests/test_config.h"
+#include "gtest/gtest.h"
 
 using dh_test_function = std::function<int (int num,
                                             const void* command_queue,
@@ -81,7 +82,12 @@ inline static void run_images(std::string platform,
     dev_num = 0;
     
     for (auto d: devices) {
-      if (run_on_device(dev_num++, d, platform, block, images) != 0) return;
+      try {
+        if (run_on_device(dev_num++, d, platform, block, images) != 0) return;
+      }
+      catch (const std::runtime_error &e) {
+        std::cerr << "Error["<<dehancer::device::get_name(d)<<"]: " << e.what() << std::endl;
+      }
     }
     
   }
@@ -119,8 +125,14 @@ inline static void run_on_devices(std::string platform,
     
     for (auto d: devices) {
       auto command_queue = dehancer::DeviceCache::Instance().get_command_queue(dehancer::device::get_id(d));
-      
-      auto ret = block(dev_num++, command_queue, platform) != 0;
+  
+      int ret = -1;
+      try {
+        ret = block(dev_num++, command_queue, platform) != 0;
+      }
+      catch (const std::runtime_error &e) {
+        std::cerr << "Error["<<dehancer::device::get_name(d)<<"]: " << e.what() << std::endl;
+      }
       
       dehancer::DeviceCache::Instance().return_command_queue(command_queue);
       
