@@ -14,7 +14,7 @@ namespace dehancer::opencl {
             desc_(),
             memobj_(nullptr)
     {
-      assert(mem_);
+      assert(memobj_);
     }
     
     TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory) :
