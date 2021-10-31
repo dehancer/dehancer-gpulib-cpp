@@ -37,7 +37,7 @@ namespace dehancer {
               
               cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<T>();
 
-//              CHECK_CUDA(cudaMallocManaged(&mem_, width_*height_* sizeof(float) * 4, cudaMemAttachGlobal));
+//            CHECK_CUDA(cudaMallocManaged(&mem_, width_*height_* sizeof(float) * 4, cudaMemAttachGlobal));
               CHECK_CUDA(
                       cudaMallocArray(&mem_, &channelDesc, width_, height_,
                                       cudaArraySurfaceLoadStore));
@@ -53,9 +53,9 @@ namespace dehancer {
               // Specify texture object parameters
               cudaTextureDesc texDesc{};
               memset(&texDesc, 0, sizeof(texDesc));
-              texDesc.addressMode[0]   = cudaAddressModeMirror;//cudaAddressModeClamp;
-              texDesc.addressMode[1]   = cudaAddressModeMirror;//cudaAddressModeClamp;
-              texDesc.filterMode       = cudaFilterModeLinear; //cudaFilterModePoint;
+              texDesc.addressMode[0]   = cudaAddressModeMirror;
+              texDesc.addressMode[1]   = cudaAddressModeMirror;
+              texDesc.filterMode       = cudaFilterModeLinear;
               texDesc.readMode         = cudaReadModeElementType;
               texDesc.normalizedCoords = normalized_coords_;
               

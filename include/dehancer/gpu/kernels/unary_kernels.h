@@ -36,7 +36,6 @@ DHCR_KERNEL void kernel_convolve_horizontal(
     int half_size = size/2;
 
 #pragma unroll
-    //for (int i = -half_size; i < half_size; ++i) {
     for (int i = 0; i < half_size; ++i) {
       int jx =  tid.x+i;
       int jx2 =  jx-half_size;
@@ -54,12 +53,17 @@ DHCR_KERNEL void kernel_convolve_horizontal(
           if (jx>=w) {jx = w-1;f = 0;}
           break;
         case DHCR_ADDRESS_WRAP:
-          if (jx2<0)  jx2 -= i;
-          if (jx>=w)  jx -= i;
+          if (jx2<0)  jx2 = -jx2;
+          if (jx2>w) jx2 = 2*w-jx2;
+    
+          if (jx>w)  jx = 2*w-jx;
+          if (jx<0)  jx = -jx;
           break;
       }
-      const int j = ((tid.y * w) + jx);
-      const int j2 = ((tid.y * w) + jx2);
+      int j = ((tid.y * w) + jx);
+      int j2 = ((tid.y * w) + jx2);
+      if (j>w*h) continue;
+      if (j2>w*h) continue;
       val += scl[j] * weights[i+half_size] * f + scl[j2] * weights[i] * f;
     }
     
@@ -107,7 +111,6 @@ DHCR_KERNEL void kernel_convolve_vertical (
     int half_size = size/2;
 
 #pragma unroll
-    //for (int i = -half_size; i < half_size; ++i) {
     for (int i = 0; i < half_size; ++i) {
       int jy =  tid.y+i;
       int jy2 = jy-half_size;
@@ -125,12 +128,17 @@ DHCR_KERNEL void kernel_convolve_vertical (
           if (jy>=h) {jy = h-1;f = 0;}
           break;
         case DHCR_ADDRESS_WRAP:
-          if (jy2<0)  jy2 -= i + half_size;
-          if (jy>=h) jy -= i - half_size;
+          if (jy2<0)  jy2 = -jy2;
+          if (jy>h) jy = 2*h-jy;
+    
+          if (jy2>h)  jy2 = 2*h-jy2;
+          if (jy2<0) jy2 = -jy2;
           break;
       }
-      const int j = ((jy * w) + tid.x);
-      const int j2 = ((jy2 * w) + tid.x);
+      int j = ((jy * w) + tid.x);
+      int j2 = ((jy2 * w) + tid.x);
+      if (j>w*h) continue;
+      if (j2>w*h) continue;
       val += scl[j] * weights[i+half_size] * f + scl[j2] * weights[i] * f;
     }
     

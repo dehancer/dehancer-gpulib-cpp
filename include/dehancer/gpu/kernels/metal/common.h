@@ -12,8 +12,7 @@
 #include "dehancer/gpu/kernels/cmath.h"
 
 constexpr sampler linear_normalized_sampler(address::mirrored_repeat, filter::linear, coord::normalized);
-//constexpr sampler linear_normalized_sampler(address::clamp_to_zero, filter::linear, coord::normalized);
-constexpr sampler nearest_sampler(address::clamp_to_border, filter::nearest, coord::pixel);
+constexpr sampler nearest_sampler(address::clamp_to_edge, filter::nearest, coord::pixel);
 
 #define  get_kernel_tid1d(tid) { \
   tid = int(__dehancer_kernel_gid_1d__);\
@@ -105,11 +104,16 @@ static inline void __attribute__((overloadable)) write_image(texture1d_write_t d
   destination.write(color, (uint)gid);
 }
 
-
 // 2D
 static inline float4 __attribute__((overloadable)) read_image(texture2d_read_t source, int2 gid) {
-  //return source.read((uint2)gid);
-  return source.sample(nearest_sampler, (float2)gid);
+  float2 coord = (float2)gid;
+  float x = get_texture_width(source);
+  float y = get_texture_height(source);
+  if (coord.x<0.0f)  coord.x = -coord.x;
+  if (coord.x>x)     coord.x = 2.0f*x - coord.x;
+  if (coord.y<0.0f)  coord.y = -coord.y;
+  if (coord.y>y)     coord.y = 2.0f*y - coord.y;
+  return source.sample(nearest_sampler, coord);
 }
 
 static inline float4 __attribute__((overloadable)) read_image(texture2d_read_t source, float2 coords) {
@@ -122,7 +126,6 @@ static inline void __attribute__((overloadable)) write_image(texture2d_write_t d
 
 // 3D
 static inline float4 __attribute__((overloadable)) read_image(texture3d_read_t source, int3 gid) {
-  //return source.read((uint3)gid);
   return source.sample(nearest_sampler, (float3)gid);
 }
 

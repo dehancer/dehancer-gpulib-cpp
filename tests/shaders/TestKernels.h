@@ -19,6 +19,17 @@ DHCR_KERNEL void kernel_vec_add(
         DHCR_KERNEL_GID_1D
 )
 {
+//  float3x3 m =
+//          (float3x3){
+//                  3.90405e-1f, 5.49941e-1f, 8.92632e-3f,
+//                  7.08416e-2f, 9.63172e-1f, 1.35775e-3f,
+//                  2.31082e-2f, 1.28021e-1f, 9.36245e-1f
+//          };
+          
+  float3 cc = to_float3(1);
+  
+//  cc = matrix_mul(m,cc);
+  
   DHCR_LogParameters d=data2;
   int tid; get_kernel_tid1d(tid);
   if (tid < N)

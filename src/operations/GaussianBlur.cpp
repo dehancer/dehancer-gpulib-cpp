@@ -48,22 +48,8 @@ namespace dehancer {
         if (size<3) size=3;
         
         bool doDownscaling = sigma > 2.0f*MIN_DOWNSCALED_SIGMA + 0.5f;
-
-        int reduceBy = doDownscaling
-                       ? std::min((int)std::floor(sigma/MIN_DOWNSCALED_SIGMA), size)
-                       : 1;
-
-        //float real_sigma = doDownscaling
-        //                   ? std::sqrt(sigma*sigma/(float)(reduceBy*reduceBy) - 1.f/3.f - 1.f/4.f)
-        //                   : sigma;
-
-        //int new_size = static_cast<int>((float )size/downscale_ration_);
-    
-        dehancer::math::make_gaussian_kernel(data, size, sigma);
         
-        //std::cout << " GAUSSIAN KERNEL["<<index<<"] SIZE = " << data.size() << ", origin size: " << size << " reduce: "<< downscale_ration_  << " / " << reduceBy << " sigma: "<< sigma  << "/" << real_sigma << std::endl;
-    
-        //dehancer::log::print(" ### #kernel_blur(base): kernel index:%i size = %i, origin size: %i, sigma: %f, reduceBy: %f/%i", index, data.size(),size,sigma, downscale_ration_, reduceBy);
+        dehancer::math::make_gaussian_kernel(data, size, sigma);
         
         return 1.0f/(float)downscale_ration_;
     };

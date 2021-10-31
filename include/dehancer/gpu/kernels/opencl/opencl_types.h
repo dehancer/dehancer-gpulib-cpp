@@ -67,7 +67,44 @@ typedef struct  {
 #define texture3d_write_t DHCR_WRITE_ONLY image3d_t
 
 #define float2x2 float4
-#define float3x3 float8
+//#define float3x3 float8
 #define float4x4 float16
+
+typedef union {
+    struct {
+        float m11; float m12; float m13;
+        float m21; float m22; float m23;
+        float m31; float m32; float m33;
+    };
+    struct {
+        float3 s1;
+        float3 s2;
+        float3 s3;
+    };
+    float3 v[3];
+    float entries[9];
+    float entries2[3][3];
+} float3x3;
+
+/***
+ * TODO: float2x2,float3x3,float4x4 constructors
+ *
+ * @param r0
+ * @param r1
+ * @param r2
+ * @return
+ */
+static inline float3x3 __attribute__((overloadable)) make_float3x3(float3 r0, float3 r1, float3 r2) {
+  return (float3x3){r0.x, r0.y, r0.z,
+                    r1.x, r1.y, r1.z,
+                    r2.x, r2.y, r2.z};
+}
+
+static inline float3 __attribute__((overloadable)) matrix_mul(float3x3 m, float3 v) {
+  return (float3){
+          m.m11*v.x + m.m12*v.y + m.m13*v.z,
+          m.m21*v.x + m.m22*v.y + m.m23*v.z,
+          m.m31*v.x + m.m32*v.y + m.m33*v.z};
+}
 
 #endif //DEHANCER_GPULIB_OPENCL_TYPES_H
