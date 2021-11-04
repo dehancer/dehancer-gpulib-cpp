@@ -22,7 +22,7 @@ namespace dehancer::metal {
     {
       
       if (!from_memory) return;
-  
+      
       texture_item_ = std::make_shared<TextureItem>();
       
       texture_item_->texture = static_cast<id <MTLTexture>>(from_memory);
@@ -64,13 +64,15 @@ namespace dehancer::metal {
           break;
         
         case MTLPixelFormatRGBA8Uint:
+        case MTLPixelFormatBGRA8Unorm:
+        case MTLPixelFormatBGRA8Unorm_sRGB:
           desc_.pixel_format = TextureDesc::PixelFormat::rgba8uint;
           break;
         
         default:
           throw std::runtime_error("Unsupported texture pixel format");
       }
-  
+      
       desc_.width = [texture_item_->texture width];
       desc_.height = [texture_item_->texture height];
       desc_.depth = [texture_item_->texture depth];
