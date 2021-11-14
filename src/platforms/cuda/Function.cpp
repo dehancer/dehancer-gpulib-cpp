@@ -17,8 +17,6 @@ namespace dehancer::cuda {
     
     void Function::execute(const dehancer::Function::EncodeHandler &block) {
       
-      //std::unique_lock<std::mutex> lock(Function::mutex_);
-      
       command_->push();
       
       auto encoder = std::make_shared<cuda::CommandEncoder>(kernel_, this);
@@ -88,8 +86,6 @@ namespace dehancer::cuda {
       if (command_->get_wait_completed()) {
         CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventRecord(stop, nullptr));
         CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventSynchronize(stop));
-       
-        //cudaDeviceSynchronize();
       }
       
       command_->pop();
@@ -146,9 +142,13 @@ namespace dehancer::cuda {
       auto p_path = library_path_.empty() ? dehancer::device::get_lib_path() : library_path;
       std::size_t p_path_hash = std::hash<std::string>{}(p_path);
       
+      std::string library_source;
       if (p_path.empty()) {
-        command_->pop();
-        throw std::runtime_error("Could not find path to CUDA module for '" + kernel_name + "'");
+        p_path_hash = dehancer::device::get_lib_source(library_source);
+        if (library_source.empty()) {
+          command_->pop();
+          throw std::runtime_error("Could not find path to CUDA module for '" + kernel_name + "'");
+        }
       }
       
       if (module_map_.find(command_->get_command_queue()) != module_map_.end())
@@ -164,7 +164,13 @@ namespace dehancer::cuda {
       
       if (module == nullptr) {
         try {
-          CHECK_CUDA(cuModuleLoad(&module, p_path.c_str()));
+          if (!p_path.empty())
+            CHECK_CUDA(cuModuleLoad(&module, p_path.c_str()));
+          else {
+            //std::string library_source;
+            //dehancer::device::get_lib_source(library_source);
+            CHECK_CUDA(cuModuleLoadData(&module, library_source.data()));
+          }
         }
         catch (const std::runtime_error &e) {
           command_->pop();

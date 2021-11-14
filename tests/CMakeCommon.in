@@ -31,12 +31,19 @@ set(EXTERNAL_LIBS "")
 if (DEHANCER_CURRENT_PLATFORM_METAL)
 
     set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_metal)
-    add_executable(${TEST} ${TESTS_SOURCES})
+    add_executable(${TEST}
+            ${TESTS_SOURCES}
+            )
 
 elseif (DEHANCER_CURRENT_PLATFORM_CUDA)
 
     set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_cuda)
-    add_executable(${TEST} ${TESTS_SOURCES})
+    set (EMBEDDED_KERNELS_FATBIN ${CMAKE_BINARY_DIR}/tests/shaders/cuda/TestKernels_cuda.c)
+    set_source_files_properties(${EMBEDDED_KERNELS_FATBIN} PROPERTIES GENERATED TRUE)
+    add_executable(${TEST}
+            ${EMBEDDED_KERNELS_FATBIN}
+            ${TESTS_SOURCES}
+            )
 
 elseif(DEHANCER_CURRENT_PLATFORM_OPENCL)
 
