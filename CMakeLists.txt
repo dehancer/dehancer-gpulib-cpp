@@ -154,9 +154,15 @@ endif ()
 #
 # Packages
 #
-set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
-set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib64/pkgconfig)
-set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:$ENV{SYSROOT}:/usr/local/dehancer/lib/pkgconfig)
+if(WIN32)
+    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};/usr/local/lib/pkgconfig")
+    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};/usr/local/lib64/pkgconfig")
+    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};$ENV{SYSROOT};/usr/local/dehancer/lib/pkgconfig")
+else()
+    set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
+    set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib64/pkgconfig)
+    set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:$ENV{SYSROOT}:/usr/local/dehancer/lib/pkgconfig)
+endif ()
 
 find_package (Threads REQUIRED)
 find_package (PkgConfig REQUIRED)
