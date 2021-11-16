@@ -8,14 +8,14 @@
 #include "tests/metal/paths_config.h"
 
 
-//TEST(TEST, METAL_VIDEO_PLAYFORWARD) {
-//
-//  std::cout << std::endl;
-//  std::cerr << std::endl;
-//
-//  run_on_devices("metal",io_texture_test_forward);
-//
-//}
+TEST(TEST, METAL_VIDEO_PLAYFORWARD) {
+
+  std::cout << std::endl;
+  std::cerr << std::endl;
+
+  run_on_devices("metal",io_texture_test_forward);
+
+}
 
 TEST(TEST, METAL_VIDEO_PLAYREVERSE) {
   

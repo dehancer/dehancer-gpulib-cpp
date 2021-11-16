@@ -41,7 +41,7 @@ int capture_video(int dev_num,
   else
     video_stream->seek_begin();
   
-  for (int i = 0; i<4; i++){
+  for (int i = 0; i<16; i++){
     
     dehancer::Texture texture;
     

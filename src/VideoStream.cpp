@@ -66,13 +66,13 @@ namespace dehancer {
                 default:
                   throw std::runtime_error("Image pixel depth is not supported");
               }
-  
+              
               m_convert_function = std::make_shared<dehancer::Function>(m_command_queue,"kernel_bgr8_to_texture");
               m_frame_texture = m_convert_function->make_texture(m_desc.frame.size.width,m_desc.frame.size.height);
             }
-        
+            
             dehancer::Texture convert(const cv::Mat& frame) {
-  
+              
               auto mem = dehancer::MemoryHolder::Make(
                       m_command_queue,
                       frame.data,
@@ -80,17 +80,17 @@ namespace dehancer {
               );
               
               m_convert_function->execute([this,&mem](dehancer::CommandEncoder& command_encoder){
-      
+                  
                   command_encoder.set(mem, 0);
                   command_encoder.set(m_scale, 1);
                   command_encoder.set(m_frame_texture, 2);
-      
+                  
                   return dehancer::CommandEncoder::Size::From(m_frame_texture);
               });
               
               return m_frame_texture;
             }
-            
+        
         public:
             const void *m_command_queue;
             std::string m_file_path;
@@ -122,21 +122,21 @@ namespace dehancer {
     }
     
     Texture VideoStream::next_texture () const {
-      
+
       cv::Mat frame; impl_->m_cap->read(frame);
-  
+
       impl_->m_video_time = static_cast<float>(impl_->m_cap->get(cv::CAP_PROP_POS_MSEC));
       impl_->m_video_index = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
-  
+
       if (frame.empty()) {
         return nullptr;
       }
-  
+
       return impl_->convert(frame);
     }
     
     Texture VideoStream::previous_texture () const {
-      return get_texture_at_index(impl_->m_video_index - 1);
+      return get_texture_at_time(impl_->m_video_time-impl_->m_desc.frame.duration);
     }
     
     Texture VideoStream::get_texture_at_time (float time) const {
@@ -155,10 +155,10 @@ namespace dehancer {
       }
       
       impl_->m_cap->set(cv::CAP_PROP_POS_MSEC, impl_->m_video_time);
-  
+      
       impl_->m_video_index = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
-  
-      cv::Mat frame; impl_->m_cap->retrieve(frame);
+      
+      cv::Mat frame; impl_->m_cap->read(frame);
       
       if (frame.empty()) {
         return nullptr;
@@ -183,15 +183,15 @@ namespace dehancer {
       }
       
       impl_->m_cap->set(cv::CAP_PROP_POS_FRAMES, index);
-  
+      
       impl_->m_video_time = static_cast<float>(impl_->m_cap->get(cv::CAP_PROP_POS_MSEC));
-  
-      cv::Mat frame; impl_->m_cap->retrieve(frame);
-  
+      
+      cv::Mat frame; impl_->m_cap->read(frame);
+      
       if (frame.empty()) {
         return nullptr;
       }
-  
+      
       return impl_->convert(frame);
     }
     
