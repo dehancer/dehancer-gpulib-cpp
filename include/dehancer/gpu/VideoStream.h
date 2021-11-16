@@ -59,7 +59,8 @@ namespace dehancer {
     public:
         
         static dehancer::expected<VideoStream,Error> Open(const void *command_queue, const std::string& file_path);
-        
+        explicit VideoStream(const void *command_queue, const std::string& file_path);
+    
         [[nodiscard]] const VideoDesc& get_desc() const;
     
         [[nodiscard]] int get_frame_index() const;
@@ -81,7 +82,6 @@ namespace dehancer {
         }
     
     private:
-        explicit VideoStream(const void *command_queue, const std::string& file_path);
         std::shared_ptr<impl::VideoStream> impl_;
     };
 }
