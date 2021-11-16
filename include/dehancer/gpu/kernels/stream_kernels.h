@@ -28,11 +28,11 @@ DHCR_KERNEL void  kernel_stream_transform(
   write_image(destination, inColor, tex.gid);
   
   float4 color  = inColor;
-
+  
   if (transform_function_enabled) {
     color = transform(color, space, direction);
   }
-
+  
   if (transform_lut_enabled) {
     // calibrated coeff
     if (direction == DHCR_Forward) {
@@ -42,10 +42,31 @@ DHCR_KERNEL void  kernel_stream_transform(
     }
     color = read_image(transform_lut, clamp(to_float3(color), 0.0f, 1.0f));
   }
-
+  
   color = mix(clamp(inColor, 0.0f, 1.0f), color, impact);
-
+  
   write_image(destination, to_float4(to_float3(color),inColor.w), tex.gid);
+}
+
+DHCR_KERNEL void kernel_bgr8_to_texture(
+        DHCR_DEVICE_ARG uint8_t*        p_Input DHCR_BIND_BUFFER(0),
+        DHCR_CONST_ARG  float_ref_t  scale DHCR_BIND_BUFFER(1),
+        texture2d_write_t      destination DHCR_BIND_TEXTURE(2)
+        
+        DHCR_KERNEL_GID_2D
+){
+  
+  Texel2d tex; get_kernel_texel2d(destination, tex);
+  
+  if (!get_texel_boundary(tex)) return;
+  
+  const int index = ((tex.gid.y * tex.size.x) + tex.gid.x) * 3;
+  float4 color = make_float4(
+          (float)p_Input[index + 2]*scale,
+          (float)p_Input[index + 1]*scale,
+          (float)p_Input[index + 0]*scale,
+          1.0f);
+  write_image(destination, color, tex.gid);
 }
 
 #endif //DEHANCER_GPULIB_STREAM_KERNELS_H

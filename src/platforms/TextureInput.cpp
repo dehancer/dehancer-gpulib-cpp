@@ -47,13 +47,13 @@ namespace dehancer::impl {
         switch (image.depth()) {
           case CV_8S:
           case CV_8U:
-            scale = 1.0f/256.0f;
+            scale = 1.0f/(256.0f-1);
             break;
           case CV_16U:
-            scale = 1.0f/65536.0f;
+            scale = 1.0f/(65536.0f-1.0f);
             break;
           case CV_32S:
-            scale = 1.0f/16777216.0f;
+            scale = 1.0f/(16777216.0f-1.0f);
             break;
           case CV_16F:
           case CV_32F:

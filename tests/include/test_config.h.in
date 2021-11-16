@@ -10,6 +10,8 @@
 constexpr const char* IMAGES_DIR="@IMAGES_DIR@";
 constexpr const char* DATA_DIR="@DATA_DIR@";
 static const std::vector<std::string> IMAGE_FILES = {"lena0.jpg","lena1.jpg","lena2.png","lena3.jpg","lena4.jpg", "halation14.jpg", "4K.jpg"};
+//static const std::vector<std::string> VIDEO_FILES = {"video1.mp4", "video2.mov"};
+static const std::vector<std::string> VIDEO_FILES = {"video2.mov"};
 
 namespace test {
     dehancer::TextureIO::Options::Type type = dehancer::TextureIO::Options::Type::png;
