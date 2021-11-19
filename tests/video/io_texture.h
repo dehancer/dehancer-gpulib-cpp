@@ -11,9 +11,11 @@
 
 int capture_video(int dev_num,
                   const void* command_queue,
+                  const std::string& platform,
                   const std::string& file,
                   const std::string& name,
-                  bool reverse
+                  bool reverse,
+                  int index = 0
 ) {
   std::cout << file << std::endl;
   
@@ -25,21 +27,37 @@ int capture_video(int dev_num,
   }
   
   std::cout
-          << "Video        WxH:" << video_stream->get_desc().frame.size.width << "x" <<video_stream->get_desc().frame.size.height <<std::endl
-          << "Video   channels:" << video_stream->get_desc().frame.channels << std::endl
-          << "Video      depth:" << video_stream->get_desc().frame.channel_depth << std::endl
-          << "Video      total:" << video_stream->get_desc().frame.count <<std::endl
-          << "Video   duration:" << video_stream->get_desc().frame.duration <<std::endl
+          << "Video        WxH:" << video_stream->get_desc().keyframe.size.width << "x" << video_stream->get_desc().keyframe.size.height << std::endl
+          << "Video   channels:" << video_stream->get_desc().keyframe.channels << std::endl
+          << "Video      depth:" << video_stream->get_desc().keyframe.channel_depth << std::endl
+          << "Video      total:" << video_stream->get_desc().keyframe.count << std::endl
+          << "Video   duration:" << video_stream->get_desc().keyframe.duration << std::endl
           << "Video        fps:" << video_stream->get_desc().fps <<std::endl
           << "Video    bitrate:" << video_stream->get_desc().bitrate << std::endl
           << "Video       time:" << video_stream->get_desc().time <<std::endl
           << "Video       type:" << video_stream->get_desc().type <<std::endl
           ;
   
-  if (reverse)
-    video_stream->seek_end();
-  else
-    video_stream->seek_begin();
+  if (reverse) {
+    if (index>0){
+      video_stream->seek_at_time(video_stream->get_desc().time - (float)index*video_stream->get_desc().keyframe.duration);
+    }
+    if (index<0){
+      video_stream->seek_at_time(- (float)index*video_stream->get_desc().keyframe.duration);
+    }
+    else
+      video_stream->skip_forward();
+  }
+  else {
+    if (index<0){
+      video_stream->seek_at_time(video_stream->get_desc().time + (float)index*video_stream->get_desc().keyframe.duration);
+    }
+    else if (index>0){
+      video_stream->seek_at_time((float)index*video_stream->get_desc().keyframe.duration);
+    }
+    else
+      video_stream->skip_backward();
+  }
   
   for (int i = 0; i<16; i++){
     
@@ -51,9 +69,9 @@ int capture_video(int dev_num,
       texture = video_stream->next_texture();
     
     std::cout
-            << "next["<< video_stream->get_frame_index()
+            << "next["<< video_stream->current_keyframe_position()
             << "] frame at: "
-            << video_stream->get_frame_time()
+            << video_stream->current_keyframe_time()
             << std::endl;
   
     if (!texture) break;
@@ -68,7 +86,7 @@ int capture_video(int dev_num,
           return x;
       });
       
-      ss << "dev_" << dev_num << fn << "_frame_" << video_stream->get_frame_index() << ".jpg";
+      ss << "dev_" << dev_num << "_" << platform << "_" << fn << "_frame_" << video_stream->current_keyframe_position() << ".jpg";
       std::ofstream os(ss.str(), std::ostream::binary | std::ostream::trunc);
       
       os << dehancer::TextureOutput(command_queue, texture, {
@@ -79,10 +97,10 @@ int capture_video(int dev_num,
     
     
     if (reverse) {
-      if (video_stream->get_frame_index() <= 0) break;
+      if (video_stream->current_keyframe_position() <= 0) break;
     }
     else
-    if (video_stream->get_frame_index()>=video_stream->get_desc().frame.count-1) break;
+    if (video_stream->current_keyframe_position() >= video_stream->get_desc().keyframe.count - 1) break;
   }
   
   return 0 ;
@@ -94,7 +112,7 @@ auto io_texture_test_forward = [] (int dev_num,
     
     for (auto file: VIDEO_FILES) {
       std::string vfile = IMAGES_DIR; vfile +="/"; vfile+= file;
-      if(capture_video(dev_num, command_queue, vfile, file, false)<0) return -1;
+      if(capture_video(dev_num, command_queue, platform, vfile, file, false)<0) return -1;
     }
     
     return 0;
@@ -106,7 +124,19 @@ auto io_texture_test_reverse = [] (int dev_num,
     
     for (auto file: VIDEO_FILES) {
       std::string vfile = IMAGES_DIR; vfile +="/"; vfile+= file;
-      if(capture_video(dev_num, command_queue, vfile, file, true)<0) return -1;
+      if(capture_video(dev_num, command_queue, platform, vfile, file, true)<0) return -1;
+    }
+    
+    return 0;
+};
+
+auto io_texture_test_last = [] (int dev_num,
+                                   const void* command_queue,
+                                   const std::string& platform) {
+    
+    for (auto file: VIDEO_FILES) {
+      std::string vfile = IMAGES_DIR; vfile +="/"; vfile+= file;
+      if(capture_video(dev_num, command_queue, platform, vfile, file, false, -2)<0) return -1;
     }
     
     return 0;

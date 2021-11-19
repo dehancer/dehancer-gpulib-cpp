@@ -13,20 +13,21 @@ namespace dehancer {
         struct VideoStream;
     }
     
-    struct FrameSize {
-        /***
-         * Frame width
-         */
-        size_t width  = 0;
-        
-        /***
-         * Frame height
-         */
-        size_t height = 0;
-    };
+    struct KeyFrame {
     
-    struct Frame {
-        FrameSize  size;
+        struct Size {
+            /***
+             * Frame width
+             */
+            size_t width  = 0;
+        
+            /***
+             * Frame height
+             */
+            size_t height = 0;
+        };
+        
+        Size       size;
         int        count{};
         int        channels{};
         int        channel_depth{};
@@ -34,7 +35,7 @@ namespace dehancer {
     };
     
     struct VideoDesc {
-        Frame      frame;
+        KeyFrame   keyframe;
         int        type{};
         float      time{};    // msec
         float      bitrate{}; //
@@ -49,8 +50,10 @@ namespace dehancer {
     public:
         
         struct Options {
+            
             enum Type {
-                mp4
+                mp4,
+                mov
             };
             
             Type type = Options::Type::mp4;
@@ -58,19 +61,34 @@ namespace dehancer {
     
     public:
         
-        static dehancer::expected<VideoStream,Error> Open(const void *command_queue, const std::string& file_path);
-        explicit VideoStream(const void *command_queue, const std::string& file_path);
+        static dehancer::expected<VideoStream,Error> Open(
+                const void *command_queue,
+                const std::string& file_path);
+        
+        explicit VideoStream(const void *command_queue,
+                             const std::string& file_path);
     
         [[nodiscard]] const VideoDesc& get_desc() const;
     
-        [[nodiscard]] int get_frame_index() const;
-        [[nodiscard]] float get_frame_time() const;
+        [[nodiscard]] int   current_keyframe_position() const;
+        
+        /**
+         *
+         * @return current stream position at time in milliseconds
+         */
+        [[nodiscard]] float current_keyframe_time() const;
     
-        void seek_begin();
-        void seek_end();
+        void seek_at_time(float time);
+        void skip_backward();
+        void skip_forward();
     
+        /***
+         *
+         * @param time in milliseconds
+         * @return current texture
+         */
         [[nodiscard]] Texture get_texture_at_time(float time) const;
-        [[nodiscard]] Texture get_texture_at_index(int index) const;
+        [[nodiscard]] Texture get_texture_in_keyframe(int position) const;
         [[nodiscard]] Texture next_texture() const;
         [[nodiscard]] Texture previous_texture() const;
         
@@ -78,6 +96,8 @@ namespace dehancer {
           switch (type) {
             case Options::Type::mp4:
               return ".mp4";
+            case Options::Type::mov:
+              return ".mov";
           }
         }
     

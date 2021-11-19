@@ -1450,7 +1450,7 @@ GENERATE_TREEVIEW      = NO
 ENUM_VALUES_PER_LINE   = 4
 
 # If the treeview is enabled (see GENERATE_TREEVIEW) then this tag can be used
-# to set the initial width (in pixels) of the frame in which the tree is shown.
+# to set the initial width (in pixels) of the keyframe in which the tree is shown.
 # Minimum value: 0, maximum value: 1500, default value: 250.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 

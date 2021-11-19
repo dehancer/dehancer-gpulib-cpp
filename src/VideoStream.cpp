@@ -5,6 +5,8 @@
 #include "dehancer/gpu/Lib.h"
 #include <opencv2/opencv.hpp>
 #include <utility>
+#include <dehancer/gpu/VideoStream.h>
+
 
 namespace dehancer {
     
@@ -19,6 +21,7 @@ namespace dehancer {
                     m_command_queue(command_queue),
                     m_file_path(file_path),
                     m_cap(std::make_unique<cv::VideoCapture>(m_file_path)) {
+              
               m_cap->setExceptionMode(false);
               
               if (!m_cap->isOpened()) {
@@ -28,26 +31,27 @@ namespace dehancer {
               }
               
               m_desc.fps = static_cast<float>(m_cap->get(cv::CAP_PROP_FPS));
-              m_desc.frame.count = static_cast<int>(m_cap->get(cv::CAP_PROP_FRAME_COUNT));
-              m_desc.frame.duration = 1000.0f / static_cast<float>(m_desc.fps);
-              m_desc.frame.size.width = static_cast<size_t>(m_cap->get(cv::CAP_PROP_FRAME_WIDTH));
-              m_desc.frame.size.height = static_cast<size_t>(m_cap->get(cv::CAP_PROP_FRAME_HEIGHT));
-              
-              m_cap->set(cv::CAP_PROP_POS_FRAMES, m_desc.frame.count-1);
-              m_desc.time = static_cast<float>(m_cap->get(cv::CAP_PROP_POS_MSEC))+m_desc.frame.duration;
-              m_cap->set(cv::CAP_PROP_POS_FRAMES, 0);
+              m_desc.keyframe.count = static_cast<int>(m_cap->get(cv::CAP_PROP_FRAME_COUNT));
+              m_desc.keyframe.duration = 1000.0f / static_cast<float>(m_desc.fps);
+              m_desc.keyframe.size.width = static_cast<size_t>(m_cap->get(cv::CAP_PROP_FRAME_WIDTH));
+              m_desc.keyframe.size.height = static_cast<size_t>(m_cap->get(cv::CAP_PROP_FRAME_HEIGHT));
               m_desc.bitrate = static_cast<float>(m_cap->get(cv::CAP_PROP_BITRATE));
+  
+              m_cap->set(cv::CAP_PROP_POS_AVI_RATIO, 1);
+              m_desc.time = static_cast<float>(m_cap->get(cv::CAP_PROP_POS_MSEC));
+              m_cap->set(cv::CAP_PROP_POS_AVI_RATIO, 0);
               
               cv::Mat frame;
               *m_cap >> frame;
               
               m_desc.type = CV_MAT_TYPE(frame.type());
               
-              m_desc.frame.channels = static_cast<int>(frame.channels());
-              m_desc.frame.channel_depth = frame.depth();
+              m_desc.keyframe.channels = static_cast<int>(frame.channels());
+              m_desc.keyframe.channel_depth = frame.depth();
+              
               m_cap->set(cv::CAP_PROP_POS_AVI_RATIO, 0);
               
-              switch (m_desc.frame.channel_depth) {
+              switch (m_desc.keyframe.channel_depth) {
                 case CV_8S:
                 case CV_8U:
                   m_scale = 1.0f / (256.0f-1);
@@ -68,7 +72,7 @@ namespace dehancer {
               }
               
               m_convert_function = std::make_shared<dehancer::Function>(m_command_queue,"kernel_bgr8_to_texture");
-              m_frame_texture = m_convert_function->make_texture(m_desc.frame.size.width,m_desc.frame.size.height);
+              m_frame_texture = m_convert_function->make_texture(m_desc.keyframe.size.width, m_desc.keyframe.size.height);
             }
             
             dehancer::Texture convert(const cv::Mat& frame) {
@@ -92,12 +96,12 @@ namespace dehancer {
             }
         
         public:
-            const void *m_command_queue;
-            std::string m_file_path;
-            VideoDesc m_desc;
+            const void*   m_command_queue;
+            std::string   m_file_path;
+            VideoDesc     m_desc;
             std::unique_ptr<cv::VideoCapture> m_cap;
-            int m_video_index = 0;
-            float m_video_time = 0.0f;
+            int   m_keyframe_pos = 0;
+            float m_keyframe_time = 0.0f;
             float m_scale = 1.0f;
             std::shared_ptr<dehancer::Function> m_convert_function;
             Texture m_frame_texture;
@@ -125,8 +129,8 @@ namespace dehancer {
 
       cv::Mat frame; impl_->m_cap->read(frame);
 
-      impl_->m_video_time = static_cast<float>(impl_->m_cap->get(cv::CAP_PROP_POS_MSEC));
-      impl_->m_video_index = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
+      impl_->m_keyframe_time = static_cast<float>(impl_->m_cap->get(cv::CAP_PROP_POS_MSEC));
+      impl_->m_keyframe_pos = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
 
       if (frame.empty()) {
         return nullptr;
@@ -136,27 +140,27 @@ namespace dehancer {
     }
     
     Texture VideoStream::previous_texture () const {
-      return get_texture_at_time(impl_->m_video_time-impl_->m_desc.frame.duration);
+      return get_texture_at_time(impl_->m_keyframe_time - impl_->m_desc.keyframe.duration);
     }
     
     Texture VideoStream::get_texture_at_time (float time) const {
       
-      impl_->m_video_time = time;
+      impl_->m_keyframe_time = time;
       
-      if (impl_->m_video_time >= impl_->m_desc.time) {
-        impl_->m_video_index = impl_->m_desc.frame.count;
-        impl_->m_video_time = impl_->m_desc.time - impl_->m_desc.frame.duration;
+      if (impl_->m_keyframe_time >= impl_->m_desc.time) {
+        impl_->m_keyframe_pos = impl_->m_desc.keyframe.count;
+        impl_->m_keyframe_time = impl_->m_desc.time - impl_->m_desc.keyframe.duration;
         return nullptr;
       }
-      else if (impl_->m_video_time<0) {
-        impl_->m_video_index = 0;
-        impl_->m_video_time = 0;
+      else if (impl_->m_keyframe_time < 0) {
+        impl_->m_keyframe_pos = 0;
+        impl_->m_keyframe_time = 0;
         return nullptr;
       }
       
-      impl_->m_cap->set(cv::CAP_PROP_POS_MSEC, impl_->m_video_time);
+      impl_->m_cap->set(cv::CAP_PROP_POS_MSEC, impl_->m_keyframe_time);
       
-      impl_->m_video_index = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
+      impl_->m_keyframe_pos = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
       
       cv::Mat frame; impl_->m_cap->read(frame);
       
@@ -167,54 +171,37 @@ namespace dehancer {
       return impl_->convert(frame);
     }
     
-    Texture VideoStream::get_texture_at_index (int index) const {
-      
-      impl_->m_video_index = index;
-      
-      if (index > impl_->m_desc.frame.count) {
-        impl_->m_video_index = impl_->m_desc.frame.count-1;
-        impl_->m_video_time = impl_->m_desc.time-impl_->m_desc.frame.duration;
-        return nullptr;
-      }
-      else if (impl_->m_video_index < 0) {
-        impl_->m_video_index = 0;
-        impl_->m_video_time = 0;
-        return nullptr;
-      }
-      
-      impl_->m_cap->set(cv::CAP_PROP_POS_FRAMES, index);
-      
-      impl_->m_video_time = static_cast<float>(impl_->m_cap->get(cv::CAP_PROP_POS_MSEC));
-      
-      cv::Mat frame; impl_->m_cap->read(frame);
-      
-      if (frame.empty()) {
-        return nullptr;
-      }
-      
-      return impl_->convert(frame);
+    Texture VideoStream::get_texture_in_keyframe (int position) const {
+      return get_texture_at_time((float)position * impl_->m_desc.keyframe.duration);
     }
     
-    int VideoStream::get_frame_index () const {
-      return impl_->m_video_index;
+    int VideoStream::current_keyframe_position () const {
+      return impl_->m_keyframe_pos;
     }
     
-    float VideoStream::get_frame_time () const {
-      return impl_->m_video_time;
+    float VideoStream::current_keyframe_time () const {
+      return impl_->m_keyframe_time;
     }
     
-    void VideoStream::seek_begin () {
+    void VideoStream::seek_at_time (float time) {
+      //impl_->m_cap->set(cv::CAP_PROP_POS_AVI_RATIO, 0);
+      //auto real_count = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_FRAME_COUNT));
+      impl_->m_cap->set(cv::CAP_PROP_POS_MSEC, time);
+      impl_->m_keyframe_time = static_cast<float>(impl_->m_cap->get(cv::CAP_PROP_POS_MSEC));
+      impl_->m_keyframe_pos = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
+    }
+    
+    void VideoStream::skip_backward () {
       impl_->m_cap->set(cv::CAP_PROP_POS_AVI_RATIO, 0);
-      impl_->m_cap->set(cv::CAP_PROP_POS_MSEC, 0);
-      impl_->m_video_time = -impl_->m_desc.frame.duration;
-      impl_->m_video_index = -1;
+      impl_->m_keyframe_time = static_cast<float>(impl_->m_cap->get(cv::CAP_PROP_POS_MSEC));
+      impl_->m_keyframe_pos = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
     }
     
-    void VideoStream::seek_end () {
+    void VideoStream::skip_forward () {
       impl_->m_cap->set(cv::CAP_PROP_POS_AVI_RATIO, 1);
-      impl_->m_video_time = static_cast<float>(impl_->m_cap->get(cv::CAP_PROP_POS_MSEC));
-      impl_->m_video_index = impl_->m_desc.frame.count;
-      impl_->m_cap->set(cv::CAP_PROP_POS_FRAMES, impl_->m_video_index-1);
+      impl_->m_keyframe_time = static_cast<float>(impl_->m_cap->get(cv::CAP_PROP_POS_MSEC));
+      impl_->m_keyframe_pos = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
     }
+    
   
 }
