@@ -184,8 +184,6 @@ namespace dehancer {
     }
     
     void VideoStream::seek_at_time (float time) {
-      //impl_->m_cap->set(cv::CAP_PROP_POS_AVI_RATIO, 0);
-      //auto real_count = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_FRAME_COUNT));
       impl_->m_cap->set(cv::CAP_PROP_POS_MSEC, time);
       impl_->m_keyframe_time = static_cast<float>(impl_->m_cap->get(cv::CAP_PROP_POS_MSEC));
       impl_->m_keyframe_pos = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
@@ -198,9 +196,11 @@ namespace dehancer {
     }
     
     void VideoStream::skip_forward () {
-      impl_->m_cap->set(cv::CAP_PROP_POS_AVI_RATIO, 1);
-      impl_->m_keyframe_time = static_cast<float>(impl_->m_cap->get(cv::CAP_PROP_POS_MSEC));
-      impl_->m_keyframe_pos = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
+      impl_->m_cap->set(cv::CAP_PROP_POS_MSEC,
+                        impl_->m_desc.time - impl_->m_desc.keyframe.duration);
+      //impl_->m_cap->set(cv::CAP_PROP_POS_AVI_RATIO, 1);
+      //impl_->m_keyframe_time = static_cast<float>(impl_->m_cap->get(cv::CAP_PROP_POS_MSEC));
+      //impl_->m_keyframe_pos = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
     }
     
   
