@@ -76,7 +76,8 @@ namespace dehancer {
          *
          * @return current stream position at time in milliseconds
          */
-        [[nodiscard]] float current_keyframe_time() const;
+        [[nodiscard]] float current_time() const;
+        [[nodiscard]] int   current_frame_index() const;
     
         void seek_at_time(float time);
         void skip_backward();

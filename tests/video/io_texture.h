@@ -71,7 +71,7 @@ int capture_video(int dev_num,
     std::cout
             << "next["<< video_stream->current_keyframe_position()
             << "] frame at: "
-            << video_stream->current_keyframe_time()
+            << video_stream->current_time()
             << std::endl;
   
     if (!texture) break;
