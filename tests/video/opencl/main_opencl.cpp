@@ -11,8 +11,8 @@ TEST(TEST, OPENCL_IO_TEXTURE) {
 
   std::cout << std::endl;
   std::cerr << std::endl;
-
-  run_images("opencl", io_texture_test);
+  
+  run_on_devices("opencl", io_texture_test_forward);
 
 }
 
