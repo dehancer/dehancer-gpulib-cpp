@@ -410,43 +410,47 @@ configure_file(include/dehancer/gpulib_version.h.in ${CMAKE_BINARY_DIR}/generate
 string(STRIP "${CMAKE_CXX_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" CXX_FLAGS)
 string(STRIP "${CMAKE_C_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" C_FLAGS)
 
-#
-# Google TEST
-#
-find_package(GTest)
-if (NOT GTEST_FOUND)
+if (BUILD_TESTING)
 
-    ExternalProject_Add(googletest
-            GIT_REPOSITORY https://github.com/google/googletest
-            GIT_PROGRESS YES
-            GIT_SHALLOW YES
-            CMAKE_ARGS
-            -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
-            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-            -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-            -DCMAKE_C_FLAGS=${C_FLAGS}
-            -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-            )
-    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};googletest)
+    #
+    # Google TEST
+    #
+    find_package(GTest)
+    if (NOT GTEST_FOUND)
 
-    include_directories(
-            ./
-            ../include
-            ${CMAKE_BINARY_DIR}/external/include
-    )
+        ExternalProject_Add(googletest
+                GIT_REPOSITORY https://github.com/google/googletest
+                GIT_PROGRESS YES
+                GIT_SHALLOW YES
+                GIT_TAG release-1.11.0
+                CMAKE_ARGS
+                -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
+                -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+                -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+                -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+                -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
+                -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+                -DCMAKE_C_FLAGS=${C_FLAGS}
+                -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
+                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
+                -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+                )
+        set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};googletest)
 
-    link_directories(
-            ${CMAKE_BINARY_DIR}/external/lib
-    )
+        include_directories(
+                ./
+                ../include
+                ${CMAKE_BINARY_DIR}/external/include
+        )
 
-endif()
+        link_directories(
+                ${CMAKE_BINARY_DIR}/external/lib
+        )
+
+    endif()
+endif ()
 
 if (DEHANCER_GPU_OPENCL)
     #
