@@ -22,7 +22,7 @@ namespace dehancer {
         class memory_exception: public std::exception {
         public:
             explicit memory_exception(std::string  message): message_(std::move(message)){}
-            const char * what() const noexcept override { return message_.c_str(); };
+            [[nodiscard]] const char * what() const noexcept override { return message_.c_str(); };
 
         private:
             std::string message_;
