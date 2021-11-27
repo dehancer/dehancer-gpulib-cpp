@@ -109,7 +109,8 @@ if(NOT lcms2_FOUND)
 
     if(_lcms2_TARGET_CREATE)
         if(UNIX)
-            set(lcms2_C_FLAGS "${lcms2_C_FLAGS} -fvisibility=hidden -fPIC")
+            #set(lcms2_C_FLAGS "${lcms2_C_FLAGS} -fvisibility=hidden -fPIC")
+            set(lcms2_C_FLAGS "${lcms2_C_FLAGS} -fvisibility=default -fPIC")
         endif()
 
         if("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU")
