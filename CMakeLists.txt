@@ -581,7 +581,7 @@ if (dehancer_xmp_cpp_FOUND)
             ${dehancer_xmp_cpp_LIBRARY_DIRS}
     )
 
-    set(COMMON_LIBRARIES ${COMMON_LIBRARIES}; dehancer_xmp_cpp exiv2 exiv2-xmp)
+    set(COMMON_LIBRARIES dehancer_xmp_cpp; exiv2; exiv2-xmp; ${COMMON_LIBRARIES})
 
 else()
     ExternalProject_Add(dxmpcpp
