@@ -136,7 +136,7 @@ namespace dehancer {
          */
         Scale2D scale;
     
-        size_t get_hash() const;
+        [[nodiscard]] size_t get_hash() const;
     
         Channels make(const void *command_queue) const;
         

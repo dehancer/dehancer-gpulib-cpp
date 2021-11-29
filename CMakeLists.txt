@@ -151,7 +151,7 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=default -Wno-unused-command-line-argument")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
     if (PRINT_KERNELS_DEBUG)
-        add_compile_definitions(-DPRINT_KERNELS_DEBUG=1)
+        add_compile_definitions(PRINT_KERNELS_DEBUG=1)
     endif ()
 endif ()
 

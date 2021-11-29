@@ -38,7 +38,7 @@ namespace dehancer {
     namespace impl {
         
         struct ChannelItem {
-            size_t                                hash;
+            size_t                                hash{};
             std::shared_ptr<std::array<Memory,4>> channels = std::make_shared<std::array<Memory,4>>();
         };
         

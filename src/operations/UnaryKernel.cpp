@@ -83,11 +83,11 @@ namespace dehancer {
             channels_scale({1.f,1.f,1.f,1.0f}),
             library_path(library_path),
             horizontal_kernel(std::make_shared<Function>(root_->get_command_queue(),
-                                                         "kernel_convolve_horizontal",
+                                                         "kernel_convolve_horizontal_opt",
                                                          root_->get_wait_completed(),
                                                          library_path)),
             vertical_kernel(std::make_shared<Function>(root_->get_command_queue(),
-                                                         "kernel_convolve_vertical",
+                                                         "kernel_convolve_vertical_opt",
                                                          root_->get_wait_completed(),
                                                          library_path))
     {

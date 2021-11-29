@@ -41,6 +41,9 @@ namespace dehancer::cuda {
       if (texture_size.depth==1) {
         block_size.z = 1;
         block_size.x *=2;
+        if (max_device_threads_<=block_size.x*block_size.y) {
+          block_size.x = block_size.y = max_device_threads_>>2>>2>>2;
+        }
       }
       
       if (texture_size.height==1) {
@@ -53,7 +56,7 @@ namespace dehancer::cuda {
       
       dim3 grid_size((texture_size.width  + block_size.x - 1) / block_size.x,
                      (texture_size.height + block_size.y - 1) / block_size.y,
-                     (texture_size.depth + block_size.z - 1) / block_size.z
+                     (texture_size.depth  + block_size.z - 1) / block_size.z
       );
 
 #ifdef PRINT_KERNELS_DEBUG
@@ -167,8 +170,6 @@ namespace dehancer::cuda {
           if (!p_path.empty())
             CHECK_CUDA(cuModuleLoad(&module, p_path.c_str()));
           else {
-            //std::string library_source;
-            //dehancer::device::get_lib_source(library_source);
             CHECK_CUDA(cuModuleLoadData(&module, library_source.data()));
           }
         }
