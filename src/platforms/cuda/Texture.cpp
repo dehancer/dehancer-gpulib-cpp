@@ -28,34 +28,36 @@ namespace dehancer::cuda {
       push();
       
       try {
-        
+  
         size_t pitch = 0;
-        
+        size_t dpitch = 0;
+  
         switch (desc_.pixel_format) {
           
           case TextureDesc::PixelFormat::rgba32float:
             mem_ = make_texture<float4>();
-            pitch = sizeof(float4);
+            dpitch = pitch = sizeof(float4);
             break;
           
           case TextureDesc::PixelFormat::rgba16float:
-            mem_ = make_texture<float>();
-            pitch = sizeof(float);
+            mem_ = make_texture<float4,true>();
+            pitch = sizeof(float4);
+            dpitch = sizeof(float4)/2;
             break;
           
           case TextureDesc::PixelFormat::rgba32uint:
-            mem_ = make_texture<uint32_t[4]>();
-            pitch = sizeof(uint32_t[4]);
+            mem_ = make_texture<uint4>();
+            dpitch = pitch = sizeof(uint4);
             break;
           
           case TextureDesc::PixelFormat::rgba16uint:
-            mem_ = make_texture<uint16_t[4]>();
-            pitch = sizeof(uint16_t[4]);
+            mem_ = make_texture<ushort4>();
+            dpitch = pitch = sizeof(ushort4);
             break;
           
           case TextureDesc::PixelFormat::rgba8uint:
-            mem_ = make_texture<uint8_t[4]>();
-            pitch = sizeof(uint8_t[4]);
+            mem_ = make_texture<uchar4>();
+            dpitch = pitch = sizeof(uchar4);
             break;
         }
         
@@ -65,7 +67,7 @@ namespace dehancer::cuda {
                                                 0, 0,
                                                 from_memory,
                                                 mem_->get_width() * pitch,
-                                                mem_->get_width() * pitch,
+                                                mem_->get_width() * dpitch,
                                                 mem_->get_height(),
                                                 cudaMemcpyHostToDevice,
                                                 get_command_queue()));
@@ -125,38 +127,39 @@ namespace dehancer::cuda {
       if (length < this->get_length()) {
         return Error(CommonError::OUT_OF_RANGE, "Texture length greater then buffer length");
       }
-      
-      size_t pitch = 0;
+  
+      size_t dpitch = 0;
+      size_t hpitch = sizeof(float4);
       
       switch (desc_.pixel_format) {
         
         case TextureDesc::PixelFormat::rgba32float:
-          pitch = sizeof(float4);
+          dpitch = sizeof(float4);
           break;
         
         case TextureDesc::PixelFormat::rgba16float:
-          pitch = sizeof(half[4]);
+          dpitch = sizeof(float4)/2;
           break;
         
         case TextureDesc::PixelFormat::rgba32uint:
-          pitch = sizeof(uint32_t[4]);
+          dpitch = sizeof(uint32_t[4]);
           break;
         
         case TextureDesc::PixelFormat::rgba16uint:
-          pitch = sizeof(uint16_t[4]);
+          dpitch = sizeof(uint16_t[4]);
           break;
         
         case TextureDesc::PixelFormat::rgba8uint:
-          pitch = sizeof(uint8_t[4]);
+          dpitch = sizeof(uint8_t[4]);
           break;
       }
       
       try {
         push();
         CHECK_CUDA(cudaMemcpy2DFromArrayAsync(buffer,
-                                              mem_->get_width() * pitch,
+                                              mem_->get_width() * hpitch,
                                               mem_->get_contents(),
-                                              0, 0, mem_->get_width() * pitch, mem_->get_height(),
+                                              0, 0, mem_->get_width() * dpitch, mem_->get_height(),
                                               cudaMemcpyDeviceToHost,
                                               get_command_queue()));
         pop();

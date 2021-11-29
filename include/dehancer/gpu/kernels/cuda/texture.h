@@ -8,6 +8,7 @@
 #define DEHANCER_CUDA_TEXTURE_KERNELS_H
 
 #include <cuda.h>
+#include <cuda_fp16.h>
 
 namespace dehancer {
     

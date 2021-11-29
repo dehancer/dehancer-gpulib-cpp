@@ -6,9 +6,6 @@
 
 #include "dehancer/gpu/kernels/cuda/texture.h"
 
-#ifndef CUDA_KERNEL
-//#include "src/platforms/cuda/Context.h"
-#endif
 
 namespace dehancer {
     
