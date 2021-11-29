@@ -64,7 +64,7 @@ namespace dehancer::impl {
         std::vector<int> params;
         auto output_type = CV_8U;
         auto output_color = cv::COLOR_RGBA2BGR;
-        auto scale = 256.0f;
+        auto scale = 255.0f;
         
         switch (options_.type) {
           
