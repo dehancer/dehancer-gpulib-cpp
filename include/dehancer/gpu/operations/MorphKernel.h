@@ -45,6 +45,6 @@ namespace dehancer {
     private:
         size_t patches_;
         size_t iterations_;
-        Texture tmp_;
+        //Texture tmp_;
     };
 }

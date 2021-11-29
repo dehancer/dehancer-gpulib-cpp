@@ -39,8 +39,8 @@ namespace dehancer::cuda {
             break;
           
           case TextureDesc::PixelFormat::rgba16float:
-            mem_ = make_texture<half[4]>();
-            pitch = sizeof(half[4]);
+            mem_ = make_texture<float>();
+            pitch = sizeof(float);
             break;
           
           case TextureDesc::PixelFormat::rgba32uint:

@@ -14,7 +14,7 @@ namespace dehancer {
     
     namespace nvcc {
         
-        template<class T>
+        template<class T, bool is_half = false>
         struct texture2d: public texture {
 
 #ifndef CUDA_KERNEL
@@ -34,10 +34,14 @@ namespace dehancer {
                     normalized_coords_(normalized_coords)
             {
               assert(width_ > 0 && height_ > 0);
-              
-              cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<T>();
+  
+              cudaChannelFormatDesc channelDesc{};
+  
+              if (is_half)
+                channelDesc = cudaCreateChannelDescHalf4();
+              else
+                channelDesc = cudaCreateChannelDesc<T>();
 
-//            CHECK_CUDA(cudaMallocManaged(&mem_, width_*height_* sizeof(float) * 4, cudaMemAttachGlobal));
               CHECK_CUDA(
                       cudaMallocArray(&mem_, &channelDesc, width_, height_,
                                       cudaArraySurfaceLoadStore));
@@ -53,8 +57,8 @@ namespace dehancer {
               // Specify texture object parameters
               cudaTextureDesc texDesc{};
               memset(&texDesc, 0, sizeof(texDesc));
-              texDesc.addressMode[0]   = cudaAddressModeClamp;//cudaAddressModeMirror;
-              texDesc.addressMode[1]   = cudaAddressModeClamp;//cudaAddressModeMirror;
+              texDesc.addressMode[0]   = cudaAddressModeClamp;
+              texDesc.addressMode[1]   = cudaAddressModeClamp;
               texDesc.filterMode       = cudaFilterModeLinear;
               texDesc.readMode         = cudaReadModeElementType;
               texDesc.normalizedCoords = normalized_coords_;
