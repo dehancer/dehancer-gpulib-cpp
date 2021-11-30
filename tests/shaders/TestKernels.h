@@ -207,7 +207,7 @@ DHCR_KERNEL void kernel_fast_convolve(
   
   int next_array_index = 0;
   
-  #pragma unroll
+  #pragma unroll 4
   for (int j = 0; j < channels; ++j) {
     
     if (j>=4) return;
@@ -222,7 +222,7 @@ DHCR_KERNEL void kernel_fast_convolve(
     }
     else {
       
-      #pragma unroll
+      #pragma unroll 4
       for (int i = 0; i < step_count[j]; ++i) {
         float2 coords_offset = offsets_array[next_array_index + i] * pixel_size;
         

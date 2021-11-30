@@ -29,10 +29,19 @@ auto function_test =  [] (int dev_num,
               .type = test::type,
               .compression = test::compression
       });
+  
+      auto desc = input_text.get_texture()->get_desc();
+      desc.pixel_format = dehancer::TextureDesc::PixelFormat::rgba16float;
+      
+      auto tmp_text = desc.make(command_queue);
+      
+      dehancer::ResampleKernel(command_queue, input_text.get_texture(), tmp_text, dehancer::ResampleKernel::Mode::bicubic, true).process();
+//      dehancer::PassKernel(command_queue, input_text.get_texture(), tmp_text, true).process();
       
       auto kernel = dehancer::DilateKernel(command_queue, 4);
+//      auto kernel = dehancer::ResampleKernel(command_queue);
       
-      kernel.set_source(input_text.get_texture());
+      kernel.set_source(tmp_text);
       kernel.set_destination(output_text.get_texture());
       
       kernel.process();

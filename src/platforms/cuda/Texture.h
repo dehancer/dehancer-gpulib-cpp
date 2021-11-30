@@ -36,13 +36,13 @@ namespace dehancer::cuda {
         TextureDesc desc_;
         std::shared_ptr<dehancer::nvcc::texture> mem_;
     
-        template<class T>
+        template<class T, bool is_half = false>
         std::shared_ptr<dehancer::nvcc::texture> make_texture() {
           switch (desc_.type) {
             case TextureDesc::Type::i1d:
               return std::make_shared<dehancer::nvcc::texture1d<T>>(desc_.width);
             case TextureDesc::Type::i2d:
-              return std::make_shared<dehancer::nvcc::texture2d<T>>(desc_.width,desc_.height);
+              return std::make_shared<dehancer::nvcc::texture2d<T,is_half>>(desc_.width,desc_.height);
             case TextureDesc::Type::i3d:
               return std::make_shared<dehancer::nvcc::texture3d<T>>(desc_.width,desc_.height,desc_.depth);
           }

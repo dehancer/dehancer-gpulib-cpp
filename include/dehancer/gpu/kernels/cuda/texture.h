@@ -8,6 +8,7 @@
 #define DEHANCER_CUDA_TEXTURE_KERNELS_H
 
 #include <cuda.h>
+#include <cuda_fp16.h>
 
 namespace dehancer {
     
@@ -21,6 +22,7 @@ namespace dehancer {
             __device__ [[nodiscard]] virtual size_t get_width() const = 0;
             __device__ [[nodiscard]] virtual size_t get_height() const = 0;
             __device__ [[nodiscard]] virtual size_t get_depth() const = 0 ;
+            __device__ [[nodiscard]] virtual bool is_half() const {return false;} ;
         };
         
     }
