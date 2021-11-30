@@ -22,6 +22,7 @@ namespace dehancer {
             __device__ [[nodiscard]] virtual size_t get_width() const = 0;
             __device__ [[nodiscard]] virtual size_t get_height() const = 0;
             __device__ [[nodiscard]] virtual size_t get_depth() const = 0 ;
+            __device__ [[nodiscard]] virtual bool is_half() const {return false;} ;
         };
         
     }

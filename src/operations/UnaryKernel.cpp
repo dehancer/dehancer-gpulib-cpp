@@ -253,13 +253,11 @@ namespace dehancer {
             ))
     {
       impl_->recompute_kernel();
-      //impl_->set_source(s);
     }
     
     void UnaryKernel::process() {
   
       impl_->set_source(get_source());
-      //impl_->set_destination(get_destination());
   
       if(!impl_->channels_transformer) return;
       if(!impl_->channels_finalizer) return;
@@ -399,7 +397,7 @@ namespace dehancer {
     void UnaryKernel::set_transform (const ChannelsDesc::Transform &transform) {
       impl_->transform_ = transform;
       
-      ChannelsDesc::Transform real_transform = transform;
+      const ChannelsDesc::Transform& real_transform = transform;
       
       impl_->recompute_kernel();
       if (impl_->channels_transformer)

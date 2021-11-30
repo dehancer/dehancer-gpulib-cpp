@@ -16,8 +16,7 @@ namespace dehancer {
                               const std::string &library_path):
             Kernel(command_queue, morph_kernel_name, source, destination, wait_until_completed, library_path),
             patches_(patches),
-            iterations_(iterations)//,
-            //tmp_(destination ? destination->get_desc().make(command_queue) : nullptr)
+            iterations_(iterations)
     {
     }
     
@@ -30,10 +29,12 @@ namespace dehancer {
     }
     
     void MorphKernel::process () {
-      //process(get_source(), get_destination());
       auto src = get_source();
       
-      auto tmp_ = get_destination()->get_desc().make(get_command_queue());
+      auto desc = get_destination()->get_desc();
+      desc.pixel_format = TextureDesc::PixelFormat::rgba16float;
+      
+      auto tmp_ = desc.make(get_command_queue());
       
       for(size_t i=0; i<iterations_; ++i){
         execute([this, &src, &tmp_] (CommandEncoder &encoder) {
@@ -59,8 +60,6 @@ namespace dehancer {
     
     void MorphKernel::set_destination (const Texture &destination) {
       Kernel::set_destination(destination);
-      //if (destination) tmp_ = destination->get_desc().make(get_command_queue());
-      //else tmp_ = nullptr;
     }
     
     void MorphKernel::process (const Texture &source, const Texture &destination) {
