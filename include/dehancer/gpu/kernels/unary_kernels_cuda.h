@@ -10,7 +10,7 @@
 
 #define WEIGHTS_MAX_SIZE 1024
 
-DHCR_KERNEL void kernel_convolve_horizontal_opt(
+DHCR_KERNEL void kernel_convolve_horizontal(
         DHCR_DEVICE_ARG     float*       scl DHCR_BIND_BUFFER(0),
         DHCR_DEVICE_ARG     float*       tcl DHCR_BIND_BUFFER(1),
         DHCR_CONST_ARG   int_ref_t         w DHCR_BIND_BUFFER(2),
@@ -109,7 +109,7 @@ DHCR_KERNEL void kernel_convolve_horizontal_opt(
   
 }
 
-DHCR_KERNEL void kernel_convolve_vertical_opt (
+DHCR_KERNEL void kernel_convolve_vertical(
         DHCR_DEVICE_ARG     float*       scl DHCR_BIND_BUFFER(0),
         DHCR_DEVICE_ARG     float*       tcl DHCR_BIND_BUFFER(1),
         DHCR_CONST_ARG    int_ref_t        w DHCR_BIND_BUFFER(2),
