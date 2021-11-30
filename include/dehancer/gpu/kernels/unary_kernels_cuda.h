@@ -57,7 +57,7 @@ DHCR_KERNEL void kernel_convolve_horizontal_opt(
   
   int half_size = size/2;
 
-#pragma unroll
+#pragma unroll 4
   for (int i = 0; i < half_size; ++i) {
     int jx =  tid.x+i;
     int jx2 =  jx-half_size;
@@ -155,7 +155,7 @@ DHCR_KERNEL void kernel_convolve_vertical_opt (
   
   int half_size = size/2;
 
-#pragma unroll
+#pragma unroll 4
   for (int i = 0; i < half_size; ++i) {
     int jy = tid.y + i;
     int jy2 = jy - half_size;
