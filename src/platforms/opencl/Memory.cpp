@@ -76,7 +76,7 @@ namespace dehancer::opencl {
         clReleaseMemObject(memobj_);
   
       #ifdef PRINT_KERNELS_DEBUG
-      std::cout << "TextureHolder::~TextureHolder(" << memobj_<< "[" << length_ << "]" << " :: " << is_self_allocated_ << ")"  << std::endl;
+      //std::cout << "TextureHolder::~TextureHolder(" << memobj_<< "[" << length_ << "]" << " :: " << is_self_allocated_ << ")"  << std::endl;
       #endif
     }
 

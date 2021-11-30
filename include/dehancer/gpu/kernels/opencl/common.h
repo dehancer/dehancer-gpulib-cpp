@@ -11,7 +11,7 @@
 #include "dehancer/gpu/kernels/hash_utils.h"
 #include "dehancer/gpu/kernels/cmath.h"
 
-__constant sampler_t linear_normalized_sampler = CLK_NORMALIZED_COORDS_TRUE | CLK_ADDRESS_MIRRORED_REPEAT | CLK_FILTER_LINEAR;
+__constant sampler_t linear_normalized_sampler = CLK_NORMALIZED_COORDS_TRUE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_LINEAR;
 __constant sampler_t nearest_sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST;
 
 #define texture1d_read_t DHCR_READ_ONLY image1d_t
@@ -120,9 +120,9 @@ static inline float4 __attribute__((overloadable)) read_image(__read_only image2
   int x = get_texture_width(source);
   int y = get_texture_height(source);
   if (coord.x<0.0f)  coord.x = -coord.x;
-  if (coord.x>x)     coord.x = 2.0f*x - coord.x;
+  if (coord.x>=x)     coord.x = 2.0f*x - coord.x - 1;
   if (coord.y<0.0f)  coord.y = -coord.y;
-  if (coord.y>y)     coord.y = 2.0f*y - coord.y;
+  if (coord.y>=y)     coord.y = 2.0f*y - coord.y - 1;
   return read_imagef(source, nearest_sampler, gid);
 }
 

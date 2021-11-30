@@ -22,6 +22,8 @@
 
 #define bool_ref_t uint
 #define bool_t uint
+#define uint8_t unsigned char
+#define int8_t char
 
 #define uint_ref_t unsigned int
 #define int_ref_t int
