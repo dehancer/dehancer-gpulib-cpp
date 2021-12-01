@@ -48,7 +48,7 @@ namespace dehancer {
               // Specify texture object parameters
               cudaTextureDesc texDesc{};
               memset(&texDesc, 0, sizeof(texDesc));
-              texDesc.addressMode[0]   = cudaAddressModeMirror;//cudaAddressModeClamp;
+              texDesc.addressMode[0]   = cudaAddressModeMirror;
               texDesc.addressMode[1]   = cudaAddressModeMirror;
               texDesc.filterMode       = cudaFilterModePoint;
               texDesc.readMode         = cudaReadModeElementType;

@@ -47,9 +47,9 @@ namespace dehancer {
               // Specify texture object parameters
               cudaTextureDesc texDesc{};
               memset(&texDesc, 0, sizeof(texDesc));
-              texDesc.addressMode[0]   = cudaAddressModeMirror;//cudaAddressModeClamp;
-              texDesc.addressMode[1]   = cudaAddressModeMirror;//cudaAddressModeClamp;
-              texDesc.addressMode[2]   = cudaAddressModeMirror;//cudaAddressModeClamp;
+              texDesc.addressMode[0]   = cudaAddressModeMirror;
+              texDesc.addressMode[1]   = cudaAddressModeMirror;
+              texDesc.addressMode[2]   = cudaAddressModeMirror;
               /***
                * ALWAYS LINEAR! IT USES for LUT interpolations only
                */
