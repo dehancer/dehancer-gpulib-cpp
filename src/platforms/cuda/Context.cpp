@@ -11,51 +11,44 @@ namespace dehancer::cuda {
     std::map<size_t,Context::device_ref> Context::cache_{};
     
     Context::Context(const void *command_queue):
-    command_queue_(command_queue),
-    context_(nullptr),
-    device_id_(0),
-    is_half_texture_allowed_(false)
+            command_queue_(command_queue),
+            device_ref_({})
     {
       std::lock_guard lock(mutex_);
-
+      
       auto id = reinterpret_cast<std::size_t>(get_command_queue());
-
+      
       auto it = cache_.find(id);
-
+      
       if (it==cache_.end()) {
-  
-        CHECK_CUDA(cuStreamGetCtx(get_command_queue(), &context_));
+        
+        CHECK_CUDA(cuStreamGetCtx(get_command_queue(), &device_ref_.context));
         push();
-        CHECK_CUDA(cuCtxGetDevice(&device_id_));
+        CHECK_CUDA(cuCtxGetDevice(&device_ref_.device_id));
         pop();
+        
         cudaDeviceProp info{};
         get_device_info(info);
         if (info.major >= 7) {
-          is_half_texture_allowed_ = true;
+          device_ref_.is_half_texture_allowed = true;
         }
   
-      device_ref d = {
-                context_,
-                device_id_,
-                is_half_texture_allowed_
-        };
+        device_ref_.max_device_threads = static_cast<size_t>(info.maxThreadsPerBlock);
         
-        cache_[id] = d;
+        cache_[id] = device_ref_;
         
       }
       else {
-        context_ = it->second.context;
-        device_id_ = it->second.device_id;
-        is_half_texture_allowed_ = it->second.is_half_texture_allowed;
+        device_ref_ = it->second;
       }
     }
-
+    
     CUstream Context::get_command_queue() const {
       return static_cast<CUstream>((void *) command_queue_);
     }
     
     CUcontext Context::get_command_context () const {
-      return context_;
+      return device_ref_.context;
     }
     
     void Context::push () const {
@@ -63,15 +56,15 @@ namespace dehancer::cuda {
     }
     
     void Context::pop () const {
-      CHECK_CUDA(cuCtxPopCurrent(&context_));
+      CHECK_CUDA(cuCtxPopCurrent(&(device_ref_.context)));
     }
     
     CUdevice Context::get_device_id () const {
-      return device_id_;
+      return device_ref_.device_id;
     }
     
     void Context::get_device_info (cudaDeviceProp &info) const {
-      cudaGetDeviceProperties(&info, device_id_);
+      cudaGetDeviceProperties(&info, device_ref_.device_id);
     }
     
     void Context::get_mem_info (size_t &total, size_t &free) {
@@ -79,6 +72,10 @@ namespace dehancer::cuda {
     }
     
     bool Context::is_half_texture_allowed () const {
-      return is_half_texture_allowed_;
+      return device_ref_.is_half_texture_allowed;
+    }
+    
+    size_t Context::get_max_threads () const {
+      return device_ref_.max_device_threads;
     }
 }

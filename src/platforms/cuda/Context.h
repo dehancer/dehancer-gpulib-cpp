@@ -15,9 +15,10 @@ namespace dehancer::cuda {
     public:
         
         struct device_ref {
-            CUcontext context;
-            CUdevice device_id;
-            bool is_half_texture_allowed;
+            CUcontext context = nullptr;
+            CUdevice device_id = 0;
+            bool is_half_texture_allowed = false;
+            size_t max_device_threads = 16;
         };
         
     public:
@@ -26,17 +27,16 @@ namespace dehancer::cuda {
         [[nodiscard]] CUcontext get_command_context() const;
         [[nodiscard]] CUdevice get_device_id() const;
         void get_device_info(cudaDeviceProp& info) const;
+        [[nodiscard]] size_t get_max_threads() const;
         void get_mem_info(size_t& total, size_t& free);
-        bool is_half_texture_allowed() const;
+        [[nodiscard]] bool is_half_texture_allowed() const;
     
         void push() const;
         void pop() const;
         
     private:
         const void *command_queue_;
-        mutable CUcontext context_;
-        mutable CUdevice device_id_;
-        bool is_half_texture_allowed_;
+        mutable device_ref device_ref_;
         static std::mutex mutex_;
         static std::map<size_t,device_ref> cache_;
     };

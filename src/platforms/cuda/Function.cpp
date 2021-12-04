@@ -107,20 +107,16 @@ namespace dehancer::cuda {
     {
       
       command_->push();
-  
-      CUdevice device_id = command_->get_device_id();
-  
+      
       #ifdef PRINT_KERNELS_DEBUG
-      std::cout << "CUDA Function " << kernel_name_ << "context is changed to device["<<device_id<<"]" <<std::endl;
+      CUdevice device_id = command_->get_device_id();
+      std::cout << "CUDA Function " << kernel_name_ << " context is changed to device["<<device_id<<"]" <<std::endl;
       #endif
       
-      cudaDeviceProp props{};
-      
-      cudaGetDeviceProperties(&props, device_id);
-      
-      max_device_threads_ = props.maxThreadsPerBlock;
+      max_device_threads_ = command_->get_max_threads();
       
       #ifdef PRINT_KERNELS_DEBUG
+      cudaDeviceProp props{}; command_->get_device_info(props);
       std::cout << "CUDA Function "<<kernel_name_ << " device["<<device_id<<"]: " << props.name << " max grid: " << props.maxGridSize[0] << "x" << props.maxGridSize[1] << "x" << props.maxGridSize[2] <<std::endl;
       std::cout << "CUDA Function "<<kernel_name_ << " device["<<device_id<<"]: " << props.name << " max dim: " << props.maxThreadsDim[0] << "x" << props.maxThreadsDim[1] << "x" << props.maxThreadsDim[2] <<std::endl;
       #endif
