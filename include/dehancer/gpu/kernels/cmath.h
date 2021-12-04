@@ -354,5 +354,48 @@ static inline DHCR_HOST_DEVICE_FUNC float4 __attribute__((overloadable)) linear_
   return result;
 }
 
+//
+// flow control
+//
+
+static inline DHCR_HOST_DEVICE_FUNC float when_eq(float x, float y) {
+  return 1.0f - abs(sign(x - y));
+}
+
+static inline DHCR_HOST_DEVICE_FUNC  float when_neq(float x, float y) {
+  return abs(sign(x - y));
+}
+
+static inline DHCR_HOST_DEVICE_FUNC  float when_gt(float x, float y) {
+  return fmaxf(sign(x - y), 0.0f);
+}
+
+static inline DHCR_HOST_DEVICE_FUNC  float when_lt(float x, float y) {
+  return fminf(1.0f - sign(x - y), 1.0f);
+}
+
+static inline DHCR_HOST_DEVICE_FUNC  float when_ge(float x, float y) {
+  return 1.0f - when_lt(x, y);
+}
+
+static inline DHCR_HOST_DEVICE_FUNC float when_le(float x, float y) {
+  return 1.0f - when_gt(x, y);
+}
+
+static inline DHCR_HOST_DEVICE_FUNC float when_and(float a, float b) {
+  return a * b;
+}
+
+static inline DHCR_HOST_DEVICE_FUNC  float  when_between_and(float x, float y, float h) {
+  return when_ge(x - h, 0.0f) * when_le(y - h, 0.0f);
+}
+
+METAL_FUNC float  when_or(float a, float b) {
+  return fminf(a + b, 1.0);
+}
+
+METAL_FUNC float when_not(float a) {
+  return 1.0 - a;
+}
 
 #endif //DEHANCER_GPULIB_CMATH_H
