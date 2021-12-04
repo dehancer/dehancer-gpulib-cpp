@@ -100,27 +100,12 @@ namespace dehancer {
               return data;
             }
             
-//             __device__
-//            T read_half_pixel(int2 gid) const {
-//              T data;
-//              int pitch = sizeof(T)/2;
-//              surf2Dread(&data, surface_, gid.x * pitch , gid.y , cudaBoundaryModeClamp);
-//              return data;
-//            }
-            
             template<class C>
             __device__
             void write(T color, C coords) {
               int pitch = is_half_ ? sizeof(T)/2 : sizeof(T);
               surf2Dwrite(color, surface_, coords.x * pitch , coords.y , cudaBoundaryModeClamp);
             }
-            
-//            template<class C>
-//            __device__
-//            void write_half(T color, C coords) {
-//              int pitch = sizeof(T)/2;
-//              surf2Dwrite(color, surface_, coords.x * pitch , coords.y , cudaBoundaryModeClamp);
-//            }
 #endif
         
         private:

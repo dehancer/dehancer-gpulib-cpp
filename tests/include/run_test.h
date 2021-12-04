@@ -73,6 +73,8 @@ inline static void run_images(std::string platform,
 #endif
     assert(!devices.empty());
     
+    std::reverse(devices.begin(), devices.end());
+    
     int dev_num = 0;
     std::cout << "Platform: " << platform << std::endl;
     for (auto d: devices) {

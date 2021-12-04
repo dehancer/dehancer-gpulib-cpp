@@ -63,14 +63,14 @@ namespace dehancer::cuda {
         
         if (from_memory) {
           if (desc_.type == TextureDesc::Type::i2d || desc_.type == TextureDesc::Type::i1d) {
-            CHECK_CUDA(cudaMemcpy2DToArrayAsync(mem_->get_contents(),
-                                                0, 0,
-                                                from_memory,
-                                                mem_->get_width() * pitch,
-                                                mem_->get_width() * dpitch,
-                                                mem_->get_height(),
-                                                cudaMemcpyHostToDevice,
-                                                get_command_queue()));
+//            CHECK_CUDA(cudaMemcpy2DToArrayAsync(mem_->get_contents(),
+//                                                0, 0,
+//                                                from_memory,
+//                                                mem_->get_width() * pitch,
+//                                                mem_->get_width() * dpitch,
+//                                                mem_->get_height(),
+//                                                cudaMemcpyHostToDevice,
+//                                                get_command_queue()));
           } else if (desc_.type == TextureDesc::Type::i3d) {
             
             
@@ -156,12 +156,12 @@ namespace dehancer::cuda {
       
       try {
         push();
-        CHECK_CUDA(cudaMemcpy2DFromArrayAsync(buffer,
-                                              mem_->get_width() * hpitch,
-                                              mem_->get_contents(),
-                                              0, 0, mem_->get_width() * dpitch, mem_->get_height(),
-                                              cudaMemcpyDeviceToHost,
-                                              get_command_queue()));
+//        CHECK_CUDA(cudaMemcpy2DFromArrayAsync(buffer,
+//                                              mem_->get_width() * hpitch,
+//                                              mem_->get_contents(),
+//                                              0, 0, mem_->get_width() * dpitch, mem_->get_height(),
+//                                              cudaMemcpyDeviceToHost,
+//                                              get_command_queue()));
         pop();
       }
       catch (const std::runtime_error &e) {

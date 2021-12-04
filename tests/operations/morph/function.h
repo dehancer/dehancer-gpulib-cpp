@@ -35,7 +35,7 @@ auto function_test =  [] (int dev_num,
       
       auto tmp_text = desc.make(command_queue);
       
-      dehancer::ResampleKernel(command_queue, input_text.get_texture(), tmp_text, dehancer::ResampleKernel::Mode::bicubic, true).process();
+      dehancer::ResampleKernel(command_queue, input_text.get_texture(), tmp_text, dehancer::ResampleKernel::Mode::bicubic, false).process();
 //      dehancer::PassKernel(command_queue, input_text.get_texture(), tmp_text, true).process();
       
       auto kernel = dehancer::DilateKernel(command_queue, 4);

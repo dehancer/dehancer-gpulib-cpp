@@ -42,8 +42,6 @@ namespace dehancer::cuda {
     }
     
     void Context::get_mem_info (size_t &total, size_t &free) {
-      //push();
       cudaMemGetInfo( &free, &total );
-      //pop();
     }
 }
