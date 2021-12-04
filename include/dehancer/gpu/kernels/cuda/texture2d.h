@@ -25,7 +25,7 @@ namespace dehancer {
 
 #ifndef CUDA_KERNEL
             texture2d(size_t width, size_t height, bool normalized_coords = true):
-                    texture_(0),
+                    texture_normalized_(0),
                     surface_(0),
                     width_(width),
                     height_(height),
@@ -64,13 +64,13 @@ namespace dehancer {
               texDesc.normalizedCoords = normalized_coords_;
               
               // Create texture object
-              CHECK_CUDA(cudaCreateTextureObject(&texture_, &resDesc, &texDesc, nullptr));
+              CHECK_CUDA(cudaCreateTextureObject(&texture_normalized_, &resDesc, &texDesc, nullptr));
             }
             
             ~texture2d() {
-              if (texture_)
-                cuTexObjectDestroy(texture_);
-              texture_ = 0;
+              if (texture_normalized_)
+                cuTexObjectDestroy(texture_normalized_);
+              texture_normalized_ = 0;
               if (surface_)
                 cuSurfObjectDestroy(surface_);
               surface_ = 0;
@@ -83,13 +83,13 @@ namespace dehancer {
             template<class C>
             __device__
             T read(C coords) {
-              return tex2D<T>(texture_, coords.x, coords.y);
+              return tex2D<T>(texture_normalized_, coords.x, coords.y);
             }
 
             template<class C>
             __device__
             T read(C coords) const {
-              return tex2D<T>(texture_, coords.x, coords.y);
+              return tex2D<T>(texture_normalized_, coords.x, coords.y);
             }
 
             __device__
@@ -100,31 +100,16 @@ namespace dehancer {
               return data;
             }
             
-//             __device__
-//            T read_half_pixel(int2 gid) const {
-//              T data;
-//              int pitch = sizeof(T)/2;
-//              surf2Dread(&data, surface_, gid.x * pitch , gid.y , cudaBoundaryModeClamp);
-//              return data;
-//            }
-            
             template<class C>
             __device__
             void write(T color, C coords) {
               int pitch = is_half_ ? sizeof(T)/2 : sizeof(T);
               surf2Dwrite(color, surface_, coords.x * pitch , coords.y , cudaBoundaryModeClamp);
             }
-            
-//            template<class C>
-//            __device__
-//            void write_half(T color, C coords) {
-//              int pitch = sizeof(T)/2;
-//              surf2Dwrite(color, surface_, coords.x * pitch , coords.y , cudaBoundaryModeClamp);
-//            }
 #endif
         
         private:
-            cudaTextureObject_t texture_;
+            cudaTextureObject_t texture_normalized_;
             cudaSurfaceObject_t surface_;
             size_t width_;
             size_t height_;

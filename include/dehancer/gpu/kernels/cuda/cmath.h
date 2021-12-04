@@ -1449,3 +1449,15 @@ inline __host__ __device__ float3 step(float edge, float3 x) {
 inline __host__ __device__ float4 step(float edge, float4 x) {
   return make_float4(step(edge, x.x),step(edge, x.y),step(edge, x.z),step(edge, x.w));
 }
+
+inline __device__ int sign(float x)
+
+{
+  
+  const  int pos = signbit(x);
+  
+  const int neg = signbit(-x);
+  
+  return (pos - neg) / (pos + neg);
+  
+}

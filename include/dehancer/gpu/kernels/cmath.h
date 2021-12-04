@@ -390,11 +390,11 @@ static inline DHCR_HOST_DEVICE_FUNC  float  when_between_and(float x, float y, f
   return when_ge(x - h, 0.0f) * when_le(y - h, 0.0f);
 }
 
-METAL_FUNC float  when_or(float a, float b) {
+static inline DHCR_HOST_DEVICE_FUNC  float  when_or(float a, float b) {
   return fminf(a + b, 1.0);
 }
 
-METAL_FUNC float when_not(float a) {
+static inline DHCR_HOST_DEVICE_FUNC  float when_not(float a) {
   return 1.0 - a;
 }
 

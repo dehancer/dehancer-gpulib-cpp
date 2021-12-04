@@ -8,7 +8,6 @@
 #include "dehancer/gpu/Memory.h"
 #include "dehancer/gpu/Texture.h"
 #include "dehancer/gpu/Kernel.h"
-#include "dehancer/gpu/TextureIO.h"
 
 namespace dehancer {
     

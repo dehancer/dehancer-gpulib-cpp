@@ -38,11 +38,11 @@ namespace dehancer::impl {
     }
     
     const Texture& TextureOutput::get_texture() const {
-      return source_;//->get_ptr();
+      return source_;
     }
     
     const Texture& TextureOutput::get_texture() {
-      return source_;//->get_ptr();
+      return source_;
     }
     
     Error TextureOutput::write_as_image(std::vector<uint8_t> &buffer) const {
