@@ -40,9 +40,15 @@ namespace dehancer::cuda {
             break;
           
           case TextureDesc::PixelFormat::rgba16float:
-            mem_ = make_texture<float4,true>();
-            pitch = sizeof(float4);
-            dpitch = sizeof(float4)/2;
+            if (is_half_texture_allowed()) {
+              mem_ = make_texture<float4, true>();
+              pitch = sizeof(float4);
+              dpitch = sizeof(float4) / 2;
+            }
+            else {
+              mem_ = make_texture<float4, false>();
+              dpitch = pitch = sizeof(float4);
+            }
             break;
           
           case TextureDesc::PixelFormat::rgba32uint:
@@ -63,14 +69,14 @@ namespace dehancer::cuda {
         
         if (from_memory) {
           if (desc_.type == TextureDesc::Type::i2d || desc_.type == TextureDesc::Type::i1d) {
-//            CHECK_CUDA(cudaMemcpy2DToArrayAsync(mem_->get_contents(),
-//                                                0, 0,
-//                                                from_memory,
-//                                                mem_->get_width() * pitch,
-//                                                mem_->get_width() * dpitch,
-//                                                mem_->get_height(),
-//                                                cudaMemcpyHostToDevice,
-//                                                get_command_queue()));
+            CHECK_CUDA(cudaMemcpy2DToArrayAsync(mem_->get_contents(),
+                                                0, 0,
+                                                from_memory,
+                                                mem_->get_width() * pitch,
+                                                mem_->get_width() * dpitch,
+                                                mem_->get_height(),
+                                                cudaMemcpyHostToDevice,
+                                                get_command_queue()));
           } else if (desc_.type == TextureDesc::Type::i3d) {
             
             
@@ -134,34 +140,38 @@ namespace dehancer::cuda {
       switch (desc_.pixel_format) {
         
         case TextureDesc::PixelFormat::rgba32float:
-          dpitch = sizeof(float4);
+          hpitch = dpitch = sizeof(float4);
           break;
         
         case TextureDesc::PixelFormat::rgba16float:
-          dpitch = sizeof(float4)/2;
+          dpitch = sizeof(float4);
+          if (is_half_texture_allowed())
+            dpitch/=2;
           break;
         
         case TextureDesc::PixelFormat::rgba32uint:
-          dpitch = sizeof(uint32_t[4]);
+          hpitch = dpitch = sizeof(uint32_t[4]);
           break;
         
         case TextureDesc::PixelFormat::rgba16uint:
-          dpitch = sizeof(uint16_t[4]);
+          hpitch = dpitch = sizeof(uint16_t[4]);
           break;
         
         case TextureDesc::PixelFormat::rgba8uint:
-          dpitch = sizeof(uint8_t[4]);
+          hpitch = dpitch = sizeof(uint8_t[4]);
           break;
       }
       
       try {
         push();
-//        CHECK_CUDA(cudaMemcpy2DFromArrayAsync(buffer,
-//                                              mem_->get_width() * hpitch,
-//                                              mem_->get_contents(),
-//                                              0, 0, mem_->get_width() * dpitch, mem_->get_height(),
-//                                              cudaMemcpyDeviceToHost,
-//                                              get_command_queue()));
+        CHECK_CUDA(cudaMemcpy2DFromArrayAsync(buffer,
+                                              mem_->get_width() * hpitch,
+                                              mem_->get_contents(),
+                                              0, 0,
+                                              mem_->get_width() * dpitch,
+                                              mem_->get_height(),
+                                              cudaMemcpyDeviceToHost,
+                                              get_command_queue()));
         pop();
       }
       catch (const std::runtime_error &e) {
@@ -197,7 +207,10 @@ namespace dehancer::cuda {
           return size * sizeof(float);
         
         case TextureDesc::PixelFormat::rgba16float:
-          return size * sizeof(float)/2;
+          if (is_half_texture_allowed())
+            return size * sizeof(float)/2;
+          else
+            return size * sizeof(float);
         
         case TextureDesc::PixelFormat::rgba32uint:
           return size * sizeof(uint32_t);
