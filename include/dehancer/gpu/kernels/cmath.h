@@ -358,6 +358,7 @@ static inline DHCR_HOST_DEVICE_FUNC float4 __attribute__((overloadable)) linear_
 // flow control
 //
 
+/***
 static inline DHCR_HOST_DEVICE_FUNC float when_eq(float x, float y) {
   return 1.0f - abs(sign(x - y));
 }
@@ -397,5 +398,5 @@ static inline DHCR_HOST_DEVICE_FUNC  float  when_or(float a, float b) {
 static inline DHCR_HOST_DEVICE_FUNC  float when_not(float a) {
   return 1.0 - a;
 }
-
+*/
 #endif //DEHANCER_GPULIB_CMATH_H
