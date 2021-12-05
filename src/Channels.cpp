@@ -3,6 +3,7 @@
 //
 
 #include "dehancer/gpu/Channels.h"
+#include "dehancer/gpu/operations/PassKernel.h"
 #include "dehancer/gpu/Log.h"
 #include <cmath>
 
@@ -10,8 +11,8 @@ namespace dehancer {
     
     ChannelsDesc::Scale2D ChannelsDesc::default_scale = {(Scale){1.0f, 1.0f}, {1.0f,1.0f}, {1.0f,1.0f}, {1.0f,1.0f}};
     
-    Channels ChannelsDesc::make (const void *command_queue) const {
-      return ChannelsHolder::Make(command_queue, *this);
+    Channels ChannelsDesc::make (const void *command_queue, const ChannelsDesc::ActiveChannelsMask& amask) const {
+      return ChannelsHolder::Make(command_queue, *this, amask);
     }
     
     size_t ChannelsDesc::get_hash () const {
@@ -31,14 +32,25 @@ namespace dehancer {
         
         struct ChannelItem {
             size_t                                hash{};
+            dehancer::ChannelsDesc::ActiveChannelsMask    amask{};
             std::shared_ptr<std::array<Memory,4>> channels = std::make_shared<std::array<Memory,4>>();
         };
+        
         
         struct ChannelsHolder: public dehancer::ChannelsHolder, public dehancer::Command {
             
             std::shared_ptr<ChannelItem> item_;
             ChannelsDesc desc_;
             std::shared_ptr<std::array<ChannelsDesc,4>> channel_descs_;
+//
+//            void set_active_mask(const ChannelsHolder::ActiveChannelsMask& amask) override {
+//              //item_->amask = amask;
+//              //init();
+//            };
+//
+//            [[nodiscard]] const ChannelsHolder::ActiveChannelsMask& get_active_mask() const override {
+//              return item_->amask;
+//            };
             
             size_t get_width(int index) const override { return channel_descs_->at(index).width; };
             size_t get_height(int index) const override {return channel_descs_->at(index).height;};
@@ -47,11 +59,14 @@ namespace dehancer {
             
             ChannelsDesc get_desc() const override { return desc_;}
             
-            Memory& at(int index) override { return item_->channels->at(index);};
+            Memory& at(int index) override {
+              return item_->channels->at(index);
+            };
+            
             const Memory& at(int index) const override { return item_->channels->at(index);};
             [[nodiscard]] size_t size() const override { return item_->channels->size(); };
             
-            ChannelsHolder(const void *command_queue, const ChannelsDesc& desc):
+            ChannelsHolder(const void *command_queue, const ChannelsDesc& desc, const ChannelsDesc::ActiveChannelsMask& amask ):
                     Command(command_queue),
                     item_(std::make_shared<ChannelItem>()),
                     desc_(desc),
@@ -59,7 +74,11 @@ namespace dehancer {
                                            std::make_shared<std::array<ChannelsDesc,4>>()
                                    })
             {
-              
+              item_->amask = amask;
+              init();
+            }
+            
+            void init() {
               int i = 0;
               for(auto& c: *channel_descs_){
                 c = desc_;
@@ -75,7 +94,12 @@ namespace dehancer {
               for (auto &c : *item_->channels) {
                 auto size = sizeof(float) * channel_descs_->at(i).width * channel_descs_->at(i).height;
                 if (size == 0) continue;
-                c = MemoryHolder::Make(get_command_queue(), size);
+                if (item_->amask[i]) {
+                  c = MemoryHolder::Make(get_command_queue(), size);
+                }
+                else {
+                  c = nullptr;
+                }
                 ++i;
               }
             }
@@ -86,16 +110,18 @@ namespace dehancer {
     
     Channels ChannelsHolder::Make(const void *command_queue,
                                   size_t width,
-                                  size_t height) {
+                                  size_t height,
+                                  const ChannelsDesc::ActiveChannelsMask& amask
+    ) {
       ChannelsDesc desc = {
               .width = width,
               .height = height
       };
-      return std::make_shared<impl::ChannelsHolder>(command_queue,desc);
+      return std::make_shared<impl::ChannelsHolder>(command_queue,desc,amask);
     }
     
-    Channels ChannelsHolder::Make (const void *command_queue, const ChannelsDesc &desc) {
-      return std::make_shared<impl::ChannelsHolder>(command_queue,desc);
+    Channels ChannelsHolder::Make (const void *command_queue, const ChannelsDesc &desc, const ChannelsDesc::ActiveChannelsMask& amask ) {
+      return std::make_shared<impl::ChannelsHolder>(command_queue,desc,amask);
     }
     
     
@@ -112,6 +138,7 @@ namespace dehancer {
     namespace impl {
         struct ChannelsInputImpl {
             ChannelsDesc desc;
+            ChannelsDesc::ActiveChannelsMask amask;
             Channels channels = nullptr;
             ChannelsDesc::Transform transform;
             bool has_mask{};
@@ -123,6 +150,7 @@ namespace dehancer {
                                  const Texture &texture,
                                  const ChannelsDesc::Transform& transform,
                                  ChannelsDesc::Scale2D scale,
+                                 const ChannelsDesc::ActiveChannelsMask& amask,
                                  bool wait_until_completed,
                                  const std::string& library_path):
             Kernel(command_queue,
@@ -139,7 +167,9 @@ namespace dehancer {
               .height = texture ? texture->get_height() : 0,
               .scale = scale
       };
-  
+      
+      impl_->amask = amask;
+      
       impl_->transform = transform;
       impl_->has_mask = transform.mask != nullptr;
       
@@ -156,21 +186,25 @@ namespace dehancer {
     void ChannelsInput::process () {
       
       if (!impl_->channels) {
-        impl_->channels = impl_->desc.make(get_command_queue());
+        impl_->channels = impl_->desc.make(get_command_queue(), impl_->amask);
       }
       
       auto *channels = dynamic_cast<impl::ChannelsHolder *>(impl_->channels.get());
       
       for (int j = 0; j < channels->size(); ++j) {
         
-        execute([this, channels, j](CommandEncoder& encoder){
+        auto mem = channels->at(j);
+        
+        if (!mem) continue;
+        
+        execute([this, channels, j, &mem](CommandEncoder& encoder){
             
             encoder.set(get_source(),0);
             
-            encoder.set(channels->at(j),1);
+            encoder.set(mem,1);
             
-            int cw = channels->get_width(j);
-            int ch = channels->get_height(j);
+            int cw = static_cast<int>(channels->get_width(j));
+            int ch = static_cast<int>(channels->get_height(j));
             
             encoder.set(cw, 2);
             encoder.set(ch, 3);
@@ -266,6 +300,11 @@ namespace dehancer {
       return impl_->channels;
     }
     
+//    void ChannelsInput::set_active_mask (const ChannelsHolder::ActiveChannelsMask &amask) {
+//      if (impl_->channels)
+//        impl_->channels->set_active_mask(amask);
+//    }
+    
     /***
      *
      * @param command_queue
@@ -275,10 +314,11 @@ namespace dehancer {
      * @param wait_until_completed
      * @param library_path
      */
-     
+    
     namespace impl {
         struct ChannelsOutputImpl {
             Channels channels = nullptr;
+            //ChannelsDesc::ActiveChannelsMask amask;
             ChannelsDesc::Transform transform;
             bool has_mask{};
             Texture mask = nullptr;
@@ -289,6 +329,7 @@ namespace dehancer {
                                    const Texture& destination,
                                    const Channels& channels,
                                    const ChannelsDesc::Transform& transform,
+                                   //const ChannelsDesc::ActiveChannelsMask& amask,
                                    bool wait_until_completed,
                                    const std::string& library_path):
             Kernel(command_queue,
@@ -299,6 +340,7 @@ namespace dehancer {
                    library_path),
             impl_(std::make_shared<impl::ChannelsOutputImpl>())
     {
+      //impl_->amask = channels->;
       impl_->channels = channels;
       impl_->transform = transform;
       impl_->has_mask = impl_->transform.mask != nullptr;
@@ -316,22 +358,33 @@ namespace dehancer {
     void ChannelsOutput::process () {
       
       auto *channels = dynamic_cast<impl::ChannelsHolder *>(impl_->channels.get());
-      
+  
+      if (get_source()){
+        PassKernel(get_command_queue(),get_source(),get_destination(), get_wait_completed(), get_library_path()).process();
+      }
       
       for (int j = 0; j < channels->size(); ++j) {
         
         auto channel = channels->at(j);
         
+        //bool has_channel = channel != nullptr;
+        
+        if (!channel) continue;
+  
+        //channel = MemoryHolder::Make(get_command_queue(),1);
+        
         execute([this, channels, &channel, j](CommandEncoder& encoder){
-            
-            encoder.set(get_destination(),0);
+          
+          auto src = get_source() ? get_source() : get_destination();
+          
+            encoder.set(src,0);
             
             encoder.set(get_destination(),1);
             
             encoder.set(channel,2);
             
-            int cw = channels->get_width(j);
-            int ch = channels->get_height(j);
+            int cw = static_cast<int>(channels->get_width(j));
+            int ch = static_cast<int>(channels->get_height(j));
             
             encoder.set(cw, 3);
             encoder.set(ch, 4);
@@ -352,6 +405,7 @@ namespace dehancer {
             
             encoder.set(impl_->has_mask , 11);
             encoder.set(impl_->mask , 12);
+//            encoder.set(has_channel , 13);
             
             return CommandEncoder::Size::From(get_destination());
         });
@@ -392,9 +446,15 @@ namespace dehancer {
     
     void ChannelsOutput::set_channels (const Channels &channels) {
       impl_->channels = channels;
+      //impl_->channels->set_active_mask(channels->get_active_mask());
     }
     
     const Channels &ChannelsOutput::get_channels () const {
       return impl_->channels;
     }
+    
+//    void ChannelsOutput::set_active_mask (const ChannelsHolder::ActiveChannelsMask &amask) {
+//      if (impl_->channels)
+//        impl_->channels->set_active_mask(amask);
+//    }
 }
