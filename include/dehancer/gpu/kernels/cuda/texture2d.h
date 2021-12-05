@@ -30,7 +30,8 @@ namespace dehancer {
                     width_(width),
                     height_(height),
                     normalized_coords_(normalized_coords),
-                    is_half_(is_half_float)
+                    is_half_(is_half_float),
+                    mem_(nullptr)
             {
               assert(width_ > 0 && height_ > 0);
               

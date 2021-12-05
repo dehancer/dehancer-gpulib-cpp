@@ -8,14 +8,6 @@
 
 namespace dehancer {
     
-    static dehancer::ChannelsDesc::Transform options_one = {
-            .slope = {8.0f,4,0,0},
-            .offset = {128.0f,128,0,0},
-            .enabled = {true,true,false,false},
-            .direction = dehancer::ChannelsDesc::TransformDirection::forward,
-            .mask = nullptr
-    };
-    
     ChannelsDesc::Scale2D ChannelsDesc::default_scale = {(Scale){1.0f, 1.0f}, {1.0f,1.0f}, {1.0f,1.0f}, {1.0f,1.0f}};
     
     Channels ChannelsDesc::make (const void *command_queue) const {

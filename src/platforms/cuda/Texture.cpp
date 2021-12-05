@@ -114,7 +114,11 @@ namespace dehancer::cuda {
       pop();
     }
     
-    TextureHolder::~TextureHolder() = default;
+    TextureHolder::~TextureHolder() {
+      push();
+      mem_ = nullptr;
+      pop();
+    };
     
     const void *TextureHolder::get_memory() const {
       return mem_.get();
