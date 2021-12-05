@@ -168,6 +168,11 @@ namespace dehancer {
         ChannelsHolder() = default;
     };
     
+    namespace impl {
+        struct ChannelsInputImpl;
+        struct ChannelsOutputImpl;
+    }
+    
     class ChannelsInput: public Kernel {
     
     public:
@@ -182,7 +187,7 @@ namespace dehancer {
                                const std::string& library_path = ""
         );
         
-        [[nodiscard]] const Channels& get_channels() const { return channels_;}
+        [[nodiscard]] const Channels& get_channels() const;
         
         void process() override;
         void process(const Texture &source, const Texture &destination) override;
@@ -195,11 +200,7 @@ namespace dehancer {
         virtual const ChannelsDesc::Transform& get_transform() const;
     
     private:
-        ChannelsDesc desc_;
-        Channels channels_;
-        ChannelsDesc::Transform transform_;
-        bool has_mask_;
-        Texture mask_;
+        std::shared_ptr<impl::ChannelsInputImpl> impl_;
     };
     
     class ChannelsOutput: public Kernel {
@@ -224,12 +225,10 @@ namespace dehancer {
         virtual void set_transform(const ChannelsDesc::Transform& transform);
         virtual void set_channels(const Channels& channels);
         virtual const ChannelsDesc::Transform& get_transform() const;
-    
+        [[nodiscard]] const Channels& get_channels() const;
+
     private:
-        Channels channels_;
-        ChannelsDesc::Transform transform_;
-        bool has_mask_;
-        Texture mask_;
+        std::shared_ptr<impl::ChannelsOutputImpl> impl_;
     };
 }
 
