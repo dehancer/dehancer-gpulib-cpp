@@ -47,7 +47,7 @@ namespace dehancer {
         if (size%2==0) size+=1;
         if (size<3) size=3;
         
-        bool doDownscaling = sigma > 2.0f*MIN_DOWNSCALED_SIGMA + 0.5f;
+       // bool doDownscaling = sigma > 2.0f*MIN_DOWNSCALED_SIGMA + 0.5f;
         
         dehancer::math::make_gaussian_kernel(data, size, sigma);
         

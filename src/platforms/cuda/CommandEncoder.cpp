@@ -8,7 +8,7 @@
 
 namespace dehancer::cuda {
 
-    CommandEncoder::CommandEncoder(CUfunction kernel,dehancer::cuda::Function* function): kernel_(kernel), function_(function){}
+    CommandEncoder::CommandEncoder(CUfunction kernel, dehancer::cuda::Function* function): kernel_(kernel), function_(function){}
 
     void CommandEncoder::resize_at_index(int index) {
       if (args_.empty()) {
@@ -39,7 +39,10 @@ namespace dehancer::cuda {
 
     void CommandEncoder::set(const Memory &memory, int index) {
       resize_at_index(index);
-      args_.at(index) = memory->get_pointer();
+      if (memory)
+        args_.at(index) = memory->get_pointer();
+      //else
+        //args_.at(index) = MemoryHolder::Make(function_->get_command(), 1)->get_pointer();
     }
 
     void CommandEncoder::set(float p, int index) {

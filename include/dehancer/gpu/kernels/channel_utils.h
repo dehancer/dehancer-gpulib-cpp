@@ -88,8 +88,9 @@ DHCR_KERNEL void one_channel_to_image (
         DHCR_CONST_ARG_REF (DHCR_TransformDirection) direction DHCR_BIND_BUFFER(9),
         DHCR_CONST_ARG_REF (DHCR_TransformType) trtype DHCR_BIND_BUFFER(10),
         DHCR_CONST_ARG bool_ref_t     has_mask DHCR_BIND_BUFFER(11),
-        texture2d_read_t                  mask DHCR_BIND_TEXTURE(12)
-        
+        texture2d_read_t                  mask DHCR_BIND_TEXTURE(12)//,
+        //DHCR_CONST_ARG bool_ref_t     has_channel DHCR_BIND_BUFFER(13)
+
         DHCR_KERNEL_GID_2D
 
 )
@@ -104,6 +105,11 @@ DHCR_KERNEL void one_channel_to_image (
     int2 destination_size = make_int2(w,h);
     
     channel_tr_ color; color.vec = sampled_color(source, destination_size, gid);
+    
+    //if (!has_channel) {
+    //  write_image(destination, color.vec, gid);
+    //  return;
+    //}
     
     float2 scale  = make_float2((float)channel_w,(float)channel_h)/make_float2((float)w,(float)h);
     float2 coords = make_float2((float)gid.x, (float)gid.y) * scale;
