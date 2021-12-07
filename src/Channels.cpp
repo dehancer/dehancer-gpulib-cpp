@@ -95,7 +95,7 @@ namespace dehancer {
                 auto size = sizeof(float) * channel_descs_->at(i).width * channel_descs_->at(i).height;
                 if (size == 0) continue;
                 if (item_->amask[i]) {
-                  c = MemoryHolder::Make(get_command_queue(), size);
+                  c = MemoryHolder::Make(get_command_queue(), nullptr, size, MemoryDesc::MemFlags::less_memory);
                 }
                 else {
                   c = nullptr;

@@ -98,13 +98,25 @@ namespace dehancer::metal {
       descriptor.depth  = (NSUInteger)desc.depth;
       descriptor.arrayLength = 1;
       descriptor.mipmapLevelCount = 1;
-      descriptor.storageMode = MTLStorageModeShared;// MTLStorageModeManaged;
+  
+      descriptor.cpuCacheMode = MTLCPUCacheModeDefaultCache;
+
+      if (desc.mem_flags&TextureDesc::MemFlags::less_memory) {
+        //descriptor.storageMode = MTLStorageModeMemoryless;
+        descriptor.storageMode = MTLStorageModePrivate;
+        descriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead | MTLTextureUsageShaderWrite;
+      }
+      else {
+        descriptor.storageMode = MTLStorageModeShared;
+  
+        descriptor.resourceOptions = MTLResourceCPUCacheModeDefaultCache;
+        descriptor.usage |= desc.mem_flags & TextureDesc::MemFlags::read_only ? MTLTextureUsageShaderRead : 0;
+        descriptor.usage |= desc.mem_flags & TextureDesc::MemFlags::write_only ? MTLTextureUsageShaderRead : 0;
+        descriptor.usage |= desc.mem_flags & TextureDesc::MemFlags::read_write ? MTLTextureUsageShaderWrite |
+                                                                                 MTLTextureUsageShaderRead : 0;
+      }
       
-//      descriptor.usage = MTLTextureUsagePixelFormatView|MTLTextureUsageRenderTarget;
-      descriptor.usage |= desc.mem_flags&TextureDesc::MemFlags::read_only ? MTLTextureUsageShaderRead : 0;
-      descriptor.usage |= desc.mem_flags&TextureDesc::MemFlags::write_only ? MTLTextureUsageShaderRead : 0;
-      descriptor.usage |= desc.mem_flags&TextureDesc::MemFlags::read_write ? MTLTextureUsageShaderWrite|MTLTextureUsageShaderRead : 0;
-      //descriptor.storageMode = MTLStorageModeManaged;
+      descriptor.allowGPUOptimizedContents = true;
       
       auto componentBytes = sizeof(Float32);
       

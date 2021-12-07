@@ -41,6 +41,7 @@ namespace dehancer {
             read_write = (1 << 0),
             write_only = (1 << 1),
             read_only  = (1 << 2),
+            less_memory = (1 << 3)
         };
         
         /***

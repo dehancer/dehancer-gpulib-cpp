@@ -17,6 +17,14 @@ namespace dehancer {
     using Memory = std::shared_ptr<MemoryHolder>;
     
     struct MemoryDesc {
+        
+        enum MemFlags:uint32_t {
+            read_write = (1 << 0),
+            write_only = (1 << 1),
+            read_only  = (1 << 2),
+            less_memory = (1 << 3)
+        };
+        
         enum MemType : uint32_t {
             host,
             device
@@ -24,7 +32,8 @@ namespace dehancer {
         
         size_t length{};
         MemType type = MemType::host;
-        Memory make(const void *command_queue, const void* from_memory = nullptr);
+        MemFlags mem_flags = MemFlags::read_write;
+        Memory make(const void *command_queue, const void* from_memory = nullptr) const;
     };
     
     /***
@@ -38,7 +47,7 @@ namespace dehancer {
          * @param length - buffer length in bytes
          * @return device memory object holder
          */
-        static Memory Make(const void *command_queue, const void *buffer, size_t length);
+        static Memory Make(const void *command_queue, const void *buffer, size_t length, MemoryDesc::MemFlags flags=MemoryDesc::MemFlags::read_write);
         
         /***
         * Allocate new MemoryHolder object on device
@@ -65,7 +74,9 @@ namespace dehancer {
         static Memory Make(const void* command_queue, void* device_memory);
         
         static Memory Make(const void* command_queue, const void* device_memory);
-        
+    
+        static Memory Make(const void *command_queue, const void* from_memory, const MemoryDesc& desc);
+    
         /***
         * Get a weak shared pointer to memory object.
         * @return

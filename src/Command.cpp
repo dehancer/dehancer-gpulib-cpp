@@ -51,7 +51,11 @@ namespace dehancer {
     void *Command::get_command_queue() {
       return impl_->get_command_queue();
     }
-
+    
+    void Command::set_wait_completed (bool enable) {
+    
+    }
+    
     Command::~Command() = default;
 }
 
