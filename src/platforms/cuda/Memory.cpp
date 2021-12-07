@@ -7,7 +7,7 @@
 
 namespace dehancer::cuda {
 
-    MemoryHolder::MemoryHolder(const void *command_queue, const void* buffer, size_t length):
+    MemoryHolder::MemoryHolder(const void *command_queue, const void* buffer, size_t length, MemoryDesc::MemFlags flags):
             dehancer::MemoryHolder(),
             Context(command_queue),
             memobj_(0),

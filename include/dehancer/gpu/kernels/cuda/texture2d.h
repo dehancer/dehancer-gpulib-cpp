@@ -47,6 +47,7 @@ namespace dehancer {
               CHECK_CUDA(
                       cudaMallocArray(&mem_, &channelDesc, width_, height_,
                                       cudaArraySurfaceLoadStore));
+              
               cudaResourceDesc resDesc{};
               memset(&resDesc, 0, sizeof(resDesc));
               resDesc.resType = cudaResourceTypeArray;

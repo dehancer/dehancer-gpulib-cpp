@@ -57,7 +57,9 @@ namespace dehancer {
          * @return state
          */
         virtual bool get_wait_completed();
-
+    
+        virtual void set_wait_completed(bool enable);
+    
         /***
          * Get pointer to the command queue descriptor or context handler binds with hardware
          * @return pointer to hardware depended descriptor

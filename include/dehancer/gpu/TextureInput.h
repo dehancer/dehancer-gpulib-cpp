@@ -26,9 +26,7 @@ namespace dehancer {
          * @param space - color space transformation
          * @param direction - color space transformation diration
          */
-        explicit TextureInput(const void *command_queue);//,
-                              //const StreamSpace &space = stream_space_identity(),
-                              //StreamSpaceDirection direction = StreamSpaceDirection::DHCR_None);
+        explicit TextureInput(const void *command_queue);
 
         /***
          * Get texture object

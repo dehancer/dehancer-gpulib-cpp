@@ -33,6 +33,7 @@ namespace dehancer {
       
       auto desc = get_destination()->get_desc();
       desc.pixel_format = TextureDesc::PixelFormat::rgba16float;
+      desc.mem_flags = TextureDesc::MemFlags::less_memory;
       
       auto tmp_ = desc.make(get_command_queue());
       

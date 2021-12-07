@@ -18,7 +18,7 @@ namespace dehancer::cuda {
       assert(mem_);
     }
     
-    TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory) :
+    TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory, bool is_device_buffer) :
             dehancer::TextureHolder(),
             Context(command_queue),
             desc_(desc),
@@ -75,7 +75,7 @@ namespace dehancer::cuda {
                                                 mem_->get_width() * pitch,
                                                 mem_->get_width() * dpitch,
                                                 mem_->get_height(),
-                                                cudaMemcpyHostToDevice,
+                                                is_device_buffer ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice,
                                                 get_command_queue()));
           } else if (desc_.type == TextureDesc::Type::i3d) {
             
@@ -89,7 +89,7 @@ namespace dehancer::cuda {
             
             cpy_params.extent = make_cudaExtent(nx, ny, nz);
             
-            cpy_params.kind = cudaMemcpyHostToDevice;
+            cpy_params.kind = is_device_buffer ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
             
             cudaMemcpy3DAsync(&cpy_params, get_command_queue());
           }
@@ -234,7 +234,58 @@ namespace dehancer::cuda {
     TextureDesc::Type TextureHolder::get_type() const {
       return desc_.type;
     }
+    
+    dehancer::Error TextureHolder::copy_to_device (void *buffer) const {
+      if (!buffer) {
+        return Error(CommonError::OUT_OF_RANGE, "Target buffer undefined");
+      }
   
+      size_t dpitch = 0;
+      size_t hpitch = sizeof(float4);
+  
+      switch (desc_.pixel_format) {
+    
+        case TextureDesc::PixelFormat::rgba32float:
+          hpitch = dpitch = sizeof(float4);
+          break;
+    
+        case TextureDesc::PixelFormat::rgba16float:
+          dpitch = sizeof(float4);
+          if (is_half_texture_allowed())
+            dpitch/=2;
+          break;
+    
+        case TextureDesc::PixelFormat::rgba32uint:
+          hpitch = dpitch = sizeof(uint32_t[4]);
+          break;
+    
+        case TextureDesc::PixelFormat::rgba16uint:
+          hpitch = dpitch = sizeof(uint16_t[4]);
+          break;
+    
+        case TextureDesc::PixelFormat::rgba8uint:
+          hpitch = dpitch = sizeof(uint8_t[4]);
+          break;
+      }
+  
+      try {
+        push();
+        CHECK_CUDA(cudaMemcpy2DFromArrayAsync(buffer,
+                                              mem_->get_width() * hpitch,
+                                              mem_->get_contents(),
+                                              0, 0,
+                                              mem_->get_width() * dpitch,
+                                              mem_->get_height(),
+                                              cudaMemcpyDeviceToDevice,
+                                              get_command_queue()));
+        pop();
+      }
+      catch (const std::runtime_error &e) {
+        return Error(CommonError::EXCEPTION, e.what());
+      }
+  
+      return Error(CommonError::OK);
+    }
   
   
 }

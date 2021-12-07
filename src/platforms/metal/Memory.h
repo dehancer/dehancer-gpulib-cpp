@@ -10,7 +10,7 @@
 namespace dehancer::metal {
 
     struct MemoryHolder: public dehancer::MemoryHolder, public metal::Context {
-        MemoryHolder(const void *command_queue, const void* buffer, size_t length);
+        MemoryHolder(const void *command_queue, const void* buffer, size_t length, MemoryDesc::MemFlags flags=MemoryDesc::MemFlags::read_write);
         MemoryHolder(const void *command_queue, std::vector<uint8_t> buffer);
         MemoryHolder(const void *command_queue, void* device_memory);
         ~MemoryHolder() override ;

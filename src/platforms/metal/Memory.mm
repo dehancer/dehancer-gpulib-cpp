@@ -7,7 +7,7 @@
 
 namespace dehancer::metal {
 
-    MemoryHolder::MemoryHolder(const void *command_queue, const void* buffer, size_t length):
+    MemoryHolder::MemoryHolder(const void *command_queue, const void* buffer, size_t length, MemoryDesc::MemFlags flags):
             dehancer::MemoryHolder(),
             Context(command_queue),
             memobj_(nullptr),
@@ -18,11 +18,19 @@ namespace dehancer::metal {
       if (length == 0) {
         throw std::runtime_error("Device memory could not be allocated with size: " + std::to_string(length));
       }
-
-      if (buffer)
-        memobj_ = [get_device() newBufferWithBytes: buffer length: length options:MTLResourceStorageModeShared];
+  
+      MTLResourceOptions res;
+      
+      if (flags&MemoryDesc::MemFlags::less_memory){
+        res = MTLResourceStorageModePrivate | MTLResourceCPUCacheModeDefaultCache;
+      }
       else
-        memobj_ = [get_device() newBufferWithLength:length options:MTLResourceStorageModeShared];
+         res = MTLResourceStorageModeShared | MTLResourceCPUCacheModeDefaultCache;
+      
+      if (buffer)
+        memobj_ = [get_device() newBufferWithBytes: buffer length: length options:res];
+      else
+        memobj_ = [get_device() newBufferWithLength:length options:res];
 
       if ( !memobj_ ) {
         throw std::runtime_error("Device memory could not be allocated with size: " + std::to_string(length));
