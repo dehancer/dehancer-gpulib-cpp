@@ -22,10 +22,10 @@ namespace dehancer::metal {
       MTLResourceOptions res;
       
       if (flags&MemoryDesc::MemFlags::less_memory){
-        res = MTLResourceStorageModePrivate | MTLResourceCPUCacheModeDefaultCache;// | MTLResourceStorageModeMemoryless;//|MTLResourceCPUCacheModeDefaultCache;
+        res = MTLResourceStorageModePrivate | MTLResourceCPUCacheModeDefaultCache;
       }
       else
-         res = MTLResourceStorageModeShared | MTLResourceCPUCacheModeDefaultCache; //res = MTLResourceStorageModeShared|MTLResourceCPUCacheModeDefaultCache;
+         res = MTLResourceStorageModeShared | MTLResourceCPUCacheModeDefaultCache;
       
       if (buffer)
         memobj_ = [get_device() newBufferWithBytes: buffer length: length options:res];

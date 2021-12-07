@@ -82,7 +82,7 @@ namespace dehancer::metal {
       
     }
     
-    TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory) :
+    TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory, bool is_device_buffer) :
             dehancer::TextureHolder(),
             Context(command_queue),
             desc_(desc),
@@ -98,9 +98,9 @@ namespace dehancer::metal {
       descriptor.depth  = (NSUInteger)desc.depth;
       descriptor.arrayLength = 1;
       descriptor.mipmapLevelCount = 1;
-  
+      
       descriptor.cpuCacheMode = MTLCPUCacheModeDefaultCache;
-
+      
       if (desc.mem_flags&TextureDesc::MemFlags::less_memory) {
         //descriptor.storageMode = MTLStorageModeMemoryless;
         descriptor.storageMode = MTLStorageModePrivate;
@@ -108,7 +108,7 @@ namespace dehancer::metal {
       }
       else {
         descriptor.storageMode = MTLStorageModeShared;
-  
+        
         descriptor.resourceOptions = MTLResourceCPUCacheModeDefaultCache;
         descriptor.usage |= desc.mem_flags & TextureDesc::MemFlags::read_only ? MTLTextureUsageShaderRead : 0;
         descriptor.usage |= desc.mem_flags & TextureDesc::MemFlags::write_only ? MTLTextureUsageShaderRead : 0;
@@ -187,12 +187,37 @@ namespace dehancer::metal {
         
         NSUInteger bytes_per_pixel = desc.channels * componentBytes;
         
-        [texture_item_->texture replaceRegion: region
-                                  mipmapLevel: 0
-                                        slice: 0
-                                    withBytes: buffer
-                                  bytesPerRow: bytes_per_pixel * region.size.width
-                                bytesPerImage: bytes_per_pixel * region.size.width * region.size.height];
+        if (is_device_buffer){
+          auto buff = reinterpret_cast<id<MTLBuffer> >((__bridge id)buffer);
+          
+          id <MTLCommandBuffer> commandBuffer = [get_command_queue() commandBuffer];
+          
+          id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
+          
+          [blitEncoder copyFromBuffer: buff
+                         sourceOffset: 0
+                    sourceBytesPerRow: bytes_per_pixel * region.size.width
+                  sourceBytesPerImage: bytes_per_pixel * region.size.width * region.size.height
+                           sourceSize: (MTLSize){desc_.width, desc_.height, desc_.depth}
+                            toTexture: texture_item_->texture
+                     destinationSlice: 0
+                     destinationLevel: 0
+                    destinationOrigin: (MTLOrigin){0,0,0}
+          ];
+          
+          [blitEncoder endEncoding];
+          
+          [commandBuffer commit];
+          
+        }
+        else {
+          [texture_item_->texture replaceRegion:region
+                                    mipmapLevel:0
+                                          slice:0
+                                      withBytes:buffer
+                                    bytesPerRow:bytes_per_pixel * region.size.width
+                                  bytesPerImage:bytes_per_pixel * region.size.width * region.size.height];
+        }
         
         id <MTLCommandBuffer> commandBuffer = [get_command_queue() commandBuffer];
         
@@ -327,6 +352,74 @@ namespace dehancer::metal {
         dehancer::log::print(" ### ~TextureHolder(Metal): %p", texture_item_->texture);
         #endif
       }
+    }
+    
+    dehancer::Error TextureHolder::copy_to_device (void *buffer) const {
+    
+      auto componentBytes = sizeof(Float32);
+      
+      switch (desc_.pixel_format) {
+        
+        case TextureDesc::PixelFormat::rgba32float:
+          componentBytes = sizeof(Float32);
+          break;
+        
+        default:
+          return Error(CommonError::NOT_SUPPORTED, "Texture should be rgba32float");
+      }
+      
+      if (!buffer) {
+        return Error(CommonError::OUT_OF_RANGE, "Target buffer isundefined");
+      }
+  
+  
+      MTLRegion region;
+  
+      switch (desc_.type) {
+        case TextureDesc::Type::i1d:
+          region = MTLRegionMake1D(0, desc_.width);
+          break;
+        case TextureDesc::Type::i2d:
+          region = MTLRegionMake2D(0, 0, desc_.width, desc_.height);
+          break;
+        case TextureDesc::Type::i3d:
+          region = MTLRegionMake3D(0, 0, 0, desc_.width, desc_.height, desc_.depth);
+          break;
+      }
+  
+      auto buff = reinterpret_cast<id<MTLBuffer> >((__bridge id)buffer);
+  
+      NSUInteger bytes_per_pixel = desc_.channels * componentBytes;
+  
+      id<MTLCommandQueue> queue = get_command_queue();
+      
+      id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+      
+      id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
+      //[blitEncoder synchronizeTexture:texture_item_->texture slice:0 level:0];
+  
+  
+      [blitEncoder copyFromTexture: texture_item_->texture
+                       sourceSlice: 0
+                       sourceLevel: 0
+                      sourceOrigin: (MTLOrigin) {0,0,0}
+                        sourceSize: (MTLSize) {desc_.width,desc_.height,desc_.depth}
+                          toBuffer: buff
+                 destinationOffset: 0
+            destinationBytesPerRow:(NSUInteger)bytes_per_pixel * region.size.width
+          destinationBytesPerImage:(NSUInteger)bytes_per_pixel * region.size.width * region.size.height];
+      
+      [blitEncoder endEncoding];
+      
+      [commandBuffer commit];
+      //[commandBuffer waitUntilCompleted];
+      
+//      [texture_item_->texture getBytes: buffer
+//                           bytesPerRow: bytes_per_pixel * region.size.width
+//                            fromRegion: region
+//                           mipmapLevel: 0];
+      
+      return Error(CommonError::OK);
     }
   
   
