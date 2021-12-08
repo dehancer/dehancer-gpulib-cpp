@@ -102,7 +102,6 @@ namespace dehancer::metal {
       descriptor.cpuCacheMode = MTLCPUCacheModeDefaultCache;
       
       if (desc.mem_flags&TextureDesc::MemFlags::less_memory) {
-        //descriptor.storageMode = MTLStorageModeMemoryless;
         descriptor.storageMode = MTLStorageModePrivate;
         descriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead | MTLTextureUsageShaderWrite;
       }

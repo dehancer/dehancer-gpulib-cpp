@@ -357,7 +357,14 @@ namespace dehancer::metal {
     gpu_device_cache::gpu_device_cache(): device_cache_([MTLDeviceCache deviceCache]) {}
 
     void*  gpu_device_cache::get_device(uint64_t reg_id) {
-      return [static_cast<MTLDeviceCache*>(device_cache_) deviceWithRegistryID:reg_id];
+      id<MTLDevice> d = [static_cast<MTLDeviceCache*>(device_cache_) deviceWithRegistryID:reg_id];
+      std::cout << "                     device name:" << [[d name] UTF8String] << std::endl;
+      std::cout << "                       device id:" << [d registryID] << std::endl;
+      std::cout << "         device hasUnifiedMemory:" << (int)[d hasUnifiedMemory] << std::endl;
+      std::cout << "  device readWriteTextureSupport:" << (int)[d readWriteTextureSupport] << std::endl;
+      std::cout << "      device 32BitFloatFiltering:" << (int)[d supports32BitFloatFiltering] << std::endl;
+      
+      return d;
     }
 
     void*  gpu_device_cache::get_default_device() {
