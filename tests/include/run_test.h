@@ -121,6 +121,7 @@ inline static void run_on_devices(std::string platform,
     int dev_num = 0;
     std::cout << "Platform: " << platform << std::endl;
     for (auto d: devices) {
+      dehancer::DeviceCache::Instance().get_device(dehancer::device::get_id(d));
       std::cout << " #" << dev_num++ << std::endl;
       std::cout << "    Device '" << dehancer::device::get_name(d) << " ["<<dehancer::device::get_id(d)<<"]'"<< std::endl;
     }
