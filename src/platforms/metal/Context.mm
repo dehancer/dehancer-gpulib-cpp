@@ -18,4 +18,15 @@ namespace dehancer::metal {
     id<MTLDevice> Context::get_device() const {
       return get_command_queue().device;
     }
+    
+    bool Context::has_unified_memory () const {
+      if([get_command_queue().device respondsToSelector:@selector(hasUnifiedMemory)]) {
+        if (@available(macOS 10.15, *)) {
+            return [get_command_queue().device hasUnifiedMemory];
+        } else {
+            return false;
+        }
+      }
+      return false;
+    }
 }

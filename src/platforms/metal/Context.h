@@ -14,6 +14,7 @@ namespace dehancer::metal {
         explicit Context(const void *command_queue);
         [[nodiscard]] id<MTLCommandQueue> get_command_queue() const;
         [[nodiscard]] id<MTLDevice> get_device() const;
+        [[nodiscard]] bool has_unified_memory() const;
 
     private:
         const void* command_queue_;

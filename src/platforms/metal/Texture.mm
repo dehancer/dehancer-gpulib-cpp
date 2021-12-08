@@ -100,15 +100,21 @@ namespace dehancer::metal {
       descriptor.mipmapLevelCount = 1;
       
       descriptor.cpuCacheMode = MTLCPUCacheModeDefaultCache;
-      
+  
       if (desc.mem_flags&TextureDesc::MemFlags::less_memory) {
         descriptor.storageMode = MTLStorageModePrivate;
         descriptor.usage = MTLTextureUsageRenderTarget | MTLTextureUsageShaderRead | MTLTextureUsageShaderWrite;
       }
       else {
-        descriptor.storageMode = MTLStorageModeShared;
         
-        descriptor.resourceOptions = MTLResourceCPUCacheModeDefaultCache;
+        if (has_unified_memory()){
+          descriptor.storageMode = MTLStorageModeShared;
+          descriptor.resourceOptions = MTLResourceCPUCacheModeDefaultCache;
+        }
+        else {
+          descriptor.storageMode = MTLStorageModeManaged;
+        }
+        
         descriptor.usage |= desc.mem_flags & TextureDesc::MemFlags::read_only ? MTLTextureUsageShaderRead : 0;
         descriptor.usage |= desc.mem_flags & TextureDesc::MemFlags::write_only ? MTLTextureUsageShaderRead : 0;
         descriptor.usage |= desc.mem_flags & TextureDesc::MemFlags::read_write ? MTLTextureUsageShaderWrite |
