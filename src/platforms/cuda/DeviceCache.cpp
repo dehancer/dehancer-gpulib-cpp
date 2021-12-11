@@ -79,7 +79,7 @@ namespace dehancer::cuda {
       
       for (const auto& item: device_caches_) {
         auto device = item->device;
-        if (device && device->device_id>=0 && device::get_id(device.get()) == id) {
+        if (device && device->device_id>=0 && device::get_id(item.get()) == id) {
           return item->device.get();
         }
       }
