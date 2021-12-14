@@ -38,7 +38,7 @@ namespace dehancer {
                         StreamSpaceDirection direction) ;
     };
 
-    class StreamSpaceCache: public Singleton<stream_space_cache>{
+    class StreamSpaceCache: public ControlledSingleton<stream_space_cache>{
     public:
         StreamSpaceCache() = default;
     };

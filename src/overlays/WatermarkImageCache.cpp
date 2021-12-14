@@ -15,6 +15,8 @@ extern "C" unsigned int dehancer_watermark_16x9_8K_len;
 
 namespace dehancer::overlay {
     
+    template<> watermark_image * ControlledImageCache<watermark_image,1>::instance = nullptr;
+
     static std::vector<ItemInfo> watermarks = {
             {
                     .resolution = Resolution::LandscapeR1K,

@@ -7,6 +7,8 @@
 
 namespace dehancer {
     
+    template<> stream_space_cache * ControlledSingleton<stream_space_cache>::instance = nullptr;
+
     void stream_space_cache::invalidate() {
       std::unique_lock<std::mutex> lock(mutex_);
       clut_cache_.clear();

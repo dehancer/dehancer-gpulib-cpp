@@ -23,7 +23,7 @@ namespace dehancer::overlay {
         
     };
     
-    class WatermarkImageCache: public ImageCache<watermark_image,1>{
+    class WatermarkImageCache: public ControlledImageCache<watermark_image,1>{
     public:
         WatermarkImageCache() = default;
     };

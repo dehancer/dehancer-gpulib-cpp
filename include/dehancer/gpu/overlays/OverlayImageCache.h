@@ -98,5 +98,41 @@ namespace dehancer::overlay {
         ImageCache(ImageCache const &) = delete;
         ImageCache &operator=(ImageCache const &) = delete;
     };
-  
+
+    template<typename T, size_t N>
+    class ControlledImageCache {
+    public:
+        
+        static T& Instance() {
+            if (!instance)
+            {
+                instance = new T(N);
+            }
+            return *instance;
+        }
+        static void CreateInstance() {
+            if (!instance)
+            {
+                instance = new T(N);
+            }
+        }
+
+        static void DestroyInstance() {
+            if (instance)
+            {
+                delete instance;
+                instance = nullptr;
+            }
+        }
+        static T* instance;
+    
+    protected:
+        ControlledImageCache() = default;
+        ~ControlledImageCache() = default;
+    
+    public:
+        ControlledImageCache(ControlledImageCache const &) = delete;
+        ControlledImageCache &operator=(ControlledImageCache const &) = delete;
+    };
+
 }
