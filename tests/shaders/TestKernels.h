@@ -9,6 +9,19 @@
 #include "dehancer/gpu/kernels/lib.h"
 #include "aoBenchKernel.h"
 
+DHCR_KERNEL void kernel_vec_simple_add(
+        DHCR_DEVICE_ARG   float* A DHCR_BIND_BUFFER(0) ,
+        DHCR_DEVICE_ARG   float* B DHCR_BIND_BUFFER(1) ,
+        DHCR_DEVICE_ARG   float* C DHCR_BIND_BUFFER(2) ,
+        DHCR_CONST_ARG int_ref_t N DHCR_BIND_BUFFER(3)
+        DHCR_KERNEL_GID_1D
+)
+{
+  int tid; get_kernel_tid1d(tid);
+  if (tid < N)
+    C[tid] = A[tid] + B[tid];
+}
+
 DHCR_KERNEL void kernel_vec_add(
         DHCR_DEVICE_ARG   float* A DHCR_BIND_BUFFER(0) ,
         DHCR_DEVICE_ARG   float* B DHCR_BIND_BUFFER(1) ,

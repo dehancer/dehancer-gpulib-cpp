@@ -26,6 +26,7 @@ add_custom_target(
         COMMAND ${CMAKE_CUDA_COMPILER}
         -Xcompiler ${CMAKE_CUDA_COMPILER_FLAGS}
         -ccbin ${CUDA_BIN_COMPILER} -m64 -gencode arch=compute_35,code=compute_35
+        -Wno-deprecated-declarations
         -o ${CURRENT_TARGET_LIB}
         -fatbin ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.cu
         -I${CMAKE_SOURCE_DIR}/include

@@ -245,7 +245,7 @@ if (DEHANCER_GPU_CUDA)
     if(WIN32)
 
         if (NOT CUDAToolkit_ROOT)
-            set(CUDAToolkit_ROOT "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v10.2")
+            set(CUDAToolkit_ROOT "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v11.5")
         endif ()
 
         if (NOT CUDA_BIN_COMPILER)
