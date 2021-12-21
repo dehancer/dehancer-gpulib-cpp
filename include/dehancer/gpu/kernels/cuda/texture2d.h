@@ -98,36 +98,39 @@ namespace dehancer {
             }
 
 #else
-            
+            template<class C>
+            __device__
+            T read_text_ushort4(C coords) const {
+                auto d = tex2D<ushort4>(texture_normalized_, coords.x, coords.y);
+                return (float4){(float)(d.x)/65355.0f, (float)(d.y)/65355.0, (float)(d.z)/65355.0, (float)(d.w)/65355.0};
+            }
+      
             template<class C>
             __device__
             T read(C coords) {
-              if (is_half_) {
-                auto d = tex2D<ushort4>(texture_normalized_, coords.x, coords.y);
-                return (float4){(float)(d.x)/65355.0f, (float)(d.y)/65355.0, (float)(d.z)/65355.0, (float)(d.w)/65355.0};
-              }
-              else {
-                return tex2D<T>(texture_normalized_, coords.x, coords.y);
-              }
+              return is_half_
+              ?
+              read_text_ushort4(coords)
+              :
+              tex2D<T>(texture_normalized_, coords.x, coords.y);
+              
             }
 
              template<class C>
             __device__
             T read(C coords) const {
-              if (is_half_) {
-                auto d = tex2D<ushort4>(texture_normalized_, coords.x, coords.y);
-                return (float4){(float)(d.x)/65355.0f, (float)(d.y)/65355.0, (float)(d.z)/65355.0, (float)(d.w)/65355.0};
-              }
-              else {
-                return tex2D<T>(texture_normalized_, coords.x, coords.y);
-              }
+              return is_half_
+                ?
+                read_text_ushort4(coords)
+                :
+                tex2D<T>(texture_normalized_, coords.x, coords.y);
             }
             
             __device__
             T read_pixel(int2 gid) const {
               T data;
               if (is_half_) {
-                ushort4 uc;// =  (ushort4){color.x*65355.0f, color.y*65355.0f, color.z*65355.0f, color.w*65355.0f};
+                ushort4 uc;
                 surf2Dread(&uc, surface_, gid.x * sizeof(ushort4) , gid.y , cudaBoundaryModeClamp);
                 data = (float4){(float)(uc.x)/65355.0f, (float)(uc.y)/65355.0, (float)(uc.z)/65355.0, (float)(uc.w)/65355.0};
               }
@@ -137,16 +140,21 @@ namespace dehancer {
               return data;
             }
             
+             template<class C>
+            __device__
+            void write_ushort4(T color, C coords) {
+                ushort4 uc =  (ushort4){color.x*65355.0f, color.y*65355.0f, color.z*65355.0f, color.w*65355.0f};
+                surf2Dwrite(uc, surface_, coords.x * sizeof(ushort4) , coords.y , cudaBoundaryModeClamp);
+            }
+            
             template<class C>
             __device__
             void write(T color, C coords) {
-              if (is_half_) {
-                ushort4 uc =  (ushort4){color.x*65355.0f, color.y*65355.0f, color.z*65355.0f, color.w*65355.0f};
-                surf2Dwrite(uc, surface_, coords.x * sizeof(ushort4) , coords.y , cudaBoundaryModeClamp);
-              }
-              else {
-                surf2Dwrite(color, surface_, coords.x * pitch_ , coords.y , cudaBoundaryModeClamp);
-              }
+              is_half_
+              ?
+              write_ushort4(color, coords)
+              :
+              surf2Dwrite(color, surface_, coords.x * pitch_ , coords.y , cudaBoundaryModeClamp);
             }
 #endif
         
