@@ -33,22 +33,22 @@ namespace dehancer::cuda {
         pow_coef = 1;
       }
       
-      auto size = (int)((pow(max_device_threads_,1/pow_coef) - 1)/2);
+      auto size = (int)((powf((float)max_device_threads_,1/pow_coef) - 1)/2);
       size |= size >> 1; size |= size >> 2; size |= size >> 4; size |= size >> 8; size |= size >> 16; size += 1;
       
       dim3 block_size(size, size, size);
       
       if (texture_size.depth==1) {
         block_size.z = 1;
-        block_size.x /=2;
-        block_size.y /=2;
-        if (max_device_threads_<=block_size.x*block_size.y) {
-          block_size.x = block_size.y = max_device_threads_>>2>>2>>2;
+        //block_size.x = block_size.y = max_device_threads_>>2>>2>>1;
+        if (max_device_threads_<block_size.x*block_size.y) {
+          block_size.x = block_size.y = max_device_threads_>>2>>2>>1;
         }
       }
       
       if (texture_size.height==1) {
         block_size.y = 1;
+        block_size.x = max_device_threads_;
       }
       
       if (texture_size.width < block_size.x) block_size.x = texture_size.width;
