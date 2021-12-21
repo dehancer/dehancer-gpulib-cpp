@@ -92,7 +92,10 @@ extern "C" __global__ void  kernel_dehancer_pass(
   
   if (!get_texel_boundary(tex)) return;
   
-  float4  color = sampled_color(source, tex.size, tex.gid);
+//  float4  color = source.read(to_float2(tex.gid)/to_float2(tex.size));//sampled_color(source, tex.size, tex.gid);
+//  float4  color = source.read_pixel(tex.gid);
   
+  float4  color = sampled_color(source, tex.size, tex.gid);
+
   write_image(destination, color, tex.gid);
 }

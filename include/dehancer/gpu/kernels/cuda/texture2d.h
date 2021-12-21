@@ -5,7 +5,7 @@
 #pragma once
 
 #include "dehancer/gpu/kernels/cuda/texture.h"
-
+#include <cuda_runtime_api.h>
 
 namespace dehancer {
     
@@ -38,8 +38,9 @@ namespace dehancer {
               
               cudaChannelFormatDesc channelDesc{};
               
-              if (is_half_float) {
-                channelDesc = cudaCreateChannelDescHalf4();
+              if (is_half_) {
+                channelDesc = cudaCreateChannelDesc<ushort4>();
+//                channelDesc = cudaCreateChannelDescHalf4();
               }
               else {
                 channelDesc = cudaCreateChannelDesc<T>();
@@ -53,7 +54,7 @@ namespace dehancer {
                                         height_,
                                         cudaArraySurfaceLoadStore));
               }
-
+              
               catch (std::runtime_error &e) {
                 throw e;
               }
@@ -62,7 +63,7 @@ namespace dehancer {
               memset(&resDesc, 0, sizeof(resDesc));
               resDesc.resType = cudaResourceTypeArray;
               resDesc.res.array.array = mem_;
-
+              
               //--- Specify surface ---
               CHECK_CUDA(cudaCreateSurfaceObject(&surface_, &resDesc));
               
@@ -71,9 +72,14 @@ namespace dehancer {
               memset(&texDesc, 0, sizeof(texDesc));
               texDesc.addressMode[0]   = cudaAddressModeMirror;
               texDesc.addressMode[1]   = cudaAddressModeMirror;
-              texDesc.filterMode       = cudaFilterModeLinear;
+              
+              if (is_half_)
+                texDesc.filterMode       = cudaFilterModePoint;
+              else
+                texDesc.filterMode       = cudaFilterModeLinear;
+              
               texDesc.readMode         = cudaReadModeElementType;
-              texDesc.normalizedCoords = false;
+              texDesc.normalizedCoords = normalized_coords_;
               
               // Create texture object
               CHECK_CUDA(cudaCreateTextureObject(&texture_normalized_, &resDesc, &texDesc, nullptr));
@@ -92,35 +98,60 @@ namespace dehancer {
             }
 
 #else
+            
             template<class C>
             __device__
             T read(C coords) {
-              return tex2D<T>(texture_normalized_, coords.x, coords.y);
+              if (is_half_) {
+                auto d = tex2D<ushort4>(texture_normalized_, coords.x, coords.y);
+                return (float4){(float)(d.x)/65355.0f, (float)(d.y)/65355.0, (float)(d.z)/65355.0, (float)(d.w)/65355.0};
+              }
+              else {
+                return tex2D<T>(texture_normalized_, coords.x, coords.y);
+              }
             }
 
-            template<class C>
+             template<class C>
             __device__
             T read(C coords) const {
-              return tex2D<T>(texture_normalized_, coords.x, coords.y);
+              if (is_half_) {
+                auto d = tex2D<ushort4>(texture_normalized_, coords.x, coords.y);
+                return (float4){(float)(d.x)/65355.0f, (float)(d.y)/65355.0, (float)(d.z)/65355.0, (float)(d.w)/65355.0};
+              }
+              else {
+                return tex2D<T>(texture_normalized_, coords.x, coords.y);
+              }
             }
-
+            
             __device__
             T read_pixel(int2 gid) const {
               T data;
-              //int pitch = is_half_ ? sizeof(T)/2 : sizeof(T);
-              surf2Dread(&data, surface_, gid.x * pitch_, gid.y, cudaBoundaryModeClamp);
+              if (is_half_) {
+                ushort4 uc;// =  (ushort4){color.x*65355.0f, color.y*65355.0f, color.z*65355.0f, color.w*65355.0f};
+                surf2Dread(&uc, surface_, gid.x * sizeof(ushort4) , gid.y , cudaBoundaryModeClamp);
+                data = (float4){(float)(uc.x)/65355.0f, (float)(uc.y)/65355.0, (float)(uc.z)/65355.0, (float)(uc.w)/65355.0};
+              }
+              else {
+                surf2Dread(&data, surface_, gid.x * pitch_, gid.y, cudaBoundaryModeClamp);
+              }
               return data;
             }
             
             template<class C>
             __device__
             void write(T color, C coords) {
-              //int pitch = is_half_ ? sizeof(T)/2 : sizeof(T);
-              surf2Dwrite(color, surface_, coords.x * pitch_ , coords.y , cudaBoundaryModeClamp);
+              if (is_half_) {
+                ushort4 uc =  (ushort4){color.x*65355.0f, color.y*65355.0f, color.z*65355.0f, color.w*65355.0f};
+                surf2Dwrite(uc, surface_, coords.x * sizeof(ushort4) , coords.y , cudaBoundaryModeClamp);
+              }
+              else {
+                surf2Dwrite(color, surface_, coords.x * pitch_ , coords.y , cudaBoundaryModeClamp);
+              }
             }
 #endif
         
         private:
+            textureReference    texture_reference_;
             cudaTextureObject_t texture_normalized_;
             cudaSurfaceObject_t surface_;
             size_t width_;
