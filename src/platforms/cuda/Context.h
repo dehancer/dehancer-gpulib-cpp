@@ -19,6 +19,7 @@ namespace dehancer::cuda {
             CUdevice device_id = 0;
             bool is_half_texture_allowed = false;
             size_t max_device_threads = 16;
+            dim3   max_threads_dim;
         };
         
     public:
@@ -31,6 +32,8 @@ namespace dehancer::cuda {
         void get_mem_info(size_t& total, size_t& free);
         [[nodiscard]] bool is_half_texture_allowed() const;
     
+        dim3 get_max_threads_dim() const;
+        
         void push() const;
         void pop() const;
         

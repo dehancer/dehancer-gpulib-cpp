@@ -34,7 +34,10 @@ namespace dehancer::cuda {
         }
   
         device_ref_.max_device_threads = static_cast<size_t>(info.maxThreadsPerBlock);
-        
+        device_ref_.max_threads_dim.x=info.maxThreadsDim[0];
+        device_ref_.max_threads_dim.y=info.maxThreadsDim[1];
+        device_ref_.max_threads_dim.z=info.maxThreadsDim[2];
+  
         cache_[id] = device_ref_;
         
       }
@@ -65,6 +68,11 @@ namespace dehancer::cuda {
     
     void Context::get_device_info (cudaDeviceProp &info) const {
       cudaGetDeviceProperties(&info, device_ref_.device_id);
+  
+      std::cout << "CUDA                device name: " << info.name << std::endl;
+      std::cout << "CUDA device multiProcessorCount: " << (size_t)info.multiProcessorCount << std::endl;
+      std::cout << "CUDA  device maxThreadsPerBlock: " << info.maxThreadsPerBlock << std::endl;
+      std::cout << "CUDA       device maxThreadsDim: " << info.maxThreadsDim[0] << "x" << info.maxThreadsDim[1] << "x" << info.maxThreadsDim[2] << std::endl;
     }
     
     void Context::get_mem_info (size_t &total, size_t &free) {
@@ -77,5 +85,9 @@ namespace dehancer::cuda {
     
     size_t Context::get_max_threads () const {
       return device_ref_.max_device_threads;
+    }
+    
+    dim3 Context::get_max_threads_dim () const {
+      return device_ref_.max_threads_dim;
     }
 }
