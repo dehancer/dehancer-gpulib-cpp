@@ -46,7 +46,7 @@ DHCR_KERNEL void kernel_vec_add(
   DHCR_LogParameters d=data2;
   int tid; get_kernel_tid1d(tid);
   if (tid < N)
-    C[tid] = A[tid] + B[tid] + data.data*data.size;
+    C[tid] = A[tid] + B[tid] + data.data*data.size + d.base - d.base;
 }
 
 DHCR_KERNEL void kernel_vec_dev(

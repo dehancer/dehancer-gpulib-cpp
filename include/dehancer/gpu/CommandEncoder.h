@@ -26,6 +26,14 @@ namespace dehancer {
               if (!t) return  {0,0,0};
               return {t->get_width(), t->get_height(), t->get_depth()};
             };
+    
+            static inline Size From(int w, int h, int d=1) {
+              return {static_cast<size_t>(w), static_cast<size_t>(h), static_cast<size_t>(d)};
+            };
+    
+            static inline Size From(size_t w, size_t h, size_t d=1) {
+              return {static_cast<size_t>(w), static_cast<size_t>(h), static_cast<size_t>(d)};
+            };
         };
 
         /***
