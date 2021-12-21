@@ -31,7 +31,8 @@ namespace dehancer {
                     height_(height),
                     normalized_coords_(normalized_coords),
                     is_half_(is_half_float),
-                    mem_(nullptr)
+                    mem_(nullptr),
+                    pitch_(sizeof(T))
             {
               assert(width_ > 0 && height_ > 0);
               
@@ -44,9 +45,18 @@ namespace dehancer {
                 channelDesc = cudaCreateChannelDesc<T>();
               }
               
-              CHECK_CUDA(
-                      cudaMallocArray(&mem_, &channelDesc, width_, height_,
-                                      cudaArraySurfaceLoadStore));
+              try {
+                CHECK_CUDA(
+                        cudaMallocArray(&mem_,
+                                        &channelDesc,
+                                        width_,
+                                        height_,
+                                        cudaArraySurfaceLoadStore));
+              }
+
+              catch (std::runtime_error &e) {
+                throw e;
+              }
               
               cudaResourceDesc resDesc{};
               memset(&resDesc, 0, sizeof(resDesc));
@@ -63,7 +73,7 @@ namespace dehancer {
               texDesc.addressMode[1]   = cudaAddressModeMirror;
               texDesc.filterMode       = cudaFilterModeLinear;
               texDesc.readMode         = cudaReadModeElementType;
-              texDesc.normalizedCoords = normalized_coords_;
+              texDesc.normalizedCoords = false;
               
               // Create texture object
               CHECK_CUDA(cudaCreateTextureObject(&texture_normalized_, &resDesc, &texDesc, nullptr));
@@ -97,16 +107,16 @@ namespace dehancer {
             __device__
             T read_pixel(int2 gid) const {
               T data;
-              int pitch = is_half_ ? sizeof(T)/2 : sizeof(T);
-              surf2Dread(&data, surface_, gid.x * pitch , gid.y , cudaBoundaryModeClamp);
+              //int pitch = is_half_ ? sizeof(T)/2 : sizeof(T);
+              surf2Dread(&data, surface_, gid.x * pitch_, gid.y, cudaBoundaryModeClamp);
               return data;
             }
             
             template<class C>
             __device__
             void write(T color, C coords) {
-              int pitch = is_half_ ? sizeof(T)/2 : sizeof(T);
-              surf2Dwrite(color, surface_, coords.x * pitch , coords.y , cudaBoundaryModeClamp);
+              //int pitch = is_half_ ? sizeof(T)/2 : sizeof(T);
+              surf2Dwrite(color, surface_, coords.x * pitch_ , coords.y , cudaBoundaryModeClamp);
             }
 #endif
         
@@ -117,6 +127,7 @@ namespace dehancer {
             size_t height_;
             bool   normalized_coords_;
             bool   is_half_;
+            size_t pitch_;
 
 #ifndef CUDA_KERNEL
             cudaArray* mem_ = nullptr;

@@ -29,7 +29,7 @@ namespace dehancer::cuda {
         
         cudaDeviceProp info{};
         get_device_info(info);
-        if (info.major >= 7) {
+        if (info.major >= 5) {
           device_ref_.is_half_texture_allowed = true;
         }
   
