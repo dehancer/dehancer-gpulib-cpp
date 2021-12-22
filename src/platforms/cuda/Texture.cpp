@@ -169,19 +169,6 @@ namespace dehancer::cuda {
       
       try {
         push();
-        cudaChannelFormatDesc a_desc;
-        cudaExtent extent;
-        unsigned int flags;//, cudaArray_t arra
-        cudaArrayGetInfo(&a_desc,&extent, &flags,mem_->get_contents());
-        std::cout << "cudaArrayGetInfo: " <<  a_desc.x << ", " << a_desc.y << ", " << a_desc.z << ", " << a_desc.w << ", " << a_desc.f << " dev pitch: " << dpitch << " host pitch: " << hpitch << std::endl;
-//        CHECK_CUDA(cudaMemcpy2DAsync(buffer,
-//                                     hpitch,
-//                                     mem_->get_contents(),
-//                                     mem_->get_width() * dpitch,
-//                                     mem_->get_width() * dpitch,
-//                                     mem_->get_height(),
-//                                     cudaMemcpyDeviceToHost,
-//                                     get_command_queue()));
         CHECK_CUDA(cudaMemcpy2DFromArrayAsync
                            (buffer,
                             mem_->get_width() * hpitch,

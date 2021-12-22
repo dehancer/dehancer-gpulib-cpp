@@ -56,7 +56,7 @@ namespace dehancer {
               }
               
               catch (std::runtime_error &e) {
-                throw e;
+                throw std::runtime_error(dehancer::error_string("texture: %ix%i type: %i %s\n", width_, height_, is_half_, e.what()));
               }
               
               cudaResourceDesc resDesc{};
@@ -159,7 +159,6 @@ namespace dehancer {
 #endif
         
         private:
-            textureReference    texture_reference_;
             cudaTextureObject_t texture_normalized_;
             cudaSurfaceObject_t surface_;
             size_t width_;
