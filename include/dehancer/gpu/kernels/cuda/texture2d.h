@@ -15,8 +15,11 @@ namespace dehancer {
         struct texture2d: public texture {
 
 #ifndef CUDA_KERNEL
+            
             __host__ [[nodiscard]] const cudaArray* get_contents() const override { return mem_; };
             __host__ [[nodiscard]] cudaArray* get_contents() override { return mem_; };
+            __host__ [[nodiscard]] const std::string& get_label() const override {return label_;};
+            __host__ void set_label(const std::string& label) override {label_ = label;};
 #endif
             __device__ [[nodiscard]] size_t get_width() const override { return width_;};
             __device__ [[nodiscard]] size_t get_height() const override { return height_;};
@@ -58,6 +61,17 @@ namespace dehancer {
               catch (std::runtime_error &e) {
                 throw std::runtime_error(dehancer::error_string("texture: %ix%i type: %i %s\n", width_, height_, is_half_, e.what()));
               }
+  
+#if defined(PRINT_DEBUG)
+              
+              cudaChannelFormatDesc mem_desc{};
+              cudaExtent extent{};
+              unsigned int flags;
+              
+              cudaArrayGetInfo(&mem_desc, &extent, &flags, mem_);
+              
+              std::cout << "texture2d: " << mem_desc.x << " " << mem_desc.f << "size:" << extent.width << "x" << extent.height << std::endl;
+#endif
               
               cudaResourceDesc resDesc{};
               memset(&resDesc, 0, sizeof(resDesc));
@@ -169,6 +183,7 @@ namespace dehancer {
 
 #ifndef CUDA_KERNEL
             cudaArray* mem_ = nullptr;
+            std::string label_;
 #endif
         };
     }

@@ -40,7 +40,6 @@ namespace dehancer::cuda {
       
       if (texture_size.depth==1) {
         block_size.z = 1;
-        //block_size.x = block_size.y = max_device_threads_>>2>>2>>1;
         if (max_device_threads_<block_size.x*block_size.y) {
           block_size.x = block_size.y = max_device_threads_>>2>>2>>1;
         }
