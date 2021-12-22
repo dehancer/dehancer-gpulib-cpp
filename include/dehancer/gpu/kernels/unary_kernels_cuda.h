@@ -20,7 +20,7 @@ DHCR_KERNEL void kernel_convolve_horizontal(
         DHCR_CONST_ARG    int_ref_t  address DHCR_BIND_BUFFER(6),
         //DHCR_CONST_ARG bool_ref_t has_mask DHCR_BIND_BUFFER(7),
         //texture2d_read_t              mask DHCR_BIND_TEXTURE(8),
-        DHCR_CONST_ARG int_ref_t channel_index DHCR_BIND_BUFFER(9)
+        DHCR_CONST_ARG int_ref_t channel_index DHCR_BIND_BUFFER(7)
         
         DHCR_KERNEL_GID_2D
 ) {
@@ -119,7 +119,7 @@ DHCR_KERNEL void kernel_convolve_vertical(
         DHCR_CONST_ARG    int_ref_t  address DHCR_BIND_BUFFER(6),
         //DHCR_CONST_ARG bool_ref_t has_mask DHCR_BIND_BUFFER(7),
         //texture2d_read_t       mask DHCR_BIND_TEXTURE(8),
-        DHCR_CONST_ARG int_ref_t channel_index DHCR_BIND_BUFFER(9)
+        DHCR_CONST_ARG int_ref_t channel_index DHCR_BIND_BUFFER(7)
         DHCR_KERNEL_GID_2D
 ) {
   

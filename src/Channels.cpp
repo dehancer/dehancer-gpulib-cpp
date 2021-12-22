@@ -138,11 +138,11 @@ namespace dehancer {
     namespace impl {
         struct ChannelsInputImpl {
             ChannelsDesc desc;
-            ChannelsDesc::ActiveChannelsMask amask;
+            ChannelsDesc::ActiveChannelsMask amask{};
             Channels channels = nullptr;
             ChannelsDesc::Transform transform;
-            bool has_mask{};
-            Texture mask= nullptr;
+            //bool has_mask{};
+            //Texture mask= nullptr;
         };
     }
     
@@ -171,16 +171,16 @@ namespace dehancer {
       impl_->amask = amask;
       
       impl_->transform = transform;
-      impl_->has_mask = transform.mask != nullptr;
+      //impl_->has_mask = transform.mask != nullptr;
       
-      if (!impl_->transform.mask) {
-        TextureDesc desc ={
-                .width = 1,
-                .height = 1
-        };
-        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
-        impl_->mask = desc.make(get_command_queue(),mem);
-      }
+//      if (!impl_->transform.mask) {
+//        TextureDesc desc ={
+//                .width = 1,
+//                .height = 1
+//        };
+//        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
+//        impl_->mask = desc.make(get_command_queue(),mem);
+//      }
     }
     
     void ChannelsInput::process () {
@@ -222,8 +222,8 @@ namespace dehancer {
             encoder.set(impl_->transform.direction ,8);
             encoder.set(impl_->transform.type ,9);
             
-            encoder.set(impl_->has_mask , 10);
-            encoder.set(impl_->mask , 11);
+            //encoder.set(impl_->has_mask , 10);
+            //encoder.set(impl_->mask , 11);
             
             CommandEncoder::Size size = {
                     .width = channels->get_width(j),
@@ -265,17 +265,17 @@ namespace dehancer {
     
     void ChannelsInput::set_transform (const ChannelsDesc::Transform &transform) {
       impl_->transform = transform;
-      impl_->has_mask = transform.mask != nullptr;
-      if (!impl_->transform.mask) {
-        TextureDesc desc ={
-                .width = 1,
-                .height = 1
-        };
-        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
-        impl_->mask = desc.make(get_command_queue(),mem);
-      }
-      else
-        impl_->mask = impl_->transform.mask;
+//      impl_->has_mask = transform.mask != nullptr;
+//      if (!impl_->transform.mask) {
+//        TextureDesc desc ={
+//                .width = 1,
+//                .height = 1
+//        };
+//        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
+//        impl_->mask = desc.make(get_command_queue(),mem);
+//      }
+//      else
+//        impl_->mask = impl_->transform.mask;
     }
     
     const ChannelsDesc::Transform &ChannelsInput::get_transform () const {
@@ -320,8 +320,8 @@ namespace dehancer {
             Channels channels = nullptr;
             //ChannelsDesc::ActiveChannelsMask amask;
             ChannelsDesc::Transform transform;
-            bool has_mask{};
-            Texture mask = nullptr;
+            //bool has_mask{};
+            //Texture mask = nullptr;
         };
     }
     
@@ -343,16 +343,16 @@ namespace dehancer {
       //impl_->amask = channels->;
       impl_->channels = channels;
       impl_->transform = transform;
-      impl_->has_mask = impl_->transform.mask != nullptr;
+      //impl_->has_mask = impl_->transform.mask != nullptr;
       
-      if (!impl_->transform.mask) {
-        TextureDesc desc ={
-                .width = 1,
-                .height = 1
-        };
-        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
-        impl_->mask = desc.make(get_command_queue(),mem);
-      }
+//      if (!impl_->transform.mask) {
+//        TextureDesc desc ={
+//                .width = 1,
+//                .height = 1
+//        };
+//        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
+//        impl_->mask = desc.make(get_command_queue(),mem);
+//      }
     }
     
     void ChannelsOutput::process () {
@@ -403,8 +403,8 @@ namespace dehancer {
             
             encoder.set(impl_->transform.type ,10);
             
-            encoder.set(impl_->has_mask , 11);
-            encoder.set(impl_->mask , 12);
+//            encoder.set(impl_->has_mask , 11);
+//            encoder.set(impl_->mask , 12);
 //            encoder.set(has_channel , 13);
             
             return CommandEncoder::Size::From(get_destination());
@@ -426,18 +426,18 @@ namespace dehancer {
     
     void ChannelsOutput::set_transform (const ChannelsDesc::Transform &transform) {
       impl_->transform = transform;
-      impl_->has_mask = transform.mask != nullptr;
-      if (!impl_->transform.mask) {
-        TextureDesc desc ={
-                .width = 1,
-                .height = 1
-        };
-        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
-        impl_->mask = desc.make(get_command_queue(),mem);
-      }
-      else {
-        impl_->mask = impl_->transform.mask;
-      }
+//      impl_->has_mask = transform.mask != nullptr;
+//      if (!impl_->transform.mask) {
+//        TextureDesc desc ={
+//                .width = 1,
+//                .height = 1
+//        };
+//        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
+//        impl_->mask = desc.make(get_command_queue(),mem);
+//      }
+//      else {
+//        impl_->mask = impl_->transform.mask;
+//      }
     }
     
     const ChannelsDesc::Transform &ChannelsOutput::get_transform () const {

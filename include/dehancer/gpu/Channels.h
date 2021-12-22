@@ -96,7 +96,7 @@ namespace dehancer {
             /***
              * Opacity mask applies for channels transformation
              */
-            Texture              mask = nullptr;
+            //Texture              mask = nullptr;
             
             Flags                flags = {
                     .in_enabled = true,
