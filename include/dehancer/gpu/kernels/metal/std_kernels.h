@@ -19,16 +19,19 @@ static inline float4 __attribute__((overloadable)) sampled_color(
         int2 gid
 ){
   
-  int2 size = int2(source.get_width(), source.get_height());
+  float2 size = to_float2(destination_size) - make_float2(1,1);
+  return source.sample(linear_normalized_sampler, to_float2(gid)/size);
   
-  if (size.y==destination_size.y && destination_size.x==size.x)
-    return read_image(source, gid);
-  else {
-    float2 coords = (float2){(float)gid.x / (float)(destination_size.x - 1),
-                             (float)gid.y / (float)(destination_size.y - 1)};
-    coords = coords * (to_float2(size)-1.0f);
-    return tex2D_bilinear(source, coords.x, coords.y);
-  }
+//  int2 size = int2(source.get_width(), source.get_height());
+//
+//  if (size.y==destination_size.y && destination_size.x==size.x)
+//    return read_image(source, gid);
+//  else {
+//    float2 coords = (float2){(float)gid.x / (float)(destination_size.x - 1),
+//                             (float)gid.y / (float)(destination_size.y - 1)};
+//    coords = coords * (to_float2(size)-1.0f);
+//    return tex2D_bilinear(source, coords.x, coords.y);
+//  }
 }
 
 /***
