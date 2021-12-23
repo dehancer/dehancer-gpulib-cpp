@@ -358,8 +358,8 @@ int run_on_device(int num, const void* device, std::string patform) {
               .col = kf.col,
               .user_data = kf.name,
               .edge_mode = DHCR_EdgeMode ::DHCR_ADDRESS_CLAMP
-              ,
-              .mask = grad_text
+              //,
+              //.mask = grad_text
       };
       
       

@@ -29,12 +29,15 @@ namespace dehancer::cuda {
         
         cudaDeviceProp info{};
         get_device_info(info);
-        if (info.major >= 7) {
+        if (info.major >= 5) {
           device_ref_.is_half_texture_allowed = true;
         }
   
         device_ref_.max_device_threads = static_cast<size_t>(info.maxThreadsPerBlock);
-        
+        device_ref_.max_threads_dim.x=info.maxThreadsDim[0];
+        device_ref_.max_threads_dim.y=info.maxThreadsDim[1];
+        device_ref_.max_threads_dim.z=info.maxThreadsDim[2];
+  
         cache_[id] = device_ref_;
         
       }
@@ -77,5 +80,9 @@ namespace dehancer::cuda {
     
     size_t Context::get_max_threads () const {
       return device_ref_.max_device_threads;
+    }
+    
+    dim3 Context::get_max_threads_dim () const {
+      return device_ref_.max_threads_dim;
     }
 }

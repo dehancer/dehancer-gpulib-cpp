@@ -111,9 +111,25 @@ OpenCV from sources
     -DWITH_FFMPEG=ON -DVIDEOIO_ENABLE_PLUGINS=ON -DOPENCV_GENERATE_PKGCONFIG=ON -DBUILD_EXAMPLES=OFF\
     -DBUILD_TESTS=OFF -DBUILD_opencv_java=OFF -DCMAKE_FIND_LIBRARY_SUFFIXES=".a" ..
 
+
+    # Windows 10 (if you want build from sources)
+    export PATH=$PATH:/c/vcpkg/downloads/tools/cmake-3.21.1-windows/cmake-3.21.1-windows-i386/bin
+
+    cmake -Ax64 -DWITH_CUDA=OFF -DWITH_OPENCL=ON -DWITH_OPENGL=ON -DWITH_V4L=ON -DBUILD_SHARED_LIBS=OFF \
+    -DWITH_EIGEN=OFF -DWITH_FFMPEG=ON -DVIDEOIO_ENABLE_PLUGINS=ON -DOPENCV_GENERATE_PKGCONFIG=ON \
+    -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DBUILD_opencv_java=OFF -DCMAKE_FIND_LIBRARY_SUFFIXES=".a" \
+    -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static \
+    "-DCMAKE_C_COMPILER=C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/Llvm/x64/bin/clang-cl.exe" \
+    "-DCMAKE_CXX_COMPILER=C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Tools/Llvm/x64/bin/clang-cl.exe" \
+    -DCMAKE_INSTALL_PREFIX=C:/Users/denn/Dehancer/local/dehancer -DCMAKE_BUILD_TYPE=Release ..
+
+     cmake --build . -j12 --target ALL_BUILD --config Release
+     cmake --install . --config Release
+
+
 Cuda
 =======
-Source: https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=2004&target_type=debnetwork
+Source: https://developer.nvidia.com/cuda-downloads?target_os=Linux&targset_arch=x86_64&target_distro=Ubuntu&target_version=2004&target_type=debnetwork
 
     wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin
     sudo mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600

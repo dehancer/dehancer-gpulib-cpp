@@ -28,10 +28,10 @@ namespace dehancer::cuda {
       push();
       
       try {
-  
+        
         size_t pitch = 0;
         size_t dpitch = 0;
-  
+        
         switch (desc_.pixel_format) {
           
           case TextureDesc::PixelFormat::rgba32float:
@@ -104,9 +104,10 @@ namespace dehancer::cuda {
         total /= 1024*1024;
         free_mem /= 1024*1024;
         auto mess = message_string(""
-                                   "GPU out of memory. \r\n"
+                                   "GPU runtime error: %s. \r\n"
                                    "%s has total dedicated memory %i MB and %i MB is free. \r\n"
                                    "Please lower Project resolution, turn on Proxy Mode or upgrade your hardware",
+                                   e.what(),
                                    info.name, total, free_mem);
         dehancer::log::error(true, "CUDA make_texture error desc: %s", mess.c_str());
         throw dehancer::texture::memory_exception(mess);
@@ -137,7 +138,7 @@ namespace dehancer::cuda {
       if (length < this->get_length()) {
         return Error(CommonError::OUT_OF_RANGE, "Texture length greater then buffer length");
       }
-  
+      
       size_t dpitch = 0;
       size_t hpitch = sizeof(float4);
       
@@ -168,14 +169,16 @@ namespace dehancer::cuda {
       
       try {
         push();
-        CHECK_CUDA(cudaMemcpy2DFromArrayAsync(buffer,
-                                              mem_->get_width() * hpitch,
-                                              mem_->get_contents(),
-                                              0, 0,
-                                              mem_->get_width() * dpitch,
-                                              mem_->get_height(),
-                                              cudaMemcpyDeviceToHost,
-                                              get_command_queue()));
+        CHECK_CUDA(cudaMemcpy2DFromArrayAsync
+                           (buffer,
+                            mem_->get_width() * hpitch,
+                            mem_->get_contents(),
+                            0,
+                            0,
+                            mem_->get_width() * dpitch,
+                            mem_->get_height(),
+                            cudaMemcpyDeviceToHost,
+                            get_command_queue()));
         pop();
       }
       catch (const std::runtime_error &e) {
@@ -239,35 +242,35 @@ namespace dehancer::cuda {
       if (!buffer) {
         return Error(CommonError::OUT_OF_RANGE, "Target buffer undefined");
       }
-  
+      
       size_t dpitch = 0;
       size_t hpitch = sizeof(float4);
-  
+      
       switch (desc_.pixel_format) {
-    
+        
         case TextureDesc::PixelFormat::rgba32float:
           hpitch = dpitch = sizeof(float4);
           break;
-    
+        
         case TextureDesc::PixelFormat::rgba16float:
           dpitch = sizeof(float4);
           if (is_half_texture_allowed())
             dpitch/=2;
           break;
-    
+        
         case TextureDesc::PixelFormat::rgba32uint:
           hpitch = dpitch = sizeof(uint32_t[4]);
           break;
-    
+        
         case TextureDesc::PixelFormat::rgba16uint:
           hpitch = dpitch = sizeof(uint16_t[4]);
           break;
-    
+        
         case TextureDesc::PixelFormat::rgba8uint:
           hpitch = dpitch = sizeof(uint8_t[4]);
           break;
       }
-  
+      
       try {
         push();
         CHECK_CUDA(cudaMemcpy2DFromArrayAsync(buffer,
@@ -283,7 +286,7 @@ namespace dehancer::cuda {
       catch (const std::runtime_error &e) {
         return Error(CommonError::EXCEPTION, e.what());
       }
-  
+      
       return Error(CommonError::OK);
     }
   

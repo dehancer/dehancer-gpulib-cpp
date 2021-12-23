@@ -162,6 +162,7 @@ if(WIN32)
     set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};/usr/local/lib/pkgconfig")
     set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};/usr/local/lib64/pkgconfig")
     set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};$ENV{SYSROOT};/usr/local/dehancer/lib/pkgconfig")
+    #set(ENV{OpenCV_DIR} "$ENV{OpenCV_DIR};$ENV{SYSROOT};C:/Users/denn/Dehancer/local/dehancer")
 else()
     set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
     set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib64/pkgconfig)
@@ -187,7 +188,12 @@ if (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
 elseif (${DEHANCER_TARGET_ARCH} MATCHES "x86_64.*")
     find_package (OpenCV REQUIRED PATHS /usr/local/x86_64)
 else()
-    find_package (OpenCV REQUIRED )
+    if(WIN32)
+        find_package(OpenCV REQUIRED)
+        add_definitions(/DCV_IGNORE_DEBUG_BUILD_GUARD=1)
+    else()
+        find_package (OpenCV REQUIRED )
+    endif()
 endif()
 
 find_package(BLAS REQUIRED)
@@ -245,7 +251,16 @@ if (DEHANCER_GPU_CUDA)
     if(WIN32)
 
         if (NOT CUDAToolkit_ROOT)
-            set(CUDAToolkit_ROOT "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v10.2")
+            set(CUDA_INSTALLATION_DIR "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA")
+            set(CUDA_INSTALLATION_DIR_V11 "${CUDA_INSTALLATION_DIR}/v11.5")
+            set(CUDA_INSTALLATION_DIR_V10 "${CUDA_INSTALLATION_DIR}/v10.2")
+            if(EXISTS ${CUDA_INSTALLATION_DIR_V11})
+                set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V11})
+            elseif(EXISTS ${CUDA_INSTALLATION_DIR_V10})
+                set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V10})
+            else()
+                message(FATAL_ERROR "NO CUDAToolkit is found...")
+            endif()
         endif ()
 
         if (NOT CUDA_BIN_COMPILER)
@@ -266,7 +281,7 @@ if (DEHANCER_GPU_CUDA)
 
     set(CMAKE_CUDA_STANDARD 14)
 
-    find_package(CUDAToolkit)
+    find_package(CUDAToolkit REQUIRED)
     set(CUDA_FOUND ${CUDAToolkit_FOUND})
 
     if (CUDAToolkit_FOUND)
@@ -680,7 +695,6 @@ if (DEHANCER_GPU_OPENCL)
 endif ()
 
 
-message("COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
 message("OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}")
 message("OpenCV_LIBRARIES: ${OpenCV_LIBRARIES}")
 message("OpenCV_DIR: ${OpenCV_DIR}")
@@ -689,9 +703,11 @@ add_subdirectory(lib)
 set(COMMON_LIBRARIES
         ${COMMON_LIBRARIES};
         ${DEHANCER_EXT_MATH_LIB};
-        ${OpenCV_LIBS};
+        ${OpenCV_LIBRARIES};
         ${CMAKE_DL_LIBS};
         )
+
+message("COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
 
 add_subdirectory(utils)
 
