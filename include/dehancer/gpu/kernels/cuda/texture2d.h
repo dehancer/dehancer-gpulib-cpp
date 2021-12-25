@@ -62,17 +62,6 @@ namespace dehancer {
                 throw std::runtime_error(dehancer::error_string("texture: %ix%i type: %i %s\n", width_, height_, is_half_, e.what()));
               }
   
-//#if defined(PRINT_DEBUG)
-//
-//              cudaChannelFormatDesc mem_desc{};
-//              cudaExtent extent{};
-//              unsigned int flags;
-//
-//              cudaArrayGetInfo(&mem_desc, &extent, &flags, mem_);
-//
-//              std::cout << "texture2d: " << mem_desc.x << " " << mem_desc.f << "size:" << extent.width << "x" << extent.height << std::endl;
-//#endif
-              
               cudaResourceDesc resDesc{};
               memset(&resDesc, 0, sizeof(resDesc));
               resDesc.resType = cudaResourceTypeArray;
