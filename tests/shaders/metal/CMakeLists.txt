@@ -43,6 +43,7 @@
          -I ${CMAKE_SOURCE_DIR}/tests/shaders
          -O3 -ffast-math
          -c
+         -Wno-unused-variable
          -target ${METAL_TARGET_FLAGS}
          ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.metal
          -o ${CMAKE_CURRENT_BINARY_DIR}/${CURRENT_KERNEL_TARGET_NAME}.air
