@@ -13,75 +13,69 @@ namespace dehancer::opencl {
     std::unordered_map<cl_command_queue, Function::KernelMap> Function::kernel_map_;
     std::unordered_map<cl_command_queue, Function::ProgamMap> Function::program_map_;
     
+    size_t upper_power2(size_t x) {
+      union { double f; long i[2]; } convert{};
+      convert.f = static_cast<double>(x);
+      if ((convert.i[1] & 0xFFFFF) | convert.i[0]) return 1<<((convert.i[1]>>20) - 0x3FE);
+      else return x;
+    }
+    
     void Function::execute(const dehancer::Function::EncodeHandler &block) {
       
       std::unique_lock<std::mutex> lock(Function::mutex_);
       
       auto texture_size = block(*encoder_);
       
-      //size_t local_work_size[3] = {16,16,16};
-      //size_t local_work_size[3] = {8,1,1};
-      size_t local_work_size[3] = {1,1,1};
+      size_t work_size[3] = {1, 1, 1};
       size_t preferred_work_size = 8;
+      size_t compute_units = 8;
       
       ///
       /// TODO: optimize workgroups automatically
-      /// CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE
-      //clGetKernelWorkGroupInfo(kernel_, command_->get_device_id(), CL_KERNEL_WORK_GROUP_SIZE, sizeof(local_work_size), local_work_size, nullptr);
-      //clGetKernelWorkGroupInfo(kernel_, command_->get_device_id(), CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, sizeof(size_t), &preferred_work_size, nullptr);
-  
-      //local_work_size[0] = local_work_size[1];
-  
+//      clGetKernelWorkGroupInfo(kernel_, command_->get_device_id(), CL_KERNEL_WORK_GROUP_SIZE, sizeof(work_size), work_size, nullptr);
+      clGetKernelWorkGroupInfo(kernel_, command_->get_device_id(), CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, sizeof(size_t), &preferred_work_size, nullptr);
+      clGetKernelWorkGroupInfo(kernel_, command_->get_device_id(), CL_DEVICE_MAX_COMPUTE_UNITS , sizeof(size_t), &compute_units, nullptr);
+      
+      
       #ifdef PRINT_KERNELS_DEBUG
-      std::cout << "Function "<<kernel_name_
+      std::cout << "Function " << kernel_name_
                 << " WORK_GROUP: "
-                << local_work_size[0] << "x" << local_work_size[1] << "x" << local_work_size[2]
+                << work_size[0] << "x" << work_size[1] << "x" << work_size[2]
                 << " PREFERRED_WORK_GROUP_SIZE: " << preferred_work_size
+                << " CL_DEVICE_MAX_COMPUTE_UNITS: " << compute_units
                 << std::endl;
       #endif
-
-//
-      //local_work_size[1] = 1;
-      //local_work_size[2] = 1;
-//
-      if (local_work_size[0]>=texture_size.width) local_work_size[0] = 1;
-      if (local_work_size[1]>=texture_size.height) local_work_size[1] = 1;
-      if (local_work_size[2]>=texture_size.depth) local_work_size[2] = 1;
-//
-//      if (texture_size.depth==1) {
-//        local_work_size[2] = 1;
-//      }
-//      else {
-//        local_work_size[0] = local_work_size[1] = 8;
-//        local_work_size[2] = 1;
-//      }
-//
-//      if (texture_size.height==1) {
-//        local_work_size[1] = 1;
-//      }
-      
-      if (texture_size.width < local_work_size[0]) local_work_size[0] = texture_size.width;
-      if (texture_size.height < local_work_size[1]) local_work_size[1] = texture_size.height;
-      if (texture_size.depth < local_work_size[2]) local_work_size[2] = texture_size.depth;
-      
-//      size_t global_work_size[3] = {
-//              ((texture_size.width + local_work_size[0] - 1) / local_work_size[0]),
-//              ((texture_size.height + local_work_size[1] - 1) / local_work_size[1]),
-//              ((texture_size.depth + local_work_size[2] - 1) / local_work_size[2])
-//      };
   
-      size_t global_work_size[3] = {
-              texture_size.width ,
-              texture_size.height,
-              texture_size.depth
+      work_size[0] = preferred_work_size;
+
+      if (texture_size.depth==1) {
+        work_size[2] = 1;
+      }
+
+      if (texture_size.height==1) {
+        work_size[1] = 1;
+      }
+  
+      if (work_size[0] >= texture_size.width) work_size[0] = 1;
+      if (work_size[1] >= texture_size.height) work_size[1] = 1;
+      if (work_size[2] >= texture_size.depth) work_size[2] = 1;
+      
+      auto w = upper_power2(texture_size.width);
+      auto h = upper_power2(texture_size.height);
+      auto d = upper_power2(texture_size.depth);
+  
+      size_t global_threads[3] = {
+              w,
+              h,
+              d
       };
 
 #ifdef PRINT_KERNELS_DEBUG
-      std::cout << "Function "<<kernel_name_
+      std::cout << "Function " << kernel_name_
                 << " blocks: "
-                << local_work_size[0] << "x" << local_work_size[1] << "x" << local_work_size[2]
-                << " grid: "
-                << global_work_size[0] << "x" << global_work_size[1] << "x" << global_work_size[2]
+                << work_size[0] << "x" << work_size[1] << "x" << work_size[2]
+                << " threads: "
+                << global_threads[0] << "x" << global_threads[1] << "x" << global_threads[2]
                 << std::endl;
 #endif
       
@@ -90,7 +84,7 @@ namespace dehancer::opencl {
       
       if (command_->get_wait_completed())
         waiting_event = clCreateUserEvent(command_->get_context(), &last_error);
-  
+      
       cl_uint dim = 3;
       
       if (texture_size.depth==1) dim = 2;
@@ -99,9 +93,8 @@ namespace dehancer::opencl {
                                           kernel_,
                                           dim,
                                           nullptr,
-                                          global_work_size,
-                                          nullptr,
-              //                            local_work_size,
+                                          global_threads,
+                                          work_size,
                                           0,
                                           nullptr,
                                           &waiting_event);

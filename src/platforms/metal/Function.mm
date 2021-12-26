@@ -32,13 +32,13 @@ namespace dehancer::metal {
       auto from_block = block(encoder);
       
       auto grid = get_compute_size(from_block);
-      
+//
 //      std::cerr << " *** Function::execute["<<kernel_name_<<"] grid: "
 //                <<  grid.threadGroups.width << "x" << grid.threadGroups.height  << "x" << grid.threadGroups.depth
 //                << " threads: "
 //                << grid.threadsPerThreadgroup.width << "x" << grid.threadsPerThreadgroup.height  << "x" << grid.threadsPerThreadgroup.depth
 //                << std::endl;
-      
+//
       [computeEncoder dispatchThreadgroups:grid.threadGroups threadsPerThreadgroup: grid.threadsPerThreadgroup];
       [computeEncoder endEncoding];
       
@@ -97,11 +97,8 @@ namespace dehancer::metal {
     MTLSize Function::get_threads_per_threadgroup(int w, int h, int d) const {
       NSUInteger dg = d == 1 ? 1 : 8;
       NSUInteger wg = (pipelineState_.pipeline.threadExecutionWidth + dg - 1) / dg;
-      //NSUInteger wg = pipelineState_.pipeline.threadExecutionWidth;
       NSUInteger hg = (pipelineState_.pipeline.maxTotalThreadsPerThreadgroup + wg - 1) / wg / dg;
       return MTLSizeMake(wg, hg, dg);
-      //return MTLSizeMake(8, 8, d);
-      //return MTLSizeMake(pipelineState_.pipeline.maxTotalThreadsPerThreadgroup, 1, 1);
     }
     
     MTLSize Function::get_thread_groups(int w, int h, int d) const {
@@ -122,10 +119,15 @@ namespace dehancer::metal {
     
     Function::ComputeSize Function::get_compute_size(const CommandEncoder::Size size) const {
       if ((int)size.depth==1) {
-        auto exeWidth = [pipelineState_.pipeline threadExecutionWidth];
-        auto threadGroupCount = MTLSizeMake(exeWidth, 1, 1);
-        auto threadGroups     = MTLSizeMake((size.width + exeWidth - 1)/exeWidth,
-                                            size.height, 1);
+        //auto exeWidth = [pipelineState_.pipeline threadExecutionWidth];
+        NSUInteger wg = pipelineState_.pipeline.threadExecutionWidth;
+        NSUInteger hg = pipelineState_.pipeline.maxTotalThreadsPerThreadgroup / wg;
+        auto threadGroupCount = MTLSizeMake(wg, hg, 1);
+//        auto threadGroups     = MTLSizeMake((size.width + wg - 1)/hg,
+//                                            size.height, 1);
+        auto threadGroups = MTLSizeMake((size.width + wg - 1) / wg,
+                                        (size.height + hg - 1) / hg,
+                                        1);
         return  {
                 .threadsPerThreadgroup = threadGroupCount,
                 .threadGroups = threadGroups

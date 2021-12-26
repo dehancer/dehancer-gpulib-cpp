@@ -93,7 +93,7 @@ namespace dehancer {
             /***
              * Mask unary operation
              */
-            Texture           mask = nullptr;
+//            Texture           mask = nullptr;
         };
         
         using PassKernel::PassKernel;
@@ -171,7 +171,7 @@ namespace dehancer {
          * Set unary mask
          * @param mask
          */
-        [[maybe_unused]] void set_mask(const Texture &mask);
+        //[[maybe_unused]] void set_mask(const Texture &mask);
     
         /***
         * Set unary amplify

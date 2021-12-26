@@ -10,6 +10,8 @@
 #include "Context.h"
 #include <any>
 
+#include "dehancer/gpu/kernels/cuda/texture2d.h"
+
 namespace dehancer::cuda {
 
     class CommandEncoder: public dehancer::CommandEncoder {

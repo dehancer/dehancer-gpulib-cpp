@@ -38,11 +38,11 @@ namespace dehancer::impl {
     }
     
     const Texture& TextureOutput::get_texture() const {
-      return source_;//->get_ptr();
+      return source_;
     }
     
     const Texture& TextureOutput::get_texture() {
-      return source_;//->get_ptr();
+      return source_;
     }
     
     Error TextureOutput::write_as_image(std::vector<uint8_t> &buffer) const {
@@ -64,7 +64,7 @@ namespace dehancer::impl {
         std::vector<int> params;
         auto output_type = CV_8U;
         auto output_color = cv::COLOR_RGBA2BGR;
-        auto scale = 256.0f;
+        auto scale = 255.0f;
         
         switch (options_.type) {
           

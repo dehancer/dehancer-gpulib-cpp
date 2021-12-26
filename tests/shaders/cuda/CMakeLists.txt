@@ -2,6 +2,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 set(CURRENT_TARGET_NAME "${CURRENT_KERNEL_TARGET_NAME}_cuda")
 set(CURRENT_TARGET_LIB ${CURRENT_TARGET_NAME}.fatbin)
+set(CURRENT_TARGET_EMBEDDED ${CURRENT_TARGET_NAME}.c)
 
 set(CUDA_KERNELS_LIBRARY ${CMAKE_BINARY_DIR}/tests/shaders/cuda/${CURRENT_TARGET_LIB})
 
@@ -25,10 +26,21 @@ add_custom_target(
         COMMAND ${CMAKE_CUDA_COMPILER}
         -Xcompiler ${CMAKE_CUDA_COMPILER_FLAGS}
         -ccbin ${CUDA_BIN_COMPILER} -m64 -gencode arch=compute_35,code=compute_35
+        -Wno-deprecated-declarations
         -o ${CURRENT_TARGET_LIB}
         -fatbin ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.cu
         -I${CMAKE_SOURCE_DIR}/include
         -I${CMAKE_SOURCE_DIR}/tests/shaders
         -DCUDA_KERNEL=1
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+add_custom_command(
+        TARGET ${CURRENT_TARGET_NAME} POST_BUILD
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMAND xxd
+        -i ${CURRENT_TARGET_LIB}
+        ${CURRENT_TARGET_EMBEDDED}
+        DEPENDS ${DEPENDS_SOURCES} ${CURRENT_TARGET_NAME}
+        COMMENT "embedding opencl code from ${CURRENT_TARGET_LIB} ->  ${CURRENT_TARGET_EMBEDDED}"
 )

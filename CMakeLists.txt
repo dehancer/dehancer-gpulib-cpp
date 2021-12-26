@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.12)
 #
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 1.1.1)
+project(${PROJECT_LIB} VERSION 1.2.0)
 
 #
 # Options
@@ -81,13 +81,16 @@ if(LINUX)
         set(DEHANCER_GPU_METAL OFF)
     endif ()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -W -Wall -Wextra -Wno-ignored-qualifiers -Wvariadic-macros")
-    set(CMAKE_CXX_FLAGS "-fvisibility=hidden -Wno-pedantic -Wunused-function")
+    #set(CMAKE_CXX_FLAGS "-fvisibility=hidden -Wno-pedantic -Wunused-function")
+    set(CMAKE_CXX_FLAGS "-fvisibility=default -Wno-pedantic -Wunused-function")
 elseif(APPLE)
     set(STATIC_LINKING ON)
     message(STATUS "Apple configuration...")
     if (DEHANCER_GPU_METAL)
         message(STATUS "Apple uses Metal...")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -fvisibility=hidden -Wno-unused-command-line-argument -F/Library/Frameworks ")
+        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -fvisibility=hidden -Wno-unused-command-line-argument -F/Library/Frameworks ")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -fvisibility=default -Wno-unused-command-line-argument -F/Library/Frameworks ")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -Wno-unused-command-line-argument -F/Library/Frameworks ")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Metal")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework MetalKit")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework MetalPerformanceShaders")
@@ -144,19 +147,27 @@ if (WIN32)
 else()
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -rdynamic")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument")
+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=default -Wno-unused-command-line-argument")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
     if (PRINT_KERNELS_DEBUG)
-        add_compile_definitions(-DPRINT_KERNELS_DEBUG=1)
+        add_compile_definitions(PRINT_KERNELS_DEBUG=1)
     endif ()
 endif ()
 
 #
 # Packages
 #
-set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
-set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib64/pkgconfig)
-set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:$ENV{SYSROOT}:/usr/local/dehancer/lib/pkgconfig)
+if(WIN32)
+    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};/usr/local/lib/pkgconfig")
+    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};/usr/local/lib64/pkgconfig")
+    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};$ENV{SYSROOT};/usr/local/dehancer/lib/pkgconfig")
+    #set(ENV{OpenCV_DIR} "$ENV{OpenCV_DIR};$ENV{SYSROOT};C:/Users/denn/Dehancer/local/dehancer")
+else()
+    set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
+    set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib64/pkgconfig)
+    set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:$ENV{SYSROOT}:/usr/local/dehancer/lib/pkgconfig)
+endif ()
 
 find_package (Threads REQUIRED)
 find_package (PkgConfig REQUIRED)
@@ -177,7 +188,12 @@ if (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
 elseif (${DEHANCER_TARGET_ARCH} MATCHES "x86_64.*")
     find_package (OpenCV REQUIRED PATHS /usr/local/x86_64)
 else()
-    find_package (OpenCV REQUIRED )
+    if(WIN32)
+        find_package(OpenCV REQUIRED)
+        add_definitions(/DCV_IGNORE_DEBUG_BUILD_GUARD=1)
+    else()
+        find_package (OpenCV REQUIRED )
+    endif()
 endif()
 
 find_package(BLAS REQUIRED)
@@ -235,7 +251,16 @@ if (DEHANCER_GPU_CUDA)
     if(WIN32)
 
         if (NOT CUDAToolkit_ROOT)
-            set(CUDAToolkit_ROOT "C:\\Program Files\\NVIDIA GPU Computing Toolkit\\CUDA\\v10.2")
+            set(CUDA_INSTALLATION_DIR "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA")
+            set(CUDA_INSTALLATION_DIR_V11 "${CUDA_INSTALLATION_DIR}/v11.5")
+            set(CUDA_INSTALLATION_DIR_V10 "${CUDA_INSTALLATION_DIR}/v10.2")
+            if(EXISTS ${CUDA_INSTALLATION_DIR_V11})
+                set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V11})
+            elseif(EXISTS ${CUDA_INSTALLATION_DIR_V10})
+                set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V10})
+            else()
+                message(FATAL_ERROR "NO CUDAToolkit is found...")
+            endif()
         endif ()
 
         if (NOT CUDA_BIN_COMPILER)
@@ -256,7 +281,7 @@ if (DEHANCER_GPU_CUDA)
 
     set(CMAKE_CUDA_STANDARD 14)
 
-    find_package(CUDAToolkit)
+    find_package(CUDAToolkit REQUIRED)
     set(CUDA_FOUND ${CUDAToolkit_FOUND})
 
     if (CUDAToolkit_FOUND)
@@ -404,43 +429,47 @@ configure_file(include/dehancer/gpulib_version.h.in ${CMAKE_BINARY_DIR}/generate
 string(STRIP "${CMAKE_CXX_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" CXX_FLAGS)
 string(STRIP "${CMAKE_C_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" C_FLAGS)
 
-#
-# Google TEST
-#
-find_package(GTest)
-if (NOT GTEST_FOUND)
+if (BUILD_TESTING)
 
-    ExternalProject_Add(googletest
-            GIT_REPOSITORY https://github.com/google/googletest
-            GIT_PROGRESS YES
-            GIT_SHALLOW YES
-            CMAKE_ARGS
-            -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
-            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-            -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-            -DCMAKE_C_FLAGS=${C_FLAGS}
-            -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-            )
-    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};googletest)
+    #
+    # Google TEST
+    #
+    find_package(GTest)
+    if (NOT GTEST_FOUND)
 
-    include_directories(
-            ./
-            ../include
-            ${CMAKE_BINARY_DIR}/external/include
-    )
+        ExternalProject_Add(googletest
+                GIT_REPOSITORY https://github.com/google/googletest
+                GIT_PROGRESS YES
+                GIT_SHALLOW YES
+                GIT_TAG release-1.11.0
+                CMAKE_ARGS
+                -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
+                -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+                -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+                -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
+                -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
+                -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+                -DCMAKE_C_FLAGS=${C_FLAGS}
+                -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
+                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+                -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
+                -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+                )
+        set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};googletest)
 
-    link_directories(
-            ${CMAKE_BINARY_DIR}/external/lib
-    )
+        include_directories(
+                ./
+                ../include
+                ${CMAKE_BINARY_DIR}/external/include
+        )
 
-endif()
+        link_directories(
+                ${CMAKE_BINARY_DIR}/external/lib
+        )
+
+    endif()
+endif ()
 
 if (DEHANCER_GPU_OPENCL)
     #
@@ -567,7 +596,7 @@ if (dehancer_xmp_cpp_FOUND)
             ${dehancer_xmp_cpp_LIBRARY_DIRS}
     )
 
-    set(COMMON_LIBRARIES ${COMMON_LIBRARIES}; dehancer_xmp_cpp exiv2 exiv2-xmp)
+    set(COMMON_LIBRARIES dehancer_xmp_cpp; exiv2; exiv2-xmp; ${COMMON_LIBRARIES})
 
 else()
     ExternalProject_Add(dxmpcpp
@@ -666,7 +695,6 @@ if (DEHANCER_GPU_OPENCL)
 endif ()
 
 
-message("COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
 message("OpenCV_INCLUDE_DIRS: ${OpenCV_INCLUDE_DIRS}")
 message("OpenCV_LIBRARIES: ${OpenCV_LIBRARIES}")
 message("OpenCV_DIR: ${OpenCV_DIR}")
@@ -675,9 +703,11 @@ add_subdirectory(lib)
 set(COMMON_LIBRARIES
         ${COMMON_LIBRARIES};
         ${DEHANCER_EXT_MATH_LIB};
-        ${OpenCV_LIBS};
+        ${OpenCV_LIBRARIES};
         ${CMAKE_DL_LIBS};
         )
+
+message("COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
 
 add_subdirectory(utils)
 

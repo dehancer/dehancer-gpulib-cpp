@@ -81,7 +81,7 @@ void load_from_cube(const std::string& platform) {
                 command_queue,
                 cube,
                 (dehancer::CLutCubeOutput::Options){
-                        .resolution = dehancer::CLutCubeOutput::Options::large
+                        .resolution = dehancer::CLutCubeOutput::Options::Resolution::large
                 });
         
         std::ofstream os(output_file, std::ostream::binary | std::ostream::trunc);
@@ -141,7 +141,7 @@ void load_from_cube(const std::string& platform) {
                 command_queue,
                 _3d_cube_,
                 (dehancer::CLutCubeOutput::Options){
-                        .resolution = dehancer::CLutCubeOutput::Options::large
+                        .resolution = dehancer::CLutCubeOutput::Options::Resolution::large
                 });
     
         std::ofstream os(output_file, std::ostream::binary | std::ostream::trunc);

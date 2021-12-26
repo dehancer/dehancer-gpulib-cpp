@@ -16,9 +16,9 @@ DHCR_KERNEL void kernel_convolve_horizontal(
         DHCR_DEVICE_ARG     float*   weights DHCR_BIND_BUFFER(4),
         DHCR_CONST_ARG    int_ref_t     size DHCR_BIND_BUFFER(5),
         DHCR_CONST_ARG    int_ref_t  address DHCR_BIND_BUFFER(6),
-        DHCR_CONST_ARG bool_ref_t has_mask DHCR_BIND_BUFFER(7),
-        texture2d_read_t              mask DHCR_BIND_TEXTURE(8),
-        DHCR_CONST_ARG int_ref_t channel_index DHCR_BIND_BUFFER(9)
+//        DHCR_CONST_ARG bool_ref_t has_mask DHCR_BIND_BUFFER(7),
+//        texture2d_read_t              mask DHCR_BIND_TEXTURE(8),
+        DHCR_CONST_ARG int_ref_t channel_index DHCR_BIND_BUFFER(7)
         DHCR_KERNEL_GID_2D
 ) {
   
@@ -35,7 +35,7 @@ DHCR_KERNEL void kernel_convolve_horizontal(
     }
     int half_size = size/2;
 
-#pragma unroll
+#pragma unroll 2
     for (int i = 0; i < half_size; ++i) {
       int jx =  tid.x+i;
       int jx2 =  jx-half_size;
@@ -67,16 +67,16 @@ DHCR_KERNEL void kernel_convolve_horizontal(
       val += scl[j] * weights[i+half_size] * f + scl[j2] * weights[i] * f;
     }
     
-    if (has_mask){
-      float2 coords = to_float2(tid)/make_float2(w,h);
-      float4  mask_color = read_image(mask,coords);
-      switch (channel_index) {
-        case 0: val = mix(scl[index], val, mask_color.x); break;
-        case 1: val = mix(scl[index], val, mask_color.y); break;
-        case 2: val = mix(scl[index], val, mask_color.z); break;
-        case 3: val = mix(scl[index], val, mask_color.w); break;
-      }
-    }
+//    if (has_mask){
+//      float2 coords = to_float2(tid)/make_float2(w,h);
+//      float4  mask_color = read_image(mask,coords);
+//      switch (channel_index) {
+//        case 0: val = mix(scl[index], val, mask_color.x); break;
+//        case 1: val = mix(scl[index], val, mask_color.y); break;
+//        case 2: val = mix(scl[index], val, mask_color.z); break;
+//        case 3: val = mix(scl[index], val, mask_color.w); break;
+//      }
+//    }
     
     tcl[index] = val;
     
@@ -91,9 +91,9 @@ DHCR_KERNEL void kernel_convolve_vertical (
         DHCR_DEVICE_ARG      float*  weights DHCR_BIND_BUFFER(4),
         DHCR_CONST_ARG    int_ref_t     size DHCR_BIND_BUFFER(5),
         DHCR_CONST_ARG    int_ref_t  address DHCR_BIND_BUFFER(6),
-        DHCR_CONST_ARG bool_ref_t has_mask DHCR_BIND_BUFFER(7),
-        texture2d_read_t       mask DHCR_BIND_TEXTURE(8),
-        DHCR_CONST_ARG int_ref_t channel_index DHCR_BIND_BUFFER(9)
+//        DHCR_CONST_ARG bool_ref_t has_mask DHCR_BIND_BUFFER(7),
+//        texture2d_read_t       mask DHCR_BIND_TEXTURE(8),
+        DHCR_CONST_ARG int_ref_t channel_index DHCR_BIND_BUFFER(7)
         DHCR_KERNEL_GID_2D
 ) {
   
@@ -110,7 +110,7 @@ DHCR_KERNEL void kernel_convolve_vertical (
     }
     int half_size = size/2;
 
-#pragma unroll
+#pragma unroll 2
     for (int i = 0; i < half_size; ++i) {
       int jy =  tid.y+i;
       int jy2 = jy-half_size;
@@ -142,16 +142,16 @@ DHCR_KERNEL void kernel_convolve_vertical (
       val += scl[j] * weights[i+half_size] * f + scl[j2] * weights[i] * f;
     }
     
-    if (has_mask){
-      float2 coords = to_float2(tid)/make_float2(w,h);
-      float4  mask_color = read_image(mask,coords);
-      switch (channel_index) {
-        case 0: val = mix(scl[index], val, mask_color.x); break;
-        case 1: val = mix(scl[index], val, mask_color.y); break;
-        case 2: val = mix(scl[index], val, mask_color.z); break;
-        case 3: val = mix(scl[index], val, mask_color.w); break;
-      }
-    }
+//    if (has_mask){
+//      float2 coords = to_float2(tid)/make_float2(w,h);
+//      float4  mask_color = read_image(mask,coords);
+//      switch (channel_index) {
+//        case 0: val = mix(scl[index], val, mask_color.x); break;
+//        case 1: val = mix(scl[index], val, mask_color.y); break;
+//        case 2: val = mix(scl[index], val, mask_color.z); break;
+//        case 3: val = mix(scl[index], val, mask_color.w); break;
+//      }
+//    }
 
     tcl[index] = val;
 

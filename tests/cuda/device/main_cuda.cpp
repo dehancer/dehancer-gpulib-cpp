@@ -5,6 +5,7 @@
 #include "gtest/gtest.h"
 #include "dehancer/gpu/Lib.h"
 #include "tests/cuda/paths_config.h"
+#include "tests/shaders/test_struct.h"
 
 #include "dehancer/gpu/DeviceCache.h"
 
@@ -25,7 +26,7 @@ void check(T result, char const *const func, const char *const file,
 #define checkCudaErrors(val) check((val), #val, __FILE__, __LINE__)
 
 
-TEST(TEST, DeviceCache_OpenCL) {
+TEST(TEST, AddVector_CUDA) {
 
   std::cout << std::endl;
   std::cerr << std::endl;
@@ -39,7 +40,7 @@ TEST(TEST, DeviceCache_OpenCL) {
 
   // Get function handle from module
   CUfunction vecAdd;
-  checkCudaErrors(cuModuleGetFunction(&vecAdd, cuModule, "kernel_vec_add"));
+  checkCudaErrors(cuModuleGetFunction(&vecAdd, cuModule, "kernel_vec_simple_add"));
 
 
   int N = 1024;
@@ -70,8 +71,8 @@ TEST(TEST, DeviceCache_OpenCL) {
   // Invoke kernel
   int threadsPerBlock = 64;
   int blocksPerGrid   = (N + threadsPerBlock - 1) / threadsPerBlock;
-
-  void* args[] = { &d_A, &d_B, &d_C, &N };
+  
+  void* args[] = { &d_A, &d_B, &d_C, &N};
 
   checkCudaErrors(cuLaunchKernel(
           vecAdd,

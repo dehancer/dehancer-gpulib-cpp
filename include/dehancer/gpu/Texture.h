@@ -22,7 +22,7 @@ namespace dehancer {
         class memory_exception: public std::exception {
         public:
             explicit memory_exception(std::string  message): message_(std::move(message)){}
-            const char * what() const noexcept override { return message_.c_str(); };
+            [[nodiscard]] const char * what() const noexcept override { return message_.c_str(); };
 
         private:
             std::string message_;
@@ -41,6 +41,7 @@ namespace dehancer {
             read_write = (1 << 0),
             write_only = (1 << 1),
             read_only  = (1 << 2),
+            less_memory = (1 << 3)
         };
         
         /***
@@ -123,16 +124,16 @@ namespace dehancer {
          * @param from_memory - from host memory that texture should be created
          * @return Texture object
          */
-        static Texture Make(const void *command_queue, const TextureDesc &desc, const float *from_memory = nullptr);
+        static Texture Make(const void *command_queue, const TextureDesc &desc, const float *from_memory = nullptr, bool is_device_buffer = false);
     
         /***
          * Make a new empty read/write texture in command_queue
          * @param command_queue - device command_queue or context
          * @param desc - texture description
-         * @param from_memory - from device native texture
+         * @param from_native_texture - from device native texture
          * @return Texture object
          */
-        static Texture Make(const void *command_queue, const void *from_native_memory);
+        static Texture Make(const void *command_queue, const void *from_native_texture);
     
         /***
          * Get a weak shared pointer to texture object.
@@ -161,6 +162,8 @@ namespace dehancer {
         virtual Error get_contents(std::vector<float>& buffer) const = 0;
         
         virtual Error get_contents(void* buffer, size_t length) const = 0;
+    
+        virtual dehancer::Error copy_to_device(void* buffer) const = 0;
         
         /***
          * Get texture width.

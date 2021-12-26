@@ -72,7 +72,7 @@ void make_identity(const std::string& platform) {
                 command_queue,
                 clut_hald_identity,
                 (dehancer::CLutCubeOutput::Options){
-                        .resolution = dehancer::CLutCubeOutput::Options::large
+                        .resolution = dehancer::CLutCubeOutput::Options::Resolution::large
                 });
   
         {

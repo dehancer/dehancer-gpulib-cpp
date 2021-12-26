@@ -14,7 +14,7 @@
 namespace dehancer::cuda {
 
     struct TextureHolder: public dehancer::TextureHolder, public Context {
-        TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory);
+        TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory, bool is_device_buffer = false);
         TextureHolder(const void *command_queue, const void *from_native_memory);
         ~TextureHolder() override ;
 
@@ -30,19 +30,21 @@ namespace dehancer::cuda {
         [[nodiscard]] TextureDesc::PixelFormat get_pixel_format() const override;
         [[nodiscard]] TextureDesc::Type get_type() const override;
     
+        dehancer::Error copy_to_device(void* buffer) const override;
+    
         TextureDesc get_desc() const override { return desc_;}
         
     private:
         TextureDesc desc_;
         std::shared_ptr<dehancer::nvcc::texture> mem_;
     
-        template<class T>
+        template<class T, bool is_half = false>
         std::shared_ptr<dehancer::nvcc::texture> make_texture() {
           switch (desc_.type) {
             case TextureDesc::Type::i1d:
               return std::make_shared<dehancer::nvcc::texture1d<T>>(desc_.width);
             case TextureDesc::Type::i2d:
-              return std::make_shared<dehancer::nvcc::texture2d<T>>(desc_.width,desc_.height);
+              return std::make_shared<dehancer::nvcc::texture2d<T,is_half>>(desc_.width,desc_.height);
             case TextureDesc::Type::i3d:
               return std::make_shared<dehancer::nvcc::texture3d<T>>(desc_.width,desc_.height,desc_.depth);
           }

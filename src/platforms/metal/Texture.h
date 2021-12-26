@@ -19,7 +19,7 @@ namespace dehancer::metal {
     };
     
     struct TextureHolder: public dehancer::TextureHolder, public Context {
-        TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory);
+        TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory, bool is_device_buffer);
         TextureHolder(const void *command_queue, const void *from_memory);
         ~TextureHolder() override ;
 
@@ -34,6 +34,8 @@ namespace dehancer::metal {
         [[nodiscard]] size_t get_length() const override;
         [[nodiscard]] TextureDesc::PixelFormat get_pixel_format() const override;
         [[nodiscard]] TextureDesc::Type get_type() const override;
+
+        dehancer::Error copy_to_device(void* buffer) const override;
     
         TextureDesc get_desc() const override { return desc_;}
         

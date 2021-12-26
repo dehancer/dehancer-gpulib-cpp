@@ -63,7 +63,31 @@ void load_from_cache(const std::string& platform) {
             .id = "cineon_film_log",
             .name="Cineon Film Log",
     };
+
   
+//    dehancer::DHCR_StreamSpace_TransformFunc transform_function_2 = {
+//            .is_identity = false,
+//            //.cs_forward_matrix = dehancer::stream_matrix_transform_identity(),
+//            //.cs_inverse_matrix = dehancer::stream_matrix_transform_identity(),
+//            .cs_params = {
+//                    .gamma = dehancer::ocio::REC709_24::gamma_parameters,
+//                    //.log = {
+//                    //        .enabled = false
+//                    //}
+//            },
+//    };
+  
+//    auto space = (dehancer::StreamSpace) {
+//            .type = dehancer::DHCR_ColorSpace,
+//            .expandable = false,
+//            .transform_func = transform_function_2,
+//            .id = "apple_gamma",
+//            .name="Apple Gamma 2.0",
+//    };
+  
+//    space.transform_func.cs_params.gamma.enabled = false;
+//    space.transform_func.cs_params.log.enabled = false;
+    
     for (auto device: dehancer::DeviceCache::Instance().get_device_list()) {
       
       auto command_queue = dehancer::DeviceCache::Instance().get_command_queue(dehancer::device::get_id(device));

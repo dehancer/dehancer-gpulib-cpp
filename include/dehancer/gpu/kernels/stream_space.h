@@ -213,15 +213,15 @@ float4 transform( float4 in_, DHCR_StreamSpace space, DHCR_TransformDirection di
   
   float4 next = in_;
   
-  next = float4_multiply_float4x4(next,
-                                 direction == DHCR_Forward
-                                 ? space.transform_func.cs_forward_matrix
-                                 : space.transform_func.cs_inverse_matrix);
-  
+//  next = float4_multiply_float4x4(next,
+//                                 direction == DHCR_Forward
+//                                 ? space.transform_func.cs_forward_matrix
+//                                 : space.transform_func.cs_inverse_matrix);
+//
   if (direction == DHCR_Forward) {
     
     if (space.transform_func.cs_params.log.enabled) {
-      next =  apply_log_forward(next, space.transform_func.cs_params.log);
+      //next =  apply_log_forward(next, space.transform_func.cs_params.log);
     }
     
     if (space.transform_func.cs_params.gamma.enabled) {
@@ -235,7 +235,7 @@ float4 transform( float4 in_, DHCR_StreamSpace space, DHCR_TransformDirection di
     }
     
     if (space.transform_func.cs_params.log.enabled) {
-      next =  apply_log_inverse(next, space.transform_func.cs_params.log);
+      //next =  apply_log_inverse(next, space.transform_func.cs_params.log);
     }
     
   }

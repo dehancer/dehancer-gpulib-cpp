@@ -7,17 +7,13 @@
 
 namespace dehancer::cuda {
 
-    MemoryHolder::MemoryHolder(const void *command_queue, const void* buffer, size_t length):
+    MemoryHolder::MemoryHolder(const void *command_queue, const void* buffer, size_t length, MemoryDesc::MemFlags flags):
             dehancer::MemoryHolder(),
             Context(command_queue),
             memobj_(0),
             length_(length),
             is_self_allocated_(false)
     {
-  
-      //CHECK_CUDA(cuStreamGetCtx(get_command_queue(), &function_context_));
-  
-      //CHECK_CUDA(cuCtxPushCurrent(function_context_));
   
       push();
       
@@ -28,7 +24,6 @@ namespace dehancer::cuda {
       is_self_allocated_ = true;
 
       CHECK_CUDA(cudaMalloc((void**)&memobj_, length_));
-      //CHECK_CUDA(cudaMallocManaged((void**)&memobj_, length_, cudaMemAttachGlobal));
       
       if (buffer) {
         auto *p = static_cast<uint8_t*>((void*)buffer);

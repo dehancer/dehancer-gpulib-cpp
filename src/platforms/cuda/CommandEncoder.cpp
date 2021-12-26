@@ -2,13 +2,14 @@
 // Created by denn nevera on 10/11/2020.
 //
 
-#include <dehancer/gpu/CommandEncoder.h>
+#include "dehancer/gpu/CommandEncoder.h"
+#include "dehancer/gpu/Lib.h"
 
 #include "CommandEncoder.h"
 
 namespace dehancer::cuda {
 
-    CommandEncoder::CommandEncoder(CUfunction kernel,dehancer::cuda::Function* function): kernel_(kernel), function_(function){}
+    CommandEncoder::CommandEncoder(CUfunction kernel, dehancer::cuda::Function* function): kernel_(kernel), function_(function){}
 
     void CommandEncoder::resize_at_index(int index) {
       if (args_.empty()) {
@@ -22,6 +23,10 @@ namespace dehancer::cuda {
 
     void CommandEncoder::set(const Texture &texture, int index)  {
       resize_at_index(index);
+      #if defined(DEBUG)
+      auto m = static_cast<dehancer::nvcc::texture*>(texture->get_memory());
+      m->set_label( function_->get_name());
+      #endif
       args_.at(index) = texture->get_memory();
     }
 
@@ -39,7 +44,8 @@ namespace dehancer::cuda {
 
     void CommandEncoder::set(const Memory &memory, int index) {
       resize_at_index(index);
-      args_.at(index) = memory->get_pointer();
+      if (memory)
+        args_.at(index) = memory->get_pointer();
     }
 
     void CommandEncoder::set(float p, int index) {

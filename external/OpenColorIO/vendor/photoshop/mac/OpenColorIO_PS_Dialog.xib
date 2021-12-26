@@ -32,11 +32,11 @@
             <rect key="contentRect" x="196" y="240" width="500" height="270"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1028"/>
             <view key="contentView" id="2">
-                <rect key="frame" x="0.0" y="0.0" width="500" height="270"/>
+                <rect key="keyframe" x="0.0" y="0.0" width="500" height="270"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <popUpButton verticalHuggingPriority="750" imageHugsTitle="YES" id="3">
-                        <rect key="frame" x="206" y="226" width="171" height="26"/>
+                        <rect key="keyframe" x="206" y="226" width="171" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="6" id="4">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -54,7 +54,7 @@
                         </connections>
                     </popUpButton>
                     <textField verticalHuggingPriority="750" id="9">
-                        <rect key="frame" x="109" y="232" width="95" height="17"/>
+                        <rect key="keyframe" x="109" y="232" width="95" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Configuration:" id="10">
                             <font key="font" metaFont="system"/>
@@ -63,7 +63,7 @@
                         </textFieldCell>
                     </textField>
                     <matrix verticalHuggingPriority="750" allowsEmptySelection="NO" id="11">
-                        <rect key="frame" x="134" y="192" width="216" height="18"/>
+                        <rect key="keyframe" x="134" y="192" width="216" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         <size key="cellSize" width="106" height="18"/>
@@ -91,7 +91,7 @@
                         </connections>
                     </matrix>
                     <popUpButton verticalHuggingPriority="750" imageHugsTitle="YES" id="25">
-                        <rect key="frame" x="206" y="146" width="171" height="26"/>
+                        <rect key="keyframe" x="206" y="146" width="171" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="32" id="28">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -109,7 +109,7 @@
                         </connections>
                     </popUpButton>
                     <textField verticalHuggingPriority="750" id="26">
-                        <rect key="frame" x="109" y="152" width="95" height="17"/>
+                        <rect key="keyframe" x="109" y="152" width="95" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Input Space:" id="27">
                             <font key="font" metaFont="system"/>
@@ -118,7 +118,7 @@
                         </textFieldCell>
                     </textField>
                     <button verticalHuggingPriority="750" imageHugsTitle="YES" id="76">
-                        <rect key="frame" x="383" y="12" width="103" height="32"/>
+                        <rect key="keyframe" x="383" y="12" width="103" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="OK" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="77">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -132,7 +132,7 @@ DQ
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" imageHugsTitle="YES" id="95">
-                        <rect key="frame" x="280" y="12" width="103" height="32"/>
+                        <rect key="keyframe" x="280" y="12" width="103" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="96">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -146,7 +146,7 @@ Gw
                         </connections>
                     </button>
                     <button verticalHuggingPriority="750" imageHugsTitle="YES" id="97">
-                        <rect key="frame" x="14" y="12" width="111" height="32"/>
+                        <rect key="keyframe" x="14" y="12" width="111" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="push" title="Export…" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="98">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -160,7 +160,7 @@ Gw
                         </connections>
                     </button>
                     <popUpButton verticalHuggingPriority="750" imageHugsTitle="YES" id="134">
-                        <rect key="frame" x="205" y="106" width="171" height="26"/>
+                        <rect key="keyframe" x="205" y="106" width="171" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="139" id="137">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -178,7 +178,7 @@ Gw
                         </connections>
                     </popUpButton>
                     <textField verticalHuggingPriority="750" id="135">
-                        <rect key="frame" x="108" y="112" width="95" height="17"/>
+                        <rect key="keyframe" x="108" y="112" width="95" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Output Space:" id="136">
                             <font key="font" metaFont="system"/>
@@ -187,7 +187,7 @@ Gw
                         </textFieldCell>
                     </textField>
                     <popUpButton verticalHuggingPriority="750" imageHugsTitle="YES" id="142">
-                        <rect key="frame" x="205" y="66" width="171" height="26"/>
+                        <rect key="keyframe" x="205" y="66" width="171" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <popUpButtonCell key="cell" type="push" title="Item 1" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" imageScaling="proportionallyDown" inset="2" selectedItem="149" id="145">
                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
@@ -205,7 +205,7 @@ Gw
                         </connections>
                     </popUpButton>
                     <textField verticalHuggingPriority="750" id="143">
-                        <rect key="frame" x="108" y="72" width="95" height="17"/>
+                        <rect key="keyframe" x="108" y="72" width="95" height="17"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Transform:" id="144">
                             <font key="font" metaFont="system"/>
@@ -214,7 +214,7 @@ Gw
                         </textFieldCell>
                     </textField>
                     <button horizontalHuggingPriority="750" verticalHuggingPriority="750" imageHugsTitle="YES" id="160">
-                        <rect key="frame" x="377" y="146" width="29" height="26"/>
+                        <rect key="keyframe" x="377" y="146" width="29" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="disclosure" bezelStyle="roundedDisclosure" imagePosition="only" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="161">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -225,7 +225,7 @@ Gw
                         </connections>
                     </button>
                     <button horizontalHuggingPriority="750" verticalHuggingPriority="750" imageHugsTitle="YES" id="164">
-                        <rect key="frame" x="377" y="106" width="29" height="26"/>
+                        <rect key="keyframe" x="377" y="106" width="29" height="26"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="disclosure" bezelStyle="roundedDisclosure" imagePosition="only" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="165">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
@@ -236,7 +236,7 @@ Gw
                         </connections>
                     </button>
                     <button imageHugsTitle="YES" id="41">
-                        <rect key="frame" x="382" y="192" width="74" height="18"/>
+                        <rect key="keyframe" x="382" y="192" width="74" height="18"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <buttonCell key="cell" type="check" title="Invert" bezelStyle="regularSquare" imagePosition="leading" alignment="left" inset="2" id="42">
                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>

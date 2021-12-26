@@ -13,41 +13,23 @@
  * @param gid
  * @return
  */
+
 static inline float4 __attribute__((overloadable)) sampled_color(
         texture2d_read_t source,
         int2 destination_size,
         int2 gid
 ){
-  
   int2 size = int2(source.get_width(), source.get_height());
-  
+
   if (size.y==destination_size.y && destination_size.x==size.x)
-    return read_image(source, gid);
+    return source.sample(nearest_sampler, (float2)(gid));
   else {
     float2 coords = (float2){(float)gid.x / (float)(destination_size.x - 1),
                              (float)gid.y / (float)(destination_size.y - 1)};
-    coords = coords * make_float2(size);
+    coords = coords * (to_float2(size)-1.0f);
     return tex2D_bilinear(source, coords.x, coords.y);
   }
 }
-
-//static inline float4 __attribute__((overloadable)) sampled_color(
-//        texture3d_read_t source,
-//        int3 destination_size,
-//        int3 gid
-//){
-//
-//  int2 size = int2(source.get_width(), source.get_height());
-//
-//  if (size.y==destination_size.y && destination_size.x==size.x)
-//    return read_image(source, gid);
-//  else {
-//    float2 coords = (float2){(float)gid.x / (float)(destination_size.x - 1),
-//                             (float)gid.y / (float)(destination_size.y- 1)};
-//    coords = coords * make_float2(size);
-//    return tex2D_bilinear(source, coords.x, coords.y);
-//  }
-//}
 
 /***
  * Bicubic sampler
@@ -68,7 +50,7 @@ static inline float4 __attribute__((overloadable)) bicubic_sampled_color(
   else {
     float2 coords = (float2){(float)gid.x / (float)(destination_size.x - 1),
                              (float)gid.y / (float)(destination_size.y- 1)};
-    coords = coords * make_float2(size);
+    coords = coords * (to_float2(size)-1.0f);
     return tex2D_bicubic(source, coords.x, coords.y);
   }
 }
@@ -92,7 +74,7 @@ static inline float4 __attribute__((overloadable)) box_average_sampled_color(
   else {
     float2 coords = (float2){(float)gid.x / (float)(destination_size.x - 1),
                              (float)gid.y / (float)(destination_size.y- 1)};
-    coords = coords * make_float2(size);
+    coords = coords * (to_float2(size)-1.0f);
     return tex2D_box_average(source, coords.x, coords.y);
   }
 }

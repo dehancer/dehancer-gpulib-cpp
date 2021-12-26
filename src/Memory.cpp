@@ -17,8 +17,8 @@
 
 namespace dehancer {
 
-    Memory dehancer::MemoryHolder::Make(const void *command_queue, const void *buffer, size_t length) {
-      return std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::MemoryHolder>(command_queue, buffer, length);
+    Memory dehancer::MemoryHolder::Make(const void *command_queue, const void *buffer, size_t length, MemoryDesc::MemFlags flags) {
+      return std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::MemoryHolder>(command_queue, buffer, length, flags);
     }
 
     Memory MemoryHolder::Make(const void *command_queue, void *device_memory) {
@@ -36,8 +36,14 @@ namespace dehancer {
     Memory MemoryHolder::Make(const void *command_queue, size_t length) {
       return MemoryHolder::Make(command_queue, nullptr, length);
     }
-
-    Memory MemoryDesc::make(const void *command_queue, const void* from_memory) {
+    
+    Memory MemoryHolder::Make (const void *command_queue, const void* from_memory, const MemoryDesc &desc) {
+      if (desc.type == MemoryDesc::MemType::host)
+        return dehancer::MemoryHolder::Make(command_queue, nullptr, desc.length);
+      return dehancer::MemoryHolder::Make(command_queue, from_memory);
+    }
+    
+    Memory MemoryDesc::make(const void *command_queue, const void* from_memory) const {
       if (type == MemType::host)
         return dehancer::MemoryHolder::Make(command_queue, from_memory, length);
       return dehancer::MemoryHolder::Make(command_queue, from_memory);
