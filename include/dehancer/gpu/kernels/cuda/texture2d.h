@@ -7,8 +7,9 @@
 #include "dehancer/gpu/kernels/cuda/texture.h"
 #include <cuda_runtime_api.h>
 
-#define _HALF_FLOAT_SIZE_MAX_  (65534.0f/2.0f)
-#define _HALF_USHORT_SIZE_MAX_ ((ushort)(65534/2))
+#define _HALF_FLOAT_SIZE_BASE_ (65535>>1)
+#define _HALF_FLOAT_SIZE_MAX_  ((float)_HALF_FLOAT_SIZE_BASE_)
+#define _HALF_USHORT_SIZE_MAX_ ((ushort)(_HALF_FLOAT_SIZE_BASE_))
 
 namespace dehancer {
     
