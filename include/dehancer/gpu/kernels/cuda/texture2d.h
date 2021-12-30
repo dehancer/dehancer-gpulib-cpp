@@ -7,9 +7,10 @@
 #include "dehancer/gpu/kernels/cuda/texture.h"
 #include <cuda_runtime_api.h>
 
-#define _HALF_FLOAT_SIZE_BASE_ (65535>>1)
-#define _HALF_FLOAT_SIZE_MAX_  ((float)_HALF_FLOAT_SIZE_BASE_)
-#define _HALF_USHORT_SIZE_MAX_ ((ushort)(_HALF_FLOAT_SIZE_BASE_))
+#define _HALF_FLOAT_SIZE_BASE_ (65535)
+#define _HALF_FLOAT_SIZE_      (_HALF_FLOAT_SIZE_BASE_>>1)
+#define _HALF_FLOAT_SIZE_MAX_  ((float)_HALF_FLOAT_SIZE_)
+#define _HALF_USHORT_SIZE_MAX_ ((ushort)(_HALF_FLOAT_SIZE_))
 
 namespace dehancer {
     
@@ -47,7 +48,6 @@ namespace dehancer {
               
               if (is_half_) {
                 channelDesc = cudaCreateChannelDesc<ushort4>();
-//                channelDesc = cudaCreateChannelDescHalf4();
               }
               else {
                 channelDesc = cudaCreateChannelDesc<T>();
@@ -161,10 +161,10 @@ namespace dehancer {
             __device__
             void write_ushort4(T color, C coords) {
                 ushort4 uc =  ushort4({
-                  clamp((ushort)(color.x*_HALF_FLOAT_SIZE_MAX_), (ushort)0, _HALF_USHORT_SIZE_MAX_),
-                  clamp((ushort)(color.y*_HALF_FLOAT_SIZE_MAX_), (ushort)0, _HALF_USHORT_SIZE_MAX_),
-                  clamp((ushort)(color.z*_HALF_FLOAT_SIZE_MAX_), (ushort)0, _HALF_USHORT_SIZE_MAX_),
-                  clamp((ushort)(color.w*_HALF_FLOAT_SIZE_MAX_), (ushort)0, _HALF_USHORT_SIZE_MAX_)
+                  clamp((ushort)(color.x*_HALF_FLOAT_SIZE_MAX_), (ushort)0, (ushort)_HALF_FLOAT_SIZE_BASE_),
+                  clamp((ushort)(color.y*_HALF_FLOAT_SIZE_MAX_), (ushort)0, (ushort)_HALF_FLOAT_SIZE_BASE_),
+                  clamp((ushort)(color.z*_HALF_FLOAT_SIZE_MAX_), (ushort)0, (ushort)_HALF_FLOAT_SIZE_BASE_),
+                  clamp((ushort)(color.w*_HALF_FLOAT_SIZE_MAX_), (ushort)0, (ushort)_HALF_FLOAT_SIZE_BASE_)
                 });
                 surf2Dwrite(uc, surface_, coords.x * sizeof(ushort4) , coords.y , cudaBoundaryModeClamp);
             }
