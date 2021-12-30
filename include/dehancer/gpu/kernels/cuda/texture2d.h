@@ -7,6 +7,11 @@
 #include "dehancer/gpu/kernels/cuda/texture.h"
 #include <cuda_runtime_api.h>
 
+#define _HALF_FLOAT_SIZE_BASE_ (65535)
+#define _HALF_FLOAT_SIZE_      (_HALF_FLOAT_SIZE_BASE_>>1)
+#define _HALF_FLOAT_SIZE_MAX_  ((float)_HALF_FLOAT_SIZE_)
+#define _HALF_USHORT_SIZE_MAX_ ((ushort)(_HALF_FLOAT_SIZE_))
+
 namespace dehancer {
     
     namespace nvcc {
@@ -43,7 +48,6 @@ namespace dehancer {
               
               if (is_half_) {
                 channelDesc = cudaCreateChannelDesc<ushort4>();
-//                channelDesc = cudaCreateChannelDescHalf4();
               }
               else {
                 channelDesc = cudaCreateChannelDesc<T>();
@@ -61,7 +65,7 @@ namespace dehancer {
               catch (std::runtime_error &e) {
                 throw std::runtime_error(dehancer::error_string("texture: %ix%i type: %i %s\n", width_, height_, is_half_, e.what()));
               }
-  
+              
               cudaResourceDesc resDesc{};
               memset(&resDesc, 0, sizeof(resDesc));
               resDesc.resType = cudaResourceTypeArray;
@@ -105,7 +109,12 @@ namespace dehancer {
             __device__
             T read_text_ushort4(C coords) const {
                 auto d = tex2D<ushort4>(texture_normalized_, coords.x, coords.y);
-                return float4({(float)(d.x)/65355.0f, (float)(d.y)/65355.0f, (float)(d.z)/65355.0f, (float)(d.w)/65355.0f});
+                return float4({
+                  clamp((float)(d.x)/_HALF_FLOAT_SIZE_MAX_, 0.0f, 1.0f),
+                  clamp((float)(d.y)/_HALF_FLOAT_SIZE_MAX_, 0.0f, 1.0f),
+                  clamp((float)(d.z)/_HALF_FLOAT_SIZE_MAX_, 0.0f, 1.0f),
+                  clamp((float)(d.w)/_HALF_FLOAT_SIZE_MAX_, 0.0f, 1.0f)
+                });
             }
       
             template<class C>
@@ -135,7 +144,12 @@ namespace dehancer {
               if (is_half_) {
                 ushort4 uc;
                 surf2Dread(&uc, surface_, gid.x * sizeof(ushort4) , gid.y , cudaBoundaryModeClamp);
-                data = float4({(float)(uc.x)/65355.0f, (float)(uc.y)/65355.0f, (float)(uc.z)/65355.0f, (float)(uc.w)/65355.0f});
+                data = float4({
+                  clamp((float)(uc.x)/_HALF_FLOAT_SIZE_MAX_, 0.0f, 1.0f),
+                  clamp((float)(uc.y)/_HALF_FLOAT_SIZE_MAX_, 0.0f, 1.0f),
+                  clamp((float)(uc.z)/_HALF_FLOAT_SIZE_MAX_, 0.0f, 1.0f),
+                  clamp((float)(uc.w)/_HALF_FLOAT_SIZE_MAX_, 0.0f, 1.0f)
+                });
               }
               else {
                 surf2Dread(&data, surface_, gid.x * pitch_, gid.y, cudaBoundaryModeClamp);
@@ -146,7 +160,12 @@ namespace dehancer {
              template<class C>
             __device__
             void write_ushort4(T color, C coords) {
-                ushort4 uc =  ushort4({(ushort)(color.x*65355.0f), (ushort)(color.y*65355.0f), (ushort)(color.z*65355.0f), (ushort)(color.w*65355.0f)});
+                ushort4 uc =  ushort4({
+                  clamp((ushort)(color.x*_HALF_FLOAT_SIZE_MAX_), (ushort)0, (ushort)_HALF_FLOAT_SIZE_BASE_),
+                  clamp((ushort)(color.y*_HALF_FLOAT_SIZE_MAX_), (ushort)0, (ushort)_HALF_FLOAT_SIZE_BASE_),
+                  clamp((ushort)(color.z*_HALF_FLOAT_SIZE_MAX_), (ushort)0, (ushort)_HALF_FLOAT_SIZE_BASE_),
+                  clamp((ushort)(color.w*_HALF_FLOAT_SIZE_MAX_), (ushort)0, (ushort)_HALF_FLOAT_SIZE_BASE_)
+                });
                 surf2Dwrite(uc, surface_, coords.x * sizeof(ushort4) , coords.y , cudaBoundaryModeClamp);
             }
             

@@ -118,10 +118,6 @@ namespace dehancer {
           impl_->ping_pong.at(0) = ping;
         }
       }
-  
-      #ifdef PRINT_DEBUG
-      dehancer::log::print(" ### Filter::process: ping=%p pong=%p", impl_->ping_pong.at(0).get(), impl_->ping_pong.at(1).get());
-      #endif
       
       int next_index = 0;
       

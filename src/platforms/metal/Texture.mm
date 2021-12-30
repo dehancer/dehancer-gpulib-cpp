@@ -89,6 +89,8 @@ namespace dehancer::metal {
             texture_item_(nullptr)
     {
       
+      //log::print(" *** TextureHolder::TextureHolder texture desc_.pixel_format: %i", (int)desc_.pixel_format);
+      
       auto text_hash = desc_.get_hash();
       
       MTLTextureDescriptor *descriptor = [[MTLTextureDescriptor new] autorelease];
@@ -350,14 +352,7 @@ namespace dehancer::metal {
       return desc_.type;
     }
     
-    TextureHolder::~TextureHolder()
-    {
-      if (texture_item_->texture) {
-        #ifdef PRINT_DEBUG
-        dehancer::log::print(" ### ~TextureHolder(Metal): %p", texture_item_->texture);
-        #endif
-      }
-    }
+    TextureHolder::~TextureHolder() = default;
     
     dehancer::Error TextureHolder::copy_to_device (void *buffer) const {
     
@@ -401,7 +396,6 @@ namespace dehancer::metal {
       id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];
       
       id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
-      //[blitEncoder synchronizeTexture:texture_item_->texture slice:0 level:0];
   
   
       [blitEncoder copyFromTexture: texture_item_->texture
@@ -417,12 +411,6 @@ namespace dehancer::metal {
       [blitEncoder endEncoding];
       
       [commandBuffer commit];
-      //[commandBuffer waitUntilCompleted];
-      
-//      [texture_item_->texture getBytes: buffer
-//                           bytesPerRow: bytes_per_pixel * region.size.width
-//                            fromRegion: region
-//                           mipmapLevel: 0];
       
       return Error(CommonError::OK);
     }

@@ -32,13 +32,7 @@ namespace dehancer::metal {
       auto from_block = block(encoder);
       
       auto grid = get_compute_size(from_block);
-//
-//      std::cerr << " *** Function::execute["<<kernel_name_<<"] grid: "
-//                <<  grid.threadGroups.width << "x" << grid.threadGroups.height  << "x" << grid.threadGroups.depth
-//                << " threads: "
-//                << grid.threadsPerThreadgroup.width << "x" << grid.threadsPerThreadgroup.height  << "x" << grid.threadsPerThreadgroup.depth
-//                << std::endl;
-//
+  
       [computeEncoder dispatchThreadgroups:grid.threadGroups threadsPerThreadgroup: grid.threadsPerThreadgroup];
       [computeEncoder endEncoding];
       
