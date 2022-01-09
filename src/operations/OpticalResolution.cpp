@@ -3,8 +3,8 @@
 //
 
 #include "dehancer/gpu/operations/OpticalResolution.h"
-#include <cmath>
 #include "dehancer/gpu/math/ConvolveUtils.h"
+#include <cmath>
 
 namespace dehancer {
     
@@ -22,23 +22,39 @@ namespace dehancer {
         auto radius = options.radius_array.at(index);
     
         if (radius==0) return 1.0f;
-        dehancer::math::magic_resampler(radius,data);
+        if (radius>3.0f)
+          dehancer::math::magic_resampler(radius,data);
+        else {
+          data.push_back(1);
+          data.push_back(1);
+          data.push_back(1);
+        }
         
-        std::vector<float> gaus;
-
-        dehancer::math::make_gaussian_kernel(gaus, data.size(),data.size()/2);
+        std::vector<float> gauss;
+        
+        size_t kernel_size = data.size();
+        auto s_radius = static_cast<int>(kernel_size/2);
+        auto sigma = static_cast<float>(s_radius);
+        dehancer::math::make_gaussian_kernel(gauss, kernel_size, sigma);
 
         float sum = 0;
-        int size = data.size()/2;
-        for (int i = -size; i < size; ++i) {
-          data[i+size] *= gaus[i+gaus.size()/2];
-          sum += data[i+size];
+        int size = s_radius;
+        for (int i = -size; i <= size; ++i) {
+          auto ni = i+size;
+          data[ni] *= gauss[ni];
+          sum += data[ni];
         }
 
         for (float & i : data) {
           i /= sum;
         }
-        
+
+        std::cout << " ====== " << data.size() << std::endl;
+        for (int i = 0; i < data.size(); ++i) {
+          std::cout << "optical resolution["<<i<<"]: = " << data[i]  << "" << std::endl;
+        }
+        std::cout << " /====== \n" << std::endl;
+
         return 1.0f;
     };
     

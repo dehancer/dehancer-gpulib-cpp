@@ -40,7 +40,7 @@ auto function_test =  [] (int dev_num,
       
       kernel.set_source(input_text.get_texture());
       kernel.set_destination(output_text.get_texture());
-      kernel.set_radius(10);
+      kernel.set_radius(7);
       kernel.set_edge_mode(DHCR_ADDRESS_BORDER);
       
       kernel.process();
@@ -49,7 +49,6 @@ auto function_test =  [] (int dev_num,
         std::ofstream os(output_image, std::ostream::binary | std::ostream::trunc);
         if (os.is_open()) {
           os << output_text << std::flush;
-          
           std::cout << "Save to: " << output_image << std::endl;
           
         } else {

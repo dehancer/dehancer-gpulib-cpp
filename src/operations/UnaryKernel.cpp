@@ -28,9 +28,6 @@ namespace dehancer {
         
         ChannelsDesc::ActiveChannelsMask amask;
         
-        //bool has_mask_;
-        //Texture mask_;
-        
         std::string library_path;
         
         std::shared_ptr<Function> horizontal_kernel;
@@ -93,19 +90,6 @@ namespace dehancer {
                                                        root_->get_wait_completed(),
                                                        library_path))
     {
-      
-//      has_mask_ = options_.mask != nullptr;
-//
-//      if (!has_mask_) {
-//        TextureDesc desc ={
-//                .width = 1,
-//                .height = 1
-//        };
-//        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
-//        mask_ = desc.make(root->get_command_queue(),mem);
-//      }
-//      else
-//        mask_ = options_.mask;
     }
     
     
@@ -281,8 +265,6 @@ namespace dehancer {
               int a = impl_->options_.edge_mode;
               command.set(a, 6);
               
-              //command.set(impl_->has_mask_, 7);
-              //command.set(impl_->mask_, 8);
               command.set(i, 7);
               
               CommandEncoder::Size size = {
@@ -321,8 +303,6 @@ namespace dehancer {
               int a = impl_->options_.edge_mode;
               command.set(a, 6);
               
-              //command.set(impl_->has_mask_, 7);
-              //command.set(impl_->mask_, 8);
               command.set(i, 7);
               
               CommandEncoder::Size size = {
@@ -379,19 +359,6 @@ namespace dehancer {
     
     void UnaryKernel::set_options (const UnaryKernel::Options &options) {
       impl_->options_ = options;
-      //impl_->has_mask_ = impl_->options_.mask != nullptr;
-      
-//      if (!impl_->has_mask_) {
-//        TextureDesc desc ={
-//                .width = 1,
-//                .height = 1
-//        };
-//        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
-//        impl_->mask_ = desc.make(get_command_queue(),mem);
-//      }
-//      else
-//        impl_->mask_ = impl_->options_.mask;
-      
       impl_->recompute_kernel();
     }
     
@@ -399,21 +366,6 @@ namespace dehancer {
       impl_->options_.amplify = amplify;
       impl_->recompute_kernel();
     }
-    
-    //void UnaryKernel::set_mask(const Texture &mask) {
-//      impl_->options_.mask = mask;
-//      impl_->has_mask_ = impl_->options_.mask != nullptr;
-//      if (!impl_->has_mask_) {
-//        TextureDesc desc ={
-//                .width = 1,
-//                .height = 1
-//        };
-//        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
-//        impl_->mask_ = desc.make(get_command_queue(),mem);
-//      }
-//      else
-//        impl_->mask_ = impl_->options_.mask;
-  //  }
     
     const UnaryKernel::Options& UnaryKernel::get_options () const {
       return impl_->options_;
