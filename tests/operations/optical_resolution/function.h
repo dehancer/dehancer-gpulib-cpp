@@ -31,16 +31,11 @@ auto function_test =  [] (int dev_num,
       });
       
       auto kernel = dehancer::OpticalResolution(command_queue
-                                 //,
-                                 //input_text.get_texture(),
-                                 //output_text.get_texture(),
-                                 //3,
-                                 //DHCR_EdgeMode::DHCR_ADDRESS_CLAMP
       );
       
       kernel.set_source(input_text.get_texture());
       kernel.set_destination(output_text.get_texture());
-      kernel.set_radius(7);
+      kernel.set_radius(4.120056);
       kernel.set_edge_mode(DHCR_ADDRESS_BORDER);
       
       kernel.process();

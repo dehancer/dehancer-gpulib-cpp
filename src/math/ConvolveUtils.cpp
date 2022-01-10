@@ -107,46 +107,38 @@ namespace dehancer::math {
     }
     
     void magic_resampler(float length, std::vector<float>& kernel) {
+  
+      kernel.clear();
+      
+      if (length==0) {
+        kernel.push_back(1.0f);
+        return;
+      }
+      
       int size = std::ceil(3.0f/2.0f*length);
-      int half_size = (int)std::ceil((float)size/2.0f);
-  
-      if(half_size%2==0) half_size+=1;
-     
-      std::vector<float> kernel_left;
-      //for (int i = -half_size; i <= half_size; ++i) {
-      for (int i = -half_size; i <= 0; ++i) {
-        
-        auto x = (float )i;
-        #ifdef DHCR_MAGIC_RESAMPLER_SHARPY
-        if      ( x <= -3.0f/2.0f*length ) x = 0.0f;
-        else if ( x >  -3.0f/2.0f*length && x < -1.0f/2.0f*length ) x = 1.0f/2.0f*powf(x+3.0f/2.0f*length,2.0f);
-        else if ( x >= -1.0/2.0*length   && x <= 1.0f/2.0f*length ) x = 1.0f/2.0f*powf(x-4.0f/3.0f*length,2.0f);
-        else if ( x >   1.0/2.0*length   && x <  3.0f/2.0f*length ) x = 1.0f/2.0f*powf(x-3.0f/2.0f*length,2.0f);
-        else if ( x >= -3.0f/2.0f*length ) x = 0.0f;
-        #else
-        if      ( x <  -3.0f/2.0f*length ) x = 0;
-        else if ( x >= -3.0f/2.0f*length && x <=0 ) x = 1.0f/2.0f*pow(x+3.0/2.0*length,2.0f);
-        else if ( x >  0   && x <=  3.0f/2.0f*length ) x = 1.0f/2.0f*pow(x-3.0/2.0*length,2.0f);
-        else if ( x >  -3.0f/2.0f*length ) x = 0;
-        #endif
-        kernel_left.push_back(x);
-      }
-  
-      for (auto x:kernel_left) {
-        kernel.push_back(x);
-      }
       
-      int rsize = static_cast<int>(kernel_left.size());
-      for (int i = rsize-2; i >= 0; --i) {
-        auto x = kernel_left[i];
-        kernel.push_back(x);
-      }
-  
+      if (size<4) size = 4;
+      
+      int half_size = (int)std::ceil((float)size/2.0f) + 4;
+      
+      if(half_size%2==0) ++half_size;
+      
       float sum = 0;
-      for (auto x:kernel_left) {
-        sum+=x;
+      for (int i = -half_size; i <= half_size; ++i) {
+        
+        auto v = static_cast<float>(i);
+        auto x = v/length;
+        
+        if      ( x <= -3.0f/2.0f ) v = 0.0f;
+        else if ( x >  -3.0f/2.0f && x <  -1.0f/2.0f ) v = 1.0f/2.0f * powf(x+3.0f/2.0f, 2.0f);
+        else if ( x >= -1.0/2.0f  && x <=  1.0f/2.0f ) v = 4.0f/3.0f - powf(x,2.0f);
+        else if ( x >   1.0/2.0   && x <   3.0f/2.0f ) v = 1.0f/2.0f * powf(x-3.0f/2.0f, 2.0f);
+        else if ( x >= -3.0f/2.0f) v = 0.0f;
+        
+        kernel.push_back(v);
+        sum+=v;
       }
-      
+
       for (auto& v: kernel) {
         v/=sum;
       }
