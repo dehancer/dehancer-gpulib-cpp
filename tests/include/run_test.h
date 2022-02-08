@@ -37,9 +37,11 @@ inline static int run_on_device(int num,
   int i = 0;
   for (auto& file: images) {
     std::string path = IMAGES_DIR; path.append("/"); path.append(file);
+  
+    std::string dev_name =  std::regex_replace(dehancer::device::get_name(device), std::regex("[:., ]+"), "-");
     
     std::string out_file_cv = "texture-io-[";
-    out_file_cv.append(dehancer::device::get_name(device)); out_file_cv.append("]-");
+    out_file_cv.append(dev_name); out_file_cv.append("]-");
     out_file_cv.append(platform);
     out_file_cv.append("-[");
     out_file_cv.append(std::to_string(num));
@@ -71,9 +73,12 @@ inline static void run_images(std::string platform,
 #endif
     assert(!devices.empty());
     
+    std::reverse(devices.begin(), devices.end());
+    
     int dev_num = 0;
     std::cout << "Platform: " << platform << std::endl;
     for (auto d: devices) {
+      
       std::cout << " #" << dev_num++ << std::endl;
       std::cout << "    Device '" << dehancer::device::get_name(d) << " ["<<dehancer::device::get_id(d)<<"]'"<< std::endl;
     }
@@ -116,6 +121,7 @@ inline static void run_on_devices(std::string platform,
     int dev_num = 0;
     std::cout << "Platform: " << platform << std::endl;
     for (auto d: devices) {
+      dehancer::DeviceCache::Instance().get_device(dehancer::device::get_id(d));
       std::cout << " #" << dev_num++ << std::endl;
       std::cout << "    Device '" << dehancer::device::get_name(d) << " ["<<dehancer::device::get_id(d)<<"]'"<< std::endl;
     }
@@ -176,7 +182,8 @@ inline static void run_on_grid_image(std::string platform, dh_test_on_grid_image
           return dehancer::CommandEncoder::Size::From(grid_text);
       });
       
-      std::string out_file_cv = "grid-"+platform+"-"; out_file_cv.append(std::to_string(dev_num)); out_file_cv.append(ext);
+      std::string out_file_cv = "grid-"+platform+"-";
+      out_file_cv.append(std::to_string(dev_num)); out_file_cv.append(ext);
       
       {
         std::ofstream ao_bench_os(out_file_cv, std::ostream::binary | std::ostream::trunc);

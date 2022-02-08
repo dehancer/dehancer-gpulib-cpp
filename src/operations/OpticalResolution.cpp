@@ -3,8 +3,13 @@
 //
 
 #include "dehancer/gpu/operations/OpticalResolution.h"
-#include <cmath>
 #include "dehancer/gpu/math/ConvolveUtils.h"
+#include "dehancer/Log.h"
+#include <cmath>
+
+//
+// http://www.johncostella.com/magic/
+//
 
 namespace dehancer {
     
@@ -21,22 +26,13 @@ namespace dehancer {
         auto options = std::any_cast<DeresolutionOptions>(user_data.value());
         auto radius = options.radius_array.at(index);
     
-        if (radius==0) return 1.0f;
         dehancer::math::magic_resampler(radius,data);
         
-        std::vector<float> gaus;
-
-        dehancer::math::make_gaussian_kernel(gaus, data.size(),data.size()/2);
-
+        std::vector<float> gauss;
+        
         float sum = 0;
-        int size = data.size()/2;
-        for (int i = -size; i < size; ++i) {
-          data[i+size] *= gaus[i+gaus.size()/2];
-          sum += data[i+size];
-        }
-
-        for (float & i : data) {
-          i /= sum;
+        for (const auto& v: data) {
+          sum+=v;
         }
         
         return 1.0f;

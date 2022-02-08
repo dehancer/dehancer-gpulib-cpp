@@ -11,8 +11,8 @@
 #include "dehancer/gpu/kernels/hash_utils.h"
 #include "dehancer/gpu/kernels/cmath.h"
 
-constexpr sampler linear_normalized_sampler(address::clamp_to_zero, filter::linear, coord::normalized);
-constexpr sampler nearest_sampler(address::clamp_to_zero, filter::nearest, coord::pixel);
+constexpr sampler linear_normalized_sampler(address::mirrored_repeat, filter::linear, coord::normalized);
+constexpr sampler nearest_sampler(address::clamp_to_edge, filter::nearest, coord::pixel);
 
 #define  get_kernel_tid1d(tid) { \
   tid = int(__dehancer_kernel_gid_1d__);\

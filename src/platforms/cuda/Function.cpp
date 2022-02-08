@@ -33,18 +33,21 @@ namespace dehancer::cuda {
         pow_coef = 1;
       }
       
-      auto size = (int)((pow(max_device_threads_,1/pow_coef) - 1)/2);
+      auto size = (int)((powf((float)max_device_threads_,1/pow_coef) - 1)/2);
       size |= size >> 1; size |= size >> 2; size |= size >> 4; size |= size >> 8; size |= size >> 16; size += 1;
       
       dim3 block_size(size, size, size);
       
       if (texture_size.depth==1) {
         block_size.z = 1;
-        block_size.x *=2;
+        if (max_device_threads_<block_size.x*block_size.y) {
+          block_size.x = block_size.y = max_device_threads_>>2>>2>>1;
+        }
       }
       
       if (texture_size.height==1) {
         block_size.y = 1;
+        block_size.x = max_device_threads_;
       }
       
       if (texture_size.width < block_size.x) block_size.x = texture_size.width;
@@ -53,7 +56,7 @@ namespace dehancer::cuda {
       
       dim3 grid_size((texture_size.width  + block_size.x - 1) / block_size.x,
                      (texture_size.height + block_size.y - 1) / block_size.y,
-                     (texture_size.depth + block_size.z - 1) / block_size.z
+                     (texture_size.depth  + block_size.z - 1) / block_size.z
       );
 
 #ifdef PRINT_KERNELS_DEBUG
@@ -104,20 +107,16 @@ namespace dehancer::cuda {
     {
       
       command_->push();
-  
-      CUdevice device_id = command_->get_device_id();
-  
+      
       #ifdef PRINT_KERNELS_DEBUG
-      std::cout << "CUDA Function " << kernel_name_ << "context is changed to device["<<device_id<<"]" <<std::endl;
+      CUdevice device_id = command_->get_device_id();
+      std::cout << "CUDA Function " << kernel_name_ << " context is changed to device["<<device_id<<"]" <<std::endl;
       #endif
       
-      cudaDeviceProp props{};
-      
-      cudaGetDeviceProperties(&props, device_id);
-      
-      max_device_threads_ = props.maxThreadsPerBlock;
+      max_device_threads_ = command_->get_max_threads();
       
       #ifdef PRINT_KERNELS_DEBUG
+      cudaDeviceProp props{}; command_->get_device_info(props);
       std::cout << "CUDA Function "<<kernel_name_ << " device["<<device_id<<"]: " << props.name << " max grid: " << props.maxGridSize[0] << "x" << props.maxGridSize[1] << "x" << props.maxGridSize[2] <<std::endl;
       std::cout << "CUDA Function "<<kernel_name_ << " device["<<device_id<<"]: " << props.name << " max dim: " << props.maxThreadsDim[0] << "x" << props.maxThreadsDim[1] << "x" << props.maxThreadsDim[2] <<std::endl;
       #endif
@@ -167,8 +166,6 @@ namespace dehancer::cuda {
           if (!p_path.empty())
             CHECK_CUDA(cuModuleLoad(&module, p_path.c_str()));
           else {
-            //std::string library_source;
-            //dehancer::device::get_lib_source(library_source);
             CHECK_CUDA(cuModuleLoadData(&module, library_source.data()));
           }
         }

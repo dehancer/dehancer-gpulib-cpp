@@ -158,13 +158,6 @@ inline __device__ void __attribute__((overloadable)) write_image( image1d_t& des
 
 // 2D
 inline DHCR_DEVICE_FUNC  float4 __attribute__((overloadable)) read_image( const image2d_t& source, int2 gid) {
-  int2 coord = (int2)gid;
-  int x = get_texture_width(source);
-  int y = get_texture_height(source);
-  if (coord.x<0.0f)  coord.x = -coord.x;
-  if (coord.x>x)     coord.x = 2.0f*x - coord.x;
-  if (coord.y<0.0f)  coord.y = -coord.y;
-  if (coord.y>y)     coord.y = 2.0f*y - coord.y;
   return source.read_pixel(gid);
 }
 

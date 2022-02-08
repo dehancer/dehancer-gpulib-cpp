@@ -110,7 +110,7 @@ auto io_texture_test_forward = [] (int dev_num,
                                    const void* command_queue,
                                    const std::string& platform) {
     
-    for (auto file: VIDEO_FILES) {
+    for (const auto& file: VIDEO_FILES) {
       std::string vfile = IMAGES_DIR; vfile +="/"; vfile+= file;
       if(capture_video(dev_num, command_queue, platform, vfile, file, false)<0) return -1;
     }
@@ -122,7 +122,7 @@ auto io_texture_test_reverse = [] (int dev_num,
                                    const void* command_queue,
                                    const std::string& platform) {
     
-    for (auto file: VIDEO_FILES) {
+    for (const auto& file: VIDEO_FILES) {
       std::string vfile = IMAGES_DIR; vfile +="/"; vfile+= file;
       if(capture_video(dev_num, command_queue, platform, vfile, file, true)<0) return -1;
     }
@@ -134,7 +134,7 @@ auto io_texture_test_last = [] (int dev_num,
                                    const void* command_queue,
                                    const std::string& platform) {
     
-    for (auto file: VIDEO_FILES) {
+    for (const auto& file: VIDEO_FILES) {
       std::string vfile = IMAGES_DIR; vfile +="/"; vfile+= file;
       if(capture_video(dev_num, command_queue, platform, vfile, file, false, -2)<0) return -1;
     }

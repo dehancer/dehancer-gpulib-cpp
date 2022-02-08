@@ -8,7 +8,6 @@
 #include "dehancer/gpu/Memory.h"
 #include "dehancer/gpu/Texture.h"
 #include "dehancer/gpu/Kernel.h"
-#include "dehancer/gpu/TextureIO.h"
 
 namespace dehancer {
     
@@ -27,7 +26,9 @@ namespace dehancer {
      * Channels Description
      */
     struct ChannelsDesc {
-        
+    
+        using ActiveChannelsMask = std::array<bool,4>;
+    
         /***
          * Channel values transformation type
          */
@@ -56,14 +57,14 @@ namespace dehancer {
             float x = 1.0f;
             float y = 1.0f;
         };
-    
+        
         using Scale2D = std::array<Scale,4>;
         
         /***
          * Transformation description
          */
         struct Transform {
-    
+            
             struct Flags {
                 bool  in_enabled;
                 bool out_enabled;
@@ -95,8 +96,8 @@ namespace dehancer {
             /***
              * Opacity mask applies for channels transformation
              */
-            Texture              mask = nullptr;
-    
+            //Texture              mask = nullptr;
+            
             Flags                flags = {
                     .in_enabled = true,
                     .out_enabled = true
@@ -130,15 +131,15 @@ namespace dehancer {
          * 2D mapping dimension height
          */
         size_t  height    = 0;
-      
+        
         /***
          * Scale channels instead of origin texture size
          */
         Scale2D scale;
-    
-        size_t get_hash() const;
-    
-        Channels make(const void *command_queue) const;
+        
+        [[nodiscard]] size_t get_hash() const;
+        
+        Channels make(const void *command_queue, const ActiveChannelsMask& amask) const;
         
         static Scale2D default_scale;
     };
@@ -147,8 +148,14 @@ namespace dehancer {
     
     public:
         
-        static Channels Make(const void *command_queue, size_t width, size_t height);
-        static Channels Make(const void *command_queue, const ChannelsDesc& desc);
+        static Channels Make(const void *command_queue,
+                             size_t width,
+                             size_t height,
+                             const ChannelsDesc::ActiveChannelsMask& amask = {true,true,true,false});
+        static Channels Make(const void *command_queue,
+                             const ChannelsDesc& desc,
+                             const ChannelsDesc::ActiveChannelsMask& amask = {true,true,true,false}
+        );
         
         virtual size_t get_width(int index) const = 0;
         virtual size_t get_height(int index) const = 0;
@@ -162,12 +169,20 @@ namespace dehancer {
         [[nodiscard]] virtual inline size_t size() const = 0;
         
         Channels get_ptr() { return shared_from_this(); }
+    
+        //virtual void set_active_mask(const Ch::ActiveChannelsMask& amask) = 0 ;
+        //[[nodiscard]] virtual const ChannelsHolder::ActiveChannelsMask& get_active_mask() const = 0;
         
         virtual ~ChannelsHolder() = default;
     
     protected:
         ChannelsHolder() = default;
     };
+    
+    namespace impl {
+        struct ChannelsInputImpl;
+        struct ChannelsOutputImpl;
+    }
     
     class ChannelsInput: public Kernel {
     
@@ -179,11 +194,12 @@ namespace dehancer {
                                const Texture& source = nullptr,
                                const ChannelsDesc::Transform& transform = {},
                                ChannelsDesc::Scale2D scale = ChannelsDesc::default_scale,
+                               const ChannelsDesc::ActiveChannelsMask& amask = {true,true,true,false},
                                bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                                const std::string& library_path = ""
         );
         
-        [[nodiscard]] const Channels& get_channels() const { return channels_;}
+        [[nodiscard]] const Channels& get_channels() const;
         
         void process() override;
         void process(const Texture &source, const Texture &destination) override;
@@ -192,15 +208,13 @@ namespace dehancer {
         void set_source(const Texture& source) override;
         void set_destination(const Texture& destination) override;
         
+        //void set_active_mask(const ChannelsHolder::ActiveChannelsMask& amask);
+        
         virtual void set_transform(const ChannelsDesc::Transform& transform);
         virtual const ChannelsDesc::Transform& get_transform() const;
     
     private:
-        ChannelsDesc desc_;
-        Channels channels_;
-        ChannelsDesc::Transform transform_;
-        bool has_mask_;
-        Texture mask_;
+        std::shared_ptr<impl::ChannelsInputImpl> impl_;
     };
     
     class ChannelsOutput: public Kernel {
@@ -213,6 +227,7 @@ namespace dehancer {
                                 const Texture& destination,
                                 const Channels& channels,
                                 const ChannelsDesc::Transform& transform = {},
+                                //const ChannelsDesc::ActiveChannelsMask& amask = {true,true,true,false},
                                 bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                                 const std::string& library_path = ""
         );
@@ -225,12 +240,12 @@ namespace dehancer {
         virtual void set_transform(const ChannelsDesc::Transform& transform);
         virtual void set_channels(const Channels& channels);
         virtual const ChannelsDesc::Transform& get_transform() const;
+        [[nodiscard]] const Channels& get_channels() const;
     
+        //void set_active_mask(const ChannelsHolder::ActiveChannelsMask& amask);
+
     private:
-        Channels channels_;
-        ChannelsDesc::Transform transform_;
-        bool has_mask_;
-        Texture mask_;
+        std::shared_ptr<impl::ChannelsOutputImpl> impl_;
     };
 }
 

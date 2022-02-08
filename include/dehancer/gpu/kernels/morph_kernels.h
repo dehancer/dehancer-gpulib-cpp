@@ -2,8 +2,6 @@
 // Created by denn on 02.02.2021.
 //
 
-//#include "dehancer/gpu/kernels/lib.h"
-
 #ifndef DEHANCER_VIDEO_MORPH_KERNELS_H
 #define DEHANCER_VIDEO_MORPH_KERNELS_H
 
@@ -31,7 +29,7 @@ DHCR_KERNEL void kernel_dilate(
   
   float4  color = to_float4(0.0f);
   
-  #pragma unroll
+  #pragma unroll 2
   for (int j = -size; j <= size; ++j) {
     float4 c =  read_image(source, gid + make_int2(j, j) * step);
     color = fmaxf(color,c);
@@ -59,7 +57,7 @@ DHCR_KERNEL void kernel_erode(
   
   float4  color = to_float4(1.0f);
 
-#pragma unroll
+#pragma unroll 2
   for (int j = -size; j <= size; ++j) {
     float4 c =  read_image(source, gid + make_int2(j, j) * step);
     color = fminf(color,c);

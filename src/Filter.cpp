@@ -98,7 +98,7 @@ namespace dehancer {
       
       auto current_source = impl_->source;
       
-      TextureDesc desc = impl_->destination->get_desc();
+      auto desc = impl_->destination->get_desc();
       
       if (emplace) {
         if (impl_->destination)
@@ -113,14 +113,11 @@ namespace dehancer {
         
         if (!impl_->ping_pong.at(0) || impl_->ping_pong.at(0)->get_desc()!=desc) {
           desc.label = "Filter[" + get_name() + "] ping texture";
+          desc.mem_flags = TextureDesc::MemFlags::less_memory;
           auto ping = TextureHolder::Make(impl_->command_queue, desc);
           impl_->ping_pong.at(0) = ping;
         }
       }
-  
-      #ifdef PRINT_DEBUG
-      dehancer::log::print(" ### Filter::process: ping=%p pong=%p", impl_->ping_pong.at(0).get(), impl_->ping_pong.at(1).get());
-      #endif
       
       int next_index = 0;
       
@@ -141,6 +138,7 @@ namespace dehancer {
           if (!current_destination || current_destination->get_desc() != desc) {
             
             desc.label = "Filter[" + get_name() + "] pong texture";
+            desc.mem_flags = TextureDesc::MemFlags::less_memory;
             
             auto pong = TextureHolder::Make(impl_->command_queue, desc);
             impl_->ping_pong.at(1) = pong;

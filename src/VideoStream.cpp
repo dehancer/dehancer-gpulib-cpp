@@ -22,7 +22,7 @@ namespace dehancer {
                     m_file_path(file_path),
                     m_cap(std::make_unique<cv::VideoCapture>(m_file_path)) {
               
-              m_cap->setExceptionMode(false);
+              m_cap->setExceptionMode(true);
               
               if (!m_cap->isOpened()) {
                 std::stringstream ss;

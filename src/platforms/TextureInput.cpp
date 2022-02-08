@@ -7,13 +7,9 @@
 
 namespace dehancer::impl {
 
-    TextureInput::TextureInput(const void *command_queue)://,
-                               //const StreamSpace &space,
-                               //StreamSpaceDirection direction):
+    TextureInput::TextureInput(const void *command_queue):
             Command(command_queue, true),
-            texture_(nullptr)//,
-            //space_(space),
-            //direction_(direction)
+            texture_(nullptr)
     {
     }
 
@@ -47,13 +43,13 @@ namespace dehancer::impl {
         switch (image.depth()) {
           case CV_8S:
           case CV_8U:
-            scale = 1.0f/(256.0f-1);
+            scale = 1.0f/256.0f;
             break;
           case CV_16U:
-            scale = 1.0f/(65536.0f-1.0f);
+            scale = 1.0f/65536.0f;
             break;
           case CV_32S:
-            scale = 1.0f/(16777216.0f-1.0f);
+            scale = 1.0f/16777216.0f;
             break;
           case CV_16F:
           case CV_32F:

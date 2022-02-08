@@ -6,7 +6,7 @@
 
 namespace dehancer::opencl {
 
-    MemoryHolder::MemoryHolder(const void *command_queue, const void* buffer, size_t length):
+    MemoryHolder::MemoryHolder(const void *command_queue, const void* buffer, size_t length, MemoryDesc::MemFlags mflags):
             dehancer::MemoryHolder(),
             Context(command_queue),
             memobj_(nullptr),
@@ -22,7 +22,7 @@ namespace dehancer::opencl {
 
       cl_mem_flags flags =  CL_MEM_READ_WRITE;
 
-      if (buffer) flags|=CL_MEM_COPY_HOST_PTR;
+      if (buffer) flags |= CL_MEM_COPY_HOST_PTR;
 
       void *data = reinterpret_cast<void*>((void*)buffer);
 
@@ -76,7 +76,7 @@ namespace dehancer::opencl {
         clReleaseMemObject(memobj_);
   
       #ifdef PRINT_KERNELS_DEBUG
-      std::cout << "TextureHolder::~TextureHolder(" << memobj_<< "[" << length_ << "]" << " :: " << is_self_allocated_ << ")"  << std::endl;
+      //std::cout << "TextureHolder::~TextureHolder(" << memobj_<< "[" << length_ << "]" << " :: " << is_self_allocated_ << ")"  << std::endl;
       #endif
     }
 

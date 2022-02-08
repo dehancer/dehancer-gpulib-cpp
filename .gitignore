@@ -67,3 +67,7 @@ xcuserdata
 .env
 canon-c200-canon_log.clut
 *.fatbin
+.authority_pk.txt
+.authority_pvk.txt
+.key_debug_file.txt
+.key_file.txt

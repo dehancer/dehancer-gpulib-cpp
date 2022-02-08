@@ -16,6 +16,8 @@ namespace dehancer {
 #ifndef CUDA_KERNEL
             __host__ [[nodiscard]] const cudaArray* get_contents() const override { return mem_; };
             __host__ [[nodiscard]] cudaArray* get_contents() override { return mem_; };
+            __host__ [[nodiscard]] const std::string& get_label() const override {return label_;};
+            __host__ void set_label(const std::string& label) override {label_ = label;};
 #endif
             __device__ [[nodiscard]] size_t get_width() const override { return width_;};
             __device__ [[nodiscard]] size_t get_height() const override { return height_;};
@@ -47,9 +49,9 @@ namespace dehancer {
               // Specify texture object parameters
               cudaTextureDesc texDesc{};
               memset(&texDesc, 0, sizeof(texDesc));
-              texDesc.addressMode[0]   = cudaAddressModeMirror;//cudaAddressModeClamp;
-              texDesc.addressMode[1]   = cudaAddressModeMirror;//cudaAddressModeClamp;
-              texDesc.addressMode[2]   = cudaAddressModeMirror;//cudaAddressModeClamp;
+              texDesc.addressMode[0]   = cudaAddressModeMirror;
+              texDesc.addressMode[1]   = cudaAddressModeMirror;
+              texDesc.addressMode[2]   = cudaAddressModeMirror;
               /***
                * ALWAYS LINEAR! IT USES for LUT interpolations only
                */
@@ -110,6 +112,7 @@ namespace dehancer {
 
 #ifndef CUDA_KERNEL
             cudaArray* mem_ = nullptr;
+            std::string label_;
 #endif
         };
     }

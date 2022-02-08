@@ -40,9 +40,7 @@ DHCR_KERNEL void image_to_one_channel (
         DHCR_CONST_ARG float_ref_t      offset DHCR_BIND_BUFFER(6),
         DHCR_CONST_ARG bool_ref_t    transform DHCR_BIND_BUFFER(7),
         DHCR_CONST_ARG_REF (DHCR_TransformDirection) direction DHCR_BIND_BUFFER(8),
-        DHCR_CONST_ARG_REF (DHCR_TransformType) trtype DHCR_BIND_BUFFER(9),
-        DHCR_CONST_ARG bool_ref_t     has_mask DHCR_BIND_BUFFER(10),
-        texture2d_read_t                  mask DHCR_BIND_TEXTURE(11)
+        DHCR_CONST_ARG_REF (DHCR_TransformType) trtype DHCR_BIND_BUFFER(9)//,
         
         DHCR_KERNEL_GID_2D
 )
@@ -57,7 +55,7 @@ DHCR_KERNEL void image_to_one_channel (
     
     channel_tr_ color; color.vec = sampled_color(source, size, gid);
 
-    channel_tr_ eColor; eColor.vec = has_mask ? sampled_color(mask, size, gid) : to_float4(1.0f);
+    channel_tr_ eColor; eColor.vec = to_float4(1.0f);
 
     if (transform)
       switch (trtype) {
@@ -86,9 +84,7 @@ DHCR_KERNEL void one_channel_to_image (
         DHCR_CONST_ARG float_ref_t      offset DHCR_BIND_BUFFER(7),
         DHCR_CONST_ARG bool_ref_t    transform DHCR_BIND_BUFFER(8),
         DHCR_CONST_ARG_REF (DHCR_TransformDirection) direction DHCR_BIND_BUFFER(9),
-        DHCR_CONST_ARG_REF (DHCR_TransformType) trtype DHCR_BIND_BUFFER(10),
-        DHCR_CONST_ARG bool_ref_t     has_mask DHCR_BIND_BUFFER(11),
-        texture2d_read_t                  mask DHCR_BIND_TEXTURE(12)
+        DHCR_CONST_ARG_REF (DHCR_TransformType) trtype DHCR_BIND_BUFFER(10)
         
         DHCR_KERNEL_GID_2D
 
@@ -118,7 +114,8 @@ DHCR_KERNEL void one_channel_to_image (
       color.arr[channel_index] = channel_bicubic(channel, size, coords.x, coords.y);
     }
 
-    channel_tr_ eColor; eColor.vec = has_mask ? sampled_color(mask, destination_size, gid) : to_float4(1.0f);
+    //channel_tr_ eColor; eColor.vec = has_mask ? sampled_color(mask, destination_size, gid) : to_float4(1.0f);
+    channel_tr_ eColor; eColor.vec = to_float4(1.0f);
   
     if (transform)
       switch (trtype) {

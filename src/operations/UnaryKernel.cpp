@@ -26,11 +26,10 @@ namespace dehancer {
         Channels channels_unary_ops;
         ChannelsDesc::Scale2D channels_scale;
         
-        bool has_mask_;
-        Texture mask_;
+        ChannelsDesc::ActiveChannelsMask amask;
         
         std::string library_path;
-    
+        
         std::shared_ptr<Function> horizontal_kernel;
         std::shared_ptr<Function> vertical_kernel;
         
@@ -87,23 +86,10 @@ namespace dehancer {
                                                          root_->get_wait_completed(),
                                                          library_path)),
             vertical_kernel(std::make_shared<Function>(root_->get_command_queue(),
-                                                         "kernel_convolve_vertical",
-                                                         root_->get_wait_completed(),
-                                                         library_path))
+                                                       "kernel_convolve_vertical",
+                                                       root_->get_wait_completed(),
+                                                       library_path))
     {
-      
-      has_mask_ = options_.mask != nullptr;
-      
-      if (!has_mask_) {
-        TextureDesc desc ={
-                .width = 1,
-                .height = 1
-        };
-        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
-        mask_ = desc.make(root->get_command_queue(),mem);
-      }
-      else
-        mask_ = options_.mask;
     }
     
     
@@ -124,6 +110,7 @@ namespace dehancer {
           if (buf.empty()) {
             row_weights[i] = nullptr;
             channels_scale.at(i).x = 1.0f;
+            amask.at(i) = false;
           }
           else {
             for (auto& d: buf ) d *= options_.amplify;
@@ -131,11 +118,12 @@ namespace dehancer {
                                                           buf.data(),
                                                           buf.size() * sizeof(float));
             channels_scale.at(i).x = scale;
+            amask.at(i) = true;
           }
         }
         if (options_.col && options_.user_data) {
           buf.clear();
-  
+          
           float scale = options_.col(i, buf, options_.user_data);
           col_sizes[i] = buf.size();
           
@@ -152,75 +140,45 @@ namespace dehancer {
           }
         }
       }
-      
-      if (channels_transformer) {
-        channels_transformer->set_scale(channels_scale);
-      }
-      
-      reset_unary_ops();
     }
     
     void UnaryKernelImpl::reset_unary_ops () {
       
       if (!channels_transformer || !channels_transformer->get_channels()) return;
       
-      if (channels_unary_ops){
-    
-        for (int i = 0; i < channels_unary_ops->size(); ++i) {
-          if (channels_unary_ops->get_height(i) != channels_transformer->get_channels()->get_height(i)
-              ||
-              channels_unary_ops->get_width(i) != channels_transformer->get_channels()->get_width(i)) {
-            channels_unary_ops = nullptr;
-            break;
-          }
-        }
-      }
-      if (!channels_unary_ops && channels_transformer->get_channels())
-        channels_unary_ops = channels_transformer->get_channels()->get_desc().make(root_->get_command_queue());
+      if (channels_transformer->get_channels())
+        channels_unary_ops = channels_transformer->get_channels()->get_desc().make(root_->get_command_queue(), amask);
+      
     }
     
     void UnaryKernelImpl::set_source (const Texture &source) {
       
       if (!source) return;
       
-      if (!channels_transformer) {
-        channels_transformer = std::make_shared<ChannelsInput>(
-                root_->get_command_queue(),
-                source,
-                transform_,
-                channels_scale,
-                root_->get_wait_completed(), library_path
-        );
-      }
-      else {
-        channels_transformer->set_scale(channels_scale);
-        channels_transformer->set_source(source);
-        channels_transformer->set_destination(nullptr);
-      }
+      channels_transformer = std::make_shared<ChannelsInput>(
+              root_->get_command_queue(),
+              source,
+              transform_,
+              channels_scale,
+              amask,
+              root_->get_wait_completed(),
+              library_path
+      );
       
-      reset_unary_ops();
     }
     
     void UnaryKernelImpl::set_destination (const Texture& destination) {
+  
       if (!channels_transformer) return;
-      if (!channels_finalizer){
-        channels_finalizer = std::make_shared<ChannelsOutput>(
-                root_->get_command_queue(),
-                destination,
-                channels_transformer->get_channels(),
-                get_output_transform(),
-                root_->get_wait_completed(),
-                library_path
-        );
-      }
-      else {
-        channels_finalizer->set_destination(destination);
-        #if  __TEST_NOT_SKIP__ == 1
-        channels_finalizer->set_channels(channels_transformer->get_channels());
-        #else
-        channels_finalizer->set_channels(channels_unary_ops);
-        #endif
-      }
+  
+      channels_finalizer = std::make_shared<ChannelsOutput>(
+              root_->get_command_queue(),
+              destination,
+              channels_transformer->get_channels(),
+              get_output_transform(),
+              root_->get_wait_completed(),
+              library_path
+      );
     }
     
     
@@ -253,38 +211,51 @@ namespace dehancer {
             ))
     {
       impl_->recompute_kernel();
-      //impl_->set_source(s);
     }
     
     void UnaryKernel::process() {
-  
+      
       impl_->set_source(get_source());
-      //impl_->set_destination(get_destination());
-  
+      impl_->set_destination(get_destination());
+      
       if(!impl_->channels_transformer) return;
       if(!impl_->channels_finalizer) return;
       
       impl_->channels_transformer->process();
+  
+      impl_->channels_finalizer->set_source(get_source());
       
       impl_->reset_unary_ops();
       
+      const ChannelsDesc::Transform& real_transform = impl_->transform_;
+      
+      impl_->recompute_kernel();
+      if (impl_->channels_transformer)
+        impl_->channels_transformer->set_transform(real_transform);
+      
+      if (impl_->channels_finalizer)
+        impl_->channels_finalizer->set_transform(impl_->get_output_transform());
+      
       #if  __TEST_NOT_SKIP__ == 1
-
+      
       for (int i = 0; i < impl_->channels_transformer->get_channels()->size(); ++i) {
         
         if (impl_->row_weights[i]) {
           
-          impl_->horizontal_kernel->execute([this, i] (CommandEncoder &command) {
-              auto in = impl_->channels_transformer->get_channels()->at(i);
-              auto out = impl_->channels_unary_ops->at(i);
+          auto in = impl_->channels_transformer->get_channels()->at(i);
+          auto out = impl_->channels_unary_ops->at(i);
+          
+          if (!in || !out) continue;
+          
+          impl_->horizontal_kernel->execute([this, i, &in, &out] (CommandEncoder &command) {
               
               command.set(in, 0);
               command.set(out, 1);
               
               int
-              w = (int)impl_->channels_unary_ops->get_width(i),
-              h = (int)impl_->channels_unary_ops->get_height(i);
-    
+                      w = (int)impl_->channels_unary_ops->get_width(i),
+                      h = (int)impl_->channels_unary_ops->get_height(i);
+              
               command.set(w, 2);
               command.set(h, 3);
               
@@ -294,9 +265,7 @@ namespace dehancer {
               int a = impl_->options_.edge_mode;
               command.set(a, 6);
               
-              command.set(impl_->has_mask_, 7);
-              command.set(impl_->mask_, 8);
-              command.set(i, 9);
+              command.set(i, 7);
               
               CommandEncoder::Size size = {
                       .width = (size_t)w,
@@ -309,13 +278,17 @@ namespace dehancer {
         }
         
         if (impl_->col_weights[i]) {
-          impl_->vertical_kernel->execute([this, i](CommandEncoder &command) {
-              auto in = impl_->channels_unary_ops->at(i);
-              auto out = impl_->channels_transformer->get_channels()->at(i);
+          
+          auto in = impl_->channels_unary_ops->at(i);
+          auto out = impl_->channels_transformer->get_channels()->at(i);
+          
+          if (!in || !out) continue;
+          
+          impl_->vertical_kernel->execute([this, i, &in, &out](CommandEncoder &command) {
               
               command.set(in, 0);
               command.set(out, 1);
-    
+              
               int
                       w = (int)impl_->channels_transformer->get_channels()->get_width(i),
                       h = (int)impl_->channels_transformer->get_channels()->get_height(i);
@@ -323,16 +296,14 @@ namespace dehancer {
               
               command.set(w, 2);
               command.set(h, 3);
-    
+              
               command.set(impl_->col_weights.at(i), 4);
               command.set(impl_->col_sizes[i], 5);
               
               int a = impl_->options_.edge_mode;
               command.set(a, 6);
               
-              command.set(impl_->has_mask_, 7);
-              command.set(impl_->mask_, 8);
-              command.set(i, 9);
+              command.set(i, 7);
               
               CommandEncoder::Size size = {
                       .width = (size_t)w,
@@ -346,36 +317,22 @@ namespace dehancer {
       }
       
       #endif
-  
+      
       impl_->channels_unary_ops = nullptr;
       
       impl_->set_destination(get_destination());
       impl_->channels_finalizer->process();
+      
+      impl_->channels_transformer = nullptr;
+      impl_->channels_finalizer = nullptr;
     }
     
     void UnaryKernel::set_source (const Texture &s) {
-      
-      bool do_recompute = false;
-      
-      if (get_source()) {
-        if (s && s->get_desc()!=get_source()->get_desc())
-          do_recompute = true;
-      } else if (s) do_recompute = true;
-      
       Kernel::set_source(s);
-      
-      if (!get_source()) return;
-      
-      if (do_recompute)
-        impl_->recompute_kernel();
-      
-      impl_->set_source(s);
-      
     }
     
     void UnaryKernel::set_destination (const Texture &dest) {
       Kernel::set_destination(dest);
-      impl_->set_destination(dest);
     }
     
     UnaryKernel::UnaryKernel (const void *command_queue,
@@ -398,53 +355,16 @@ namespace dehancer {
     
     void UnaryKernel::set_transform (const ChannelsDesc::Transform &transform) {
       impl_->transform_ = transform;
-      
-      ChannelsDesc::Transform real_transform = transform;
-      
-      impl_->recompute_kernel();
-      if (impl_->channels_transformer)
-        impl_->channels_transformer->set_transform(real_transform);
-      
-      if (impl_->channels_finalizer)
-        impl_->channels_finalizer->set_transform(impl_->get_output_transform());
     }
     
     void UnaryKernel::set_options (const UnaryKernel::Options &options) {
       impl_->options_ = options;
-      impl_->has_mask_ = impl_->options_.mask != nullptr;
-      
-      if (!impl_->has_mask_) {
-        TextureDesc desc ={
-                .width = 1,
-                .height = 1
-        };
-        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
-        impl_->mask_ = desc.make(get_command_queue(),mem);
-      }
-      else
-        impl_->mask_ = impl_->options_.mask;
-  
       impl_->recompute_kernel();
     }
     
     void UnaryKernel::set_amplify (float amplify) {
       impl_->options_.amplify = amplify;
       impl_->recompute_kernel();
-    }
-    
-    void UnaryKernel::set_mask(const Texture &mask) {
-      impl_->options_.mask = mask;
-      impl_->has_mask_ = impl_->options_.mask != nullptr;
-      if (!impl_->has_mask_) {
-        TextureDesc desc ={
-                .width = 1,
-                .height = 1
-        };
-        float mem[4] = {1.0f,1.0f,1.0f,1.0f};
-        impl_->mask_ = desc.make(get_command_queue(),mem);
-      }
-      else
-        impl_->mask_ = impl_->options_.mask;
     }
     
     const UnaryKernel::Options& UnaryKernel::get_options () const {
