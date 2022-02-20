@@ -15,7 +15,8 @@ using namespace metal;
 
 #elif CL_VERSION_1_2
 
-#pragma OPENCL EXTENSION cl_khr_3d_image_writes : enable
+//#pragma OPENCL EXTENSION cl_khr_3d_image_writes : enable
+
 #define thread
 
 #endif

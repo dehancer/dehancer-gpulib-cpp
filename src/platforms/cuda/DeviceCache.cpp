@@ -51,6 +51,7 @@ namespace dehancer::cuda {
     std::vector<void *> gpu_device_cache::get_device_list(dehancer::device::TypeFilter filter) {
       std::vector<void *> list;
       for(const auto& d: device_caches_){
+        #ifdef DEHANCER_GPU_CUDA_CACHE_DEBUG
         auto* item = static_cast<const gpu_device_item*>(d.get());
         std::cout << "                           Device: " << item->device->props.name << std::endl
                   << "                            major: " << item->device->props.major << std::endl
@@ -66,9 +67,7 @@ namespace dehancer::cuda {
                   << "   directManagedMemAccessFromHost: " << item->device->props.directManagedMemAccessFromHost << std::endl
                   << " === " << std::endl
                   << std::endl;
-        //if (!item)
-        //  return "unknown";
-        //return item->device->props.name;
+        #endif
         if (filter & device::get_type(d.get()))
           list.push_back(d.get());
       }

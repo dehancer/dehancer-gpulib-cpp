@@ -28,220 +28,6 @@
 // constructors
 ////////////////////////////////////////////////////////////////////////////////
 
-//static inline float2 __attribute__((overloadable)) make_float2(float x, float y) {
-//  return (float2){x, y};
-//}
-//
-//static inline float3 __attribute__((overloadable)) make_float3(float x, float y, float z) {
-//  return (float3){x, y, z};
-//}
-//
-//static inline float4 __attribute__((overloadable)) make_float4(float x, float y, float z, float w) {
-//  return (float4){x, y, z, w};
-//}
-//
-//static inline int2 __attribute__((overloadable)) make_int2(int x, int y) {
-//  return (int2){x, y};
-//}
-//
-//static inline int3 __attribute__((overloadable)) make_int3(int x, int y, int z) {
-//  return (int3){x, y, z};
-//}
-//
-//static inline int4 __attribute__((overloadable)) make_int4(int x, int y, int z, int w) {
-//  return (int4){x, y, z, w};
-//}
-//
-//static inline uint2 __attribute__((overloadable)) make_uint2(uint x, uint y) {
-//  return (uint2){x, y};
-//}
-//
-//static inline uint3 __attribute__((overloadable)) make_uint3(uint x, uint y, uint z) {
-//  return (uint3){x, y, z};
-//}
-//
-//static inline uint4 __attribute__((overloadable)) make_uint4(uint x, uint y, uint z, uint w) {
-//  return (uint4){x, y, z, w};
-//}
-//
-//
-//static inline float2 __attribute__((overloadable)) make_float2(float s) {
-//  return make_float2(s, s);
-//}
-//
-//static inline float2 __attribute__((overloadable)) make_float2(float3 a) {
-//  return make_float2(a.x, a.y};
-//}
-//
-//static inline float2 __attribute__((overloadable)) make_float2(float4 a) {
-//  return make_float2(a.x, a.y);
-//}
-//
-//static inline float2 __attribute__((overloadable)) make_float2(int2 a) {
-//  return make_float2((float)(a.x), (float)(a.y));
-//}
-//
-//static inline float2 __attribute__((overloadable)) make_float2(uint2 a) {
-//  return make_float2((float)(a.x), (float)(a.y));
-//}
-//
-//static inline int2 __attribute__((overloadable)) make_int2(int s) {
-//  return make_int2(s, s);
-//}
-//
-//static inline int2 __attribute__((overloadable)) make_int2(int3 a) {
-//  return make_int2(a.x, a.y);
-//}
-//
-//static inline int2 __attribute__((overloadable)) make_int2(uint2 a) {
-//  return make_int2((int)(a.x), (int)(a.y));
-//}
-//
-//static inline int2 __attribute__((overloadable)) make_int2(float2 a) {
-//  return make_int2((int)(a.x), (int)(a.y));
-//}
-//
-//static inline uint2 __attribute__((overloadable)) make_uint2(uint s) {
-//  return make_uint2(s, s);
-//}
-//
-//static inline uint2 __attribute__((overloadable)) make_uint2(uint3 a) {
-//  return make_uint2(a.x, a.y);
-//}
-//
-//static inline uint2 __attribute__((overloadable)) make_uint2(int2 a) {
-//  return make_uint2((uint)(a.x), (uint)(a.y));
-//}
-//
-//static inline float3 __attribute__((overloadable)) make_float3(float s) {
-//  return make_float3(s, s, s);
-//}
-//
-//static inline float3 __attribute__((overloadable)) make_float3(int s) {
-//  return make_float3((float)s, (float)s, (float)s);
-//}
-//
-//static inline float3 __attribute__((overloadable)) make_float3(float2 a) {
-//  return make_float3(a.x, a.y, 0.0f);
-//}
-//
-//static inline float3 __attribute__((overloadable)) make_float3(float2 a, float s) {
-//  return make_float3(a.x, a.y, s);
-//}
-//
-//static inline float3 __attribute__((overloadable)) make_float3(float4 a) {
-//  return make_float3(a.x, a.y, a.z);
-//}
-//
-//static inline float3 __attribute__((overloadable)) make_float3(int3 a) {
-//  return make_float3((float)(a.x), (float)(a.y), (float)(a.z));
-//}
-//
-//static inline float3 __attribute__((overloadable)) make_float3(uint3 a) {
-//  return make_float3((float)(a.x), (float)(a.y), (float)(a.z));
-//}
-//
-//static inline int3 __attribute__((overloadable)) make_int3(int s) {
-//  return make_int3(s, s, s);
-//}
-//
-//static inline int3 __attribute__((overloadable)) make_int3(int2 a) {
-//  return make_int3(a.x, a.y, 0);
-//}
-//
-//static inline int3 __attribute__((overloadable)) make_int3(int2 a, int s) {
-//  return make_int3(a.x, a.y, s);
-//}
-//
-//static inline int3 __attribute__((overloadable)) make_int3(uint3 a) {
-//  return make_int3((int)(a.x), (int)(a.y), (int)(a.z));
-//}
-//
-//static inline int3 __attribute__((overloadable)) make_int3(float3 a) {
-//  return make_int3((int)(a.x), (int)(a.y), (int)(a.z));
-//}
-//
-//static inline uint3 __attribute__((overloadable)) make_uint3(uint s) {
-//  return make_uint3(s, s, s);
-//}
-//
-//static inline uint3 __attribute__((overloadable)) make_uint3(uint2 a) {
-//  return make_uint3(a.x, a.y, 0);
-//}
-//
-//static inline uint3 __attribute__((overloadable)) make_uint3(uint2 a, uint s) {
-//  return make_uint3(a.x, a.y, s);
-//}
-//
-//static inline uint3 __attribute__((overloadable)) make_uint3(uint4 a) {
-//  return make_uint3(a.x, a.y, a.z);
-//}
-//
-//static inline uint3 __attribute__((overloadable)) make_uint3(int3 a) {
-//  return make_uint3((uint)(a.x), (uint)(a.y), (uint)(a.z));
-//}
-//
-//static inline float4 __attribute__((overloadable)) make_float4(float s) {
-//  return make_float4(s, s, s, s);
-//}
-//
-//static inline float4 __attribute__((overloadable)) make_float4(int s) {
-//  return make_float4((float)s, (float)s, (float)s, (float)s);
-//}
-//
-//
-//static inline float4 __attribute__((overloadable)) make_float4(float3 a) {
-//  return make_float4(a.x, a.y, a.z, 0.0f);
-//}
-//
-//static inline float4 __attribute__((overloadable)) make_float4(float3 a, float w) {
-//  return make_float4(a.x, a.y, a.z, w);
-//}
-//
-//static inline float4 __attribute__((overloadable)) make_float4(int4 a) {
-//  return make_float4((float)(a.x), (float)(a.y), (float)(a.z), (float)(a.w));
-//}
-//
-//static inline float4 __attribute__((overloadable)) make_float4(uint4 a) {
-//  return make_float4((float)(a.x), (float)(a.y), (float)(a.z), (float)(a.w));
-//}
-//
-//static inline int4 __attribute__((overloadable)) make_int4(int s) {
-//  return make_int4(s, s, s, s);
-//}
-//
-//static inline int4 __attribute__((overloadable)) make_int4(int3 a) {
-//  return make_int4(a.x, a.y, a.z, 0);
-//}
-//
-//static inline int4 __attribute__((overloadable)) make_int4(int3 a, int w) {
-//  return make_int4(a.x, a.y, a.z, w);
-//}
-//
-//static inline int4 __attribute__((overloadable)) make_int4(uint4 a) {
-//  return make_int4((int)(a.x), (int)(a.y), (int)(a.z), (int)(a.w));
-//}
-//
-//static inline int4 __attribute__((overloadable)) make_int4(float4 a) {
-//  return make_int4((int)(a.x), (int)(a.y), (int)(a.z), (int)(a.w));
-//}
-//
-//
-//static inline uint4 __attribute__((overloadable)) make_uint4(uint s) {
-//  return make_uint4(s, s, s, s);
-//}
-//
-//static inline uint4 __attribute__((overloadable)) make_uint4(uint3 a) {
-//  return make_uint4(a.x, a.y, a.z, 0);
-//}
-//
-//static inline uint4 __attribute__((overloadable)) make_uint4(uint3 a, uint w) {
-//  return make_uint4(a.x, a.y, a.z, w);
-//}
-//
-//static inline uint4 __attribute__((overloadable)) make_uint4(int4 a) {
-//  return make_uint4((uint)(a.x), (uint)(a.y), (uint)(a.z), (uint)(a.w));
-//}
 
 /* make_type definitions with opencl style element initializers */
 #ifdef make_float2
@@ -296,17 +82,17 @@
  */
 static inline float3x3 __attribute__((overloadable)) make_float3x3(float3 r0, float3 r1, float3 r2) {
   float3x3 val;
-  val.m11=r0.x; val.m12=r0.y; val.m13=r0.z;
-  val.m21=r1.x; val.m22=r1.y; val.m23=r1.z;
-  val.m31=r2.x; val.m32=r2.y; val.m33=r2.z;
+  val.v[0].x=r0.x; val.v[0].y=r0.y; val.v[0].z=r0.z;
+  val.v[1].x=r1.x; val.v[1].y=r1.y; val.v[1].z=r1.z;
+  val.v[2].x=r2.x; val.v[2].y=r2.y; val.v[2].z=r2.z;
   return val;
 }
 
 static inline float3 __attribute__((overloadable)) matrix_mul(float3x3 m, float3 v) {
   return make_float3(
-          m.m11*v.x + m.m12*v.y + m.m13*v.z,
-          m.m21*v.x + m.m22*v.y + m.m23*v.z,
-          m.m31*v.x + m.m32*v.y + m.m33*v.z
+          m.v[0].x*v.x + m.v[0].y*v.y + m.v[0].z*v.z,
+          m.v[1].x*v.x + m.v[1].y*v.y + m.v[1].z*v.z,
+          m.v[2].x*v.x + m.v[2].y*v.y + m.v[2].z*v.z
   );
 }
 
@@ -445,6 +231,5 @@ static inline float3 __attribute__((overloadable)) reflect(float3 i, float3 n) {
 
 #define roundf round
 #define ceilf ceil
-//#define powf pow
 
 #endif

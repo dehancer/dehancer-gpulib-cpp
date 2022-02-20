@@ -9,6 +9,15 @@
 
 namespace dehancer {
     
+    /**
+     * Global options
+     */
+    namespace config {
+        struct memory {
+            static bool alloc_host_ptr;
+        };
+    }
+    
     struct MemoryHolder;
     
     /***

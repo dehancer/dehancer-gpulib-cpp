@@ -85,7 +85,10 @@ namespace dehancer::opencl {
         if (!is_device_buffer)
           mem_flags |= CL_MEM_COPY_HOST_PTR;
       }
-      
+  
+      if (config::memory::alloc_host_ptr)
+        mem_flags |= CL_MEM_ALLOC_HOST_PTR;
+  
       if (is_device_buffer){
         buffer = nullptr;
       }

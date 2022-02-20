@@ -25,7 +25,24 @@ add_custom_target(
         DEPENDS ${DEPENDS_SOURCES}
         COMMAND ${CMAKE_CUDA_COMPILER}
         -Xcompiler ${CMAKE_CUDA_COMPILER_FLAGS}
-        -ccbin ${CUDA_BIN_COMPILER} -m64 -gencode arch=compute_35,code=compute_35
+        -ccbin ${CUDA_BIN_COMPILER}
+        --generate-code arch=compute_35,code=sm_35
+        --generate-code arch=compute_50,code=sm_50
+        --generate-code arch=compute_52,code=sm_52
+        --generate-code arch=compute_53,code=sm_53
+        --generate-code arch=compute_60,code=sm_60
+        --generate-code arch=compute_61,code=sm_61
+        --generate-code arch=compute_62,code=sm_62
+        --generate-code arch=compute_70,code=sm_70
+        --generate-code arch=compute_72,code=sm_72
+        --generate-code arch=compute_75,code=sm_75
+        --generate-code arch=compute_80,code=sm_80
+        --generate-code arch=compute_86,code=sm_86
+        --generate-code arch=compute_87,code=sm_87
+        --use_fast_math
+        -ftz=true -prec-div=false -prec-sqrt=false
+        --extra-device-vectorization
+        --keep-device-functions
         -Wno-deprecated-declarations
         -o ${CURRENT_TARGET_LIB}
         -fatbin ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.cu
