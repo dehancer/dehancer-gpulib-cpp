@@ -61,6 +61,11 @@ inline static int run_on_device(int num,
 inline static void run_images(std::string platform,
                               dh_test_function block,
                               const std::vector<std::string>& images = IMAGE_FILES) {
+  
+  #ifdef DEHANCER_GPU_OPENCL
+  // dehancer::config::memory::alloc_host_ptr = true;
+  #endif
+  
   try {
 #if __APPLE__
     auto devices = dehancer::DeviceCache::Instance().get_device_list(
