@@ -20,7 +20,7 @@ static dehancer::ChannelsDesc::Transform transform_channels = {
 //        }
 };
 
-static std::array<float,4> transform_radiuses = {20.0f,00.0f,00.0f,0.0f};
+static std::array<float,4> transform_radiuses = {200.0f,00.0f,00.0f,0.0f};
 //static std::array<float,4> transform_radiuses = {20.0f,20.0f,20.0f,0.0f};
 
 static void run_kernel(int dev_num,
@@ -105,7 +105,7 @@ auto box_test =  [] (int dev_num,
         
                    kernel.set_source(input);
                    kernel.set_destination(output);
-                   kernel.set_radius(20);
+                   kernel.set_radius(90);
                    kernel.set_edge_mode(DHCR_ADDRESS_WRAP);
         
                    kernel.process();

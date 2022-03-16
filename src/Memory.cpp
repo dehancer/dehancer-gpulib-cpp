@@ -17,6 +17,10 @@
 
 namespace dehancer {
 
+    namespace config {
+      bool memory::alloc_host_ptr = false;
+    }
+    
     Memory dehancer::MemoryHolder::Make(const void *command_queue, const void *buffer, size_t length, MemoryDesc::MemFlags flags) {
       return std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::MemoryHolder>(command_queue, buffer, length, flags);
     }

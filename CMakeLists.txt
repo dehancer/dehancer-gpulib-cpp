@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.12)
 #
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 1.3.0)
+project(${PROJECT_LIB} VERSION 1.3.1)
 
 #
 # Options
@@ -252,10 +252,15 @@ if (DEHANCER_GPU_CUDA)
 
         if (NOT CUDAToolkit_ROOT)
             set(CUDA_INSTALLATION_DIR "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA")
-            set(CUDA_INSTALLATION_DIR_V11 "${CUDA_INSTALLATION_DIR}/v11.5")
+
+            set(CUDA_INSTALLATION_DIR_V115 "${CUDA_INSTALLATION_DIR}/v11.5")
+            set(CUDA_INSTALLATION_DIR_V116 "${CUDA_INSTALLATION_DIR}/v11.6")
             set(CUDA_INSTALLATION_DIR_V10 "${CUDA_INSTALLATION_DIR}/v10.2")
-            if(EXISTS ${CUDA_INSTALLATION_DIR_V11})
-                set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V11})
+
+            if(EXISTS ${CUDA_INSTALLATION_DIR_V116})
+                set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V116})
+            elseif(EXISTS ${CUDA_INSTALLATION_DIR_V115})
+                set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V115})
             elseif(EXISTS ${CUDA_INSTALLATION_DIR_V10})
                 set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V10})
             else()

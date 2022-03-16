@@ -21,6 +21,9 @@ namespace dehancer::opencl {
       cl_int ret = 0;
 
       cl_mem_flags flags =  CL_MEM_READ_WRITE;
+      
+      if (config::memory::alloc_host_ptr)
+        flags |= CL_MEM_ALLOC_HOST_PTR;
 
       if (buffer) flags |= CL_MEM_COPY_HOST_PTR;
 
