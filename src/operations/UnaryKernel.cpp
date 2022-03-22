@@ -105,7 +105,7 @@ namespace dehancer {
           
           float scale = options_.row(i, buf, options_.user_data);
           
-          row_sizes[i] = buf.size();
+          row_sizes[i] = (int)buf.size();
           
           if (buf.empty()) {
             row_weights[i] = nullptr;
@@ -125,7 +125,7 @@ namespace dehancer {
           buf.clear();
           
           float scale = options_.col(i, buf, options_.user_data);
-          col_sizes[i] = buf.size();
+          col_sizes[i] = (int)buf.size();
           
           if (buf.empty()) {
             col_weights[i] = nullptr;

@@ -181,7 +181,11 @@ static MTLDeviceCache*   gDeviceCache    = nil;
 
   if (self != nil)
   {
+    #if defined(IOS_SYSTEM)
+    NSArray<id<MTLDevice>>* devices =@[MTLCreateSystemDefaultDevice()];
+    #else
     NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
+    #endif
 
     deviceCaches = [[NSMutableArray alloc] initWithCapacity:devices.count];
 
@@ -250,7 +254,12 @@ static MTLDeviceCache*   gDeviceCache    = nil;
 
 
   // Didn't find one, so create one with the right settings
+  #if defined(IOS_SYSTEM)
+  NSArray<id<MTLDevice>>* devices = @[MTLCreateSystemDefaultDevice()];
+  #else
   NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
+  #endif
+  
   id<MTLDevice>   device  = nil;
   for (id<MTLDevice> nextDevice in devices)
   {
@@ -291,7 +300,12 @@ static MTLDeviceCache*   gDeviceCache    = nil;
 
 
   // Didn't find one, so create one with the right settings
+  #if defined(IOS_SYSTEM)
+  NSArray<id<MTLDevice>>* devices = @[MTLCreateSystemDefaultDevice()];
+  #else
   NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
+  #endif
+  
   id<MTLDevice>   device  = nil;
   for (id<MTLDevice> nextDevice in devices)
   {
@@ -383,7 +397,13 @@ namespace dehancer::metal {
       static std::vector<void*> list;
       static dispatch_once_t onceToken;
       dispatch_once(&onceToken, ^{
+    
+          #if defined(IOS_SYSTEM)
+          NSArray<id<MTLDevice>>* devices = @[MTLCreateSystemDefaultDevice()];
+          #else
           NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
+          #endif
+    
           for (id<MTLDevice> device in devices)
           {
             list.push_back(static_cast<id <MTLDevice>>([[device retain] autorelease]));

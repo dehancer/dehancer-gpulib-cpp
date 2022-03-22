@@ -6,14 +6,16 @@
 
 #include "dehancer/gpu/Texture.h"
 #include "Context.h"
-#import <Metal/Metal.h>
+//#import <Metal/Metal.h>
+
+//@protocol MTLTexture;
 
 namespace dehancer::metal {
-
     
     struct TextureItem {
         size_t         hash = 0;
-        id<MTLTexture> texture = nullptr;
+        //id<MTLTexture> texture = nullptr;
+        void*          texture = nullptr;
         bool           releasable = true;
         ~TextureItem();
     };
