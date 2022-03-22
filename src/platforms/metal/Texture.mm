@@ -90,8 +90,6 @@ namespace dehancer::metal {
             texture_item_(nullptr)
     {
       
-      //log::print(" *** TextureHolder::TextureHolder texture desc_.pixel_format: %i", (int)desc_.pixel_format);
-      
       auto text_hash = desc_.get_hash();
       
       MTLTextureDescriptor *descriptor = [[MTLTextureDescriptor new] autorelease];

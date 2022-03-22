@@ -11,9 +11,6 @@
 
 #include "Command.h"
 
-//@protocol MTLComputePipelineState;
-//@protocol MTLCommandQueue;
-
 namespace dehancer::metal {
     
     typedef struct {
@@ -31,7 +28,6 @@ namespace dehancer::metal {
         };
 
         struct PipelineState {
-            //id<MTLComputePipelineState> pipeline;
             void* pipeline;
             std::vector<dehancer::Function::ArgInfo> arg_list;
         };
@@ -57,7 +53,6 @@ namespace dehancer::metal {
         std::string library_path_;
 
         typedef std::unordered_map<std::string, PipelineState> PipelineKernel;
-        //typedef std::unordered_map<id<MTLCommandQueue>, PipelineKernel> PipelineCache;
         typedef std::unordered_map<void*, PipelineKernel> PipelineCache;
 
         mutable PipelineState pipelineState_;
