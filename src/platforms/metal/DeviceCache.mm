@@ -15,6 +15,17 @@
 
 @class DehancerMTLDeviceCacheItem_;
 
+#if defined(IOS_SYSTEM)
+NSArray<id<MTLDevice>>* MTLGetAllDevices() {
+  return [[NSArray alloc]
+          initWithArray:@[MTLCreateSystemDefaultDevice()]]; //copyItems:YES];
+}
+#else
+NSArray<id<MTLDevice>>* MTLGetAllDevices() {
+  return MTLCopyAllDevices();
+}
+#endif
+
 /**
  * Caching device command queue
  */
@@ -181,23 +192,12 @@ static MTLDeviceCache*   gDeviceCache    = nil;
 
   if (self != nil)
   {
-    #if defined(IOS_SYSTEM)
-    NSArray<id<MTLDevice>>* devices =@[MTLCreateSystemDefaultDevice()];
-    #else
-    NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
-    #endif
+    NSArray<id<MTLDevice>>* devices = MTLGetAllDevices();
 
     deviceCaches = [[NSMutableArray alloc] initWithCapacity:devices.count];
 
     for (id<MTLDevice> nextDevice in devices)
     {
-//            dehancer::log::print(" **** MTLCopyAllDevices[%s]: id = %i size = %i, threads = %i",
-//                                 [nextDevice.name UTF8String],
-//                                 nextDevice.registryID,
-//                                 nextDevice.recommendedMaxWorkingSetSize,
-//                                 nextDevice.maxThreadsPerThreadgroup
-//            );
-
       DehancerMTLDeviceCacheItem_*  newCacheItem    = [[[DehancerMTLDeviceCacheItem_ alloc] initWithDevice:nextDevice]
               autorelease];
       [deviceCaches addObject:newCacheItem];
@@ -253,12 +253,7 @@ static MTLDeviceCache*   gDeviceCache    = nil;
   }
 
 
-  // Didn't find one, so create one with the right settings
-  #if defined(IOS_SYSTEM)
-  NSArray<id<MTLDevice>>* devices = @[MTLCreateSystemDefaultDevice()];
-  #else
-  NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
-  #endif
+  NSArray<id<MTLDevice>>* devices = MTLGetAllDevices();
   
   id<MTLDevice>   device  = nil;
   for (id<MTLDevice> nextDevice in devices)
@@ -297,14 +292,8 @@ static MTLDeviceCache*   gDeviceCache    = nil;
       return [nextCacheItem getNextFreeCommandQueue];
     }
   }
-
-
-  // Didn't find one, so create one with the right settings
-  #if defined(IOS_SYSTEM)
-  NSArray<id<MTLDevice>>* devices = @[MTLCreateSystemDefaultDevice()];
-  #else
-  NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
-  #endif
+  
+  NSArray<id<MTLDevice>>* devices = MTLGetAllDevices();
   
   id<MTLDevice>   device  = nil;
   for (id<MTLDevice> nextDevice in devices)
@@ -394,15 +383,11 @@ namespace dehancer::metal {
     /// \param filter - has no effect for metal
     /// \return
     std::vector<void *> gpu_device_cache::get_device_list(dehancer::device::TypeFilter filter) {
-      static std::vector<void*> list;
+      static std::vector<void*> list ;
       static dispatch_once_t onceToken;
       dispatch_once(&onceToken, ^{
     
-          #if defined(IOS_SYSTEM)
-          NSArray<id<MTLDevice>>* devices = @[MTLCreateSystemDefaultDevice()];
-          #else
-          NSArray<id<MTLDevice>>* devices = MTLCopyAllDevices();
-          #endif
+          NSArray<id<MTLDevice>>* devices = MTLGetAllDevices();
     
           for (id<MTLDevice> device in devices)
           {
@@ -410,6 +395,6 @@ namespace dehancer::metal {
           }
           [devices release];
       });
-      return list;
+      return std::move(list);
     }
 }
