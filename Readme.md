@@ -13,6 +13,24 @@ Build Intel
     -DDEHANCER_GPU_OPENCL=OFF -DDEHANCER_GPU_METAL=ON -DDEHANCER_GPU_CUDA=OFF ..
 
 
+Build iOS
+============
+    mkdir build-arm64-ios cd build-arm64-ios
+    cmake -G Xcode \
+    -DCMAKE_TOOLCHAIN_FILE=~/Develop/Dehancer/Dehancer-Plugins/ios-cmake/ios.toolchain.cmake\
+    -DPLATFORM=OS64COMBINED \
+    -DDEPLOYMENT_TARGET=13.0 \ 
+    -DENABLE_BITCODE=ON \ 
+    -DBUILD_TESTING=OFF \ 
+    -DCMAKE_INSTALL_PREFIX=~/Develop/local/ios/dehancer \
+    -DOPENCV_FRAMEWORK_PATH=~/Develop/local/ios/lib \
+    -DOPENCV_INCLUDES_PATH=~/Develop/local/ios/include \
+    -DENABLE_ARC=OFF \
+    -DDEHANCER_GPU_METAL=ON \
+    -DDEHANCER_GPU_OPENCL=OFF \
+    -DDEHANCER_GPU_CUDA=OFF \
+    -DUSE_OPENCOLORIO=OFF
+
 Build Windows10 x64
 ===================
     # CUDA
