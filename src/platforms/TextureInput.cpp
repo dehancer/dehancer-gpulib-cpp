@@ -137,6 +137,11 @@ namespace dehancer::impl {
 
       return is;
     }
-
+    
+    #if not defined(IOS_SYSTEM)
+    Error TextureInput::load_from_native_image (const void *handle) {
+      return Error(CommonError::NOT_SUPPORTED);
+    }
+    #endif
     TextureInput::~TextureInput() = default;
 }
