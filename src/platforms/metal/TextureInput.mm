@@ -19,6 +19,10 @@ namespace dehancer::impl {
       try {
         cv::Mat image;
   
+        ///
+        /// TODO: optimization, replace opencv transformation with a native uiimage to mtltexture loader
+        ///
+        
         #if defined(IOS_SYSTEM)
         UIImageToMat(reinterpret_cast<UIImage*>(handle), image, true);
         #elif defined(__APPLE__) and defined(SUPPORT_NSIMAGE)
@@ -48,24 +52,7 @@ namespace dehancer::impl {
           default:
             return Error(CommonError::NOT_SUPPORTED, error_string("Image pixel depth is not supported"));
         }
-
-//        auto color_cvt = cv::COLOR_BGR2RGBA;
-//
-//        if (image.channels() == 1){
-//          color_cvt = cv::COLOR_GRAY2RGBA;
-//        }
-//        else if (image.channels() == 3){
-//          color_cvt = cv::COLOR_BGR2RGBA;
-//        }
-//        else if (image.channels() == 4){
-//          color_cvt = cv::COLOR_BGRA2RGBA;
-//        }
-//        else {
-//          return Error(CommonError::NOT_SUPPORTED, error_string("Image channels depth is not supported"));
-//        }
-//
-//        cv::cvtColor(image, image, color_cvt);
-
+        
         image.convertTo(image, CV_32FC4, scale);
 
         return load_from_data(reinterpret_cast<float *>(image.data),
