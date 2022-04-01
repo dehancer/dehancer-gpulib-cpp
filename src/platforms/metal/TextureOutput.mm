@@ -17,7 +17,7 @@
 #endif
 #endif
 
-static const NSUInteger kDP_bitsPerComponent               = 8;
+#include "TextureSettings.h"
 
 namespace dehancer::impl {
     
@@ -25,8 +25,9 @@ namespace dehancer::impl {
       try {
   
         id<MTLTexture> texture = reinterpret_cast<id<MTLTexture> >((__bridge id)source_->get_memory());
+
         NSDictionary* options = @{
-                kCIImageColorSpace: (__bridge id)CGColorSpaceCreateDeviceRGB(),
+                kCIImageColorSpace: (__bridge id)color_space,
                 kCIContextOutputPremultiplied: @YES,
                 kCIContextUseSoftwareRenderer: @FALSE
         };
