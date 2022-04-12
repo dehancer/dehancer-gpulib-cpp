@@ -206,12 +206,28 @@ else()
     endif()
 endif()
 
-find_package(BLAS REQUIRED)
-find_package(LAPACK REQUIRED)
+if(LINUX)
+
+    find_package (lapack)
+
+    if (LAPACK_NOT_FOUND)
+        message(FATAL "LAPACK has not bin found at all. $ git clone https://github.com/Reference-LAPACK/lapack-release and install")
+    else()
+        message("LAPACK LIBRARY: ${LAPACK_LIBRARIES}")
+    endif ()
+
+else()
+
+    find_package (LAPACK REQUIRED)
+    find_package (BLAS REQUIRED)
+
+endif()
 
 if (LINUX)
+    set(CMAKE_INSTALL_LIBDIR  "lib")
     set(DEHANCER_EXT_MATH_LIB)
 
+    add_definitions(-D_GLIBCXX_USE_CXX11_ABI=1)
     set(FORTRAN_LIB_PATHS ${CMAKE_SYSTEM_LIBRARY_PATH};/usr/lib/gcc/x86_64-linux-gnu/9;/usr/lib/gcc/x86_64-linux-gnu/8;/usr/lib/gcc/x86_64-linux-gnu;/lib64;/lib;/usr/lib64;/usr/lib;/usr/local/lib64;/usr/local/lib;/opt/local/lib64;/opt/local/lib)
 
     find_library(GFORTRAN_LIBRARY
@@ -226,27 +242,28 @@ if (LINUX)
 
     message("GFORTRAN_LIBRARY: ${GFORTRAN_LIBRARY}")
 
-    foreach(v ${BLAS_LIBRARIES})
-        string(REPLACE ".so" ".a" vv ${v})
-        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-    endforeach()
+#    foreach(v ${BLAS_LIBRARIES})
+#        string(REPLACE ".so" ".a" vv ${v})
+#        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+#    endforeach()
+#
+#    foreach(v ${LAPACK_LIBRARIES})
+#        string(REPLACE ".so" ".a" vv ${v})
+#        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+#    endforeach()
 
-    foreach(v ${LAPACK_LIBRARIES})
-        string(REPLACE ".so" ".a" vv ${v})
-        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-    endforeach()
+#    foreach(v ${GFORTRAN_LIBRARY})
+#        string(REPLACE ".so" ".a" vv ${v})
+#        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+#    endforeach()
+#
+#    foreach(v ${GQUADMATH_LIBRARY})
+#        string(REPLACE ".so" ".a" vv ${v})
+#        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+#    endforeach()
 
-    foreach(v ${GFORTRAN_LIBRARY})
-        string(REPLACE ".so" ".a" vv ${v})
-        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-    endforeach()
-
-    foreach(v ${GQUADMATH_LIBRARY})
-        string(REPLACE ".so" ".a" vv ${v})
-        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-    endforeach()
-
-    set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};m)
+    set(DEHANCER_EXT_MATH_LIB ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
+    set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};gfortran;m)
 
     find_library(DEHANCER_EXT_MATH_LIB REQUIRED ${DEHANCER_EXT_MATH})
 
@@ -458,6 +475,7 @@ if (BUILD_TESTING)
                 GIT_SHALLOW YES
                 GIT_TAG release-1.11.0
                 CMAKE_ARGS
+                -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
                 -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
                 -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
                 -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
@@ -495,6 +513,7 @@ if (DEHANCER_GPU_OPENCL)
             GIT_PROGRESS YES
             GIT_SHALLOW YES
             CMAKE_ARGS
+            -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_C_FLAGS=${C_FLAGS}
@@ -534,6 +553,7 @@ else()
             GIT_PROGRESS YES
             GIT_SHALLOW YES
             CMAKE_ARGS
+            -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_C_FLAGS=${C_FLAGS}
@@ -575,7 +595,9 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-maths-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
+            GIT_TAG develop
             CMAKE_ARGS
+            -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_C_FLAGS=${C_FLAGS}
@@ -619,6 +641,7 @@ else()
             GIT_PROGRESS YES
             GIT_SHALLOW YES
             CMAKE_ARGS
+            -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -650,6 +673,7 @@ if(USE_OPENCOLORIO)
             INSTALL_DIR ${EXTERNAL_INSTALL_LOCATION}
             #PREFIX OpenColorIO
             CMAKE_ARGS
+            -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -Wno-error=dev -Wno-dev
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}

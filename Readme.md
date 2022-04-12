@@ -121,6 +121,13 @@ OpenCV from sources
     make -j7 && make install
 
 
+    # Centos 8
+    sudo dnf install epel-release dnf-utils
+    sudo yum-config-manager --add-repo=https://negativo17.org/repos/epel-multimedia.repo
+    sudo dnf install ffmpeg
+    sudo dnf install ffmpeg-devel
+
+
     # Ubuntu 20.04
     sudo apt-get install libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libavresample-dev
     mkdir build_opencv_x86_64 && cd build_opencv_x86_64
