@@ -38,7 +38,7 @@ namespace dehancer::impl {
                 .width = static_cast<size_t>(ciimage.extent.size.width),
                 .height = static_cast<size_t>(ciimage.extent.size.height),
                 .depth = 1,
-                .pixel_format = TextureDesc::PixelFormat::rgba32float,
+                .pixel_format = TextureDesc::PixelFormat::rgba16float,
                 .type = dehancer::TextureDesc::Type::i2d,
                 .mem_flags = TextureDesc::MemFlags::read_write
         };
