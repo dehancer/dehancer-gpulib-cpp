@@ -1,11 +1,13 @@
 set (EMBEDDED_OVERLAYS_C_TARGET EmbeddedWatermarks${PROJECT_LIB_PLATFORM_SUFFIX})
 set (EMBEDDED_CURRENT_C_TARGET ${EMBEDDED_OVERLAYS_C_TARGET})
 
-if (LINUX)
-    set(_WATER_MARK_EXTENSION "tif")
-else()
-    set(_WATER_MARK_EXTENSION "png")
-endif ()
+#if (LINUX)
+#    set(_WATER_MARK_EXTENSION "tif")
+#else()
+#    set(_WATER_MARK_EXTENSION "png")
+#endif ()
+
+set(_WATER_MARK_EXTENSION "png")
 
 file (GLOB EMBEDDED_IMAGE_FILES ${EMBEDDED_IMAGE_FILES}
         ${CMAKE_SOURCE_DIR}/src/rc/watermarks/*.${_WATER_MARK_EXTENSION}
