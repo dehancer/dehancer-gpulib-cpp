@@ -263,7 +263,12 @@ if (LINUX)
 #    endforeach()
 
     set(DEHANCER_EXT_MATH_LIB ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
-    set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};gfortran;m)
+    find_library(GFORTRAN_LIB NAMES gfortran)
+    if (gfortran_FOUND)
+        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${GFORTRAN_LIB};m)
+    else()
+        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};m)
+    endif()
 
     find_library(DEHANCER_EXT_MATH_LIB REQUIRED ${DEHANCER_EXT_MATH})
 
@@ -344,6 +349,7 @@ if (DEHANCER_GPU_CUDA)
         #
         if (NOT CUDA_BIN_COMPILER)
             set(CUDA_BIN_COMPILER g++)
+            #set(CUDA_BIN_COMPILER clang++)
         endif ()
 
         message("CUDA_BIN_COMPILER ${CUDA_BIN_COMPILER}")
