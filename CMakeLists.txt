@@ -458,6 +458,11 @@ endif()
 
 set(CMAKE_MACOSX_RPATH TRUE)
 
+#Static start
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+#Set Linker flags
+#set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+
 #
 # Generators
 #

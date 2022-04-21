@@ -68,6 +68,9 @@ elseif(DEHANCER_CURRENT_PLATFORM_OPENCL)
             )
 endif ()
 
+#set_target_properties( ${TEST} PROPERTIES LINK_SEARCH_START_STATIC 1)
+#set_target_properties( ${TEST} PROPERTIES LINK_SEARCH_END_STATIC 1)
+
 target_link_libraries(
         ${TEST}
         ${PROJECT_LIB_PLATFORM}
