@@ -50,6 +50,14 @@ namespace dehancer {
       return  impl_->load_from_native_image(handle);
     }
     
+    Error TextureInput::load_from_data (const std::vector<float> &buffer, size_t width) {
+      return Error(CommonError::NOT_SUPPORTED);
+    }
+    
+    Error TextureInput::load_from_data (float *buffer, size_t width) {
+      return Error(CommonError::NOT_SUPPORTED);
+    }
+    
     
     TextureInput::~TextureInput() = default;
 

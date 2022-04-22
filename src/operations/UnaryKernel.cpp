@@ -238,7 +238,7 @@ namespace dehancer {
       
       #if  __TEST_NOT_SKIP__ == 1
       
-      for (int i = 0; i < impl_->channels_transformer->get_channels()->size(); ++i) {
+      for (size_t i = 0; i < impl_->channels_transformer->get_channels()->size(); ++i) {
         
         if (impl_->row_weights[i]) {
           
@@ -265,7 +265,7 @@ namespace dehancer {
               int a = impl_->options_.edge_mode;
               command.set(a, 6);
               
-              command.set(i, 7);
+              command.set((int)i, 7);
               
               CommandEncoder::Size size = {
                       .width = (size_t)w,
@@ -303,7 +303,7 @@ namespace dehancer {
               int a = impl_->options_.edge_mode;
               command.set(a, 6);
               
-              command.set(i, 7);
+              command.set((int)i, 7);
               
               CommandEncoder::Size size = {
                       .width = (size_t)w,

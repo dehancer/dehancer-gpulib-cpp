@@ -76,6 +76,11 @@ namespace dehancer {
                 size_t width,
                 size_t height);
     
+    
+        virtual Error load_from_data(
+                const std::vector<float> &buffer,
+                size_t width);
+    
         /***
          * Load texture raw data packed as rgba32float
          * @param buffer
@@ -97,6 +102,10 @@ namespace dehancer {
           return load_from_data(buffer,width,height,1);
         };
     
+        virtual Error load_from_data(
+                float *buffer,
+                size_t width);
+        
         /***
          * Read image to the Texture from input stream
          * @param os - input stream

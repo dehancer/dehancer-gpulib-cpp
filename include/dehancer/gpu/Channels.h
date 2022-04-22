@@ -19,7 +19,7 @@ namespace dehancer {
     using Channels = std::shared_ptr<ChannelsHolder>;
     
     namespace impl {
-        class ChannelsHolder;
+        struct ChannelsHolder;
     }
     
     /***
