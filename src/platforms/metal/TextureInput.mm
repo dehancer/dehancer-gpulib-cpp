@@ -9,10 +9,13 @@
 #import <opencv2/imgcodecs/ios.h>
 #import <Metal/Metal.h>
 #import <CoreImage/CoreImage.h>
+typedef UIImage DImage;
 #elif defined(__APPLE__)
 #if defined(DEHANCER_USE_NATIVE_APPLE_API)
-#defined SUPPORT_NSIMAGE 1
-#import <opencv2/imgcodecs/macosx.h>
+#define SUPPORT_NSIMAGE 1
+#import <CoreImage/CoreImage.h>
+#import <AppKit/AppKit.h>
+typedef NSImage DImage;
 #endif
 #endif
 
@@ -27,7 +30,15 @@ namespace dehancer::impl {
         
         NSDictionary* options = @{};
         CIContext* context = [CIContext contextWithMTLDevice: device ];
-        CIImage* ciimage = [[CIImage alloc] initWithImage: reinterpret_cast<UIImage*>(handle) options: options];
+  
+        #if defined(SUPPORT_NSIMAGE)
+        NSData* tiffData = [reinterpret_cast<DImage*>(handle) TIFFRepresentation];
+        NSBitmapImageRep* bitmap = [NSBitmapImageRep imageRepWithData:tiffData];
+
+        CIImage* ciimage = [[CIImage alloc] initWithBitmapImageRep:bitmap];
+        #else
+          CIImage* ciimage = [[CIImage alloc] initWithImage: reinterpret_cast<DImage*>(handle) options: options];
+        #endif
   
         auto height = ciimage.extent.size.height;
   

@@ -6,14 +6,25 @@
 #include <opencv2/opencv.hpp>
 
 #if defined(IOS_SYSTEM)
+
 #import <UIKit/UIKit.h>
 #import <Metal/Metal.h>
 #import <CoreImage/CoreImage.h>
 #import <opencv2/imgcodecs/ios.h>
+typedef UIImage DImage;
+
 #elif defined(__APPLE__)
+
 #if defined(DEHANCER_USE_NATIVE_APPLE_API)
-#defined SUPPORT_NSIMAGE 1
-#import <opencv2/imgcodecs/macosx.h>
+
+#define SUPPORT_NSIMAGE 1
+
+#import <Metal/Metal.h>
+#import <CoreImage/CoreImage.h>
+#import <AppKit/AppKit.h>
+
+typedef NSImage DImage;
+
 #endif
 #endif
 
@@ -44,11 +55,16 @@ namespace dehancer::impl {
           
         if (handle) {
           CIContext *context = [CIContext contextWithOptions:nil];
+          #if defined(SUPPORT_NSIMAGE)
+          NSCIImageRep *rep = [NSCIImageRep imageRepWithCIImage:ciimage];
+          NSImage *uiImage = [[NSImage alloc] initWithSize:rep.size];
+          [uiImage addRepresentation:rep];
+          #else
           CGImageRef cgImage = [context createCGImage:ciimage fromRect:[ciimage extent]];
-  
-          UIImage* uiImage = [UIImage imageWithCGImage:cgImage];
+          DImage* uiImage = [DImage imageWithCGImage:cgImage];
           CGImageRelease(cgImage);
-  
+          #endif
+          
           *handle = uiImage;
         }
         else
