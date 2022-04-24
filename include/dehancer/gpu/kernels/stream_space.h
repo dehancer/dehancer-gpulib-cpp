@@ -221,7 +221,7 @@ float4 transform( float4 in_, DHCR_StreamSpace space, DHCR_TransformDirection di
   if (direction == DHCR_Forward) {
     
     if (space.transform_func.cs_params.log.enabled) {
-      //next =  apply_log_forward(next, space.transform_func.cs_params.log);
+      next =  apply_log_forward(next, space.transform_func.cs_params.log);
     }
     
     if (space.transform_func.cs_params.gamma.enabled) {
@@ -235,7 +235,42 @@ float4 transform( float4 in_, DHCR_StreamSpace space, DHCR_TransformDirection di
     }
     
     if (space.transform_func.cs_params.log.enabled) {
-      //next =  apply_log_inverse(next, space.transform_func.cs_params.log);
+      next =  apply_log_inverse(next, space.transform_func.cs_params.log);
+    }
+    
+  }
+  
+  return next;
+};
+
+static inline DHCR_DEVICE_FUNC
+float4 transform_extended( float4 in_, DHCR_GammaParameters gamma, DHCR_LogParameters log, DHCR_CONST_ARG float4x4_ref_t cs_forward_matrix, DHCR_CONST_ARG float4x4_ref_t cs_inverse_matrix, DHCR_TransformDirection direction) {
+  
+  float4 next = in_;
+
+//  next = float4_multiply_float4x4(next,
+//                                 direction == DHCR_Forward
+//                                 ? cs_forward_matrix
+//                                 : cs_inverse_matrix);
+
+  if (direction == DHCR_Forward) {
+    
+    if (log.enabled) {
+      next =  apply_log_forward(next, log);
+    }
+    
+    if (gamma.enabled) {
+      next =  apply_gamma_forward(next, gamma);
+    }
+    
+  } else {
+    
+    if (gamma.enabled) {
+      next =  apply_gamma_inverse(next, gamma);
+    }
+    
+    if (log.enabled) {
+      next =  apply_log_inverse(next, log);
     }
     
   }
