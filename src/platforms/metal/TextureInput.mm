@@ -28,7 +28,12 @@ namespace dehancer::impl {
         id<MTLCommandQueue> command_queue = reinterpret_cast<id<MTLCommandQueue> >((__bridge id)get_command_queue());
         id<MTLDevice>  device = [command_queue device];
         
-        NSDictionary* options = @{};
+        NSDictionary* options = @{
+                kCIImageColorSpace: (__bridge id)color_space,
+                kCIContextOutputPremultiplied: @YES,
+                kCIContextUseSoftwareRenderer: @FALSE
+        };
+        
         CIContext* context = [CIContext contextWithMTLDevice: device ];
   
         #if defined(SUPPORT_NSIMAGE)
