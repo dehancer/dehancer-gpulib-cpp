@@ -45,13 +45,14 @@ namespace dehancer::cuda {
         void set(const math::bool2& p, int index) override;
         void set(const math::bool3& p, int index) override;
         void set(const math::bool4& p, int index) override;
-        
-        dehancer::cuda::Function* function_ = nullptr;
+    
         CUfunction kernel_ = nullptr;
+        dehancer::cuda::Function* function_ = nullptr;
         std::vector<void* > args_;
         std::vector<std::any> args_container_;
 
         void resize_at_index(int index);
 
+        virtual ~CommandEncoder() = default;
     };
 }

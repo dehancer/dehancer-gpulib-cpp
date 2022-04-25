@@ -23,7 +23,7 @@ namespace dehancer {
     
     Error FilmProfile::load (const MLutXmp &xmp) {
       
-      for (int i = 0; i < xmp.get_cluts().size(); ++i) {
+      for (size_t i = 0; i < xmp.get_cluts().size(); ++i) {
         if (i<cluts_.size()) {
           const auto& lut = xmp.get_cluts()[i];
           auto square_lut = CLutSquareInput(get_command_queue());

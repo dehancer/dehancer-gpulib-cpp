@@ -15,7 +15,7 @@ namespace dehancer::cuda {
       if (args_.empty()) {
         args_.resize(index+1, nullptr);
       }
-      if (index>=args_.size()) {
+      if (index >0 && (size_t)index>=args_.size()) {
         std::vector<void *> old(args_);
         args_.resize(index+1, nullptr);
       }

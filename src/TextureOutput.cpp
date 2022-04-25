@@ -41,7 +41,11 @@ namespace dehancer{
     Error TextureOutput::write_to_data(std::vector<float> &buffer) {
       return impl_->write_to_data(buffer);
     }
-
+    
+    Error TextureOutput::write_as_native_image (void** handle) {
+      return impl_->write_as_native_image(handle);
+    }
+    
     std::ostream &operator<<(std::ostream &os, const TextureOutput &dt) {
       if (dt.impl_)
         os<<*dt.impl_;

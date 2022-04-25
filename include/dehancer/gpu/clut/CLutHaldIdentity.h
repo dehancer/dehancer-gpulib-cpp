@@ -16,7 +16,7 @@ namespace dehancer {
     
     public:
         explicit CLutHaldIdentity(const void *command_queue,
-                                  uint lut_size = CLut::default_lut_size,
+                                  uint lut_size = (uint)CLut::default_lut_size,
                                   bool wait_until_completed = WAIT_UNTIL_COMPLETED
         );
         const Texture& get_texture() override { return texture_; };

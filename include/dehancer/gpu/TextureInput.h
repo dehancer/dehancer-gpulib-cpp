@@ -30,7 +30,7 @@ namespace dehancer {
 
         /***
          * Get texture object
-         * @return
+         * @return dehancer::Texture object
          */
         const Texture & get_texture() override;
         [[nodiscard]] const Texture & get_texture() const override;
@@ -38,7 +38,7 @@ namespace dehancer {
         /***
          * Load texture from Image buffer. Buffer can contain data with one of defined image codec.
          * @param buffer
-         * @return
+         * @return error or ok
          */
         virtual Error load_from_image(const std::vector<uint8_t>& buffer);
         
@@ -46,17 +46,24 @@ namespace dehancer {
          * Load texture from Image buffer. Buffer can contain data with one of defined image codec.
          * @param buffer
          * @param length
-         * @return
+         * @return error or ok
          */
         virtual Error load_from_image(const uint8_t* buffer, size_t length);
-        
+    
+        /***
+         * Load texture from native system image representation like a UIImage in iOS
+         * @param handle
+         * @return error or ok
+         */
+        virtual Error load_from_native_image(const void* handle);
+    
         /***
          * Load texture raw data packed as rgba32float
          * @param buffer
          * @param width
          * @param height
          * @param depth
-         * @return
+         * @return error or ok
          */
         virtual Error load_from_data(
                 const std::vector<float> &buffer,
@@ -69,13 +76,18 @@ namespace dehancer {
                 size_t width,
                 size_t height);
     
+    
+        virtual Error load_from_data(
+                const std::vector<float> &buffer,
+                size_t width);
+    
         /***
          * Load texture raw data packed as rgba32float
          * @param buffer
          * @param width
          * @param height
          * @param depth
-         * @return
+         * @return error or ok
          */
         virtual Error load_from_data(
                 float *buffer,
@@ -90,6 +102,10 @@ namespace dehancer {
           return load_from_data(buffer,width,height,1);
         };
     
+        virtual Error load_from_data(
+                float *buffer,
+                size_t width);
+        
         /***
          * Read image to the Texture from input stream
          * @param os - input stream
