@@ -4,7 +4,7 @@
 
 #include "dehancer/gpu/CommandEncoder.h"
 #include "dehancer/gpu/Lib.h"
-
+//#include "dehancer/gpu/kernels/cuda/cmatrix.h"
 #include "CommandEncoder.h"
 
 namespace dehancer::cuda {
@@ -96,8 +96,26 @@ namespace dehancer::cuda {
     void CommandEncoder::set(const float3x3& m, int index){
     };
     
-    void CommandEncoder::set(const float4x4& m, int index){
+    union encode_float4x4 {
+        struct {
+            float m11; float m12; float m13; float m14;
+            float m21; float m22; float m23; float m24;
+            float m31; float m32; float m33; float m34;
+            float m41; float m42; float m43; float m44;
+        };
+        float entries[16];
+        float entries2[4][4];
     };
+    
+    void CommandEncoder::set(const float4x4& m, int index){
+      resize_at_index(index);
+      encode_float4x4 data{};
+      for (int i = 0; i < m.size(); ++i) data.entries[i]=m[i];
+      auto a = std::make_shared<encode_float4x4>(data); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
+    };
+    
+    
     
     void CommandEncoder::set(const math::uint2 &p, int index) {
       resize_at_index(index);
