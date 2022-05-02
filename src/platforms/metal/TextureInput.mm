@@ -10,12 +10,17 @@
 #import <Metal/Metal.h>
 #import <CoreImage/CoreImage.h>
 typedef UIImage DImage;
+
+#define SUPPORT_UIIMAGE 1
+
 #elif defined(__APPLE__)
+
 #if defined(DEHANCER_USE_NATIVE_APPLE_API)
 #define SUPPORT_NSIMAGE 1
 #import <CoreImage/CoreImage.h>
 #import <AppKit/AppKit.h>
 typedef NSImage DImage;
+
 #endif
 #endif
 
@@ -23,6 +28,8 @@ typedef NSImage DImage;
 
 namespace dehancer::impl {
     Error TextureInput::load_from_native_image (const void *handle) {
+      #if defined(SUPPORT_NSIMAGE) || defined(SUPPORT_UIIMAGE)
+  
       try {
   
         id<MTLCommandQueue> command_queue = reinterpret_cast<id<MTLCommandQueue> >((__bridge id)get_command_queue());
@@ -82,6 +89,8 @@ namespace dehancer::impl {
       }
       catch (const cv::Exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
       catch (const std::exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
-  
+      #else
+      return Error(CommonError::NOT_SUPPORTED);
+      #endif
     }
 }

@@ -13,6 +13,8 @@
 #import <opencv2/imgcodecs/ios.h>
 typedef UIImage DImage;
 
+#define SUPPORT_UIIMAGE 1
+
 #elif defined(__APPLE__)
 
 #if defined(DEHANCER_USE_NATIVE_APPLE_API)
@@ -33,6 +35,7 @@ typedef NSImage DImage;
 namespace dehancer::impl {
     
     Error TextureOutput::write_as_native_image (void** handle) {
+      #if defined(SUPPORT_NSIMAGE) || defined(SUPPORT_UIIMAGE)
       try {
   
         id<MTLTexture> texture = reinterpret_cast<id<MTLTexture> >((__bridge id)source_->get_memory());
@@ -75,6 +78,8 @@ namespace dehancer::impl {
       }
       catch (const cv::Exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
       catch (const std::exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
-      
+      #else
+      return Error(CommonError::NOT_SUPPORTED);
+      #endif
     }
 }
