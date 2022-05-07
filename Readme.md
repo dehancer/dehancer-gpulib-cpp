@@ -64,7 +64,7 @@ LibJPEG Turbo
 
     git clone https://github.com/libjpeg-turbo/libjpeg-turbo
     cd libjpeg-turbo && mkdir build && cd build
-    cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local ..
+    cmake -DENABLE_SHARED=OFF -DENABLE_STATIC=ON -DCMAKE_POSITION_INDEPENDENT_CODE=OFF -DCMAKE_C_FLAGS="-fPIC" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local  ..
     make -j4 && make install 
 
 Centos7 (based for DaVinci Resolve 16) 
