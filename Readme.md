@@ -99,6 +99,14 @@ Ubuntu (20.04)
     sudo aptitude install liblapack-dev
     
 
+BLAS/Lapack Library
+===================
+
+    git clone https://github.com/Reference-LAPACK/lapack-release.git
+    cd lapack-release && make build && cd build
+    cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_COMPILER=clang  ..
+    make -j6 && sudo make install
+
 OpenCV from sources
 ===================
 
@@ -139,9 +147,18 @@ OpenCV from sources
     sudo apt-get install libavcodec-dev libavformat-dev libavutil-dev libswscale-dev libavresample-dev
     mkdir build_opencv_x86_64 && cd build_opencv_x86_64
     
-    cmake -DWITH_CUDA=OFF -DWITH_OPENCL=ON -DWITH_OPENGL=ON -DWITH_V4L=ON -DBUILD_SHARED_LIBS=OFF -DWITH_EIGEN=ON\
+    cmake -DWITH_CUDA=OFF -DWITH_OPENCL=ON -DWITH_OPENGL=ON -DWITH_V4L=ON -DBUILD_SHARED_LIBS=OFF -DWITH_EIGEN=OFF\
     -DWITH_FFMPEG=ON -DVIDEOIO_ENABLE_PLUGINS=ON -DOPENCV_GENERATE_PKGCONFIG=ON -DBUILD_EXAMPLES=OFF\
     -DBUILD_TESTS=OFF -DBUILD_opencv_java=OFF -DCMAKE_FIND_LIBRARY_SUFFIXES=".a" ..
+
+    # -DVIDEOIO_ENABLE_PLUGINS=ON can be OFF
+
+    # only plugin and Centos:
+    cmake -DWITH_CUDA=OFF -DWITH_OPENCL=ON -DWITH_OPENGL=ON -DWITH_V4L=ON -DBUILD_SHARED_LIBS=OFF -DWITH_EIGEN=OFF \
+    -DWITH_FFMPEG=ON -DVIDEOIO_ENABLE_PLUGINS=OFF -DOPENCV_GENERATE_PKGCONFIG=ON -DBUILD_EXAMPLES=OFF\
+    -DBUILD_TESTS=OFF -DBUILD_opencv_java=OFF -DCMAKE_FIND_LIBRARY_SUFFIXES=".a"\
+    -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_INSTALL_PREFIX=/usr/local\
+    -DBUILD_LIST=core,imgcodecs,imgproc,photo,video,videoio  ..
 
 
     # Windows 10 (if you want build from sources)
