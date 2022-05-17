@@ -85,8 +85,18 @@ typedef struct _DHCR_StreamSpace_ {
      */
     std::string                     name = "Rec.709";
     
+    _DHCR_StreamSpace_& operator=(const _DHCR_StreamSpace_ &c) {
+      type = c.type;
+      expandable = c.expandable;
+      transform_func = c.transform_func;
+      transform_lut = c.transform_lut;
+      id = c.id;
+      name = c.name;
+      return *this;
+    };
+    
     bool operator==(const _DHCR_StreamSpace_ &c) const { return type == c.type && id == c.id; }
-
+    
 #endif
 
 } DHCR_StreamSpace;

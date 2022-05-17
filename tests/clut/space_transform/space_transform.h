@@ -66,13 +66,13 @@ void load_from_cache(const std::string& platform) {
 
   
     dehancer::DHCR_StreamSpace_TransformFunc transform_function_2 = {
-            .is_identity = false,
+            .is_identity = static_cast<bool_t>(false),
             .cs_forward_matrix = dehancer::stream_matrix_transform_identity(),
             .cs_inverse_matrix = dehancer::stream_matrix_transform_identity(),
             .cs_params = {
                     .gamma = dehancer::ocio::REC709_24::gamma_parameters,
                     .log = {
-                            .enabled = false
+                            .enabled =  static_cast<bool_t>(false)
                     }
             },
     };
@@ -85,6 +85,7 @@ void load_from_cache(const std::string& platform) {
             .name="Apple Gamma 2.0",
     };
   
+
 //    space.transform_func.cs_params.gamma.enabled = false;
 //    space.transform_func.cs_params.log.enabled = false;
     
@@ -109,7 +110,9 @@ void load_from_cache(const std::string& platform) {
         std::ofstream os(identity_file, std::ostream::binary | std::ostream::trunc);
         os << output;
       }
-      
+  
+      std::cout << "test init(bool: transform_func " << space.transform_func.is_identity  << std::endl;
+  
       auto transformer = dehancer::StreamTransform(command_queue,
                                                    nullptr,
                                                    nullptr,
