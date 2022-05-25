@@ -19,7 +19,7 @@
 namespace dehancer {
 
     namespace impl {
-        class gpu_device_cache: public dehancer::DEHANCER_GPU_PLATFORM::gpu_device_cache {
+        struct gpu_device_cache: public dehancer::DEHANCER_GPU_PLATFORM::gpu_device_cache {
         public:
             using dehancer::DEHANCER_GPU_PLATFORM::gpu_device_cache::gpu_device_cache;
         };

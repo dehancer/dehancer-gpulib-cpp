@@ -4,6 +4,7 @@
 
 #include "Function.h"
 #include "CommandEncoder.h"
+#import <Metal/Metal.h>
 
 namespace dehancer::metal {
     
@@ -21,19 +22,23 @@ namespace dehancer::metal {
     }
     
     void Function::execute(const dehancer::Function::EncodeHandler& block){
+  
+      auto queue = static_cast<id<MTLCommandQueue>>( (__bridge id) command_->get_command_queue());
       
-      id<MTLCommandQueue> queue = command_->get_command_queue();
       id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];
       id<MTLComputeCommandEncoder> computeEncoder = [commandBuffer computeCommandEncoder];
-      [computeEncoder setComputePipelineState: pipelineState_.pipeline];
+      
+      [computeEncoder setComputePipelineState: reinterpret_cast<id<MTLComputePipelineState> >((__bridge id)pipelineState_.pipeline)];
       
       auto encoder = CommandEncoder(computeEncoder);
       
       auto from_block = block(encoder);
       
       auto grid = get_compute_size(from_block);
-  
-      [computeEncoder dispatchThreadgroups:grid.threadGroups threadsPerThreadgroup: grid.threadsPerThreadgroup];
+      
+      [computeEncoder
+              dispatchThreadgroups: {grid.threadGroups.width, grid.threadGroups.height, grid.threadGroups.depth}
+             threadsPerThreadgroup: {grid.threadsPerThreadgroup.width, grid.threadsPerThreadgroup.height, grid.threadsPerThreadgroup.depth}];
       [computeEncoder endEncoding];
       
       [commandBuffer commit];
@@ -56,9 +61,9 @@ namespace dehancer::metal {
     void Function::set_current_pipeline() const {
       
       std::unique_lock<std::mutex> lock(Function::mutex_);
-      
-      id<MTLCommandQueue>            queue  = command_->get_command_queue();
-      id<MTLDevice>                  device = command_->get_device();
+  
+      auto queue = static_cast<id<MTLCommandQueue>>( (__bridge id) command_->get_command_queue());
+      auto device = static_cast<id<MTLDevice>>( (__bridge id) command_->get_device());
       
       const auto it = Function::pipelineCache_.find(queue);
       
@@ -89,10 +94,11 @@ namespace dehancer::metal {
     }
     
     MTLSize Function::get_threads_per_threadgroup(int w, int h, int d) const {
+      auto ps = reinterpret_cast<id<MTLComputePipelineState> >((__bridge id)pipelineState_.pipeline);
       NSUInteger dg = d == 1 ? 1 : 8;
-      NSUInteger wg = (pipelineState_.pipeline.threadExecutionWidth + dg - 1) / dg;
-      NSUInteger hg = (pipelineState_.pipeline.maxTotalThreadsPerThreadgroup + wg - 1) / wg / dg;
-      return MTLSizeMake(wg, hg, dg);
+      NSUInteger wg = (ps.threadExecutionWidth + dg - 1) / dg;
+      NSUInteger hg = (ps.maxTotalThreadsPerThreadgroup + wg - 1) / wg / dg;
+      return MTLSize{wg, hg, dg};
     }
     
     MTLSize Function::get_thread_groups(int w, int h, int d) const {
@@ -100,7 +106,7 @@ namespace dehancer::metal {
       auto wt = (NSUInteger)((w + tpg.width - 1)/tpg.width);
       auto ht = (NSUInteger)(h == 1 ? 1 : (h + tpg.height - 1)/tpg.height);
       auto dt = (NSUInteger)(d == 1 ? 1 : (d + tpg.depth - 1)/tpg.depth);
-      return MTLSizeMake( wt == 0 ? 1 : wt, ht == 0 ? 1 : ht, dt == 0 ? 1 : dt);
+      return MTLSize{ wt == 0 ? 1 : wt, ht == 0 ? 1 : ht, dt == 0 ? 1 : dt};
     }
     
     const std::string &Function::get_name() const {
@@ -113,15 +119,13 @@ namespace dehancer::metal {
     
     Function::ComputeSize Function::get_compute_size(const CommandEncoder::Size size) const {
       if ((int)size.depth==1) {
-        //auto exeWidth = [pipelineState_.pipeline threadExecutionWidth];
-        NSUInteger wg = pipelineState_.pipeline.threadExecutionWidth;
-        NSUInteger hg = pipelineState_.pipeline.maxTotalThreadsPerThreadgroup / wg;
-        auto threadGroupCount = MTLSizeMake(wg, hg, 1);
-//        auto threadGroups     = MTLSizeMake((size.width + wg - 1)/hg,
-//                                            size.height, 1);
-        auto threadGroups = MTLSizeMake((size.width + wg - 1) / wg,
+        auto ps = reinterpret_cast<id<MTLComputePipelineState> >((__bridge id)pipelineState_.pipeline);
+        NSUInteger wg = ps.threadExecutionWidth;
+        NSUInteger hg = ps.maxTotalThreadsPerThreadgroup / wg;
+        auto threadGroupCount = MTLSize{wg, hg, 1};
+        auto threadGroups = MTLSize{(size.width + wg - 1) / wg,
                                         (size.height + hg - 1) / hg,
-                                        1);
+                                        1};
         return  {
                 .threadsPerThreadgroup = threadGroupCount,
                 .threadGroups = threadGroups

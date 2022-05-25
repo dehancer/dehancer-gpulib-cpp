@@ -4,12 +4,13 @@
 
 #include "Texture.h"
 #include "dehancer/gpu/Log.h"
+#import <Metal/Metal.h>
 
 namespace dehancer::metal {
     
     TextureItem::~TextureItem(){
       if (texture && releasable) {
-        [texture release];
+        [static_cast<id <MTLTexture>>(texture) release];
       }
     }
     
@@ -27,9 +28,9 @@ namespace dehancer::metal {
       
       texture_item_->texture = static_cast<id <MTLTexture>>(from_memory);
       
-      [texture_item_->texture retain];
+      [static_cast<id <MTLTexture>>(texture_item_->texture) retain];
       
-      switch ([texture_item_->texture textureType]) {
+      switch ([static_cast<id <MTLTexture>>(texture_item_->texture) textureType]) {
         case MTLTextureType1D:
           desc_.type = TextureDesc::Type::i1d;
           break;
@@ -46,7 +47,7 @@ namespace dehancer::metal {
           throw std::runtime_error("Unsupported texture type");
       }
       
-      switch ([texture_item_->texture pixelFormat]) {
+      switch ([static_cast<id <MTLTexture>>(texture_item_->texture) pixelFormat]) {
         case MTLPixelFormatRGBA32Float:
           desc_.pixel_format = TextureDesc::PixelFormat::rgba32float;
           break;
@@ -73,9 +74,9 @@ namespace dehancer::metal {
           throw std::runtime_error("Unsupported texture pixel format");
       }
       
-      desc_.width = [texture_item_->texture width];
-      desc_.height = [texture_item_->texture height];
-      desc_.depth = [texture_item_->texture depth];
+      desc_.width = [static_cast<id <MTLTexture>>(texture_item_->texture) width];
+      desc_.height = [static_cast<id <MTLTexture>>(texture_item_->texture) height];
+      desc_.depth = [static_cast<id <MTLTexture>>(texture_item_->texture) depth];
       desc_.channels = 4;
       
       texture_item_->hash = desc_.get_hash();
@@ -88,8 +89,6 @@ namespace dehancer::metal {
             desc_(desc),
             texture_item_(nullptr)
     {
-      
-      //log::print(" *** TextureHolder::TextureHolder texture desc_.pixel_format: %i", (int)desc_.pixel_format);
       
       auto text_hash = desc_.get_hash();
       
@@ -114,7 +113,11 @@ namespace dehancer::metal {
           descriptor.resourceOptions = MTLResourceCPUCacheModeDefaultCache;
         }
         else {
+          #if defined(IOS_SYSTEM)
+          descriptor.storageMode = MTLStorageModeShared;
+          #else
           descriptor.storageMode = MTLStorageModeManaged;
+          #endif
         }
         
         descriptor.usage |= desc.mem_flags & TextureDesc::MemFlags::read_only ? MTLTextureUsageShaderRead : 0;
@@ -179,8 +182,11 @@ namespace dehancer::metal {
       if (from_memory) {
         buffer = reinterpret_cast<unsigned char *>((void *)from_memory);
       }
+  
+      auto device = static_cast<id<MTLDevice>>( (__bridge id) get_device());
+      auto queue = static_cast<id<MTLCommandQueue>>( (__bridge id) get_command_queue());
       
-      id <MTLTexture> texture = [get_command_queue().device newTextureWithDescriptor:descriptor];
+      id <MTLTexture> texture = [device newTextureWithDescriptor:descriptor];
       
       if (!texture)
         throw std::runtime_error("Unable to create texture");
@@ -193,11 +199,11 @@ namespace dehancer::metal {
       if (buffer) {
         
         NSUInteger bytes_per_pixel = desc.channels * componentBytes;
-        
+  
         if (is_device_buffer){
           auto buff = reinterpret_cast<id<MTLBuffer> >((__bridge id)buffer);
           
-          id <MTLCommandBuffer> commandBuffer = [get_command_queue() commandBuffer];
+          id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];
           
           id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
           
@@ -206,7 +212,7 @@ namespace dehancer::metal {
                     sourceBytesPerRow: bytes_per_pixel * region.size.width
                   sourceBytesPerImage: bytes_per_pixel * region.size.width * region.size.height
                            sourceSize: (MTLSize){desc_.width, desc_.height, desc_.depth}
-                            toTexture: texture_item_->texture
+                            toTexture: static_cast<id <MTLTexture>>(texture_item_->texture)
                      destinationSlice: 0
                      destinationLevel: 0
                     destinationOrigin: (MTLOrigin){0,0,0}
@@ -218,7 +224,7 @@ namespace dehancer::metal {
           
         }
         else {
-          [texture_item_->texture replaceRegion:region
+          [static_cast<id <MTLTexture>>(texture_item_->texture) replaceRegion:region
                                     mipmapLevel:0
                                           slice:0
                                       withBytes:buffer
@@ -226,11 +232,13 @@ namespace dehancer::metal {
                                   bytesPerImage:bytes_per_pixel * region.size.width * region.size.height];
         }
         
-        id <MTLCommandBuffer> commandBuffer = [get_command_queue() commandBuffer];
-        
-        id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
-        [blitEncoder synchronizeTexture:texture_item_->texture slice:0 level:0];
-        [blitEncoder endEncoding];
+        id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+  
+        #if not defined(IOS_SYSTEM)
+          id <MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
+          [blitEncoder synchronizeTexture:static_cast<id <MTLTexture>>(texture_item_->texture) slice:0 level:0];
+          [blitEncoder endEncoding];
+        #endif
         
         [commandBuffer commit];
         [commandBuffer waitUntilCompleted];
@@ -261,13 +269,16 @@ namespace dehancer::metal {
         return Error(CommonError::OUT_OF_RANGE, "Texture length greater then buffer length");
       }
       
-      id<MTLCommandQueue> queue = get_command_queue();
+      //id<MTLCommandQueue> queue = get_command_queue();
+      auto queue = static_cast<id<MTLCommandQueue>>( (__bridge id) get_command_queue());
       
       id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];
-      
-      id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
-      [blitEncoder synchronizeTexture:texture_item_->texture slice:0 level:0];
-      [blitEncoder endEncoding];
+  
+      #if not defined(IOS_SYSTEM)
+        id <MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
+        [blitEncoder synchronizeTexture:static_cast<id <MTLTexture>>(texture_item_->texture) slice:0 level:0];
+        [blitEncoder endEncoding];
+      #endif
       
       [commandBuffer commit];
       [commandBuffer waitUntilCompleted];
@@ -288,7 +299,7 @@ namespace dehancer::metal {
       
       NSUInteger bytes_per_pixel = desc_.channels * componentBytes;
       
-      [texture_item_->texture getBytes: buffer
+      [static_cast<id <MTLTexture>>(texture_item_->texture) getBytes: buffer
                            bytesPerRow: bytes_per_pixel * region.size.width
                             fromRegion: region
                            mipmapLevel: 0];
@@ -391,14 +402,16 @@ namespace dehancer::metal {
   
       NSUInteger bytes_per_pixel = desc_.channels * componentBytes;
   
-      id<MTLCommandQueue> queue = get_command_queue();
+      auto queue = static_cast<id<MTLCommandQueue>>( (__bridge id) get_command_queue());
+  
+      //id<MTLCommandQueue> queue = get_command_queue();
       
       id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];
       
       id<MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
   
   
-      [blitEncoder copyFromTexture: texture_item_->texture
+      [blitEncoder copyFromTexture: static_cast<id <MTLTexture>>(texture_item_->texture)
                        sourceSlice: 0
                        sourceLevel: 0
                       sourceOrigin: (MTLOrigin) {0,0,0}

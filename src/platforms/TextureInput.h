@@ -27,6 +27,8 @@ namespace dehancer::impl {
         [[nodiscard]] size_t get_length() const;
 
         Error load_from_image(const std::vector<uint8_t>& buffer);
+        
+        Error load_from_native_image(const void* handle);
 
         Error
         load_from_data(
@@ -48,9 +50,6 @@ namespace dehancer::impl {
 
     private:
         Texture texture_;
-        //StreamSpace space_;
-        //StreamSpaceDirection direction_;
-
     };
 }
 

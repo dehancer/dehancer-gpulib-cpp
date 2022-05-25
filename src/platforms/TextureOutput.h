@@ -33,6 +33,8 @@ namespace dehancer::impl {
 
         Error write_to_data(std::vector<float>& buffer) const;
 
+        Error write_as_native_image(void** handle);
+
         friend std::ostream& operator<<(std::ostream& os, const TextureOutput& dt);
 
         ~TextureOutput() override;

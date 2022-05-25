@@ -13,7 +13,7 @@ namespace dehancer {
             ):
             Command(command_queue, wait_until_completed),
             CLut(),
-            level_((size_t)std::sqrt((float)lut_size)),
+            level_((uint)std::sqrt((float)lut_size)),
             lut_size_(lut_size)
     {
       

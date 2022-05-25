@@ -134,9 +134,8 @@ namespace dehancer::opencl {
     }
     
    
-//    void CommandEncoder::set (const dehancer::StreamSpace &p, int index) {
-//      gpu_DHCR_StreamSpace space{};
-//      std::cout << "CommandEncoder set(space(), "<<index<<") " << std::endl;
-//      set(&space, sizeof(space), index);
-//    }
+    void CommandEncoder::set (const dehancer::StreamSpace &p, int index) {
+      StreamSpace copy = p;
+      set(&copy, sizeof(copy), index);
+    }
 }

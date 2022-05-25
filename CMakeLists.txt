@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.12)
 #
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 1.3.1)
+project(${PROJECT_LIB} VERSION 1.3.2)
 
 #
 # Options
@@ -21,6 +21,8 @@ option (PRINT_KERNELS_DEBUG OFF)
 option (PRINT_DEBUG ON)
 option (DEHANCER_DEBUG OFF)
 option (USE_OPENCOLORIO OFF)
+option (DEHANCER_USE_NATIVE_APPLE_API ON)
+option (BUILD_UTILS OFF)
 
 if (NOT DEHANCER_COMMON_DIR)
     set(DEHANCER_COMMON_DIR "${CMAKE_BINARY_DIR}/tmp")
@@ -81,28 +83,30 @@ if(LINUX)
         set(DEHANCER_GPU_METAL OFF)
     endif ()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -W -Wall -Wextra -Wno-ignored-qualifiers -Wvariadic-macros")
-    #set(CMAKE_CXX_FLAGS "-fvisibility=hidden -Wno-pedantic -Wunused-function")
-    set(CMAKE_CXX_FLAGS "-fvisibility=default -Wno-pedantic -Wunused-function")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=default -Wno-pedantic -Wunused-function")
 elseif(APPLE)
+    if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
+        set (IOS TRUE)
+        add_definitions(-DIOS_SYSTEM=13)
+    endif ()
+
     set(STATIC_LINKING ON)
     message(STATUS "Apple configuration...")
     if (DEHANCER_GPU_METAL)
         message(STATUS "Apple uses Metal...")
-        #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -fvisibility=hidden -Wno-unused-command-line-argument -F/Library/Frameworks ")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -fvisibility=default -Wno-unused-command-line-argument -F/Library/Frameworks ")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -Wno-unused-command-line-argument -F/Library/Frameworks ")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -fno-objc-arc -Wno-unused-command-line-argument -F/Library/Frameworks ")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Metal")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework MetalKit")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework MetalPerformanceShaders")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework CoreImage")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework AppKit")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework ServiceManagement")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Foundation ")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Cocoa")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Security")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework IOKit")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework CoreVideo")
         set_target_properties(${CURRENT_TARGET_NAME} PROPERTIES LINK_FLAGS "-Xlinker,-rpath,@loader_path/../Frameworks")
+        if(DEHANCER_USE_NATIVE_APPLE_API)
+            add_definitions(-DDEHANCER_USE_NATIVE_APPLE_API=1)
+        endif()
     elseif(DEHANCER_GPU_OPENCL)
         message(STATUS "Apple uses OpenCL...")
     endif()
@@ -148,7 +152,7 @@ else()
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -rdynamic")
     #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=default -Wno-unused-command-line-argument")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument -Wno-missing-braces -Wno-unused-parameter")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
     if (PRINT_KERNELS_DEBUG)
         add_compile_definitions(PRINT_KERNELS_DEBUG=1)
@@ -162,7 +166,6 @@ if(WIN32)
     set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};/usr/local/lib/pkgconfig")
     set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};/usr/local/lib64/pkgconfig")
     set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};$ENV{SYSROOT};/usr/local/dehancer/lib/pkgconfig")
-    #set(ENV{OpenCV_DIR} "$ENV{OpenCV_DIR};$ENV{SYSROOT};C:/Users/denn/Dehancer/local/dehancer")
 else()
     set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
     set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib64/pkgconfig)
@@ -183,25 +186,49 @@ else()
     message("Skip OPENCOLORIO")
 endif()
 
-if (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
-    find_package (OpenCV REQUIRED PATHS /usr/local/arm64)
-elseif (${DEHANCER_TARGET_ARCH} MATCHES "x86_64.*")
-    find_package (OpenCV REQUIRED PATHS /usr/local/x86_64)
+if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    if (NOT OPENCV_FRAMEWORK_PATH)
+        message(FATAL "OPENCV_FRAMEWORK_PATH variable not set")
+    endif ()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -F${OPENCV_FRAMEWORK_PATH} -framework opencv2")
+    include_directories(${OPENCV_INCLUDES_PATH})
 else()
-    if(WIN32)
-        find_package(OpenCV REQUIRED)
-        add_definitions(/DCV_IGNORE_DEBUG_BUILD_GUARD=1)
+    if (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
+        find_package (OpenCV REQUIRED PATHS /usr/local/arm64)
+    elseif (${DEHANCER_TARGET_ARCH} MATCHES "x86_64.*")
+        find_package (OpenCV REQUIRED PATHS /usr/local/x86_64)
     else()
-        find_package (OpenCV REQUIRED )
+        if(WIN32)
+            find_package(OpenCV REQUIRED)
+            add_definitions(/DCV_IGNORE_DEBUG_BUILD_GUARD=1)
+        else()
+            find_package (OpenCV REQUIRED )
+        endif()
     endif()
 endif()
 
-find_package(BLAS REQUIRED)
-find_package(LAPACK REQUIRED)
+if(LINUX)
+
+    find_package (lapack)
+
+    if (LAPACK_NOT_FOUND)
+        message(FATAL "LAPACK has not bin found at all. $ git clone https://github.com/Reference-LAPACK/lapack-release and install")
+    else()
+        message("LAPACK LIBRARY: ${LAPACK_LIBRARIES}")
+    endif ()
+
+else()
+
+    find_package (LAPACK REQUIRED)
+    find_package (BLAS REQUIRED)
+
+endif()
 
 if (LINUX)
+    set(CMAKE_INSTALL_LIBDIR  "lib")
     set(DEHANCER_EXT_MATH_LIB)
 
+    add_definitions(-D_GLIBCXX_USE_CXX11_ABI=1)
     set(FORTRAN_LIB_PATHS ${CMAKE_SYSTEM_LIBRARY_PATH};/usr/lib/gcc/x86_64-linux-gnu/9;/usr/lib/gcc/x86_64-linux-gnu/8;/usr/lib/gcc/x86_64-linux-gnu;/lib64;/lib;/usr/lib64;/usr/lib;/usr/local/lib64;/usr/local/lib;/opt/local/lib64;/opt/local/lib)
 
     find_library(GFORTRAN_LIBRARY
@@ -216,27 +243,33 @@ if (LINUX)
 
     message("GFORTRAN_LIBRARY: ${GFORTRAN_LIBRARY}")
 
-    foreach(v ${BLAS_LIBRARIES})
-        string(REPLACE ".so" ".a" vv ${v})
-        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-    endforeach()
+#    foreach(v ${BLAS_LIBRARIES})
+#        string(REPLACE ".so" ".a" vv ${v})
+#        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+#    endforeach()
+#
+#    foreach(v ${LAPACK_LIBRARIES})
+#        string(REPLACE ".so" ".a" vv ${v})
+#        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+#    endforeach()
 
-    foreach(v ${LAPACK_LIBRARIES})
-        string(REPLACE ".so" ".a" vv ${v})
-        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-    endforeach()
+#    foreach(v ${GFORTRAN_LIBRARY})
+#        string(REPLACE ".so" ".a" vv ${v})
+#        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+#    endforeach()
+#
+#    foreach(v ${GQUADMATH_LIBRARY})
+#        string(REPLACE ".so" ".a" vv ${v})
+#        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+#    endforeach()
 
-    foreach(v ${GFORTRAN_LIBRARY})
-        string(REPLACE ".so" ".a" vv ${v})
-        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-    endforeach()
-
-    foreach(v ${GQUADMATH_LIBRARY})
-        string(REPLACE ".so" ".a" vv ${v})
-        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-    endforeach()
-
-    set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};m)
+    set(DEHANCER_EXT_MATH_LIB ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
+    find_library(GFORTRAN_LIB NAMES gfortran)
+    if (gfortran_FOUND)
+        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${GFORTRAN_LIB};m)
+    else()
+        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};m)
+    endif()
 
     find_library(DEHANCER_EXT_MATH_LIB REQUIRED ${DEHANCER_EXT_MATH})
 
@@ -317,6 +350,7 @@ if (DEHANCER_GPU_CUDA)
         #
         if (NOT CUDA_BIN_COMPILER)
             set(CUDA_BIN_COMPILER g++)
+            #set(CUDA_BIN_COMPILER clang++)
         endif ()
 
         message("CUDA_BIN_COMPILER ${CUDA_BIN_COMPILER}")
@@ -425,6 +459,11 @@ endif()
 
 set(CMAKE_MACOSX_RPATH TRUE)
 
+#Static start
+set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
+#Set Linker flags
+#set(CMAKE_EXE_LINKER_FLAGS "-static-libgcc -static-libstdc++")
+
 #
 # Generators
 #
@@ -448,6 +487,7 @@ if (BUILD_TESTING)
                 GIT_SHALLOW YES
                 GIT_TAG release-1.11.0
                 CMAKE_ARGS
+                -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
                 -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
                 -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
                 -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
@@ -485,6 +525,7 @@ if (DEHANCER_GPU_OPENCL)
             GIT_PROGRESS YES
             GIT_SHALLOW YES
             CMAKE_ARGS
+            -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_C_FLAGS=${C_FLAGS}
@@ -523,7 +564,9 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
+            GIT_TAG 0.9.1
             CMAKE_ARGS
+            -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_C_FLAGS=${C_FLAGS}
@@ -565,12 +608,15 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-maths-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
+            GIT_TAG 0.6.5
             CMAKE_ARGS
+            -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_C_FLAGS=${C_FLAGS}
             -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
             -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
             -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
@@ -608,7 +654,9 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-xmp-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
+            GIT_TAG 0.8.5
             CMAKE_ARGS
+            -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -640,6 +688,7 @@ if(USE_OPENCOLORIO)
             INSTALL_DIR ${EXTERNAL_INSTALL_LOCATION}
             #PREFIX OpenColorIO
             CMAKE_ARGS
+            -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -Wno-error=dev -Wno-dev
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -714,11 +763,9 @@ set(COMMON_LIBRARIES
 
 message("COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
 
-add_subdirectory(utils)
-
-#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ignore:4099")
-#set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /ignore:4099")
-#set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} /ignore:4099")
+if (NOT IOS)
+    add_subdirectory(utils)
+endif ()
 
 if(BUILD_TESTING)
 

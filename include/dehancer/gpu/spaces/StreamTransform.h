@@ -13,7 +13,7 @@ namespace dehancer {
         StreamTransform(const void *command_queue,
                         const Texture &source,
                         const Texture &destination,
-                        const StreamSpace &space,
+                        StreamSpace space,
                         StreamSpaceDirection direction,
                         float impact=1.0f,
                         bool wait_until_completed = WAIT_UNTIL_COMPLETED,
@@ -30,8 +30,8 @@ namespace dehancer {
         float get_impact() const;
         
     private:
-        StreamSpace space_;
-        StreamSpaceDirection direction_;
+        StreamSpace space_{};
+        StreamSpaceDirection direction_{};
         float impact_;
     };
 }

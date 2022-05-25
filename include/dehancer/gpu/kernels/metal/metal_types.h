@@ -34,6 +34,8 @@
 #define float2_ref_t float2&
 #define float3_ref_t float3&
 #define float4_ref_t float4&
+#define float3x3_ref_t float3x3&
+#define float4x4_ref_t float3x3&
 
 #define uint2_ref_t uint2&
 #define uint3_ref_t uint3&

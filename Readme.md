@@ -13,6 +13,24 @@ Build Intel
     -DDEHANCER_GPU_OPENCL=OFF -DDEHANCER_GPU_METAL=ON -DDEHANCER_GPU_CUDA=OFF ..
 
 
+Build iOS
+============
+    mkdir build-arm64-ios cd build-arm64-ios
+    cmake -G Xcode \
+    -DCMAKE_TOOLCHAIN_FILE=~/Develop/Dehancer/Dehancer-Plugins/ios-cmake/ios.toolchain.cmake\
+    -DPLATFORM=OS64COMBINED \
+    -DDEPLOYMENT_TARGET=13.0 \ 
+    -DENABLE_BITCODE=ON \ 
+    -DBUILD_TESTING=OFF \ 
+    -DCMAKE_INSTALL_PREFIX=~/Develop/local/ios/dehancer \
+    -DOPENCV_FRAMEWORK_PATH=~/Develop/local/ios/lib \
+    -DOPENCV_INCLUDES_PATH=~/Develop/local/ios/include \
+    -DENABLE_ARC=OFF \
+    -DDEHANCER_GPU_METAL=ON \
+    -DDEHANCER_GPU_OPENCL=OFF \
+    -DDEHANCER_GPU_CUDA=OFF \
+    -DUSE_OPENCOLORIO=OFF
+
 Build Windows10 x64
 ===================
     # CUDA
@@ -46,7 +64,7 @@ LibJPEG Turbo
 
     git clone https://github.com/libjpeg-turbo/libjpeg-turbo
     cd libjpeg-turbo && mkdir build && cd build
-    cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local ..
+    cmake -DENABLE_SHARED=OFF -DENABLE_STATIC=ON -DCMAKE_POSITION_INDEPENDENT_CODE=OFF -DCMAKE_C_FLAGS="-fPIC" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local  ..
     make -j4 && make install 
 
 Centos7 (based for DaVinci Resolve 16) 
@@ -101,6 +119,13 @@ OpenCV from sources
     -DCMAKE_FIND_LIBRARY_SUFFIXES=".a" ..
 
     make -j7 && make install
+
+
+    # Centos 8
+    sudo dnf install epel-release dnf-utils
+    sudo yum-config-manager --add-repo=https://negativo17.org/repos/epel-multimedia.repo
+    sudo dnf install ffmpeg
+    sudo dnf install ffmpeg-devel
 
 
     # Ubuntu 20.04

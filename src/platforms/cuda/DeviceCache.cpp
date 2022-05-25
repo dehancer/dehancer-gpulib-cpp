@@ -36,7 +36,7 @@ namespace dehancer::cuda {
             default_device_index_(0)
     {
       int numDevices = 0;
-      int maxMultiprocessors = 0, index=0;
+      int maxMultiprocessors = 0;
       cudaGetDeviceCount(&numDevices);
       for (int i=0; i<numDevices; ++i){
         auto d = std::make_shared<gpu_device_item>(i);
@@ -146,7 +146,7 @@ namespace dehancer::cuda {
       
       CHECK_CUDA(cuCtxPushCurrent(context));
       
-      for (int i = 0; i < kMaxCommandQueues; ++i) {
+      for (size_t i = 0; i < kMaxCommandQueues; ++i) {
         cudaStream_t stream;
         CHECK_CUDA(cudaStreamCreate(&stream));
         command_queue_cache.push_back(std::make_shared<gpu_command_queue_item>(false,stream));
@@ -179,7 +179,7 @@ namespace dehancer::cuda {
     }
     
     gpu_device_item::~gpu_device_item() {
-      for (int i = 0; i < command_queue_cache.size(); ++i) {
+      for (size_t i = 0; i < command_queue_cache.size(); ++i) {
         CHECK_CUDA(cuStreamDestroy(command_queue_cache[i]->command_queue));
       }
       if (context)

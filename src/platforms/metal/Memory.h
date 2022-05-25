@@ -7,6 +7,8 @@
 #include "dehancer/gpu/Memory.h"
 #include "Context.h"
 
+//@protocol MTLBuffer;
+
 namespace dehancer::metal {
 
     struct MemoryHolder: public dehancer::MemoryHolder, public metal::Context {
@@ -26,7 +28,7 @@ namespace dehancer::metal {
         Error get_contents(void *buffer, size_t length) const override;
 
     private:
-        id<MTLBuffer> memobj_;
+        void* memobj_;
         size_t length_;
         bool is_self_allocated_;
     };

@@ -12,7 +12,13 @@
 #include "Command.h"
 
 namespace dehancer::metal {
-
+    
+    typedef struct {
+        unsigned long width;
+        unsigned long height;
+        unsigned long depth;
+    } MTLSize;
+    
     class Function {
     public:
 
@@ -22,7 +28,7 @@ namespace dehancer::metal {
         };
 
         struct PipelineState {
-            id<MTLComputePipelineState> pipeline;
+            void* pipeline;
             std::vector<dehancer::Function::ArgInfo> arg_list;
         };
 
@@ -34,10 +40,10 @@ namespace dehancer::metal {
 
         void set_current_pipeline() const ;
 
-        MTLSize get_threads_per_threadgroup(int w, int h, int d) const;
-        MTLSize get_thread_groups(int w, int h, int d) const;
-        ComputeSize get_compute_size(const CommandEncoder::Size size) const;
-        const std::string& get_library_path() const;
+        [[nodiscard]] MTLSize get_threads_per_threadgroup(int w, int h, int d) const;
+        [[nodiscard]] MTLSize get_thread_groups(int w, int h, int d) const;
+        [[nodiscard]] ComputeSize get_compute_size(const CommandEncoder::Size size) const;
+        [[nodiscard]] const std::string& get_library_path() const;
 
         ~Function();
 
@@ -47,7 +53,7 @@ namespace dehancer::metal {
         std::string library_path_;
 
         typedef std::unordered_map<std::string, PipelineState> PipelineKernel;
-        typedef std::unordered_map<id<MTLCommandQueue>, PipelineKernel> PipelineCache;
+        typedef std::unordered_map<void*, PipelineKernel> PipelineCache;
 
         mutable PipelineState pipelineState_;
         static PipelineCache pipelineCache_;

@@ -135,4 +135,10 @@ namespace dehancer::impl {
       os.write(reinterpret_cast<const char *>(buffer.data()), static_cast<std::streamsize>(buffer.size()));
       return os;
     }
+
+#if not defined(IOS_SYSTEM)
+    Error TextureOutput::write_as_native_image (void** handle) {
+      return Error(CommonError::NOT_SUPPORTED);
+    }
+#endif
 }

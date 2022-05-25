@@ -3,14 +3,14 @@ set (CURRENT_KERNEL_TARGET_NAME UtilsKernels)
 if (DEHANCER_GPU_METAL)
     set (DEHANCER_CURRENT_PLATFORM_METAL ON)
 
-    ##
-    ## TODO: OPENCL/Cuda version
-    ##
     add_subdirectory(shaders)
-    if (USE_OPENCOLORIO)
-        add_subdirectory(ocio_codegen)
+
+    if (BUILD_UTILS)
+        if (USE_OPENCOLORIO)
+            add_subdirectory(ocio_codegen)
+        endif ()
+        add_subdirectory(lut_codegen)
     endif ()
-    add_subdirectory(lut_codegen)
 
 endif ()
 

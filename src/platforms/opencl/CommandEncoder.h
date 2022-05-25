@@ -42,7 +42,7 @@ namespace dehancer::opencl {
         void set(const math::bool3& p, int index) override;
         void set(const math::bool4& p, int index) override;
         
-        //void set(const dehancer::StreamSpace &p, int index) override;
+        void set(const dehancer::StreamSpace &p, int index) override;
         
         dehancer::opencl::Function* function_ = nullptr;
         cl_kernel kernel_ = nullptr;
