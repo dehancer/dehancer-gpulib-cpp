@@ -34,12 +34,11 @@ namespace dehancer::opencl {
         mutable std::vector<dehancer::Function::ArgInfo> arg_list_;
 
         typedef std::unordered_map<std::string, cl_kernel> KernelMap;
-        typedef std::unordered_map<std::size_t, cl_program> ProgamMap;
+        typedef std::unordered_map<std::size_t, cl_program> ProgramMap;
 
         static std::unordered_map<cl_command_queue, KernelMap> kernel_map_;
-        static std::unordered_map<cl_command_queue, ProgamMap> program_map_;
+        static std::unordered_map<cl_command_queue, ProgramMap> program_map_;
         static std::mutex mutex_;
-
     };
 }
 

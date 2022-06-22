@@ -11,7 +11,7 @@ namespace dehancer::opencl {
     
     std::mutex Function::mutex_;
     std::unordered_map<cl_command_queue, Function::KernelMap> Function::kernel_map_;
-    std::unordered_map<cl_command_queue, Function::ProgamMap> Function::program_map_;
+    std::unordered_map<cl_command_queue, Function::ProgramMap> Function::program_map_;
     
     size_t upper_power2(size_t x) {
       union { double f; long i[2]; } convert{};
@@ -26,59 +26,6 @@ namespace dehancer::opencl {
       
       auto texture_size = block(*encoder_);
       
-      size_t work_size[3] = {1, 1, 1};
-      size_t preferred_work_size = 8;
-      size_t compute_units = 8;
-      
-      ///
-      /// TODO: optimize workgroups automatically
-//      clGetKernelWorkGroupInfo(kernel_, command_->get_device_id(), CL_KERNEL_WORK_GROUP_SIZE, sizeof(work_size), work_size, nullptr);
-      clGetKernelWorkGroupInfo(kernel_, command_->get_device_id(), CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE, sizeof(size_t), &preferred_work_size, nullptr);
-      clGetKernelWorkGroupInfo(kernel_, command_->get_device_id(), CL_DEVICE_MAX_COMPUTE_UNITS , sizeof(size_t), &compute_units, nullptr);
-      
-      
-      #ifdef PRINT_KERNELS_DEBUG
-      std::cout << "Function " << kernel_name_
-                << " WORK_GROUP: "
-                << work_size[0] << "x" << work_size[1] << "x" << work_size[2]
-                << " PREFERRED_WORK_GROUP_SIZE: " << preferred_work_size
-                << " CL_DEVICE_MAX_COMPUTE_UNITS: " << compute_units
-                << std::endl;
-      #endif
-  
-      work_size[0] = preferred_work_size;
-
-      if (texture_size.depth==1) {
-        work_size[2] = 1;
-      }
-
-      if (texture_size.height==1) {
-        work_size[1] = 1;
-      }
-  
-      if (work_size[0] >= texture_size.width) work_size[0] = 1;
-      if (work_size[1] >= texture_size.height) work_size[1] = 1;
-      if (work_size[2] >= texture_size.depth) work_size[2] = 1;
-      
-      auto w = upper_power2(texture_size.width);
-      auto h = upper_power2(texture_size.height);
-      auto d = upper_power2(texture_size.depth);
-  
-      size_t global_threads[3] = {
-              w,
-              h,
-              d
-      };
-
-#ifdef PRINT_KERNELS_DEBUG
-      std::cout << "Function " << kernel_name_
-                << " blocks: "
-                << work_size[0] << "x" << work_size[1] << "x" << work_size[2]
-                << " threads: "
-                << global_threads[0] << "x" << global_threads[1] << "x" << global_threads[2]
-                << std::endl;
-#endif
-      
       cl_int last_error = 0;
       cl_event    waiting_event = nullptr;
       
@@ -88,13 +35,65 @@ namespace dehancer::opencl {
       cl_uint dim = 3;
       
       if (texture_size.depth==1) dim = 2;
-      
+  
+      size_t workgroup_size;
+      clGetKernelWorkGroupInfo(kernel_, command_->get_device_id(), CL_KERNEL_WORK_GROUP_SIZE , sizeof(size_t), &workgroup_size, nullptr);
+  
+      size_t global_work_size[3];
+      size_t local_work_size[3];
+      size_t num_groups = ((texture_size.width * texture_size.height) + workgroup_size - 1) / workgroup_size;
+      global_work_size[0] = num_groups * workgroup_size;
+      local_work_size[0] = workgroup_size;
+  
+      {
+        size_t  gsize[2];
+    
+        if (workgroup_size <= 256)
+        {
+          gsize[0] = 16;
+          gsize[1] = workgroup_size / 16;
+        }
+        else if (workgroup_size <= 1024)
+        {
+          gsize[0] = workgroup_size / 16;
+          gsize[1] = 16;
+        }
+        else
+        {
+          gsize[0] = workgroup_size / 32;
+          gsize[1] = 32;
+        }
+    
+        local_work_size[0] = gsize[0];
+        local_work_size[1] = gsize[1];
+    
+        global_work_size[0] = ((texture_size.width + gsize[0] - 1) / gsize[0]);
+        global_work_size[1] = ((texture_size.height + gsize[1] - 1) / gsize[1]);
+    
+        global_work_size[0] *= gsize[0];
+        global_work_size[1] *= gsize[1];
+  
+        global_work_size[2] = texture_size.depth;
+        local_work_size[2] = 1;
+      }
+  
+      #ifdef PRINT_KERNELS_DEBUG
+      std::cout << "Function " << kernel_name_
+                << " global: "
+                << global_work_size[0] << "x" << global_work_size[1] << "x" << global_work_size[2]
+                << "  local: "
+                << local_work_size[0] << "x" << local_work_size[1] << "x" << local_work_size[2]
+                << std::endl;
+      #endif
+  
       last_error = clEnqueueNDRangeKernel(command_->get_command_queue(),
                                           kernel_,
                                           dim,
                                           nullptr,
-                                          global_threads,
-                                          work_size,
+                                          //global_threads,
+                                          global_work_size,
+                                          //work_size,
+                                          local_work_size,
                                           0,
                                           nullptr,
                                           &waiting_event);
