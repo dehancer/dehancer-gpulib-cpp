@@ -14,13 +14,13 @@ namespace dehancer::math {
       
       int mean = floor((float )size / 2);
       float sum = 0; // For accumulating the kernel values
-      for (int x = 0; x < size; x++)  {
+      for (int x = 0; x < (int)size; x++)  {
         kernel[x] =  expf(-0.5f * powf((float )(x - mean) / sigma, 2.0));
         // Accumulate the kernel values
         sum += kernel[x];
       }
       
-      for (int x = 0; x < size; x++)
+      for (int x = 0; x < (int)size; x++)
         kernel[x] /= sum;
     }
     
@@ -102,7 +102,7 @@ namespace dehancer::math {
       int m = static_cast<int>(std::round(mIdeal));
       
       // var sigmaActual = Math.sqrt( (m*wl*wl + (n-m)*wu*wu - n)/12 );
-      for (int i = 0; i < box_number; i++)
+      for (int i = 0; i < (int)box_number; i++)
         boxes.push_back(static_cast<float>(i < m ? wl : wu));
     }
     

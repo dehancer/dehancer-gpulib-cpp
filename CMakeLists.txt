@@ -374,6 +374,7 @@ if (DEHANCER_GPU_OPENCL)
         set(DEHANCER_GPU_OPENCL OFF)
         message("OpenCL is not found on this platform")
     endif ()
+    add_definitions(-DDEHANCER_GPU_OPENCL=1)
 endif ()
 
 

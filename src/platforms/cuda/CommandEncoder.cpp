@@ -110,7 +110,7 @@ namespace dehancer::cuda {
     void CommandEncoder::set(const float4x4& m, int index){
       resize_at_index(index);
       encode_float4x4 data{};
-      for (int i = 0; i < m.size(); ++i) data.entries[i]=m[i];
+      for (size_t i = 0; i < m.size(); ++i) data.entries[i]=m[i];
       auto a = std::make_shared<encode_float4x4>(data); args_container_.emplace_back(a);
       args_.at(index) = a.get();
     };

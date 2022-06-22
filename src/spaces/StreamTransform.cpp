@@ -14,17 +14,17 @@ namespace dehancer {
     StreamTransform::StreamTransform (const void *command_queue,
                                       const Texture &source,
                                       const Texture &destination,
-                                      StreamSpace space,
+                                      const StreamSpace& space,
                                       StreamSpaceDirection direction,
                                       float impact,
                                       bool wait_until_completed,
                                       const std::string &library_path):
             Kernel(command_queue, "kernel_stream_transform_ext", source, destination, wait_until_completed, library_path),
-            space_({}),
+            space_(space),
             direction_(direction),
             impact_(impact)
     {
-      space_ = space; // fix opencl ???
+      //space_ = space; // fix opencl ???
     }
     
     void StreamTransform::setup (CommandEncoder &encoder) {

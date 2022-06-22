@@ -90,5 +90,7 @@ namespace dehancer {
         virtual void set(const math::bool4& p, int index);
         
         virtual void set(const dehancer::StreamSpace& p, int index);
+    
+        virtual ~CommandEncoder() = default;
     };
 }

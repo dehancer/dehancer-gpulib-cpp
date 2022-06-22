@@ -15,7 +15,7 @@ namespace dehancer {
             Function(command_queue, kernel_name, wait_until_completed,library_path)
     {
   
-      execute([this,&source,&target](CommandEncoder& encoder) {
+      execute([&source,&target](CommandEncoder& encoder) {
           encoder.set(target,0);
           encoder.set(target,1);
           encoder.set(source,2);

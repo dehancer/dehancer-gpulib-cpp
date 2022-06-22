@@ -8,7 +8,7 @@
 namespace dehancer {
     
     FilmProfile::FilmProfile (const void *command_queue,
-                              const StreamSpace &space,
+                              const StreamSpace& space,
                               StreamSpaceDirection direction,
                               bool wait_until_completed):
             Command(command_queue,wait_until_completed),

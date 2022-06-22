@@ -182,7 +182,7 @@ namespace dehancer {
       
       auto *channels = dynamic_cast<impl::ChannelsHolder *>(impl_->channels.get());
       
-      for (int j = 0; j < channels->size(); ++j) {
+      for (size_t j = 0; j < channels->size(); ++j) {
         
         auto mem = channels->at(j);
         
@@ -200,7 +200,7 @@ namespace dehancer {
             encoder.set(cw, 2);
             encoder.set(ch, 3);
             
-            encoder.set(j, 4);
+            encoder.set((int)j, 4);
             
             encoder.set(impl_->transform.slope[j],5);
             encoder.set(impl_->transform.offset[j],6);
@@ -354,7 +354,7 @@ namespace dehancer {
         PassKernel(get_command_queue(),get_source(),get_destination(), get_wait_completed(), get_library_path()).process();
       }
       
-      for (int j = 0; j < channels->size(); ++j) {
+      for (size_t j = 0; j < channels->size(); ++j) {
         
         auto channel = channels->at(j);
         
@@ -376,7 +376,7 @@ namespace dehancer {
             encoder.set(cw, 3);
             encoder.set(ch, 4);
             
-            encoder.set(j, 5);
+            encoder.set((int)j, 5);
             
             encoder.set(impl_->transform.slope[j],6);
             encoder.set(impl_->transform.offset[j],7);

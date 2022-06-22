@@ -117,19 +117,19 @@ namespace dehancer::opencl {
     
     void CommandEncoder::set(const float2x2& m, int index){
       cl_float4 mat;
-      for (int i = 0; i < m.size(); ++i) mat.s[i]=m[i];
+      for (int i = 0; i < (int)m.size(); ++i) mat.s[i]=m[i];
       set(&mat, sizeof(mat), index);
     };
     
     void CommandEncoder::set(const float3x3& m, int index){
       cl_float mat[9];
-      for (int i = 0; i < m.size(); ++i) mat[i]=m[i];
+      for (int i = 0; i < (int)m.size(); ++i) mat[i]=m[i];
       set(&mat, sizeof(mat), index);
     };
     
     void CommandEncoder::set(const float4x4& m, int index){
       cl_float16 mat;
-      for (int i = 0; i < m.size(); ++i) mat.s[i]=m[i];
+      for (int i = 0; i < (int)m.size(); ++i) mat.s[i]=m[i];
       set(&mat, sizeof(mat), index);
     }
     

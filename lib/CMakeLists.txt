@@ -35,6 +35,7 @@ if (DEHANCER_GPU_METAL)
 endif()
 
 if(DEHANCER_GPU_OPENCL)
+    add_definitions(-DDEHANCER_GPU_OPENCL=1)
     add_subdirectory(opencl)
 endif ()
 
