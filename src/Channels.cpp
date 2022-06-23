@@ -291,10 +291,6 @@ namespace dehancer {
       return impl_->channels;
     }
     
-//    void ChannelsInput::set_active_mask (const ChannelsHolder::ActiveChannelsMask &amask) {
-//      if (impl_->channels)
-//        impl_->channels->set_active_mask(amask);
-//    }
     
     /***
      *
@@ -309,10 +305,7 @@ namespace dehancer {
     namespace impl {
         struct ChannelsOutputImpl {
             Channels channels = nullptr;
-            //ChannelsDesc::ActiveChannelsMask amask;
             ChannelsDesc::Transform transform;
-            //bool has_mask{};
-            //Texture mask = nullptr;
         };
     }
     

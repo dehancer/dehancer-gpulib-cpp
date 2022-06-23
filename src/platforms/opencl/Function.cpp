@@ -38,44 +38,55 @@ namespace dehancer::opencl {
   
       size_t workgroup_size;
       clGetKernelWorkGroupInfo(kernel_, command_->get_device_id(), CL_KERNEL_WORK_GROUP_SIZE , sizeof(size_t), &workgroup_size, nullptr);
-  
+      
       size_t global_work_size[3];
       size_t local_work_size[3];
-      size_t num_groups = ((texture_size.width * texture_size.height) + workgroup_size - 1) / workgroup_size;
-      global_work_size[0] = num_groups * workgroup_size;
-      local_work_size[0] = workgroup_size;
+      size_t num_groups;// = ((texture_size.width * texture_size.height) + workgroup_size - 1) / workgroup_size;
+//      global_work_size[0] = num_groups * workgroup_size;
+//      local_work_size[0] = workgroup_size;
   
+      #ifdef PRINT_KERNELS_DEBUG
+      std::cout << "Function " << kernel_name_
+                << " CL_KERNEL_WORK_GROUP_SIZE: "
+                << workgroup_size
+                //<< " num_groups: "
+                //<< num_groups
+                << std::endl;
+      #endif
+  
+      //{
+      size_t  gsize[2];
+  
+      if (workgroup_size <= 256)
       {
-        size_t  gsize[2];
-    
-        if (workgroup_size <= 256)
-        {
-          gsize[0] = 16;
-          gsize[1] = workgroup_size / 16;
-        }
-        else if (workgroup_size <= 1024)
-        {
-          gsize[0] = workgroup_size / 16;
-          gsize[1] = 16;
-        }
-        else
-        {
-          gsize[0] = workgroup_size / 32;
-          gsize[1] = 32;
-        }
-    
-        local_work_size[0] = gsize[0];
-        local_work_size[1] = gsize[1];
-    
-        global_work_size[0] = ((texture_size.width + gsize[0] - 1) / gsize[0]);
-        global_work_size[1] = ((texture_size.height + gsize[1] - 1) / gsize[1]);
-    
-        global_work_size[0] *= gsize[0];
-        global_work_size[1] *= gsize[1];
-  
-        global_work_size[2] = texture_size.depth;
-        local_work_size[2] = 1;
+        gsize[0] = 16;
+        gsize[1] = workgroup_size / 16;
       }
+      else if (workgroup_size <= 1024)
+      {
+        gsize[0] = workgroup_size / 16;
+        gsize[1] = 16;
+      }
+      else
+      {
+        gsize[0] = workgroup_size / 32;
+        gsize[1] = 32;
+      }
+  
+      local_work_size[0] = gsize[0];
+      local_work_size[1] = gsize[1];
+  
+      global_work_size[0] = ((texture_size.width + gsize[0] - 1) / gsize[0]);
+      global_work_size[1] = ((texture_size.height + gsize[1] - 1) / gsize[1]);
+  
+      global_work_size[0] *= gsize[0];
+      global_work_size[1] *= gsize[1];
+  
+      global_work_size[2] = texture_size.depth;
+      local_work_size[2] = 1;
+  
+      num_groups = global_work_size[0] * global_work_size[1];
+      //}
   
       #ifdef PRINT_KERNELS_DEBUG
       std::cout << "Function " << kernel_name_
@@ -83,6 +94,8 @@ namespace dehancer::opencl {
                 << global_work_size[0] << "x" << global_work_size[1] << "x" << global_work_size[2]
                 << "  local: "
                 << local_work_size[0] << "x" << local_work_size[1] << "x" << local_work_size[2]
+                << "  num_groups: "
+                << num_groups
                 << std::endl;
       #endif
   

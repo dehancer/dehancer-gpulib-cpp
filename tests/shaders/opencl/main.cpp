@@ -14,6 +14,8 @@ int main() {
     auto q = dehancer::DeviceCache::Instance().get_default_command_queue();
     auto function = dehancer::Function(q, "kernel_test_transform");
     auto function1 = dehancer::Function(q, "kernel_vec_add");
+    auto function2 = dehancer::Function(q, "kernel_histogram_image");
+  
   }
   catch (const std::runtime_error &e) {
     std::cerr << "Error: " << e.what() << std::endl;
