@@ -16,7 +16,7 @@ namespace dehancer {
     */
     class CommandEncoder {
     public:
-
+    
         struct Size {
             size_t width;
             size_t height;
@@ -36,6 +36,23 @@ namespace dehancer {
             };
         };
 
+//        struct Grid {
+//            size_t width;
+//            size_t height;
+//            size_t depth;
+//        };
+//
+//        struct Block {
+//            size_t width;
+//            size_t height;
+//            size_t depth;
+//        };
+        
+        //struct Grid {
+        //    Size global;
+        //    Size block;
+        //};
+        
         /***
          * Bind texture object with kernel argument placed at defined index. @see Texture
          * @param texture - texture object

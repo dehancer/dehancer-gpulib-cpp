@@ -20,9 +20,11 @@ namespace dehancer {
         using Kernel::Kernel;
     
         explicit HistogramKernel(const void *command_queue,
-                                 const Texture &source,
+                                 const Texture &source = nullptr,
                                  bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                                  const std::string &library_path = "");
+        
+        void setup(CommandEncoder &encoder) override;
         
         const math::Histogram& get_histogram() const;
         

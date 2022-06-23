@@ -14,6 +14,7 @@ namespace dehancer {
             
             explicit HistogramKernelImpl(HistogramKernel* root): root(root)
             {
+              partial_histogram_buffer = MemoryHolder::Make(root->get_command_queue(),1);
             }
     
             [[nodiscard]] const math::Histogram& get_histogram() const {  return histogram; };
@@ -34,5 +35,10 @@ namespace dehancer {
     
     const math::Histogram &HistogramKernel::get_histogram () const {
       return impl_->get_histogram () ;
+    }
+    
+    void HistogramKernel::setup (CommandEncoder &encoder) {
+      encoder.set(get_source(),0);
+      encoder.set(impl_->partial_histogram_buffer,1);
     }
 }
