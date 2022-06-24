@@ -20,84 +20,28 @@ namespace dehancer::opencl {
       else return x;
     }
     
-    void Function::execute(const dehancer::Function::EncodeHandler &block) {
-      
+    void Function::execute(CommandEncoder::ComputeSize compute_size, //CommandEncoder::Size grid_size,
+//                           CommandEncoder::Size block_size,
+                           const dehancer::Function::EncodeHandler& block) {
+  
       std::unique_lock<std::mutex> lock(Function::mutex_);
       
-      auto texture_size = block(*encoder_);
+      if (block)
+        block(*encoder_);
       
       cl_int last_error = 0;
       cl_event    waiting_event = nullptr;
+  
+      cl_uint dim = 3;
+      
+      if ( (compute_size.grid.depth == 1) && (compute_size.block.depth == 1) ) dim = 2;
       
       if (command_->get_wait_completed())
         waiting_event = clCreateUserEvent(command_->get_context(), &last_error);
+  
+      size_t global_work_size[3] = {compute_size.grid.width, compute_size.grid.height, compute_size.grid.depth };
+      size_t local_work_size[3]  = {compute_size.block.width,compute_size.block.height,compute_size.block.depth};
       
-      cl_uint dim = 3;
-      
-      if (texture_size.depth==1) dim = 2;
-  
-      size_t workgroup_size;
-      clGetKernelWorkGroupInfo(kernel_, command_->get_device_id(), CL_KERNEL_WORK_GROUP_SIZE , sizeof(size_t), &workgroup_size, nullptr);
-      
-      size_t global_work_size[3];
-      size_t local_work_size[3];
-      size_t num_groups;
-  
-      #ifdef PRINT_KERNELS_DEBUG
-      std::cout << "Function " << kernel_name_
-                << " CL_KERNEL_WORK_GROUP_SIZE: "
-                << workgroup_size
-                << std::endl;
-      #endif
-  
-      {
-        size_t  gsize[2];
-    
-        if (workgroup_size <= 256)
-        {
-          gsize[0] = 16;
-          gsize[1] = workgroup_size / 16;
-        }
-        else if (workgroup_size <= 1024)
-        {
-          gsize[0] = workgroup_size / 16;
-          gsize[1] = 16;
-        }
-        else
-        {
-          gsize[0] = workgroup_size / 32;
-          gsize[1] = 32;
-        }
-    
-        local_work_size[0] = gsize[0];
-        local_work_size[1] = gsize[1];
-    
-        global_work_size[0] = ((texture_size.width + gsize[0] - 1) / gsize[0]);
-        global_work_size[1] = ((texture_size.height + gsize[1] - 1) / gsize[1]);
-    
-        num_groups = global_work_size[0] * global_work_size[1];
-        
-        global_work_size[0] *= gsize[0];
-        global_work_size[1] *= gsize[1];
-  
-        global_work_size[2] = texture_size.depth;
-        local_work_size[2] = 1;
-      }
-  
-      #ifdef PRINT_KERNELS_DEBUG
-      size_t buffer_size = num_groups*257*4*sizeof(unsigned int);
-      std::cout << "Function " << kernel_name_
-                << " global: "
-                << global_work_size[0] << "x" << global_work_size[1] << "x" << global_work_size[2]
-                << "  local: "
-                << local_work_size[0] << "x" << local_work_size[1] << "x" << local_work_size[2]
-                << "  num_groups: "
-                << num_groups
-                << "  buffer size: "
-                <<     buffer_size << "b" << ", " << buffer_size/1024/1204 << "Mb"
-      << std::endl;
-      #endif
-  
       last_error = clEnqueueNDRangeKernel(command_->get_command_queue(),
                                           kernel_,
                                           dim,
@@ -107,20 +51,56 @@ namespace dehancer::opencl {
                                           0,
                                           nullptr,
                                           &waiting_event);
-      
+  
       if (last_error != CL_SUCCESS) {
         throw std::runtime_error("Unable to enqueue kernel: " + kernel_name_ + " error code: " + std::to_string(last_error));
       }
-      
+  
       if (waiting_event && command_->get_wait_completed()) {
         last_error = clWaitForEvents(1, &waiting_event);
-        
+    
         clReleaseEvent(waiting_event);
-        
+    
         if (last_error != CL_SUCCESS) {
           throw std::runtime_error("Unable to waiting execution of kernel: " + kernel_name_ + " error code: " + std::to_string(last_error));
         }
       }
+    }
+    
+    void Function::execute(const dehancer::Function::EncodeHandler &block) {
+  
+      CommandEncoder::Size texture_size{};
+      
+      {
+        std::unique_lock<std::mutex> lock(Function::mutex_);
+        
+        texture_size = block(*encoder_);
+      }
+      
+      auto compute_size = encoder_->ask_compute_size(texture_size);
+      
+      #ifdef PRINT_KERNELS_DEBUG
+      std::cout << "Function " << kernel_name_
+                << " CL_KERNEL_WORK_GROUP_SIZE: "
+                << encoder_->get_block_max_size()
+                << std::endl;
+      #endif
+      
+      #ifdef PRINT_KERNELS_DEBUG
+      size_t buffer_size = compute_size.threads_in_grid*257*4*sizeof(unsigned int);
+      std::cout << "Function " << kernel_name_
+                << " global: "
+                << compute_size.grid.width << "x" << compute_size.grid.height << "x" << compute_size.grid.depth
+                << "  local: "
+                << compute_size.block.width << "x" << compute_size.block.height << "x" << compute_size.block.depth
+                << "  num_groups: "
+                << compute_size.threads_in_grid
+                << "  buffer size: "
+                <<     buffer_size << "b" << ", " << buffer_size/1024/1204 << "Mb"
+      << std::endl;
+      #endif
+      
+      execute(compute_size, nullptr);
     }
     
     Function::Function(

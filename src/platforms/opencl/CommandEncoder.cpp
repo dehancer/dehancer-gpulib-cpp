@@ -119,6 +119,56 @@ namespace dehancer::opencl {
       cl_float4 mat;
       for (int i = 0; i < (int)m.size(); ++i) mat.s[i]=m[i];
       set(&mat, sizeof(mat), index);
+    }
+    
+    size_t CommandEncoder::get_block_max_size () const {
+      size_t workgroup_size;
+      clGetKernelWorkGroupInfo(kernel_,
+                               function_->get_command()->get_device_id(),
+                               CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t),
+                               &workgroup_size, nullptr);
+      return workgroup_size;
+    }
+    
+    CommandEncoder::ComputeSize CommandEncoder::ask_compute_size (size_t width, size_t height, size_t depth) const {
+  
+      size_t workgroup_size = get_block_max_size();
+      
+      ComputeSize compute_size {};
+      
+      size_t  gsize[2];
+  
+      if (workgroup_size <= 256)
+      {
+        gsize[0] = 16;
+        gsize[1] = workgroup_size / 16;
+      }
+      else if (workgroup_size <= 1024)
+      {
+        gsize[0] = workgroup_size / 16;
+        gsize[1] = 16;
+      }
+      else
+      {
+        gsize[0] = workgroup_size / 32;
+        gsize[1] = 32;
+      }
+  
+      compute_size.block.width  = gsize[0];
+      compute_size.block.height = gsize[1];
+  
+      compute_size.grid.width = ((width + gsize[0] - 1) / gsize[0]);
+      compute_size.grid.height = ((height + gsize[1] - 1) / gsize[1]);
+  
+      compute_size.threads_in_grid = compute_size.grid.width * compute_size.grid.height;
+  
+      compute_size.grid.width  *= gsize[0];
+      compute_size.grid.height *= gsize[1];
+  
+      compute_size.grid.depth = depth;
+      compute_size.block.depth = 1;
+      
+      return compute_size;
     };
     
     void CommandEncoder::set(const float3x3& m, int index){

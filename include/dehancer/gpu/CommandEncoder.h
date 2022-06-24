@@ -35,23 +35,43 @@ namespace dehancer {
               return {static_cast<size_t>(w), static_cast<size_t>(h), static_cast<size_t>(d)};
             };
         };
-
-//        struct Grid {
-//            size_t width;
-//            size_t height;
-//            size_t depth;
-//        };
-//
-//        struct Block {
-//            size_t width;
-//            size_t height;
-//            size_t depth;
-//        };
+    
+        struct ComputeSize {
+            Size   grid;
+            Size   block;
+            size_t threads_in_grid;
+        };
         
-        //struct Grid {
-        //    Size global;
-        //    Size block;
-        //};
+        /**
+         * Get the current device max number of threads in a block
+         *
+         * @return max threads number
+         */
+        [[nodiscard]] virtual size_t get_block_max_size() const = 0;
+        
+        /***
+         * Ask to calculate the best solution for computation grid size
+         * @param width source data width, i.e. the texture width or xD memory width
+         * @param height source data width
+         * @param depth source data depth
+         * @return computation size
+         */
+        [[nodiscard]] virtual ComputeSize ask_compute_size(size_t width, size_t height, size_t depth) const = 0;
+        
+        /***
+         * Ask to calculate the best solution for computation grid size for a texture defined by texture size
+         * @param texture_size texture size
+         * @return computation size
+         */
+        virtual ComputeSize ask_compute_size(Size texture_size);
+        
+        /***
+         * Ask to calculate the best solution for computation grid size for a texture
+         * @param source texture source
+         * @return computation size
+         */
+        virtual ComputeSize ask_compute_size(const Texture& source);
+    
         
         /***
          * Bind texture object with kernel argument placed at defined index. @see Texture

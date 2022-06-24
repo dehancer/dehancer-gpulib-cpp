@@ -48,7 +48,12 @@ namespace dehancer {
     void Function::execute(const Function::EncodeHandler &block) {
       impl_->execute(block);
     }
-
+    
+    void Function::execute (CommandEncoder::ComputeSize compute_size,
+                            const Function::EncodeHandler &block) {
+      impl_->execute(compute_size, block);
+    }
+    
     const std::vector<dehancer::Function::ArgInfo> & Function::get_arg_list() const {
       return impl_->get_arg_info_list();
     }
@@ -60,7 +65,7 @@ namespace dehancer {
     const std::string &Function::get_library_path () const {
       return impl_->get_library_path();
     }
-  
+    
 }
 
 #endif

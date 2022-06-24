@@ -18,11 +18,15 @@ namespace dehancer::opencl {
                  );
         
         void execute(const dehancer::Function::EncodeHandler& block);
+        void execute(CommandEncoder::ComputeSize compute_size,
+                     const dehancer::Function::EncodeHandler& block);
 
         [[nodiscard]] const std::string& get_name() const;
         [[nodiscard]] const std::vector<dehancer::Function::ArgInfo>& get_arg_info_list() const ;
         const std::string& get_library_path() const;
-
+    
+        const dehancer::opencl::Command* get_command() const { return command_;};
+        
         ~Function();
 
     private:
@@ -31,7 +35,9 @@ namespace dehancer::opencl {
         std::string kernel_name_;
         std::string library_path_;
         cl_kernel kernel_;
+        
         std::shared_ptr<CommandEncoder> encoder_;
+        
         mutable std::vector<dehancer::Function::ArgInfo> arg_list_;
 
         typedef std::unordered_map<std::string, cl_kernel> KernelMap;

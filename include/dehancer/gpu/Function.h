@@ -20,6 +20,9 @@ namespace dehancer {
     class Function: public Command {
     public:
 
+        /***
+         * Function arguments information
+         */
         struct ArgInfo {
             std::string name;
             uint        index;
@@ -62,7 +65,14 @@ namespace dehancer {
          *
          */
         void execute(const EncodeHandler& block);
-
+        
+        /**
+         * Execute named kernel function in lambda block with grid parameters
+         * @param size is a global and local computation grid size
+         * @param block computation settings block, can be null
+         */
+        void execute(CommandEncoder::ComputeSize size, const EncodeHandler& block);
+    
         /***
          * To debug current Function properties you can get Function name
          * @return function/kernel name
@@ -75,8 +85,11 @@ namespace dehancer {
          * @return arg info list
          */
         [[nodiscard]] const std::vector<ArgInfo> & get_arg_list() const ;
-
         
+        /***
+         * Get the current library path
+         * @return string path
+         */
         const std::string& get_library_path() const;
         
     protected:
