@@ -16,7 +16,7 @@
 
 DHCR_KERNEL void kernel_histogram_image(
         texture2d_read_t       img       DHCR_BIND_TEXTURE(0),
-        DHCR_DEVICE_ARG int*    histogram DHCR_BIND_BUFFER(1)
+        DHCR_DEVICE_ARG uint*  histogram DHCR_BIND_BUFFER(1)
         DHCR_KERNEL_GID_2D
 ) {
   
@@ -49,15 +49,14 @@ DHCR_KERNEL void kernel_histogram_image(
   {
     float4 clr = read_imagef(img, CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST, (float2)(x, y));
     
-    ushort   indx;
-    indx = convert_ushort_sat(min(clr.x, 1.0f) * DEHANCER_HISTOGRAM_MULT);
-    atom_inc(&tmp_histogram[indx]);
-    
-    indx = convert_ushort_sat(min(clr.y, 1.0f) * DEHANCER_HISTOGRAM_MULT);
-    atom_inc(&tmp_histogram[DEHANCER_HISTOGRAM_BUFF_SIZE+indx]);
-    
-    indx = convert_ushort_sat(min(clr.z, 1.0f) * DEHANCER_HISTOGRAM_MULT);
-    atom_inc(&tmp_histogram[2*DEHANCER_HISTOGRAM_BUFF_SIZE+indx]);
+    ushort   nindx = convert_ushort_sat(min(clr.x, 1.0f) * DEHANCER_HISTOGRAM_MULT);
+    atom_inc(&tmp_histogram[nindx]);
+  
+    nindx = convert_ushort_sat(min(clr.y, 1.0f) * DEHANCER_HISTOGRAM_MULT);
+    atom_inc(&tmp_histogram[DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
+  
+    nindx = convert_ushort_sat(min(clr.z, 1.0f) * DEHANCER_HISTOGRAM_MULT);
+    atom_inc(&tmp_histogram[2*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
   }
   
   barrier(CLK_LOCAL_MEM_FENCE);
@@ -80,8 +79,45 @@ DHCR_KERNEL void kernel_histogram_image(
       
       j -= local_size;
       indx += local_size;
+      
     } while (j > 0);
   }
+}
+
+DHCR_KERNEL void kernel_sum_partial_histogram_image(
+        DHCR_DEVICE_ARG uint*     partial_histogram DHCR_BIND_BUFFER(0),
+        DHCR_CONST_ARG  int_ref_t num_groups DHCR_BIND_BUFFER(1),
+        DHCR_DEVICE_ARG uint*     histogram DHCR_BIND_BUFFER(2)
+        DHCR_KERNEL_GID_2D
+) {
+  int     tid = (int)get_global_id(0);
+  int     group_id = (int)get_group_id(0);
+  int     group_indx;
+  int     n = num_groups;
+  local uint  tmp_histogram[DEHANCER_HISTOGRAM_BUFF_LENGTH];
+  
+  int     first_workitem_not_in_first_group = ((get_local_id(0) == 0) && group_id);
+  
+  tid += group_id;
+  int     tid_first = tid - 1;
+  if (first_workitem_not_in_first_group)
+    tmp_histogram[tid_first] = partial_histogram[tid_first];
+  
+  tmp_histogram[tid] = partial_histogram[tid];
+  
+  group_indx = DEHANCER_HISTOGRAM_BUFF_LENGTH;
+  while (--n > 0)
+  {
+    if (first_workitem_not_in_first_group)
+      tmp_histogram[tid_first] += partial_histogram[tid_first];
+    
+    tmp_histogram[tid] += partial_histogram[group_indx+tid];
+    group_indx += DEHANCER_HISTOGRAM_BUFF_LENGTH;
+  }
+  
+  if (first_workitem_not_in_first_group)
+    histogram[tid_first] = tmp_histogram[tid_first];
+  histogram[tid] = tmp_histogram[tid];
 }
 
 #endif //DEHANCER_GPULIB_HISTOGRAM_IMAGE_KERNEL_H

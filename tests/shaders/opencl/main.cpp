@@ -15,6 +15,7 @@ int main() {
     auto function = dehancer::Function(q, "kernel_test_transform");
     auto function1 = dehancer::Function(q, "kernel_vec_add");
     auto function2 = dehancer::Function(q, "kernel_histogram_image");
+    auto function3 = dehancer::Function(q, "kernel_sum_partial_histogram_image");
   
   }
   catch (const std::runtime_error &e) {
