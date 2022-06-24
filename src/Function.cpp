@@ -50,7 +50,7 @@ namespace dehancer {
     }
     
     void Function::execute (CommandEncoder::ComputeSize compute_size,
-                            const Function::EncodeHandler &block) {
+                            const Function::VoidEncodeHandler &block) {
       impl_->execute(compute_size, block);
     }
     
@@ -66,6 +66,21 @@ namespace dehancer {
       return impl_->get_library_path();
     }
     
+    CommandEncoder::ComputeSize Function::ask_compute_size (CommandEncoder::Size texture_size) {
+      return ask_compute_size(texture_size.width, texture_size.height, texture_size.depth);
+    }
+    
+    CommandEncoder::ComputeSize Function::ask_compute_size (const Texture &source) {
+      return ask_compute_size(source->get_desc().width, source->get_desc().height, source->get_desc().depth);
+    }
+    
+    CommandEncoder::ComputeSize Function::ask_compute_size (size_t width, size_t height, size_t depth) const {
+      return impl_->ask_compute_size(width,height,depth);
+    }
+    
+    size_t Function::get_block_max_size () const {
+      return impl_->get_block_max_size();
+    }
 }
 
 #endif

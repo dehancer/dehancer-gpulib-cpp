@@ -28,8 +28,9 @@ namespace dehancer {
             uint        index;
             std::string type_name;
         };
-
+    
         typedef std::function<CommandEncoder::Size (CommandEncoder& compute_encoder)> EncodeHandler;
+        typedef std::function<void (CommandEncoder& compute_encoder)> VoidEncodeHandler;
 
         /***
          * Create GPU function based on kernel sourcecode. @see OpenCL C Language or Metal Shading Language
@@ -71,7 +72,7 @@ namespace dehancer {
          * @param size is a global and local computation grid size
          * @param block computation settings block, can be null
          */
-        void execute(CommandEncoder::ComputeSize size, const EncodeHandler& block);
+        void execute(CommandEncoder::ComputeSize size, const VoidEncodeHandler& block);
     
         /***
          * To debug current Function properties you can get Function name
@@ -85,7 +86,36 @@ namespace dehancer {
          * @return arg info list
          */
         [[nodiscard]] const std::vector<ArgInfo> & get_arg_list() const ;
-        
+    
+        /**
+         * Get the current device max number of threads in a block
+         * @return max threads number
+         * */
+        [[nodiscard]] virtual size_t get_block_max_size() const;
+    
+        /***
+         * Ask to calculate the best solution for computation grid size
+         * @param width source data width, i.e. the texture width or xD memory width
+         * @param height source data width
+         * @param depth source data depth
+         * @return computation size
+         */
+        [[nodiscard]] virtual CommandEncoder::ComputeSize ask_compute_size(size_t width, size_t height, size_t depth) const;
+    
+        /***
+         * Ask to calculate the best solution for computation grid size for a texture defined by texture size
+         * @param texture_size texture size
+         * @return computation size
+         */
+        virtual CommandEncoder::ComputeSize ask_compute_size(CommandEncoder::Size texture_size);
+    
+        /***
+         * Ask to calculate the best solution for computation grid size for a texture
+         * @param source texture source
+         * @return computation size
+         */
+        virtual CommandEncoder::ComputeSize ask_compute_size(const Texture& source);
+    
         /***
          * Get the current library path
          * @return string path

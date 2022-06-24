@@ -30,7 +30,7 @@ auto function_test =  [] (int dev_num,
               .compression = test::compression
       });
       
-      auto kernel = dehancer::HistogramKernel(command_queue);
+      auto kernel = dehancer::HistogramImage(command_queue);
       kernel.set_source(input_text.get_texture());
       kernel.process();
       

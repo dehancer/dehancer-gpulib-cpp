@@ -19,14 +19,18 @@ namespace dehancer::opencl {
         
         void execute(const dehancer::Function::EncodeHandler& block);
         void execute(CommandEncoder::ComputeSize compute_size,
-                     const dehancer::Function::EncodeHandler& block);
+                     const dehancer::Function::VoidEncodeHandler& block);
 
         [[nodiscard]] const std::string& get_name() const;
         [[nodiscard]] const std::vector<dehancer::Function::ArgInfo>& get_arg_info_list() const ;
         const std::string& get_library_path() const;
     
         const dehancer::opencl::Command* get_command() const { return command_;};
-        
+    
+        [[nodiscard]] size_t get_block_max_size() const;
+    
+        [[nodiscard]] CommandEncoder::ComputeSize ask_compute_size(size_t width, size_t height, size_t depth) const;
+    
         ~Function();
 
     private:

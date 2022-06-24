@@ -1,0 +1,49 @@
+//
+// Created by denn on 23.06.2022.
+//
+
+
+#pragma once
+
+#include "dehancer/gpu/Kernel.h"
+#include "dehancer/histogram.hpp"
+
+namespace dehancer {
+    
+    namespace impl {
+        struct HistogramImpl;
+    }
+    
+    class HistogramImage: public Function {
+    
+    public:
+        using Function::Function;
+        
+        explicit HistogramImage(const void *command_queue,
+                                const Texture &source = nullptr,
+                                bool wait_until_completed = WAIT_UNTIL_COMPLETED,
+                                const std::string &library_path = "");
+        
+        /***
+         * Set a current image texture
+         * @param source
+         */
+        void set_source(const Texture& source);
+        
+        /**
+         * Get source texture
+         * @return texture object
+         */
+        [[nodiscard]] const Texture& get_source() const;
+        
+        /***
+         * Process Histogram
+         * */
+        void process();
+        
+        const math::Histogram& get_histogram() const;
+    
+    public:
+        std::shared_ptr<impl::HistogramImpl> impl_;
+    };
+}

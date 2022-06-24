@@ -20,9 +20,8 @@ namespace dehancer::opencl {
       else return x;
     }
     
-    void Function::execute(CommandEncoder::ComputeSize compute_size, //CommandEncoder::Size grid_size,
-//                           CommandEncoder::Size block_size,
-                           const dehancer::Function::EncodeHandler& block) {
+    void Function::execute(CommandEncoder::ComputeSize compute_size,
+                           const dehancer::Function::VoidEncodeHandler& block) {
   
       std::unique_lock<std::mutex> lock(Function::mutex_);
       
@@ -33,8 +32,11 @@ namespace dehancer::opencl {
       cl_event    waiting_event = nullptr;
   
       cl_uint dim = 3;
-      
-      if ( (compute_size.grid.depth == 1) && (compute_size.block.depth == 1) ) dim = 2;
+  
+      if ( (compute_size.grid.depth == 1) && (compute_size.block.depth == 1) ) {
+        dim = 2;
+        if ((compute_size.grid.height == 1) && (compute_size.block.height == 1)) dim = 1;
+      }
       
       if (command_->get_wait_completed())
         waiting_event = clCreateUserEvent(command_->get_context(), &last_error);
@@ -268,5 +270,13 @@ namespace dehancer::opencl {
     
     const std::string &Function::get_library_path () const {
       return library_path_;
+    }
+    
+    size_t Function::get_block_max_size () const {
+      return encoder_->get_block_max_size();
+    }
+    
+    CommandEncoder::ComputeSize Function::ask_compute_size (size_t width, size_t height, size_t depth) const {
+      return encoder_->ask_compute_size(width,height,depth);
     }
 }
