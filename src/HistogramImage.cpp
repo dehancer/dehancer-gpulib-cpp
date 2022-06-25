@@ -6,6 +6,10 @@
 
 #include "dehancer/gpu/kernels/histogram_common.h"
 #include "dehancer/gpu/HistogramImage.h"
+#include "dehancer/math.hpp"
+using float3=dehancer::math::float3;
+using float4=dehancer::math::float4;
+#include "dehancer/gpu/kernels/constants.h"
 
 namespace dehancer {
     
@@ -13,12 +17,14 @@ namespace dehancer {
         
         struct HistogramImpl {
             HistogramImage*  root;
+            HistogramImage::Options   options;
             math::Histogram histogram;
             Texture         source;
             Memory          partial_histogram_buffer;
             
-            explicit HistogramImpl(HistogramImage* root):
+            explicit HistogramImpl(HistogramImage* root, const HistogramImage::Options& options):
             root(root),
+            options(options),
             histogram(DEHANCER_HISTOGRAM_CHANNELS,DEHANCER_HISTOGRAM_SIZE),
             source(nullptr),
             partial_histogram_buffer(nullptr)
@@ -35,16 +41,21 @@ namespace dehancer {
                          const Memory& partial_histogram_buffer,
                          size_t size,
                          size_t channels,
+                         const HistogramImage::Options& options,
                          bool wait_until_completed = true,
                          const std::string &library_path = "");
             
             void process(size_t grid_size, size_t block_size, size_t threads_in_grid);
             
+            const  std::vector<std::vector<float>>& get_histogram() const { return histogram_;};
+            
         private:
             size_t size_;
             size_t channels_;
+            HistogramImage::Options   options_;
             Memory partial_histogram_buffer_;
             Memory histogram_buffer_;
+            std::vector<std::vector<float>> histogram_;
         };
         
     }
@@ -52,10 +63,11 @@ namespace dehancer {
     HistogramImage::HistogramImage (
             const void *command_queue,
             const Texture &source,
+            const HistogramImage::Options& options,
             bool wait_until_completed,
             const std::string &library_path):
             Function(command_queue, "kernel_histogram_image", wait_until_completed, library_path),
-            impl_(std::make_shared<impl::HistogramImpl>(this))
+            impl_(std::make_shared<impl::HistogramImpl>(this, options))
     {
       set_source(source);
     }
@@ -99,12 +111,19 @@ namespace dehancer {
       auto grid_size = impl_->histogram.get_size().size * impl_->histogram.get_size().num_channels;
       auto block_size = (workgroup_size >  impl_->histogram.get_size().size) ?  impl_->histogram.get_size().size : workgroup_size;
   
-      impl::HistogramAcc(get_command_queue(),
+      auto acc = impl::HistogramAcc(get_command_queue(),
                          impl_->partial_histogram_buffer,
                          impl_->histogram.get_size().size,
                          impl_->histogram.get_size().num_channels,
-                         true, get_library_path())
-                         .process(grid_size,block_size,compute_size.threads_in_grid);
+                         impl_->options,
+                         true,
+                         get_library_path());
+      
+      acc.process(grid_size,block_size,compute_size.threads_in_grid);
+      
+      auto& buffer = acc.get_histogram();
+      
+      impl_->histogram.update(buffer);
     }
     
     namespace impl {
@@ -112,11 +131,13 @@ namespace dehancer {
                                     const Memory &partial_histogram_buffer,
                                     size_t size,
                                     size_t channels,
+                                    const HistogramImage::Options& options,
                                     bool wait_until_completed,
                                     const std::string &library_path ):
                 Function(command_queue, "kernel_sum_partial_histogram_image", wait_until_completed, library_path),
                 size_(size),
                 channels_(channels),
+                options_(options),
                 partial_histogram_buffer_(partial_histogram_buffer)
         {
         }
@@ -148,8 +169,17 @@ namespace dehancer {
   
           std::vector<uint> buffer;
           histogram_buffer_->get_contents(buffer);
-          for(uint i = 0; i < size_ ; ++i) {
-            std::cout << "["<<i<<"] = " << buffer[i] << std::endl;
+  
+          histogram_.resize(channels_);
+          for (int c = 0; c < channels_; ++c) {
+            histogram_[c].resize(size_);
+            for (int i = 0; i < size_; ++i) {
+              histogram_[c][i] = static_cast<float>(buffer[c*DEHANCER_HISTOGRAM_BUFF_SIZE+i]);
+            }
+            if (options_.ignore_edges) {
+              histogram_[c][0] = 0;
+              histogram_[c][size_-1] = 0;
+            }
           }
         }
     }

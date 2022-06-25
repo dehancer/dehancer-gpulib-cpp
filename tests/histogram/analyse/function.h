@@ -37,10 +37,22 @@ auto function_test =  [] (int dev_num,
       const auto& histogram = kernel.get_histogram();
       auto channel = histogram.get_channel(0);
   
-      for (auto& c:channel) {
-        std::cout << c << std::endl;
+      for(int i = 0; i < histogram.get_size().size; i++){
+        std::cout << "["<<i<<"] = "
+                  << "  " << histogram.get_channel(0)[i]
+                  << ", " << histogram.get_channel(1)[i]
+                  << ", " << histogram.get_channel(2)[i]
+                  << " :: " << histogram.get_channel(3)[i]
+                  //<< " / "  luma
+                  << std::endl;
       }
-      
+  
+      std::cout << "  clipped lower luma: "<< (int)histogram.get_channel(3).lower(0.0f)  << std::endl;
+      std::cout << " clipped higher luma: "<< (int)(histogram.get_channel(3).higher(0.0f) * 255.0f) << std::endl;
+  
+      std::cout << "   clipped lower red: "<< (int)histogram.get_channel(0).lower(0.0f)  << std::endl;
+      std::cout << "  clipped higher red: "<< (int)(histogram.get_channel(0).higher(0.0f) * 255.0f) << std::endl;
+  
       {
         std::ofstream os(output_image, std::ostream::binary | std::ostream::trunc);
         if (os.is_open()) {
