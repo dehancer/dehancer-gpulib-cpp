@@ -20,6 +20,10 @@
 #define DHCR_KERNEL_GID_2D
 #define DHCR_KERNEL_GID_3D
 
+#define DHCR_KERNEL_LOCAL_1D
+#define DHCR_KERNEL_LOCAL_2D
+#define DHCR_KERNEL_LOCAL_3D
+
 #define bool_ref_t uint
 #define bool_t uint
 #define uint8_t unsigned char
