@@ -51,8 +51,6 @@ namespace dehancer::opencl {
         dehancer::opencl::Function* function_ = nullptr;
     
         [[nodiscard]] size_t get_block_max_size() const override;
-    
-        [[nodiscard]] ComputeSize ask_compute_size(size_t width, size_t height, size_t depth) const override;
-  
+        
     };
 }

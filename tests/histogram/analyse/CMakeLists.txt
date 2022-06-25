@@ -7,6 +7,7 @@ endif()
 #    add_subdirectory(cuda)
 #endif()
 #
-#if (DEHANCER_GPU_METAL)
-#    add_subdirectory(metal)
-#endif()
+
+if (DEHANCER_GPU_METAL)
+    add_subdirectory(metal)
+endif()

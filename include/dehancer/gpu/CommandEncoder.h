@@ -56,7 +56,7 @@ namespace dehancer {
          * @param depth source data depth
          * @return computation size
          */
-        [[nodiscard]] virtual ComputeSize ask_compute_size(size_t width, size_t height, size_t depth) const = 0;
+        [[nodiscard]] virtual ComputeSize ask_compute_size(size_t width, size_t height, size_t depth) const;
         
         /***
          * Ask to calculate the best solution for computation grid size for a texture defined by texture size
