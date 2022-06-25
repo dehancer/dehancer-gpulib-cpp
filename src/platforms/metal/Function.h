@@ -34,17 +34,20 @@ namespace dehancer::metal {
 
         Function(dehancer::metal::Command* command, const std::string& kernel_name,  const std::string &library_path);
         void execute(const dehancer::Function::EncodeHandler& block);
-
+       
+        void execute(CommandEncoder::ComputeSize compute_size,
+                     const dehancer::Function::VoidEncodeHandler& block);
+        
         [[nodiscard]] const std::string& get_name() const;
         [[nodiscard]] std::vector<dehancer::Function::ArgInfo>& get_arg_info_list() const ;
 
         void set_current_pipeline() const ;
 
-        [[nodiscard]] MTLSize get_threads_per_threadgroup(int w, int h, int d) const;
-        [[nodiscard]] MTLSize get_thread_groups(int w, int h, int d) const;
-        [[nodiscard]] ComputeSize get_compute_size(const CommandEncoder::Size size) const;
         [[nodiscard]] const std::string& get_library_path() const;
-
+    
+        [[nodiscard]] size_t get_block_max_size() const;
+        [[nodiscard]] CommandEncoder::ComputeSize ask_compute_size(size_t width, size_t height, size_t depth) const;
+        
         ~Function();
 
     private:
