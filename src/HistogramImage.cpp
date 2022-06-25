@@ -17,7 +17,7 @@ namespace dehancer {
         
         struct HistogramImpl {
             HistogramImage*  root;
-            HistogramImage::Options   options;
+            HistogramImage::Options options;
             math::Histogram histogram;
             Texture         source;
             Memory          partial_histogram_buffer;
@@ -94,6 +94,7 @@ namespace dehancer {
     }
     
     void HistogramImage::process () {
+    
       if (
               !impl_->source
               ||
@@ -124,6 +125,10 @@ namespace dehancer {
       auto& buffer = acc.get_histogram();
       
       impl_->histogram.update(buffer);
+    }
+    
+    void HistogramImage::set_options (const HistogramImage::Options &options) {
+      impl_->options = options;
     }
     
     namespace impl {

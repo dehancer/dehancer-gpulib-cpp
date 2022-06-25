@@ -48,8 +48,14 @@ namespace dehancer {
          * */
         void process();
         
+        /**
+         * Get the currently processed histogram
+         * @return histogram object
+         */
         const math::Histogram& get_histogram() const;
-    
+        
+        void set_options(const Options& options);
+        
     public:
         std::shared_ptr<impl::HistogramImpl> impl_;
     };

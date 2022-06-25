@@ -31,27 +31,31 @@ auto function_test =  [] (int dev_num,
       });
       
       auto kernel = dehancer::HistogramImage(command_queue);
+      kernel.set_options({
+        .ignore_edges = false
+      });
       kernel.set_source(input_text.get_texture());
       kernel.process();
       
       const auto& histogram = kernel.get_histogram();
-      auto channel = histogram.get_channel(0);
+  
+      using ch = dehancer::math::Channel::Index;
+      float clipping = 0.0f;
   
       for(int i = 0; i < histogram.get_size().size; i++){
         std::cout << "["<<i<<"] = "
-                  << "  " << histogram.get_channel(0)[i]
-                  << ", " << histogram.get_channel(1)[i]
-                  << ", " << histogram.get_channel(2)[i]
-                  << " :: " << histogram.get_channel(3)[i]
-                  //<< " / "  luma
+                  << "  " << histogram.get_channel(ch::red)[i]
+                  << ", " << histogram.get_channel(ch::green)[i]
+                  << ", " << histogram.get_channel(ch::blue)[i]
+                  << " :: " << histogram.get_channel(ch::luma)[i]
                   << std::endl;
       }
   
-      std::cout << "  clipped lower luma: "<< (int)histogram.get_channel(3).lower(0.0f)  << std::endl;
-      std::cout << " clipped higher luma: "<< (int)(histogram.get_channel(3).higher(0.0f) * 255.0f) << std::endl;
+      std::cout << "  clipped lower luma: "<< (int)histogram.get_channel(ch::luma).lower(clipping)  << std::endl;
+      std::cout << " clipped higher luma: "<< (int)(histogram.get_channel(ch::luma).higher(clipping) * (float )histogram.get_size().size) << std::endl;
   
-      std::cout << "   clipped lower red: "<< (int)histogram.get_channel(0).lower(0.0f)  << std::endl;
-      std::cout << "  clipped higher red: "<< (int)(histogram.get_channel(0).higher(0.0f) * 255.0f) << std::endl;
+      std::cout << "   clipped lower red: "<< (int)histogram.get_channel(ch::red).lower(clipping)  << std::endl;
+      std::cout << "  clipped higher red: "<< (int)(histogram.get_channel(ch::red).higher(clipping) * (float )histogram.get_size().size) << std::endl;
   
       {
         std::ofstream os(output_image, std::ostream::binary | std::ostream::trunc);
