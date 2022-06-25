@@ -44,10 +44,10 @@ auto function_test =  [] (int dev_num,
   
       for(int i = 0; i < histogram.get_size().size; i++){
         std::cout << "["<<i<<"] = "
-                  << "  " << histogram.get_channel(ch::red)[i]
-                  << ", " << histogram.get_channel(ch::green)[i]
-                  << ", " << histogram.get_channel(ch::blue)[i]
-                  << " :: " << histogram.get_channel(ch::luma)[i]
+                  << "  " << (unsigned long)histogram.get_channel(ch::red)[i]
+                  << ", " << (unsigned long)histogram.get_channel(ch::green)[i]
+                  << ", " << (unsigned long)histogram.get_channel(ch::blue)[i]
+                  << " :: " << (unsigned long)histogram.get_channel(ch::luma)[i]
                   << std::endl;
       }
   

@@ -65,6 +65,19 @@ typedef struct  {
     int3 size;
 } Texel3d;
 
+typedef struct {
+    int width;
+    int height;
+    int depth;
+} Size;
+
+
+typedef struct {
+    Size   grid;
+    Size   block;
+    int    threads_in_grid;
+} ComputeSize;
+
 #define texture1d_read_t DHCR_READ_ONLY image1d_t
 #define texture1d_write_t DHCR_WRITE_ONLY image1d_t
 

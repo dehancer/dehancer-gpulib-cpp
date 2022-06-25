@@ -23,6 +23,38 @@ __constant sampler_t nearest_sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS
 #define texture3d_read_t DHCR_READ_ONLY image3d_t
 #define texture3d_write_t DHCR_WRITE_ONLY image3d_t
 
+/**
+ * Compute grid info
+ */
+#define  get_num_blocks() ((int)get_num_groups(0))
+
+#define  get_block_id1d() ((int)get_group_id(0))
+#define  get_block_id2d() ((int2){get_group_id(0), get_group_id(1)})
+#define  get_block_id3d() ((int3){get_group_id(0), get_group_id(1), get_group_id(2)})
+
+#define  get_block_size1d() ((int)get_local_size(0))
+#define  get_block_size2d() ((int2){get_local_size(0), get_local_size(1)})
+#define  get_block_size3d() ((int3){get_local_size(0), get_local_size(1), get_local_size(2)})
+
+#define  get_thread_in_block_id1d() ((int)get_local_id(0))
+#define  get_thread_in_block_id2d() ((int2){get_local_id(0), get_local_id(1)})
+#define  get_thread_in_block_id3d() ((int3){get_local_id(0), get_local_id(1), get_local_id(2)})
+
+#define  get_thread_in_grid_id1d() ((int)get_global_id(0))
+#define  get_thread_in_grid_id2d() ((int2){get_global_id(0), get_global_id(1)})
+#define  get_thread_in_grid_id3d() ((int3){get_global_id(0), get_global_id(1), get_global_id(2)})
+
+
+/**
+ * Kernel computation info
+ */
+
+#define get_kernel_texel1d(destination, tex) { \
+  tex.gid =  (int)get_global_id(0); \
+  tex.size = (int)get_image_width(destination); \
+}
+
+
 #define  get_kernel_tid1d(tid) { \
   tid = (int)get_global_id(0);\
 }
@@ -33,11 +65,6 @@ __constant sampler_t nearest_sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS
 
 #define  get_kernel_tid3d(tid) { \
   tid = (int3){get_global_id(0), get_global_id(1), get_global_id(2)};  \
-}
-
-#define get_kernel_texel1d(destination, tex) { \
-  tex.gid =  (int)get_global_id(0); \
-  tex.size = (int)get_image_width(destination); \
 }
 
 #define get_kernel_texel2d(destination, tex) { \

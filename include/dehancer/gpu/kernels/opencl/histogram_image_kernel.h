@@ -17,14 +17,20 @@ DHCR_KERNEL void kernel_histogram_image(
         DHCR_KERNEL_LOCAL_2D
 ) {
   
-  int     image_width  = get_image_width(img);
-  int     image_height = get_image_height(img);
+  Texel2d tex; get_kernel_texel2d(img,tex);
+  if (!get_texel_boundary(tex)) return;
   
-  int     local_size = (int)get_local_size(0) * (int)get_local_size(1);
-  int     group_indx = (int)mad24( (uint)get_group_id(1), (uint)get_num_groups(0), (uint)get_group_id(0)) * DEHANCER_HISTOGRAM_BUFF_LENGTH;
+  int     image_width  = tex.size.x;
+  int     image_height = tex.size.y;
+  int     x = tex.gid.x;
+  int     y = tex.gid.y;
   
-  int     x = get_global_id(0);
-  int     y = get_global_id(1);
+  uint    num_blocks = (uint)get_num_blocks();
+  int2    block_size = get_block_size2d();
+  int     local_size = block_size.x * block_size.y;
+  
+  uint2   block_id = (uint2)get_block_id2d();
+  int     group_indx = (int)mad24( block_id.y, num_blocks, block_id.x) * DEHANCER_HISTOGRAM_BUFF_LENGTH;
   
   local uint  tmp_histogram[DEHANCER_HISTOGRAM_BUFF_LENGTH];
   
@@ -94,30 +100,30 @@ DHCR_KERNEL void kernel_sum_partial_histogram_image(
         DHCR_KERNEL_LOCAL_1D
 ) {
   
-  int     tid = (uint)get_global_id(0);
-  int     group_id = (uint)get_group_id(0);
-  int     group_indx;
+  int tid = (uint)get_thread_in_grid_id1d();
+  int block_id = (uint)get_block_id1d();
   
   local uint  tmp_histogram[DEHANCER_HISTOGRAM_BUFF_LENGTH];
   
-  int     first_workitem_not_in_first_group = ((get_local_id(0) == 0) && group_id);
+  int thread_in_block_id = get_thread_in_block_id1d();
+  int first_workitem_not_in_first_group = ((thread_in_block_id == 0) && block_id);
   
-  tid += group_id;
+  tid += block_id;
   int     tid_first = tid - 1;
   if (first_workitem_not_in_first_group)
     tmp_histogram[tid_first] = partial_histogram[tid_first];
   
   tmp_histogram[tid] = partial_histogram[tid];
   
-  group_indx = DEHANCER_HISTOGRAM_BUFF_LENGTH;
+  int block_indx = DEHANCER_HISTOGRAM_BUFF_LENGTH;
   #pragma unroll
   for (int n = num_groups-1; n > 0; n--)
   {
     if (first_workitem_not_in_first_group)
       tmp_histogram[tid_first] += partial_histogram[tid_first];
     
-    tmp_histogram[tid] += partial_histogram[group_indx+tid];
-    group_indx += DEHANCER_HISTOGRAM_BUFF_LENGTH;
+    tmp_histogram[tid] += partial_histogram[block_indx+tid];
+    block_indx += DEHANCER_HISTOGRAM_BUFF_LENGTH;
   }
   
   if (first_workitem_not_in_first_group)
