@@ -23,17 +23,17 @@ DHCR_KERNEL void kernel_histogram_image(
   int     x = tex.gid.x;
   int     y = tex.gid.y;
   
-  uint    num_blocks = (uint)get_num_blocks_2d();
+  int     num_blocks = get_num_blocks_2d();
   int2    block_size = get_block_size2d();
   int     local_size = block_size.x * block_size.y;
   
-  uint2    block_id = (uint2)get_block_id2d();
-  int    group_indx = (int)mad24( block_id.y, num_blocks, block_id.x) * DEHANCER_HISTOGRAM_BUFF_LENGTH;
+  int2    block_id = get_block_id2d();
+  int   group_indx = (int)mad24( (uint)block_id.y, (uint)num_blocks, (uint)block_id.x) * DEHANCER_HISTOGRAM_BUFF_LENGTH;
   
   DHCR_BLOCK_MEMORY atomic_uint tmp_histogram[DEHANCER_HISTOGRAM_BUFF_LENGTH];
   
-  uint2   thread_in_block_id = (uint2)get_thread_in_block_id2d();
-  int     tid = mad24(thread_in_block_id.y, (uint)block_size.x, thread_in_block_id.x);
+  int2    thread_in_block_id = get_thread_in_block_id2d();
+  int     tid = mad24((uint)thread_in_block_id.y, (uint)block_size.x, (uint)thread_in_block_id.x);
   
   // clear the local buffer that will generate the partial histogram
   #pragma unroll

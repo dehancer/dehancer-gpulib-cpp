@@ -183,9 +183,9 @@ namespace dehancer {
           histogram_buffer_->get_contents(buffer);
   
           histogram_.resize(channels_);
-          for (int c = 0; c < channels_; ++c) {
+          for (int c = 0; c < (int)channels_; ++c) {
             histogram_[c].resize(size_);
-            for (int i = 0; i < size_; ++i) {
+            for (int i = 0; i < (int)size_; ++i) {
               histogram_[c][i] = static_cast<float>(buffer[c*DEHANCER_HISTOGRAM_BUFF_SIZE+i]);
             }
             if (options_.ignore_edges) {
