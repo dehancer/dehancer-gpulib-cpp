@@ -21,7 +21,9 @@ namespace dehancer::metal {
     
     class Function {
     public:
-
+    
+        typedef std::function<dehancer::CommandEncoder::ComputeSize (dehancer::CommandEncoder& compute_encoder)> CommonEncodeHandler;
+    
         struct ComputeSize {
             MTLSize threadsPerThreadgroup;
             MTLSize threadGroups;
@@ -61,6 +63,9 @@ namespace dehancer::metal {
         mutable PipelineState pipelineState_;
         static PipelineCache pipelineCache_;
         static std::mutex mutex_;
+    
+        void execute_block(const CommonEncodeHandler& block);
+    
     };
 }
 

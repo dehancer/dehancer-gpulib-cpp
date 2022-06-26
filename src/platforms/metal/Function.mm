@@ -21,10 +21,7 @@ namespace dehancer::metal {
       return library_path_;
     }
     
-    void Function::execute (CommandEncoder::ComputeSize compute_size,
-                            const dehancer::Function::VoidEncodeHandler &block)
-    {
-      if (!block) return;
+    void Function::execute_block (const Function::CommonEncodeHandler &block) {
       
       auto queue = static_cast<id<MTLCommandQueue>>( (__bridge id) command_->get_command_queue());
   
@@ -37,9 +34,7 @@ namespace dehancer::metal {
       auto encoder = CommandEncoder(command_, pipelineState_.pipeline, computeEncoder);
       dehancer::CommandEncoder* encoder_ref = &encoder;
       
-      block(encoder);
-  
-     // auto compute_size = encoder_ref->ask_compute_size(from_block);
+      auto compute_size = block(encoder);
   
       #ifdef PRINT_KERNELS_DEBUG
       size_t buffer_size = compute_size.threads_in_grid*257*4*sizeof(unsigned int);
@@ -55,7 +50,7 @@ namespace dehancer::metal {
                 << std::endl;
       #endif
   
-      ComputeSize grid_2 =
+      ComputeSize grid =
               {
                       .threadsPerThreadgroup = {
                               .width = compute_size.block.width,
@@ -70,8 +65,8 @@ namespace dehancer::metal {
               };
   
       [computeEncoder
-              dispatchThreadgroups: {grid_2.threadGroups.width, grid_2.threadGroups.height, grid_2.threadGroups.depth}
-             threadsPerThreadgroup: {grid_2.threadsPerThreadgroup.width, grid_2.threadsPerThreadgroup.height, grid_2.threadsPerThreadgroup.depth}];
+              dispatchThreadgroups: {grid.threadGroups.width, grid.threadGroups.height, grid.threadGroups.depth}
+             threadsPerThreadgroup: {grid.threadsPerThreadgroup.width, grid.threadsPerThreadgroup.height, grid.threadsPerThreadgroup.depth}];
       [computeEncoder endEncoding];
   
       [commandBuffer commit];
@@ -80,61 +75,22 @@ namespace dehancer::metal {
         [commandBuffer waitUntilCompleted];
     }
     
+    void Function::execute (CommandEncoder::ComputeSize compute_size,
+                            const dehancer::Function::VoidEncodeHandler &block)
+    {
+      if (!block) return;
+      
+      execute_block([this,block,compute_size](dehancer::CommandEncoder& encoder){
+          block(encoder);
+          return compute_size;
+      });
+    }
     
     void Function::execute(const dehancer::Function::EncodeHandler& block){
-  
-      auto queue = static_cast<id<MTLCommandQueue>>( (__bridge id) command_->get_command_queue());
-      
-      id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];
-      id<MTLComputeCommandEncoder> computeEncoder = [commandBuffer computeCommandEncoder];
-      
-      auto c_pipeline = reinterpret_cast<id<MTLComputePipelineState> >((__bridge id)pipelineState_.pipeline);
-      [computeEncoder setComputePipelineState: c_pipeline];
-      
-      auto encoder = CommandEncoder(command_, pipelineState_.pipeline, computeEncoder);
-      dehancer::CommandEncoder* encoder_ref = &encoder;
-      
-      auto from_block = block(encoder);
-      
-      auto compute_size = encoder_ref->ask_compute_size(from_block);
-  
-      #ifdef PRINT_KERNELS_DEBUG
-      size_t buffer_size = compute_size.threads_in_grid*257*4*sizeof(unsigned int);
-      std::cout << " #Function " << kernel_name_
-                << " global: "
-                << compute_size.grid.width << "x" << compute_size.grid.height << "x" << compute_size.grid.depth
-                << "  local: "
-                << compute_size.block.width << "x" << compute_size.block.height << "x" << compute_size.block.depth
-                << "  num_groups: "
-                << compute_size.threads_in_grid
-                << "  buffer size: "
-                <<     buffer_size << "b" << ", " << buffer_size/1024/1204 << "Mb"
-                << std::endl;
-      #endif
-  
-      ComputeSize grid_2 =
-              {
-                      .threadsPerThreadgroup = {
-                              .width = compute_size.block.width,
-                              .height = compute_size.block.height,
-                              .depth = compute_size.block.depth
-                      },
-                      .threadGroups = {
-                              .width = compute_size.grid.width,
-                              .height = compute_size.grid.height,
-                              .depth = compute_size.grid.depth
-                      }
-              };
-      
-      [computeEncoder
-              dispatchThreadgroups: {grid_2.threadGroups.width, grid_2.threadGroups.height, grid_2.threadGroups.depth}
-             threadsPerThreadgroup: {grid_2.threadsPerThreadgroup.width, grid_2.threadsPerThreadgroup.height, grid_2.threadsPerThreadgroup.depth}];
-      [computeEncoder endEncoding];
-      
-      [commandBuffer commit];
-      
-      if (command_->get_wait_completed())
-        [commandBuffer waitUntilCompleted];
+      execute_block([this,block](dehancer::CommandEncoder& encoder){
+          auto from_block = block(encoder);
+          return encoder.ask_compute_size(from_block);
+      });
     }
     
     Function::Function(dehancer::metal::Command *command, const std::string& kernel_name,  const std::string &library_path):
@@ -201,7 +157,7 @@ namespace dehancer::metal {
       return encoder.ask_compute_size (width, height, depth);
     }
     
-   
+    
     Function::~Function() = default;
     
     inline static Function::PipelineState make_pipeline(
