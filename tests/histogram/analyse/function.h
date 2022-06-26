@@ -25,11 +25,6 @@ auto function_test =  [] (int dev_num,
       std::ifstream ifs(input_image, std::ios::binary);
       ifs >> input_text;
       
-      auto output_text = dehancer::TextureOutput(command_queue, input_text.get_texture(), {
-              .type = test::type,
-              .compression = test::compression
-      });
-      
       auto kernel = dehancer::HistogramImage(command_queue);
       kernel.set_options({
         .ignore_edges = false
@@ -42,7 +37,7 @@ auto function_test =  [] (int dev_num,
       using ch = dehancer::math::Channel::Index;
       float clipping = 0.0f;
   
-      for(int i = histogram.get_size().size-256; i < (int)histogram.get_size().size; i++){
+      for(int i = 0; i < (int)histogram.get_size().size; i++){
         std::cout << "["<<i<<"] = "
                   << "  " << (unsigned long)histogram.get_channel(ch::red)[i]
                   << ", " << (unsigned long)histogram.get_channel(ch::green)[i]
@@ -56,17 +51,6 @@ auto function_test =  [] (int dev_num,
   
       std::cout << "   clipped lower red: "<< (int)histogram.get_channel(ch::red).lower(clipping)  << std::endl;
       std::cout << "  clipped higher red: "<< (int)(histogram.get_channel(ch::red).higher(clipping) * (float )histogram.get_size().size) << std::endl;
-  
-      {
-        std::ofstream os(output_image, std::ostream::binary | std::ostream::trunc);
-        if (os.is_open()) {
-          os << output_text << std::flush;
-          std::cout << "Save to: " << output_image << std::endl;
-          
-        } else {
-          std::cerr << "File: " << output_image << " could not been opened..." << std::endl;
-        }
-      }
       
     }
     catch (const std::runtime_error &e) {

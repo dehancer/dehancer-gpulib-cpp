@@ -125,11 +125,11 @@ namespace dehancer {
                          impl_->options,
                          true,
                          get_library_path());
-      
+
       acc.process(grid_size,block_size,compute_size.threads_in_grid);
-      
+
       auto& buffer = acc.get_histogram();
-      
+
       impl_->histogram.update(buffer);
     }
     
@@ -158,7 +158,11 @@ namespace dehancer {
           CommandEncoder::ComputeSize size = {
                   .grid =
                   {
+                          #ifdef DEHANCER_GPU_OPENCL
                           .width = grid_size,
+                          #else
+                          .width = grid_size/block_size,
+                          #endif
                           .height = 1,
                           .depth = 1
                   },

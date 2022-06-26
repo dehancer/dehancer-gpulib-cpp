@@ -28,7 +28,7 @@ namespace dehancer {
                                 const Options& options = {
                                         .ignore_edges = false,
                                 },
-                                bool wait_until_completed = true,//WAIT_UNTIL_COMPLETED,
+                                bool wait_until_completed = true, //WAIT_UNTIL_COMPLETED,
                                 const std::string &library_path = "");
         
         /***
