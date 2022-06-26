@@ -26,7 +26,8 @@ __constant sampler_t nearest_sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS
 /**
  * Compute grid info
  */
-#define  get_num_blocks() ((int)get_num_groups(0))
+#define  get_num_blocks_1d() ((int)get_num_groups(0))
+#define  get_num_blocks_2d() ((int)get_num_groups(0))
 
 #define  get_block_id1d() ((int)get_group_id(0))
 #define  get_block_id2d() ((int2){get_group_id(0), get_group_id(1)})
@@ -44,6 +45,11 @@ __constant sampler_t nearest_sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS
 #define  get_thread_in_grid_id2d() ((int2){get_global_id(0), get_global_id(1)})
 #define  get_thread_in_grid_id3d() ((int3){get_global_id(0), get_global_id(1), get_global_id(2)})
 
+#define atomic_fetch_inc(v) atom_inc(&(v))
+#define atomic_store(v,c)   {(v) = (c);}
+#define atomic_load(v)      (v)
+
+#define block_barrier()  barrier(CLK_LOCAL_MEM_FENCE)
 
 /**
  * Kernel computation info

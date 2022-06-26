@@ -11,11 +11,11 @@
 
 #elif defined(__METAL_VERSION__)
 
-#include "dehancer/gpu/kernels/metal/histogram_image_kernel.h"
+#include "dehancer/gpu/kernels/histogram_image_kernel.h"
 
 #elif defined(CL_VERSION_1_2)
 
-#include "dehancer/gpu/kernels/opencl/histogram_image_kernel.h"
+#include "dehancer/gpu/kernels/histogram_image_kernel.h"
 
 #endif
 

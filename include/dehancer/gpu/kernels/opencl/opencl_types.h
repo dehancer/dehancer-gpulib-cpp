@@ -15,14 +15,15 @@
 #define DHCR_THREAD_ARG
 #define DHCR_CONST_ARG
 #define DHCR_CONST_ARG_REF(T) DHCR_CONST_ARG T
+#define DHCR_BLOCK_MEMORY  local
 
 #define DHCR_KERNEL_GID_1D
 #define DHCR_KERNEL_GID_2D
 #define DHCR_KERNEL_GID_3D
 
-#define DHCR_KERNEL_LOCAL_1D
-#define DHCR_KERNEL_LOCAL_2D
-#define DHCR_KERNEL_LOCAL_3D
+#define atomic_int  int
+#define atomic_bool uint
+#define atomic_uint uint
 
 #define bool_ref_t uint
 #define bool_t uint

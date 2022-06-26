@@ -14,24 +14,31 @@
 constexpr sampler linear_normalized_sampler(address::mirrored_repeat, filter::linear, coord::normalized);
 constexpr sampler nearest_sampler(address::clamp_to_edge, filter::nearest, coord::pixel);
 
-//#define  get_num_blocks() ((int)get_num_groups(0))
-//
-//#define  get_block_id1d() ((int)get_group_id(0))
-//#define  get_block_id2d() ((int2){get_group_id(0), get_group_id(1)})
-//#define  get_block_id3d() ((int3){get_group_id(0), get_group_id(1), get_group_id(2)})
-//
-//#define  get_block_size1d() ((int)get_local_size(0))
-//#define  get_block_size2d() ((int2){get_local_size(0), get_local_size(1)})
-//#define  get_block_size3d() ((int3){get_local_size(0), get_local_size(1), get_local_size(2)})
-//
-//#define  get_thread_in_block_id1d() ((int)get_local_id(0))
-//#define  get_thread_in_block_id2d() ((int2){get_local_id(0), get_local_id(1)})
-//#define  get_thread_in_block_id3d() ((int3){get_local_id(0), get_local_id(1), get_local_id(2)})
-//
+#define  get_num_blocks_1d() ((int)__dehancer_grid_size_1d__)
+#define  get_num_blocks_2d() ((int)__dehancer_grid_size_2d__.x)
+#define  get_num_blocks_3d() ((int)__dehancer_grid_size_3d__.x)
+
+#define  get_block_id1d() (int(__dehancer_block_id_1d__))
+#define  get_block_id2d() (int2(__dehancer_block_id_2d__.x,__dehancer_block_id_2d__.y))
+#define  get_block_id3d() (int3(__dehancer_block_id_3d__.x,__dehancer_block_id_3d__.y,__dehancer_block_id_3d__.z))
+
+#define  get_block_size1d() (int(__dehancer_block_size_1d__))
+#define  get_block_size2d() (int2(__dehancer_block_size_2d__.x,__dehancer_block_size_2d__.y))
+#define  get_block_size3d() (int3(__dehancer_block_size_3d__.x,__dehancer_block_size_3d__.y,__dehancer_block_size_3d__.z))
+
+#define  get_thread_in_block_id1d() (int (__dehancer_thread_in_block_id_1d__))
+#define  get_thread_in_block_id2d() (int2(__dehancer_thread_in_block_id_2d__.x,__dehancer_thread_in_block_id_2d__.y))
+#define  get_thread_in_block_id3d() (int3(__dehancer_thread_in_block_id_3d__.x,__dehancer_thread_in_block_id_3d__.y,__dehancer_thread_in_block_id_3d__.z))
 
 #define  get_thread_in_grid_id1d() (int(__dehancer_kernel_gid_1d__))
 #define  get_thread_in_grid_id2d() (int2(__dehancer_kernel_gid_2d__.x, __dehancer_kernel_gid_2d__.y))
 #define  get_thread_in_grid_id3d() (int3(__dehancer_kernel_gid_3d__.x, __dehancer_kernel_gid_3d__.y, __dehancer_kernel_gid_3d__.z))
+
+#define atomic_fetch_inc(v) atomic_fetch_add_explicit(&(v), 1, memory_order_relaxed)
+#define atomic_store(v,c)   atomic_store_explicit(&(v), (c), memory_order_relaxed)
+#define atomic_load(v)      atomic_load_explicit(&(v), memory_order_relaxed)
+
+#define block_barrier() threadgroup_barrier(mem_flags::mem_threadgroup)
 
 /**
  * Kernel computation
