@@ -42,7 +42,7 @@ auto function_test =  [] (int dev_num,
       using ch = dehancer::math::Channel::Index;
       float clipping = 0.0f;
   
-      for(int i = histogram.get_size().size-256; i < histogram.get_size().size; i++){
+      for(int i = histogram.get_size().size-256; i < (int)histogram.get_size().size; i++){
         std::cout << "["<<i<<"] = "
                   << "  " << (unsigned long)histogram.get_channel(ch::red)[i]
                   << ", " << (unsigned long)histogram.get_channel(ch::green)[i]
