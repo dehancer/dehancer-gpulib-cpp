@@ -17,12 +17,12 @@
 //}
 
 TEST(TEST, METAL_REAL_HISTOGRAM) {
-  
+
   std::cout << std::endl;
   std::cerr << std::endl;
-  
+
   run_images("metal", function_test, IMAGE_ONE_FILE);
-  
+
 }
 
 namespace dehancer::device {

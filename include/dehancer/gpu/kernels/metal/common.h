@@ -14,6 +14,28 @@
 constexpr sampler linear_normalized_sampler(address::mirrored_repeat, filter::linear, coord::normalized);
 constexpr sampler nearest_sampler(address::clamp_to_edge, filter::nearest, coord::pixel);
 
+//#define  get_num_blocks() ((int)get_num_groups(0))
+//
+//#define  get_block_id1d() ((int)get_group_id(0))
+//#define  get_block_id2d() ((int2){get_group_id(0), get_group_id(1)})
+//#define  get_block_id3d() ((int3){get_group_id(0), get_group_id(1), get_group_id(2)})
+//
+//#define  get_block_size1d() ((int)get_local_size(0))
+//#define  get_block_size2d() ((int2){get_local_size(0), get_local_size(1)})
+//#define  get_block_size3d() ((int3){get_local_size(0), get_local_size(1), get_local_size(2)})
+//
+//#define  get_thread_in_block_id1d() ((int)get_local_id(0))
+//#define  get_thread_in_block_id2d() ((int2){get_local_id(0), get_local_id(1)})
+//#define  get_thread_in_block_id3d() ((int3){get_local_id(0), get_local_id(1), get_local_id(2)})
+//
+
+#define  get_thread_in_grid_id1d() (int(__dehancer_kernel_gid_1d__))
+#define  get_thread_in_grid_id2d() (int2(__dehancer_kernel_gid_2d__.x, __dehancer_kernel_gid_2d__.y))
+#define  get_thread_in_grid_id3d() (int3(__dehancer_kernel_gid_3d__.x, __dehancer_kernel_gid_3d__.y, __dehancer_kernel_gid_3d__.z))
+
+/**
+ * Kernel computation
+ */
 #define  get_kernel_tid1d(tid) { \
   tid = int(__dehancer_kernel_gid_1d__);\
 }

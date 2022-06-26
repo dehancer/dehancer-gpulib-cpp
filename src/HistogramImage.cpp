@@ -104,11 +104,18 @@ namespace dehancer {
       auto workgroup_size = get_block_max_size();
       auto compute_size = Function::ask_compute_size(impl_->source);
       
-      execute(compute_size, [this](CommandEncoder& encoder) {
+      execute(compute_size, [this,compute_size](CommandEncoder& encoder) {
           encoder.set(get_source(),0);
           encoder.set(impl_->partial_histogram_buffer,1);
+          encoder.set((int)compute_size.threads_in_grid,2);
       });
   
+      std::vector<uint> partial_buffer;
+      impl_->partial_histogram_buffer->get_contents(partial_buffer);
+      for (int i = impl_->histogram.get_size().size-1; i < impl_->histogram.get_size().size; ++i) {
+        std::cout << "partial_buffer["<<i<<"]: " << partial_buffer[0*DEHANCER_HISTOGRAM_BUFF_SIZE+i] << std::endl;
+      }
+      
       auto grid_size = impl_->histogram.get_size().size * impl_->histogram.get_size().num_channels;
       auto block_size = (workgroup_size >  impl_->histogram.get_size().size) ?  impl_->histogram.get_size().size : workgroup_size;
   
@@ -148,6 +155,7 @@ namespace dehancer {
         }
     
         void HistogramAcc::process (size_t grid_size, size_t block_size, size_t threads_in_grid) {
+         
           CommandEncoder::ComputeSize size = {
                   .grid =
                   {

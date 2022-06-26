@@ -11,7 +11,7 @@
 
 #elif defined(__METAL_VERSION__)
 
-//#include "dehancer/gpu/kernels/metal/metal_types.h"
+#include "dehancer/gpu/kernels/metal/histogram_image_kernel.h"
 
 #elif defined(CL_VERSION_1_2)
 

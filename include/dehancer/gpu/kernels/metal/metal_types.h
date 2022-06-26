@@ -26,6 +26,9 @@
 #define DHCR_KERNEL_GID_2D ,uint2 __dehancer_kernel_gid_2d__ [[thread_position_in_grid]]
 #define DHCR_KERNEL_GID_3D ,uint3 __dehancer_kernel_gid_3d__ [[thread_position_in_grid]]
 
+#define DHCR_KERNEL_LOCAL_1D ,uint  __dehancer_compude_gid_1d__ [[thread_position_in_grid]]
+#define DHCR_KERNEL_LOCAL_2D
+
 #define bool_ref_t bool&
 #define bool_t bool
 #define uint_ref_t uint&

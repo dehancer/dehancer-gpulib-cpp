@@ -53,38 +53,38 @@ namespace dehancer::metal {
       auto pipeline = reinterpret_cast<id<MTLComputePipelineState> >((__bridge id)pipeline_);
       auto workgroup_size = static_cast<size_t>(pipeline.maxTotalThreadsPerThreadgroup);
       auto execution_width = static_cast<size_t>(pipeline.threadExecutionWidth);
-      
+
       ComputeSize compute_size {};
-  
+
       size_t  gsize[2];
-  
+
       if (workgroup_size <= 256)
       {
         gsize[0] = execution_width;
-        gsize[1] = workgroup_size / execution_width;
+        gsize[1] = workgroup_size / gsize[0];
       }
       else if (workgroup_size <= 1024)
       {
-        gsize[0] = workgroup_size / execution_width;
         gsize[1] = execution_width;
+        gsize[0] = workgroup_size / gsize[1];
       }
       else
       {
-        gsize[0] = workgroup_size / 32;
-        gsize[1] = 32;
+        gsize[1] = execution_width;
+        gsize[0] = workgroup_size / gsize[1];
       }
-  
+
       compute_size.block.width  = gsize[0];
       compute_size.block.height = gsize[1];
-  
+
       compute_size.grid.width = ((width + gsize[0] - 1) / gsize[0]);
       compute_size.grid.height = ((height + gsize[1] - 1) / gsize[1]);
-  
+
       compute_size.threads_in_grid = compute_size.grid.width * compute_size.grid.height;
-      
+  
       compute_size.grid.depth = depth;
       compute_size.block.depth = 1;
-  
+
       return compute_size;
     }
 }

@@ -12,7 +12,8 @@
 
 DHCR_KERNEL void kernel_histogram_image(
         texture2d_read_t       img       DHCR_BIND_TEXTURE(0),
-        DHCR_DEVICE_ARG uint*  partial_histogram DHCR_BIND_BUFFER(1)
+        DHCR_DEVICE_ARG uint*  partial_histogram DHCR_BIND_BUFFER(1),
+        DHCR_CONST_ARG  int_ref_t num_groups DHCR_BIND_BUFFER(2)
         DHCR_KERNEL_GID_2D
         DHCR_KERNEL_LOCAL_2D
 ) {
@@ -25,7 +26,7 @@ DHCR_KERNEL void kernel_histogram_image(
   int     x = tex.gid.x;
   int     y = tex.gid.y;
   
-  uint    num_blocks = (uint)get_num_blocks();
+  uint    num_blocks = (uint)get_num_blocks();//num_groups;//get_num_blocks();
   int2    block_size = get_block_size2d();
   int     local_size = block_size.x * block_size.y;
   
@@ -48,7 +49,7 @@ DHCR_KERNEL void kernel_histogram_image(
   
   if ((x < image_width) && (y < image_height))
   {
-    float4 clr = read_imagef(img, CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS_CLAMP_TO_EDGE | CLK_FILTER_NEAREST, (float2)(x, y));
+    float4 clr = read_image(img, make_int2(x,y));
   
     float3        c = make_float3(clr.x, clr.y, clr.z);
     float luminance = dot(c, kIMP_Y_YUV_factor);
@@ -57,16 +58,16 @@ DHCR_KERNEL void kernel_histogram_image(
      * #pragma unroll DEHANCER_HISTOGRAM_CHANNELS
      * for (;i<DEHANCER_HISTOGRAM_CHANNELS;)
      */
-    ushort   nindx = convert_ushort_sat(min(clr.x, 1.0f) * DEHANCER_HISTOGRAM_MULT);
+    uint   nindx = (uint)(min(clr.x, 1.0f) * DEHANCER_HISTOGRAM_MULT);
     atom_inc(&tmp_histogram[nindx]);
   
-    nindx = convert_ushort_sat(min(clr.y, 1.0f) * DEHANCER_HISTOGRAM_MULT);
+    nindx = (uint)(min(clr.y, 1.0f) * DEHANCER_HISTOGRAM_MULT);
     atom_inc(&tmp_histogram[1*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
   
-    nindx = convert_ushort_sat(min(clr.z, 1.0f) * DEHANCER_HISTOGRAM_MULT);
+    nindx = (uint)(min(clr.z, 1.0f) * DEHANCER_HISTOGRAM_MULT);
     atom_inc(&tmp_histogram[2*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
     
-    nindx = convert_ushort_sat(min(luminance, 1.0f) * DEHANCER_HISTOGRAM_MULT);
+    nindx = (uint)(min(luminance, 1.0f) * DEHANCER_HISTOGRAM_MULT);
     atom_inc(&tmp_histogram[3*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
   
   }
@@ -126,8 +127,11 @@ DHCR_KERNEL void kernel_sum_partial_histogram_image(
     block_indx += DEHANCER_HISTOGRAM_BUFF_LENGTH;
   }
   
+  barrier(CLK_LOCAL_MEM_FENCE);
+  
   if (first_workitem_not_in_first_group)
     histogram[tid_first] = tmp_histogram[tid_first];
+  
   histogram[tid] = tmp_histogram[tid];
 }
 

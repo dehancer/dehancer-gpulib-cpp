@@ -43,6 +43,20 @@ namespace dehancer::opencl {
   
       size_t global_work_size[3] = {compute_size.grid.width, compute_size.grid.height, compute_size.grid.depth };
       size_t local_work_size[3]  = {compute_size.block.width,compute_size.block.height,compute_size.block.depth};
+  
+      #ifdef PRINT_KERNELS_DEBUG
+      size_t buffer_size = compute_size.threads_in_grid*257*4*sizeof(unsigned int);
+      std::cout << "Function w" << kernel_name_
+                << " global: "
+                << compute_size.grid.width << "x" << compute_size.grid.height << "x" << compute_size.grid.depth
+                << "  local: "
+                << compute_size.block.width << "x" << compute_size.block.height << "x" << compute_size.block.depth
+                << "  num_groups: "
+                << compute_size.threads_in_grid
+                << "  buffer size: "
+                <<     buffer_size << "b" << ", " << buffer_size/1024/1204 << "Mb"
+                << std::endl;
+      #endif
       
       last_error = clEnqueueNDRangeKernel(command_->get_command_queue(),
                                           kernel_,
