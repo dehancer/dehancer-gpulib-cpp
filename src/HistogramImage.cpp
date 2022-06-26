@@ -82,7 +82,12 @@ namespace dehancer {
         size_t length = (impl_->histogram.get_size().size+1) * impl_->histogram.get_size().num_channels * sizeof (uint);
         auto command_size = ask_compute_size(impl_->source);
         length *= command_size.threads_in_grid;
-        impl_->partial_histogram_buffer = MemoryHolder::Make(get_command_queue(),length);
+        MemoryDesc desc = {
+                .length = length,
+                .mem_flags = static_cast<MemoryDesc::MemFlags>(MemoryDesc::MemFlags::less_memory |
+                                                               MemoryDesc::MemFlags::read_write)
+        };
+        impl_->partial_histogram_buffer = desc.make(get_command_queue());
       }
       else {
         impl_->partial_histogram_buffer = nullptr;
@@ -109,12 +114,6 @@ namespace dehancer {
           encoder.set(impl_->partial_histogram_buffer,1);
           encoder.set((int)compute_size.threads_in_grid,2);
       });
-  
-      std::vector<uint> partial_buffer;
-      impl_->partial_histogram_buffer->get_contents(partial_buffer);
-      for (int i = impl_->histogram.get_size().size-1; i < impl_->histogram.get_size().size; ++i) {
-        std::cout << "partial_buffer["<<i<<"]: " << partial_buffer[0*DEHANCER_HISTOGRAM_BUFF_SIZE+i] << std::endl;
-      }
       
       auto grid_size = impl_->histogram.get_size().size * impl_->histogram.get_size().num_channels;
       auto block_size = (workgroup_size >  impl_->histogram.get_size().size) ?  impl_->histogram.get_size().size : workgroup_size;

@@ -26,7 +26,10 @@ namespace dehancer::opencl {
         flags |= CL_MEM_ALLOC_HOST_PTR;
 
       if (buffer) flags |= CL_MEM_COPY_HOST_PTR;
-
+      else if (mflags&MemoryDesc::MemFlags::less_memory){
+        flags |= CL_MEM_HOST_NO_ACCESS;
+      }
+      
       void *data = reinterpret_cast<void*>((void*)buffer);
 
       memobj_ = clCreateBuffer(
