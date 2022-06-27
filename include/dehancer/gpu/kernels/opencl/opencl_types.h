@@ -21,9 +21,9 @@
 #define DHCR_KERNEL_GID_2D
 #define DHCR_KERNEL_GID_3D
 
-#define atomic_int  int
-#define atomic_bool uint
-#define atomic_uint uint
+#define atomic_int_t  int
+#define atomic_bool_t uint
+#define atomic_uint_t uint
 
 #define bool_ref_t uint
 #define bool_t uint
