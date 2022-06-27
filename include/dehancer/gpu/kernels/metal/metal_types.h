@@ -45,9 +45,9 @@
                             ,uint3 __dehancer_block_id_3d__     [[threadgroup_position_in_grid]] \
                             ,uint3 __dehancer_thread_in_block_id_3d__ [[thread_position_in_threadgroup]]
 
-using atomic_int_t = atomic_int;
-using atomic_bool_t = atomic_uint;
-using atomic_uint_t = atomic_uint;
+using atomic_int_t = metal::atomic_int;
+using atomic_bool_t = metal::atomic_uint;
+using atomic_uint_t = metal::atomic_uint;
 
 #define bool_ref_t bool&
 #define bool_t bool

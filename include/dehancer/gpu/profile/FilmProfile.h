@@ -24,7 +24,7 @@ namespace dehancer {
         
         explicit FilmProfile(
                 const void *command_queue,
-                const StreamSpace &space = StreamSpace(), //stream_space_identity(),
+                const StreamSpace &space = stream_space_identity(),
                 StreamSpaceDirection direction = StreamSpaceDirection::DHCR_None,
                 bool wait_until_completed = WAIT_UNTIL_COMPLETED);
     

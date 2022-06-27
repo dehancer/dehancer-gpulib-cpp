@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "dehancer/gpu/Lib.h"
+#include  "dehancer/gpu/Lib.h"
 #include "dehancer/Utils.h"
 #include "tests/dotenv/dotenv_utils.h"
 #include "tests/test_config.h"
@@ -81,6 +81,7 @@ void load_from_cache(const std::string& platform) {
             .type = dehancer::DHCR_ColorSpace,
             .expandable = false,
             .transform_func = transform_function_2,
+            //.transform_lut = dehancer::stream_space_transform_lut_identity(),
             .id = "apple_gamma",
             .name="Apple Gamma 2.0",
     };
@@ -111,7 +112,7 @@ void load_from_cache(const std::string& platform) {
         os << output;
       }
   
-      std::cout << "test init(bool: transform_func " << space.transform_func.is_identity  << std::endl;
+      std::cout << "test init(bool: transform_func " << space.transform_func.is_identity << ")" << std::endl;
   
       auto transformer = dehancer::StreamTransform(command_queue,
                                                    nullptr,

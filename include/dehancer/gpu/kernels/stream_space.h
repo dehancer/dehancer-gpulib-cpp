@@ -100,7 +100,9 @@ DHCR_StreamSpace_TransformLut stream_space_transform_lut_identity() {
   static float l[4] = {0.0f,0.0f,0.0f,0.0f};
 #endif
   DHCR_LutParameters lut = {
-          1, 4, (bool_t)false
+          (bool_t)false,
+          1,
+          4
 #if !DEHANCER_GPU_CODE
           ,l
 #endif
@@ -170,11 +172,11 @@ typedef struct _DHCR_StreamSpace_ {
      *
      * deprecated
      *
-     *
+     */
     inline _DHCR_StreamSpace_& operator=(const _DHCR_StreamSpace_& c) {
       
-      if (this == &c)
-        return *this;
+      //if (this == &c)
+        //return *this;
 
       type = c.type;
       expandable = c.expandable;
@@ -185,7 +187,7 @@ typedef struct _DHCR_StreamSpace_ {
 
       return *this;
     };
-     */
+    
 
     bool operator==(const _DHCR_StreamSpace_ &c) const { return type == c.type && id == c.id; }
     
@@ -194,7 +196,7 @@ typedef struct _DHCR_StreamSpace_ {
 } DHCR_StreamSpace;
 
 
-#if DEHANCER_GPU_CODE
+//#if DEHANCER_GPU_CODE
 static inline DHCR_DEVICE_FUNC
 DHCR_StreamSpace stream_space_identity() {
   
@@ -211,12 +213,23 @@ DHCR_StreamSpace stream_space_identity() {
   
   return identity;
 }
-#else
-static inline
-const DHCR_StreamSpace stream_space_identity() {
-  return DHCR_StreamSpace();
-}
-#endif
+//#else
+//static inline
+//const DHCR_StreamSpace stream_space_identity() {
+//  return DHCR_StreamSpace();
+//
+//  DHCR_StreamSpace identity = {
+//          DHCR_ColorSpace,
+//          false,
+//          (bool_t)false,
+//          func,
+//          lut
+//  };
+//
+//  return identity;
+//
+//}
+//#endif
 
 static inline DHCR_DEVICE_FUNC
 float4

@@ -20,11 +20,11 @@ namespace dehancer {
                                       bool wait_until_completed,
                                       const std::string &library_path):
             Kernel(command_queue, "kernel_stream_transform_ext", source, destination, wait_until_completed, library_path),
-            space_(space),
+            space_(),
             direction_(direction),
             impact_(impact)
     {
-      //space_ = space; // fix opencl ???
+      space_ = space;
     }
     
     void StreamTransform::setup (CommandEncoder &encoder) {
@@ -58,7 +58,7 @@ namespace dehancer {
     }
     
     void StreamTransform::set_space (const StreamSpace& space) {
-      space_ = space; //std::move(space);
+      space_ = space;
     }
     
     void StreamTransform::set_direction (StreamSpaceDirection direction) {
