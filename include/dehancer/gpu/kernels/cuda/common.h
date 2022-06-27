@@ -42,9 +42,9 @@
 #define  get_thread_in_grid_id2d() make_int2(blockIdx.x * blockDim.x + threadIdx.x, blockIdx.y * blockDim.y + threadIdx.y)
 #define  get_thread_in_grid_id3d() make_int3(blockIdx.x * blockDim.x + threadIdx.x, blockIdx.y * blockDim.y + threadIdx.y, blockIdx.z * blockDim.z + threadIdx.z)
 
-#define atomic_fetch_inc(v) atomicAdd(&(v),1)
-#define atomic_store(v,c)   {(v) = (c);}
-#define atomic_load(v)      (v)
+#define dhr_atomic_fetch_inc(v) atomicAdd(&(v),1)
+#define dhr_atomic_store(v,c)   {(v) = (c);}
+#define dhr_atomic_load(v)      (v)
 
 #define block_barrier() __syncthreads()
 

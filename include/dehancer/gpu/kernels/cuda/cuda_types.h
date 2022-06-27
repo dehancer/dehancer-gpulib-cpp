@@ -32,9 +32,13 @@ typedef  unsigned int uint;
 
 #define DHCR_BLOCK_MEMORY __shared__
 
-#define atomic_int  int
-#define atomic_bool uint
-#define atomic_uint uint
+#ifndef __ATOMIC__
+
+//#define atomic_int  int
+//#define atomic_bool uint
+//#define atomic_uint uint
+
+#endif
 
 #define bool_ref_t bool
 #define bool_t bool

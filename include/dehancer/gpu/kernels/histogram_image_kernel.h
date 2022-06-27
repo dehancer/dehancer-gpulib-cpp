@@ -30,7 +30,7 @@ DHCR_KERNEL void kernel_histogram_image(
   int2    block_id = get_block_id2d();
   int   group_indx = (int)mad24( (uint)block_id.y, (uint)num_blocks, (uint)block_id.x) * DEHANCER_HISTOGRAM_BUFF_LENGTH;
   
-  DHCR_BLOCK_MEMORY atomic_uint tmp_histogram[DEHANCER_HISTOGRAM_BUFF_LENGTH];
+  DHCR_BLOCK_MEMORY uint tmp_histogram[DEHANCER_HISTOGRAM_BUFF_LENGTH];
   
   int2    thread_in_block_id = get_thread_in_block_id2d();
   int     tid = mad24((uint)thread_in_block_id.y, (uint)block_size.x, (uint)thread_in_block_id.x);
@@ -39,7 +39,7 @@ DHCR_KERNEL void kernel_histogram_image(
   #pragma unroll
   for (int j = DEHANCER_HISTOGRAM_BUFF_LENGTH, indx = 0; j >0 ; j -= local_size) {
     if (tid < j){
-      atomic_store(tmp_histogram[indx+tid],0);
+      dhr_atomic_store(tmp_histogram[indx+tid],0);
     }
     indx += local_size;
   }
@@ -55,19 +55,19 @@ DHCR_KERNEL void kernel_histogram_image(
      * for (;i<DEHANCER_HISTOGRAM_CHANNELS;)
      */
     uint   nindx = (uint)(min(clr.x, 1.0f) * DEHANCER_HISTOGRAM_MULT);
-    atomic_fetch_inc(tmp_histogram[0*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
+    dhr_atomic_fetch_inc(tmp_histogram[0*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
     
     nindx = (uint)(min(clr.y, 1.0f) * DEHANCER_HISTOGRAM_MULT);
-    atomic_fetch_inc(tmp_histogram[1*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
+    dhr_atomic_fetch_inc(tmp_histogram[1*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
     
     nindx = (uint)(min(clr.z, 1.0f) * DEHANCER_HISTOGRAM_MULT);
-    atomic_fetch_inc(tmp_histogram[2*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
+    dhr_atomic_fetch_inc(tmp_histogram[2*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
   
     float3        c = make_float3(clr.x, clr.y, clr.z);
     float luminance = dot(c, kIMP_Y_YUV_factor);
   
     nindx = (uint)(min(luminance, 1.0f) * DEHANCER_HISTOGRAM_MULT);
-    atomic_fetch_inc(tmp_histogram[3*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
+    dhr_atomic_fetch_inc(tmp_histogram[3*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
   }
   
   block_barrier();
@@ -76,7 +76,7 @@ DHCR_KERNEL void kernel_histogram_image(
   if (local_size >= (DEHANCER_HISTOGRAM_BUFF_LENGTH))
   {
     if (tid < (DEHANCER_HISTOGRAM_BUFF_LENGTH))
-      partial_histogram[group_indx + tid] = atomic_load(tmp_histogram[tid]);
+      partial_histogram[group_indx + tid] = dhr_atomic_load(tmp_histogram[tid]);
   }
   else
   {
@@ -84,7 +84,7 @@ DHCR_KERNEL void kernel_histogram_image(
     for (int j = DEHANCER_HISTOGRAM_BUFF_LENGTH, indx = 0; j >0 ; j -= local_size) {
       
       if (tid < j)
-        partial_histogram[group_indx + indx + tid] =  atomic_load(tmp_histogram[indx + tid]);
+        partial_histogram[group_indx + indx + tid] =  dhr_atomic_load(tmp_histogram[indx + tid]);
       indx += local_size;
     }
   }
