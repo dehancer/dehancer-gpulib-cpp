@@ -30,7 +30,7 @@ DHCR_KERNEL void kernel_histogram_image(
   int2    block_id = get_block_id2d();
   int   group_indx = (int)mad24( (uint)block_id.y, (uint)num_blocks, (uint)block_id.x) * DEHANCER_HISTOGRAM_BUFF_LENGTH;
   
-  DHCR_BLOCK_MEMORY uint tmp_histogram[DEHANCER_HISTOGRAM_BUFF_LENGTH];
+  DHCR_BLOCK_MEMORY atomic_uint tmp_histogram[DEHANCER_HISTOGRAM_BUFF_LENGTH];
   
   int2    thread_in_block_id = get_thread_in_block_id2d();
   int     tid = mad24((uint)thread_in_block_id.y, (uint)block_size.x, (uint)thread_in_block_id.x);
