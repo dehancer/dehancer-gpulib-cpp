@@ -34,9 +34,9 @@ constexpr sampler nearest_sampler(address::clamp_to_edge, filter::nearest, coord
 #define  get_thread_in_grid_id2d() (int2(__dehancer_kernel_gid_2d__.x, __dehancer_kernel_gid_2d__.y))
 #define  get_thread_in_grid_id3d() (int3(__dehancer_kernel_gid_3d__.x, __dehancer_kernel_gid_3d__.y, __dehancer_kernel_gid_3d__.z))
 
-#define atomic_fetch_inc(v) atomic_fetch_add_explicit(&(v), 1, memory_order_relaxed)
-#define atomic_store(v,c)   atomic_store_explicit(&(v), (c), memory_order_relaxed)
-#define atomic_load(v)      atomic_load_explicit(&(v), memory_order_relaxed)
+#define dhr_atomic_fetch_inc(v) atomic_fetch_add_explicit(&(v), 1, memory_order_relaxed)
+#define dhr_atomic_store(v,c)   atomic_store_explicit(&(v), (c), memory_order_relaxed)
+#define dhr_atomic_load(v)      atomic_load_explicit(&(v), memory_order_relaxed)
 
 #define block_barrier() threadgroup_barrier(mem_flags::mem_threadgroup)
 

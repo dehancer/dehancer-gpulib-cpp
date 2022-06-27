@@ -45,9 +45,9 @@ __constant sampler_t nearest_sampler = CLK_NORMALIZED_COORDS_FALSE | CLK_ADDRESS
 #define  get_thread_in_grid_id2d() ((int2){get_global_id(0), get_global_id(1)})
 #define  get_thread_in_grid_id3d() ((int3){get_global_id(0), get_global_id(1), get_global_id(2)})
 
-#define atomic_fetch_inc(v) atom_inc(&(v))
-#define atomic_store(v,c)   {(v) = (c);}
-#define atomic_load(v)      (v)
+#define dhr_atomic_fetch_inc(v) atom_inc(&(v))
+#define dhr_atomic_store(v,c)   {(v) = (c);}
+#define dhr_atomic_load(v)      (v)
 
 #define block_barrier()  barrier(CLK_LOCAL_MEM_FENCE)
 
