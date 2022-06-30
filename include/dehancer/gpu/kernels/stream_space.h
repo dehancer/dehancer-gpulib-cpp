@@ -121,7 +121,7 @@ typedef struct _DHCR_StreamSpace_ {
      */
     DHCR_StreamSpace_Type           type
     #if __cplusplus && !DEHANCER_GPU_CODE
-    = DHCR_Pass;
+    = DHCR_ColorSpace;
     #else
     ;
     #endif
@@ -175,8 +175,8 @@ typedef struct _DHCR_StreamSpace_ {
      */
     inline _DHCR_StreamSpace_& operator=(const _DHCR_StreamSpace_& c) {
       
-      //if (this == &c)
-        //return *this;
+      if (this == &c)
+        return *this;
 
       type = c.type;
       expandable = c.expandable;

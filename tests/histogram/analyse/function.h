@@ -35,7 +35,8 @@ auto function_test =  [] (int dev_num,
       const auto& histogram = kernel.get_histogram();
   
       using ch = dehancer::math::Channel::Index;
-      float clipping = 0.0f;
+      float clipping_low = 0.1f/100.0f;
+      float clipping_high = 0.1f/100.0f;
   
       for(int i = 0; i < (int)histogram.get_size().size; i++){
         std::cout << "["<<i<<"] = "
@@ -46,11 +47,11 @@ auto function_test =  [] (int dev_num,
                   << std::endl;
       }
   
-      std::cout << "  clipped lower luma: "<< (int)histogram.get_channel(ch::luma).lower(clipping)  << std::endl;
-      std::cout << " clipped higher luma: "<< (int)(histogram.get_channel(ch::luma).higher(clipping) * (float )histogram.get_size().size) << std::endl;
+      std::cout << "  clipped lower luma: "<< (int)histogram.get_channel(ch::luma).lower(clipping_low)  << std::endl;
+      std::cout << " clipped higher luma: "<< (int)(histogram.get_channel(ch::luma).higher(clipping_high) * (float )histogram.get_size().size) << std::endl;
   
-      std::cout << "   clipped lower red: "<< (int)histogram.get_channel(ch::red).lower(clipping)  << std::endl;
-      std::cout << "  clipped higher red: "<< (int)(histogram.get_channel(ch::red).higher(clipping) * (float )histogram.get_size().size) << std::endl;
+      std::cout << "   clipped lower red: "<< (int)histogram.get_channel(ch::red).lower(clipping_low)  << std::endl;
+      std::cout << "  clipped higher red: "<< (int)(histogram.get_channel(ch::red).higher(clipping_high) * (float )histogram.get_size().size) << std::endl;
       
     }
     catch (const std::runtime_error &e) {

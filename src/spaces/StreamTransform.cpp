@@ -20,7 +20,7 @@ namespace dehancer {
                                       bool wait_until_completed,
                                       const std::string &library_path):
             Kernel(command_queue, "kernel_stream_transform_ext", source, destination, wait_until_completed, library_path),
-            space_(),
+            space_({}),
             direction_(direction),
             impact_(impact)
     {
