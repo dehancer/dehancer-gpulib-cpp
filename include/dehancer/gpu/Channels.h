@@ -170,9 +170,6 @@ namespace dehancer {
         
         Channels get_ptr() { return shared_from_this(); }
     
-        //virtual void set_active_mask(const Ch::ActiveChannelsMask& amask) = 0 ;
-        //[[nodiscard]] virtual const ChannelsHolder::ActiveChannelsMask& get_active_mask() const = 0;
-        
         virtual ~ChannelsHolder() = default;
     
     protected:
@@ -208,8 +205,6 @@ namespace dehancer {
         void set_source(const Texture& source) override;
         void set_destination(const Texture& destination) override;
         
-        //void set_active_mask(const ChannelsHolder::ActiveChannelsMask& amask);
-        
         virtual void set_transform(const ChannelsDesc::Transform& transform);
         virtual const ChannelsDesc::Transform& get_transform() const;
     
@@ -241,9 +236,7 @@ namespace dehancer {
         virtual void set_channels(const Channels& channels);
         virtual const ChannelsDesc::Transform& get_transform() const;
         [[nodiscard]] const Channels& get_channels() const;
-    
-        //void set_active_mask(const ChannelsHolder::ActiveChannelsMask& amask);
-
+        
     private:
         std::shared_ptr<impl::ChannelsOutputImpl> impl_;
     };

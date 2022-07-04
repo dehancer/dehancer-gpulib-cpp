@@ -56,6 +56,8 @@ void load_from_xmp(const std::string& platform) {
     for (auto device: dehancer::DeviceCache::Instance().get_device_list()) {
       auto command_queue = dehancer::DeviceCache::Instance().get_command_queue(dehancer::device::get_id(device));
       std::string dev_name =  std::regex_replace(dehancer::device::get_name(device), std::regex("[:., ]+"), "-");
+    
+//      auto film = dehancer::FilmProfile(command_queue, dehancer::StreamSpace());
       auto film = dehancer::FilmProfile(command_queue);
   
       auto error = film.load(*xmp);
@@ -77,7 +79,7 @@ void load_from_xmp(const std::string& platform) {
         output_file.append(dev_name);
         output_file.append(ext);
     
-        auto lut = film.get(lut_type);
+        const auto& lut = film.get(lut_type);
   
         EXPECT_TRUE(lut);
         

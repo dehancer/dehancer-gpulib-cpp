@@ -14,7 +14,7 @@ namespace dehancer {
     StreamTransform::StreamTransform (const void *command_queue,
                                       const Texture &source,
                                       const Texture &destination,
-                                      StreamSpace space,
+                                      const StreamSpace& space,
                                       StreamSpaceDirection direction,
                                       float impact,
                                       bool wait_until_completed,
@@ -24,7 +24,7 @@ namespace dehancer {
             direction_(direction),
             impact_(impact)
     {
-      space_ = space; // fix opencl ???
+      space_ = space;
     }
     
     void StreamTransform::setup (CommandEncoder &encoder) {
@@ -58,7 +58,7 @@ namespace dehancer {
     }
     
     void StreamTransform::set_space (const StreamSpace& space) {
-      space_ = space; //std::move(space);
+      space_ = space;
     }
     
     void StreamTransform::set_direction (StreamSpaceDirection direction) {

@@ -374,6 +374,7 @@ if (DEHANCER_GPU_OPENCL)
         set(DEHANCER_GPU_OPENCL OFF)
         message("OpenCL is not found on this platform")
     endif ()
+    add_definitions(-DDEHANCER_GPU_OPENCL=1)
 endif ()
 
 
@@ -564,7 +565,8 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.9.1
+            #GIT_TAG 0.9.1
+            GIT_TAG develop
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
@@ -608,7 +610,8 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-maths-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.6.5
+            #GIT_TAG 0.6.5
+            GIT_TAG develop
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}

@@ -15,15 +15,15 @@ TEST(TEST, METAL_GAUSSIAN_FUNCTUON) {
   run_images("metal", gaussian_test);
 
 }
-//
-//TEST(TEST, METAL_BOX_BLUR_FUNCTUON) {
-//
-//  std::cout << std::endl;
-//  std::cerr << std::endl;
-//
-//  run_images("metal", box_test);
-//
-//}
+
+TEST(TEST, METAL_BOX_BLUR_FUNCTUON) {
+
+  std::cout << std::endl;
+  std::cerr << std::endl;
+
+  run_images("metal", box_test);
+
+}
 
 namespace dehancer::device {
 

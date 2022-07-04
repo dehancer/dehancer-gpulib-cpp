@@ -29,8 +29,7 @@ namespace dehancer {
 
     Command::Command(const void *command_queue, bool wait_until_completed):
     impl_(std::make_shared<impl::Command>(command_queue,wait_until_completed))
-    {
-    }
+    {}
 
     Texture Command::make_texture(size_t width, size_t height, size_t depth) {
       return impl_->make_texture(width,height,depth);

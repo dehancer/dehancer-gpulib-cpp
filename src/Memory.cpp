@@ -49,7 +49,7 @@ namespace dehancer {
     
     Memory MemoryDesc::make(const void *command_queue, const void* from_memory) const {
       if (type == MemType::host)
-        return dehancer::MemoryHolder::Make(command_queue, from_memory, length);
+        return dehancer::MemoryHolder::Make(command_queue, from_memory, length, mem_flags);
       return dehancer::MemoryHolder::Make(command_queue, from_memory);
     }
 }

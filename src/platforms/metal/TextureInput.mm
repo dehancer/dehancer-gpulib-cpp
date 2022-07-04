@@ -17,6 +17,7 @@ typedef UIImage DImage;
 
 #if defined(DEHANCER_USE_NATIVE_APPLE_API)
 #define SUPPORT_NSIMAGE 1
+#import <Metal/Metal.h>
 #import <CoreImage/CoreImage.h>
 #import <AppKit/AppKit.h>
 typedef NSImage DImage;
@@ -32,8 +33,8 @@ namespace dehancer::impl {
   
       try {
   
-        id<MTLCommandQueue> command_queue = reinterpret_cast<id<MTLCommandQueue> >((__bridge id)get_command_queue());
-        id<MTLDevice>  device = [command_queue device];
+        auto command_queue = reinterpret_cast<id<MTLCommandQueue> >((__bridge id)get_command_queue());
+        id<MTLDevice>  device = command_queue.device;
         
         NSDictionary* options = @{
                 kCIImageColorSpace: (__bridge id)color_space,
@@ -71,7 +72,7 @@ namespace dehancer::impl {
         if (!texture_)
           return Error(CommonError::EXCEPTION, "Texture not created");
         
-        id<MTLTexture> texture = reinterpret_cast<id<MTLTexture> >((__bridge id)texture_->get_memory());
+        auto texture = reinterpret_cast<id<MTLTexture> >((__bridge id)texture_->get_memory());
         
         id <MTLCommandBuffer> commandBuffer = [command_queue commandBuffer];
   

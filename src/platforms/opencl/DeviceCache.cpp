@@ -139,7 +139,7 @@ namespace dehancer::opencl {
         throw std::runtime_error("Unable to create new OpenCL context for device: " + device->name);
       }
 
-      for (int i = 0; i < kMaxCommandQueues; ++i) {
+      for (int i = 0; i < (int)kMaxCommandQueues; ++i) {
 
 #ifdef __APPLE__
         auto q = clCreateCommandQueue(context, device_id, 0, &ret);
