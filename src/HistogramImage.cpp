@@ -193,8 +193,22 @@ namespace dehancer {
               histogram_[c][i] = static_cast<float>(buffer[c*DEHANCER_HISTOGRAM_BUFF_SIZE+i]);
             }
             if (options_.ignore_edges) {
-              histogram_[c][0] = 0;
-              histogram_[c][size_-1] = 0;
+              int width = floor(options_.edges.left_trim);
+              float left_fract = (1.0f - (options_.edges.left_trim - static_cast<float>(width)));
+              for (int i = 0; i < width && i< size_ ; ++i) {
+                histogram_[c][i] = 0;
+              }
+              if (width<size_){
+                histogram_[c][width] *= left_fract;
+              }
+              width = floor(options_.edges.right_trim);
+              float right_fract = (1.0f-(options_.edges.right_trim - static_cast<float>(width)));
+              int cut = (int)size_-width-1;
+              for (int i = (int)size_-1; i >= 0 && i > cut ; --i) {
+                histogram_[c][i] = 0;
+              }
+              if (cut>0)
+                histogram_[c][cut] *= right_fract;
             }
           }
         }

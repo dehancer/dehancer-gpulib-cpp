@@ -27,7 +27,11 @@ auto function_test =  [] (int dev_num,
       
       auto kernel = dehancer::HistogramImage(command_queue);
       kernel.set_options({
-        .ignore_edges = false
+        .ignore_edges = true,
+        .edges = {
+                .left_trim = 1.99f,
+                .right_trim = 1.99f
+        }
       });
       kernel.set_source(input_text.get_texture());
       kernel.process();

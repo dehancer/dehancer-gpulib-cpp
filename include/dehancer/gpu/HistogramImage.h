@@ -19,14 +19,24 @@ namespace dehancer {
     public:
         using Function::Function;
         
+        struct Edges {
+            float left_trim = 1.0f;
+            float right_trim = 1.0f;
+        };
+        
         struct Options {
-            bool ignore_edges;
+            bool  ignore_edges;
+            Edges edges;
         };
         
         explicit HistogramImage(const void *command_queue,
                                 const Texture &source = nullptr,
                                 const Options& options = {
                                         .ignore_edges = false,
+                                        .edges = Edges {
+                                          .left_trim = 1.0f,
+                                          .right_trim = 1.0f
+                                        }
                                 },
                                 bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                                 const std::string &library_path = "");
