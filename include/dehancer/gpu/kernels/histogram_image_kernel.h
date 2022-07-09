@@ -64,7 +64,7 @@ DHCR_KERNEL void kernel_histogram_image(
     dhr_atomic_fetch_inc(tmp_histogram[2*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
   
     float3        c = make_float3(clr.x, clr.y, clr.z);
-    float luminance = dot(c, kIMP_Y_YUV_factor);
+    float luminance = dot(c, kIMP_Y_YCbCr_factor);
   
     nindx = (uint)(min(luminance, 1.0f) * DEHANCER_HISTOGRAM_MULT);
     dhr_atomic_fetch_inc(tmp_histogram[3*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
