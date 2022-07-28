@@ -44,9 +44,9 @@ namespace dehancer {
                     bool wait_until_completed,
                     const std::string &library_path
     ):
-            impl_(std::make_shared<impl::FilterImlp>()),
             name(),
-            cache_enabled(false)
+            cache_enabled(false),
+            impl_(std::make_shared<impl::FilterImlp>())
     {
       impl_->command_queue = command_queue;
       impl_->source = source;
@@ -131,7 +131,7 @@ namespace dehancer {
         
         auto current_destination = impl_->ping_pong[next_index%2]; next_index++;
         
-        if (index==impl_->list.size()-1 && impl_->source->get_desc()==impl_->destination->get_desc()) {
+        if (index==(int)impl_->list.size()-1 && impl_->source->get_desc()==impl_->destination->get_desc()) {
           current_destination = impl_->destination;
           make_last_copy = false;
         } else {
@@ -200,19 +200,19 @@ namespace dehancer {
     }
     
     Filter::Item Filter::get_item_at (int index) const {
-      if (index>=0 && index<impl_->list.size() )
+      if (index>=0 && index<(int)impl_->list.size() )
         return impl_->list[index]->kernel;
       return Item(Error(CommonError::OUT_OF_RANGE));
     }
     
     bool Filter::is_enable (int index) const {
-      if (index>=0 && index<impl_->list.size() )
+      if (index>=0 && index<(int)impl_->list.size() )
         return impl_->list[index]->enabled;
       return false;
     }
     
     bool Filter::set_enable (int index, bool enabled) {
-      if (index>=0 && index<impl_->list.size() ) {
+      if (index>=0 && index<(int)impl_->list.size() ) {
         impl_->list[index]->enabled = enabled;
         return true;
       }
@@ -248,7 +248,7 @@ namespace dehancer {
     }
     
     int Filter::get_index_of (const Filter::FilterItem &item) const {
-      for (int i = 0; i < impl_->list.size(); ++i) {
+      for (int i = 0; i < (int)impl_->list.size(); ++i) {
         if(auto f = impl_->list.at(i)->filter) {
           if (f.get() == item.get())
             return i;
@@ -258,7 +258,7 @@ namespace dehancer {
     }
     
     int Filter::get_index_of (const Filter::KernelItem &item) const {
-      for (int i = 0; i < impl_->list.size(); ++i) {
+      for (int i = 0; i < (int)impl_->list.size(); ++i) {
         if(auto k = impl_->list.at(i)->kernel) {
           if (k.get() == item.get())
             return i;

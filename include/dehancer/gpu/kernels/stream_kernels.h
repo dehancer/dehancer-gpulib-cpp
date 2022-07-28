@@ -7,15 +7,18 @@
 
 #include "dehancer/gpu/kernels/stream_space.h"
 
-DHCR_KERNEL void  kernel_stream_transform(
+DHCR_KERNEL void  kernel_stream_transform_ext(
         texture2d_read_t         source DHCR_BIND_TEXTURE(0),
         texture2d_write_t   destination DHCR_BIND_TEXTURE(1),
         texture3d_read_t  transform_lut DHCR_BIND_TEXTURE(2),
-        DHCR_CONST_ARG_REF (DHCR_StreamSpace)                        space DHCR_BIND_BUFFER(3),
-        DHCR_CONST_ARG_REF (DHCR_TransformDirection)             direction DHCR_BIND_BUFFER(4),
-        DHCR_CONST_ARG  bool_ref_t                   transform_lut_enabled DHCR_BIND_BUFFER(5),
-        DHCR_CONST_ARG  bool_ref_t              transform_function_enabled DHCR_BIND_BUFFER(6),
-        DHCR_CONST_ARG  float_ref_t                                 impact DHCR_BIND_BUFFER(7)
+        DHCR_CONST_ARG_REF (DHCR_GammaParameters)             gamma_params DHCR_BIND_BUFFER(3),
+        DHCR_CONST_ARG_REF (DHCR_LogParameters)                 log_params DHCR_BIND_BUFFER(4),
+        DHCR_CONST_ARG  float4x4_ref_t                     cs_forward_matrix DHCR_BIND_BUFFER(5),
+        DHCR_CONST_ARG  float4x4_ref_t                     cs_inverse_matrix DHCR_BIND_BUFFER(6),
+        DHCR_CONST_ARG_REF (DHCR_TransformDirection)             direction DHCR_BIND_BUFFER(7),
+        DHCR_CONST_ARG  bool_ref_t                   transform_lut_enabled DHCR_BIND_BUFFER(8),
+        DHCR_CONST_ARG  bool_ref_t              transform_function_enabled DHCR_BIND_BUFFER(9),
+        DHCR_CONST_ARG  float_ref_t                                 impact DHCR_BIND_BUFFER(10)
         DHCR_KERNEL_GID_2D
 ) {
   
@@ -25,12 +28,10 @@ DHCR_KERNEL void  kernel_stream_transform(
   
   float4 inColor = sampled_color(source, tex.size, tex.gid);
   
-  write_image(destination, inColor, tex.gid);
-  
   float4 color  = inColor;
   
   if (transform_function_enabled) {
-    color = transform(color, space, direction);
+    color = transform_extended(color, gamma_params, log_params, cs_forward_matrix, cs_inverse_matrix, direction);
   }
   
   if (transform_lut_enabled) {
@@ -47,6 +48,7 @@ DHCR_KERNEL void  kernel_stream_transform(
   
   write_image(destination, to_float4(to_float3(color),inColor.w), tex.gid);
 }
+
 
 DHCR_KERNEL void kernel_bgr8_to_texture(
         DHCR_DEVICE_ARG uint8_t*        p_Input DHCR_BIND_BUFFER(0),

@@ -8,6 +8,6 @@ Description: Dehancer GPU layer SDK
 Version: @PROJECT_VERSION@
 URL: https://github.com/dehancer/dehancer-gpulib-cpp
 Requires.private: @requires_private@
-Libs: -L${libdir} -l@dehancer_gpu_cpp_lib@
+Libs: -L${libdir} -l@dehancer_gpu_cpp_lib@ -ldehancer_maths_cpp -larmadillo
 Libs.private: @libs_private@
 CFlags: -I${includedir}

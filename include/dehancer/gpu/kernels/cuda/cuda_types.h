@@ -6,6 +6,7 @@
 
 #if WIN32
 #define __attribute__(x)
+//#else
 #endif
 
 typedef  unsigned int uint;
@@ -30,6 +31,12 @@ typedef  unsigned int uint;
 #define DHCR_KERNEL_GID_2D
 #define DHCR_KERNEL_GID_3D
 
+#define DHCR_BLOCK_MEMORY __shared__
+
+using atomic_int_t = int;
+using atomic_bool_t = uint;
+using atomic_uint_t = uint;
+
 #define bool_ref_t bool
 #define bool_t bool
 #define uint_ref_t unsigned int
@@ -38,6 +45,8 @@ typedef  unsigned int uint;
 #define float2_ref_t float2
 #define float3_ref_t float3
 #define float4_ref_t float4
+#define float3x3_ref_t float3x3
+#define float4x4_ref_t float4x4
 
 #define uint2_ref_t uint2
 #define uint3_ref_t uint3

@@ -52,49 +52,11 @@ typedef struct {
     DHCR_LutParameters inverse;
 } DHCR_StreamSpace_TransformLut;
 
-typedef struct _DHCR_StreamSpace_ {
-    /***
-     * Space type
-     */
-    DHCR_StreamSpace_Type           type;
-    
-    /***
-     * Transformed image can be analyzed and expanded
-     */
-    bool_t                          expandable;
-    
-    /***
-     * Transform function
-     */
-    DHCR_StreamSpace_TransformFunc  transform_func;
-    
-    /***
-     * Transform table
-     */
-    DHCR_StreamSpace_TransformLut   transform_lut;
-    
-#if __cplusplus && !DEHANCER_GPU_CODE
-  
-    /***
-     * Searchable unique id
-     */
-    std::string                     id = "rec_709_g22";
-    
-    /***
-     * Name of space can be displayed on UI
-     */
-    std::string                     name = "Rec.709";
-    
-    bool operator==(const _DHCR_StreamSpace_ &c) const { return type == c.type && id == c.id; }
-
-#endif
-
-} DHCR_StreamSpace;
 
 static inline DHCR_DEVICE_FUNC
 float4x4 stream_matrix_transform_identity() {
 #if DEHANCER_GPU_CODE
-#if defined(__CUDA_ARCH__)
+  #if defined(__CUDA_ARCH__)
   float4x4 m; m.setIdentity();
 #else
   float4x4 m =
@@ -124,7 +86,7 @@ DHCR_StreamSpace_TransformFunc stream_space_transform_func_identity() {
   DHCR_LogParameters log = {false, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   DHCR_StreamSpace_Params params = { gamma, log };
   DHCR_StreamSpace_TransformFunc identity = {
-          true,
+          (bool_t)true,
           m,
           m,
           params
@@ -138,19 +100,103 @@ DHCR_StreamSpace_TransformLut stream_space_transform_lut_identity() {
   static float l[4] = {0.0f,0.0f,0.0f,0.0f};
 #endif
   DHCR_LutParameters lut = {
-          1, 4, false
+          (bool_t)false,
+          1,
+          4
 #if !DEHANCER_GPU_CODE
           ,l
 #endif
   };
   DHCR_StreamSpace_TransformLut identity = {
-          true,
+          (bool_t)true,
           lut,
           lut
   };
   return identity;
 }
 
+typedef struct _DHCR_StreamSpace_ {
+    /***
+     * Space type
+     */
+    DHCR_StreamSpace_Type           type
+    #if __cplusplus && !DEHANCER_GPU_CODE
+    = DHCR_ColorSpace;
+    #else
+    ;
+    #endif
+    
+    /***
+     * Transformed image can be analyzed and expanded
+     */
+    bool_t                          expandable
+    #if __cplusplus && !DEHANCER_GPU_CODE
+    = (bool_t)false;
+    #else
+    ;
+    #endif
+    
+    /***
+     * Transform function
+     */
+    DHCR_StreamSpace_TransformFunc  transform_func
+    #if __cplusplus && !DEHANCER_GPU_CODE
+    = stream_space_transform_func_identity();
+    #else
+    ;
+    #endif
+    
+    /***
+     * Transform table
+     */
+    DHCR_StreamSpace_TransformLut   transform_lut
+    #if __cplusplus && !DEHANCER_GPU_CODE
+    = stream_space_transform_lut_identity();
+    #else
+    ;
+    #endif
+    
+#if __cplusplus && !DEHANCER_GPU_CODE
+  
+    /***
+     * Searchable unique id
+     */
+    std::string                     id = "rec_709_g22";
+    
+    /***
+     * Name of space can be displayed on UI
+     */
+    std::string                     name = "Rec.709";
+    
+    /**
+     *
+     * deprecated
+     *
+     */
+    inline _DHCR_StreamSpace_& operator=(const _DHCR_StreamSpace_& c) {
+      
+      if (this == &c)
+        return *this;
+
+      type = c.type;
+      expandable = c.expandable;
+      transform_func = c.transform_func;
+      transform_lut = c.transform_lut;
+      id = c.id;
+      name = c.name;
+
+      return *this;
+    };
+    
+
+    bool operator==(const _DHCR_StreamSpace_ &c) const { return type == c.type && id == c.id; }
+    
+#endif
+
+} DHCR_StreamSpace;
+
+
+//#if DEHANCER_GPU_CODE
 static inline DHCR_DEVICE_FUNC
 DHCR_StreamSpace stream_space_identity() {
   
@@ -160,13 +206,30 @@ DHCR_StreamSpace stream_space_identity() {
   
   DHCR_StreamSpace identity = {
           DHCR_ColorSpace,
-          false,
+          (bool_t)false,
           func,
           lut
   };
   
   return identity;
 }
+//#else
+//static inline
+//const DHCR_StreamSpace stream_space_identity() {
+//  return DHCR_StreamSpace();
+//
+//  DHCR_StreamSpace identity = {
+//          DHCR_ColorSpace,
+//          false,
+//          (bool_t)false,
+//          func,
+//          lut
+//  };
+//
+//  return identity;
+//
+//}
+//#endif
 
 static inline DHCR_DEVICE_FUNC
 float4
@@ -221,7 +284,7 @@ float4 transform( float4 in_, DHCR_StreamSpace space, DHCR_TransformDirection di
   if (direction == DHCR_Forward) {
     
     if (space.transform_func.cs_params.log.enabled) {
-      //next =  apply_log_forward(next, space.transform_func.cs_params.log);
+      next =  apply_log_forward(next, space.transform_func.cs_params.log);
     }
     
     if (space.transform_func.cs_params.gamma.enabled) {
@@ -235,7 +298,42 @@ float4 transform( float4 in_, DHCR_StreamSpace space, DHCR_TransformDirection di
     }
     
     if (space.transform_func.cs_params.log.enabled) {
-      //next =  apply_log_inverse(next, space.transform_func.cs_params.log);
+      next =  apply_log_inverse(next, space.transform_func.cs_params.log);
+    }
+    
+  }
+  
+  return next;
+};
+
+static inline DHCR_DEVICE_FUNC
+float4 transform_extended( float4 in_, DHCR_GammaParameters gamma, DHCR_LogParameters log, DHCR_CONST_ARG float4x4_ref_t cs_forward_matrix, DHCR_CONST_ARG float4x4_ref_t cs_inverse_matrix, DHCR_TransformDirection direction) {
+  
+  float4 next = in_;
+
+//  next = float4_multiply_float4x4(next,
+//                                 direction == DHCR_Forward
+//                                 ? cs_forward_matrix
+//                                 : cs_inverse_matrix);
+
+  if (direction == DHCR_Forward) {
+    
+    if (log.enabled) {
+      next =  apply_log_forward(next, log);
+    }
+    
+    if (gamma.enabled) {
+      next =  apply_gamma_forward(next, gamma);
+    }
+    
+  } else {
+    
+    if (gamma.enabled) {
+      next =  apply_gamma_inverse(next, gamma);
+    }
+    
+    if (log.enabled) {
+      next =  apply_log_inverse(next, log);
     }
     
   }

@@ -14,6 +14,48 @@
 #include "dehancer/gpu/kernels/hash_utils.h"
 #include "dehancer/gpu/kernels/cmath.h"
 
+/**
+ * Grid
+ *
+ * gridDim: This variable contains the dimensions of the grid.
+ * blockIdx: This variable contains the block index within the grid.
+ * blockDim: This variable and contains the dimensions of the block.
+ * threadIdx: This variable contains the thread index within the block.
+ */
+
+#define  get_num_blocks_1d() ((int)gridDim.x)
+#define  get_num_blocks_2d() ((int)gridDim.x)
+
+#define  get_block_id1d() ((int)blockIdx.x)
+#define  get_block_id2d() make_int2(blockIdx.x, blockIdx.y)
+#define  get_block_id3d() make_int3(blockIdx.x, blockIdx.y, blockIdx.z)
+
+#define  get_block_size1d() ((int)blockDim.x)
+#define  get_block_size2d() make_int2(blockDim.x, blockDim.y)
+#define  get_block_size3d() make_int3(blockDim.x, blockDim.y, blockDim.z)
+
+#define  get_thread_in_block_id1d() ((int)threadIdx.x)
+#define  get_thread_in_block_id2d() make_int2(threadIdx.x, threadIdx.y)
+#define  get_thread_in_block_id3d() make_int3(threadIdx.x, threadIdx.y, threadIdx.z)
+
+#define  get_thread_in_grid_id1d() ((int)(blockIdx.x * blockDim.x + threadIdx.x))
+#define  get_thread_in_grid_id2d() make_int2(blockIdx.x * blockDim.x + threadIdx.x, blockIdx.y * blockDim.y + threadIdx.y)
+#define  get_thread_in_grid_id3d() make_int3(blockIdx.x * blockDim.x + threadIdx.x, blockIdx.y * blockDim.y + threadIdx.y, blockIdx.z * blockDim.z + threadIdx.z)
+
+#define dhr_atomic_fetch_inc(v) atomicAdd(&(v),1)
+#define dhr_atomic_store(v,c)   {(v) = (c);}
+#define dhr_atomic_load(v)      (v)
+
+#define block_barrier() __syncthreads()
+
+inline DHCR_DEVICE_FUNC uint __attribute__((overloadable)) mad24(uint x, uint y, uint z) {
+  return __umul24(x, y) + z;
+}
+
+/**
+ * Kernel
+ */
+
 #define texture1d_read_t DHCR_READ_ONLY image1d_t
 #define texture1d_write_t DHCR_WRITE_ONLY image1d_t
 

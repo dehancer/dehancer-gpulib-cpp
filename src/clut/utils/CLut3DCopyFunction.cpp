@@ -37,7 +37,7 @@ namespace dehancer {
             auto r = buffer_[index+0] ;
             auto g = buffer_[index+1] ;
             auto b = buffer_[index+2] ;
-            block(index, r, g, b);
+            block((uint)index, r, g, b);
           }
         }
       }

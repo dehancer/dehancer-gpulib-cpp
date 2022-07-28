@@ -15,6 +15,9 @@ namespace dehancer::opencl {
 
     public:
         explicit CommandEncoder(cl_kernel kernel, dehancer::opencl::Function* function);
+        
+        ~CommandEncoder() override = default;
+        
         void set(const Texture &texture, int index) override;
         void set(const void *bytes, size_t bytes_length, int index) override;
         void set(const Memory& memory, int index) override;
@@ -42,9 +45,12 @@ namespace dehancer::opencl {
         void set(const math::bool3& p, int index) override;
         void set(const math::bool4& p, int index) override;
         
-        //void set(const dehancer::StreamSpace &p, int index) override;
-        
-        dehancer::opencl::Function* function_ = nullptr;
+        void set(const dehancer::StreamSpace &p, int index) override;
+    
         cl_kernel kernel_ = nullptr;
+        dehancer::opencl::Function* function_ = nullptr;
+    
+        [[nodiscard]] size_t get_block_max_size() const override;
+        
     };
 }

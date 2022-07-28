@@ -1,1 +1,1 @@
-dehancer_gpulib 1.3.0
+dehancer_gpulib 1.3.2

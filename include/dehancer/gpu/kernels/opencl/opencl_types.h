@@ -15,10 +15,15 @@
 #define DHCR_THREAD_ARG
 #define DHCR_CONST_ARG
 #define DHCR_CONST_ARG_REF(T) DHCR_CONST_ARG T
+#define DHCR_BLOCK_MEMORY  local
 
 #define DHCR_KERNEL_GID_1D
 #define DHCR_KERNEL_GID_2D
 #define DHCR_KERNEL_GID_3D
+
+#define atomic_int_t  int
+#define atomic_bool_t uint
+#define atomic_uint_t uint
 
 #define bool_ref_t uint
 #define bool_t uint
@@ -31,6 +36,8 @@
 #define float2_ref_t float2
 #define float3_ref_t float3
 #define float4_ref_t float4
+#define float3x3_ref_t float3x3
+#define float4x4_ref_t float4x4
 
 #define uint2_ref_t uint2
 #define uint3_ref_t uint3
@@ -58,6 +65,19 @@ typedef struct  {
     int3 gid;
     int3 size;
 } Texel3d;
+
+typedef struct {
+    int width;
+    int height;
+    int depth;
+} Size;
+
+
+typedef struct {
+    Size   grid;
+    Size   block;
+    int    threads_in_grid;
+} ComputeSize;
 
 #define texture1d_read_t DHCR_READ_ONLY image1d_t
 #define texture1d_write_t DHCR_WRITE_ONLY image1d_t

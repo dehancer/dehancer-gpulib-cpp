@@ -28,8 +28,8 @@ namespace dehancer {
                     texture_(0),
                     surface_(0),
                     width_(width),
-                    depth_(depth),
                     height_(height),
+                    depth_(depth),
                     normalized_coords_(normalized_coords)
             {
               assert(width_ > 0 && height_ > 0 && depth_ > 0);
@@ -103,8 +103,8 @@ namespace dehancer {
 #endif
 
         private:
-            cudaTextureObject_t texture_;
-            cudaSurfaceObject_t surface_;
+            cudaTextureObject_t texture_{};
+            cudaSurfaceObject_t surface_{};
             size_t width_;
             size_t height_;
             size_t depth_;
@@ -112,7 +112,7 @@ namespace dehancer {
 
 #ifndef CUDA_KERNEL
             cudaArray* mem_ = nullptr;
-            std::string label_;
+            std::string label_{};
 #endif
         };
     }

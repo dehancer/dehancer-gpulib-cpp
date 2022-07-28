@@ -117,26 +117,34 @@ namespace dehancer::opencl {
     
     void CommandEncoder::set(const float2x2& m, int index){
       cl_float4 mat;
-      for (int i = 0; i < m.size(); ++i) mat.s[i]=m[i];
+      for (int i = 0; i < (int)m.size(); ++i) mat.s[i]=m[i];
       set(&mat, sizeof(mat), index);
-    };
+    }
+    
+    size_t CommandEncoder::get_block_max_size () const {
+      size_t workgroup_size;
+      clGetKernelWorkGroupInfo(kernel_,
+                               function_->get_command()->get_device_id(),
+                               CL_KERNEL_WORK_GROUP_SIZE, sizeof(size_t),
+                               &workgroup_size, nullptr);
+      return workgroup_size;
+    }
     
     void CommandEncoder::set(const float3x3& m, int index){
       cl_float mat[9];
-      for (int i = 0; i < m.size(); ++i) mat[i]=m[i];
+      for (int i = 0; i < (int)m.size(); ++i) mat[i]=m[i];
       set(&mat, sizeof(mat), index);
     };
     
     void CommandEncoder::set(const float4x4& m, int index){
       cl_float16 mat;
-      for (int i = 0; i < m.size(); ++i) mat.s[i]=m[i];
+      for (int i = 0; i < (int)m.size(); ++i) mat.s[i]=m[i];
       set(&mat, sizeof(mat), index);
     }
     
    
-//    void CommandEncoder::set (const dehancer::StreamSpace &p, int index) {
-//      gpu_DHCR_StreamSpace space{};
-//      std::cout << "CommandEncoder set(space(), "<<index<<") " << std::endl;
-//      set(&space, sizeof(space), index);
-//    }
+    void CommandEncoder::set (const dehancer::StreamSpace &p, int index) {
+      StreamSpace copy = p;
+      set(&copy, sizeof(copy), index);
+    }
 }

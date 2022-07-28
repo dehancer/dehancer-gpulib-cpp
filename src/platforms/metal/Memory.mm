@@ -4,6 +4,7 @@
 
 #include "Memory.h"
 #include "dehancer/gpu/Log.h"
+#import <Metal/Metal.h>
 
 namespace dehancer::metal {
     
@@ -26,16 +27,22 @@ namespace dehancer::metal {
       }
       else
       if (has_unified_memory()) {
+        #if defined(IOS_SYSTEM)
+        res = MTLResourceStorageModeShared | MTLResourceCPUCacheModeDefaultCache;
+        #else
         res = MTLResourceStorageModeManaged | MTLResourceCPUCacheModeDefaultCache;
+        #endif
       }
       else {
         res = MTLResourceStorageModeShared | MTLResourceCPUCacheModeDefaultCache;
       }
       
+      auto device = static_cast<id<MTLDevice>>( (__bridge id) get_device());
+      
       if (buffer)
-        memobj_ = [get_device() newBufferWithBytes: buffer length: length options:res];
+        memobj_ = [device newBufferWithBytes: buffer length: length options:res];
       else
-        memobj_ = [get_device() newBufferWithLength:length options:res];
+        memobj_ = [device newBufferWithLength:length options:res];
       
       if ( !memobj_ ) {
         throw std::runtime_error("Device memory could not be allocated with size: " + std::to_string(length));
@@ -60,17 +67,17 @@ namespace dehancer::metal {
         throw std::runtime_error("Device memory could not bind with device handler object");
       }
       
-      length_ = memobj_.length;
+      length_ = static_cast<id <MTLBuffer>>(memobj_).length;
     }
     
     MemoryHolder::~MemoryHolder() {
       if (memobj_ && is_self_allocated_) {
-        [memobj_ release];
+        [static_cast<id <MTLBuffer>>(memobj_) release];
       }
     }
     
     size_t MemoryHolder::get_length() const {
-      return  memobj_.length;;
+      return  static_cast<id <MTLBuffer>>(memobj_).length;;
     }
     
     const void *MemoryHolder::get_memory() const {
@@ -82,24 +89,30 @@ namespace dehancer::metal {
     }
     
     Error MemoryHolder::get_contents(std::vector<uint8_t> &buffer) const {
-      return  get_contents(buffer.data(),memobj_.length);
+      return  get_contents(buffer.data(), static_cast<id <MTLBuffer>>(memobj_).length);
     }
     
     Error MemoryHolder::get_contents (void *buffer, size_t length) const {
       
-      if (memobj_.contents == nullptr)
+      if (static_cast<id <MTLBuffer>>(memobj_).contents == nullptr)
         return Error(CommonError::PERMISSIONS_ERROR, error_string("Device memory object is private"));
       
-      if (memobj_.length>length)
+      if (static_cast<id <MTLBuffer>>(memobj_).length>length)
         return Error(CommonError::OUT_OF_RANGE, error_string("Device memory length greater then buffer allocated"));
+  
+      auto queue = static_cast<id<MTLCommandQueue>>( (__bridge id)get_command_queue());
+      id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+  
+      #if not defined(IOS_SYSTEM)
+      id <MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
+      [blitEncoder synchronizeResource:reinterpret_cast<id <MTLBuffer>>(memobj_)];
+      [blitEncoder endEncoding];
+      #endif
+  
+      [commandBuffer commit];
+      [commandBuffer waitUntilCompleted];
       
-      //auto command_buffer = [get_command_queue() commandBuffer];
-      //id<MTLBlitCommandEncoder> blitEncoder = [command_buffer blitCommandEncoder];
-      //[blitEncoder synchronizeResource:memobj_];
-      //[blitEncoder endEncoding];
-      //[command_buffer waitUntilCompleted];
-      
-      memcpy(buffer, memobj_.contents, length);
+      memcpy(buffer, reinterpret_cast<id <MTLBuffer>>(memobj_).contents, length);
       
       return Error(CommonError::OK);
     }

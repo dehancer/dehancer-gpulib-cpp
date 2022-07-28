@@ -69,7 +69,14 @@ namespace dehancer {
          * @return Error or Error:OK
          */
         virtual Error write_to_data(std::vector<float>& buffer);
-
+    
+        /***
+        * Write texture to native system image representation like a UIImage in iOS
+        * @param handle
+        * @return error or ok
+        */
+        virtual Error write_as_native_image(void** handle);
+        
         /***
          * Save as image into output stream
          * @param os - output stream

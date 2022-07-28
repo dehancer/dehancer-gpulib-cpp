@@ -17,7 +17,7 @@ namespace dehancer {
     
     size_t ChannelsDesc::get_hash () const {
       size_t cx = 0;
-      for (int i = 0; i < scale.size(); ++i) {
+      for (size_t i = 0; i < scale.size(); ++i) {
         cx += static_cast<size_t>( scale[i].x * 10000 + scale[i].y * 100 ) << i;
       }
       return
@@ -42,15 +42,6 @@ namespace dehancer {
             std::shared_ptr<ChannelItem> item_;
             ChannelsDesc desc_;
             std::shared_ptr<std::array<ChannelsDesc,4>> channel_descs_;
-//
-//            void set_active_mask(const ChannelsHolder::ActiveChannelsMask& amask) override {
-//              //item_->amask = amask;
-//              //init();
-//            };
-//
-//            [[nodiscard]] const ChannelsHolder::ActiveChannelsMask& get_active_mask() const override {
-//              return item_->amask;
-//            };
             
             size_t get_width(int index) const override { return channel_descs_->at(index).width; };
             size_t get_height(int index) const override {return channel_descs_->at(index).height;};
@@ -191,7 +182,7 @@ namespace dehancer {
       
       auto *channels = dynamic_cast<impl::ChannelsHolder *>(impl_->channels.get());
       
-      for (int j = 0; j < channels->size(); ++j) {
+      for (size_t j = 0; j < channels->size(); ++j) {
         
         auto mem = channels->at(j);
         
@@ -209,7 +200,7 @@ namespace dehancer {
             encoder.set(cw, 2);
             encoder.set(ch, 3);
             
-            encoder.set(j, 4);
+            encoder.set((int)j, 4);
             
             encoder.set(impl_->transform.slope[j],5);
             encoder.set(impl_->transform.offset[j],6);
@@ -284,7 +275,7 @@ namespace dehancer {
     
     void ChannelsInput::set_scale (ChannelsDesc::Scale2D scale) {
       bool do_recreate_channels = false;
-      for (int i = 0; i < scale.size(); ++i) {
+      for (size_t i = 0; i < scale.size(); ++i) {
         if (impl_->desc.scale.at(i).x!=scale.at(i).y || impl_->desc.scale.at(i).y!=scale.at(i).y) {
           do_recreate_channels = true;
           break;
@@ -300,10 +291,6 @@ namespace dehancer {
       return impl_->channels;
     }
     
-//    void ChannelsInput::set_active_mask (const ChannelsHolder::ActiveChannelsMask &amask) {
-//      if (impl_->channels)
-//        impl_->channels->set_active_mask(amask);
-//    }
     
     /***
      *
@@ -318,10 +305,7 @@ namespace dehancer {
     namespace impl {
         struct ChannelsOutputImpl {
             Channels channels = nullptr;
-            //ChannelsDesc::ActiveChannelsMask amask;
             ChannelsDesc::Transform transform;
-            //bool has_mask{};
-            //Texture mask = nullptr;
         };
     }
     
@@ -363,15 +347,11 @@ namespace dehancer {
         PassKernel(get_command_queue(),get_source(),get_destination(), get_wait_completed(), get_library_path()).process();
       }
       
-      for (int j = 0; j < channels->size(); ++j) {
+      for (size_t j = 0; j < channels->size(); ++j) {
         
         auto channel = channels->at(j);
         
-        //bool has_channel = channel != nullptr;
-        
         if (!channel) continue;
-  
-        //channel = MemoryHolder::Make(get_command_queue(),1);
         
         execute([this, channels, &channel, j](CommandEncoder& encoder){
           
@@ -389,7 +369,7 @@ namespace dehancer {
             encoder.set(cw, 3);
             encoder.set(ch, 4);
             
-            encoder.set(j, 5);
+            encoder.set((int)j, 5);
             
             encoder.set(impl_->transform.slope[j],6);
             encoder.set(impl_->transform.offset[j],7);

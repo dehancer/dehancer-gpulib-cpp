@@ -35,7 +35,7 @@ namespace dehancer::ocio {
     namespace DEHANCER_MLUT_FC { // Final Cut gamma correction
         static const DHCR_GammaParameters gamma_parameters = {
                 .enabled = true,
-                .base = 2.0f,
+                .base = 0.5 / 0.45f, // rec709->apple gamma 2.0
                 .lin_side_break  = 0.0f,
                 .lin_side_coeff  = 1.0f,
                 .lin_side_offset = 0.0f,

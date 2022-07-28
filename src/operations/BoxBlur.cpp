@@ -25,7 +25,7 @@ namespace dehancer {
         
         if (radius <= 1 ) return 1.0f;
         
-        for (int i = 0; i < radius; ++i) {
+        for (int i = 0; i < (int)radius; ++i) {
           data.push_back(1.0f/(float)radius);
         }
         

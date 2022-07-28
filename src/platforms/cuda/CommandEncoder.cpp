@@ -4,18 +4,18 @@
 
 #include "dehancer/gpu/CommandEncoder.h"
 #include "dehancer/gpu/Lib.h"
-
+//#include "dehancer/gpu/kernels/cuda/cmatrix.h"
 #include "CommandEncoder.h"
 
 namespace dehancer::cuda {
 
-    CommandEncoder::CommandEncoder(CUfunction kernel, dehancer::cuda::Function* function): kernel_(kernel), function_(function){}
+    CommandEncoder::CommandEncoder(const CUfunction kernel, const dehancer::cuda::Function* function): kernel_(kernel), function_((dehancer::cuda::Function*)function){}
 
     void CommandEncoder::resize_at_index(int index) {
       if (args_.empty()) {
         args_.resize(index+1, nullptr);
       }
-      if (index>=args_.size()) {
+      if (index >0 && (size_t)index>=args_.size()) {
         std::vector<void *> old(args_);
         args_.resize(index+1, nullptr);
       }
@@ -91,13 +91,31 @@ namespace dehancer::cuda {
     /// \param m
     /// \param index
     void CommandEncoder::set(const float2x2& m, int index){
-    };
+    }
     
     void CommandEncoder::set(const float3x3& m, int index){
     };
     
-    void CommandEncoder::set(const float4x4& m, int index){
+    union encode_float4x4 {
+        struct {
+            float m11; float m12; float m13; float m14;
+            float m21; float m22; float m23; float m24;
+            float m31; float m32; float m33; float m34;
+            float m41; float m42; float m43; float m44;
+        };
+        float entries[16];
+        float entries2[4][4];
     };
+    
+    void CommandEncoder::set(const float4x4& m, int index){
+      resize_at_index(index);
+      encode_float4x4 data{};
+      for (size_t i = 0; i < m.size(); ++i) data.entries[i]=m[i];
+      auto a = std::make_shared<encode_float4x4>(data); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
+    };
+    
+    
     
     void CommandEncoder::set(const math::uint2 &p, int index) {
       resize_at_index(index);
@@ -152,6 +170,32 @@ namespace dehancer::cuda {
       resize_at_index(index);
       auto a = std::make_shared<::uint4>((::uint4){p.x(),p.y(),p.z(),p.w()}); args_container_.emplace_back(a);
       args_.at(index) = a.get();
+    }
+    
+    size_t CommandEncoder::get_block_max_size () const {
+      return function_->get_command()->get_max_threads();
+    };
+    
+    CommandEncoder::ComputeSize CommandEncoder::ask_compute_size (size_t width, size_t height, size_t depth) const {
+      cudaDeviceProp props{}; function_->get_command()->get_device_info(props);
+      auto execution_width = static_cast<size_t>(props.maxBlocksPerMultiProcessor);
+      
+      ComputeSize compute_size {};
+      
+      size_t  gsize[2] = {execution_width,execution_width};
+
+      compute_size.block.width  = gsize[0];
+      compute_size.block.height = gsize[1];
+      
+      compute_size.grid.width = ((width + gsize[0] - 1) / gsize[0]);
+      compute_size.grid.height = ((height + gsize[1] - 1) / gsize[1]);
+      
+      compute_size.threads_in_grid = compute_size.grid.width * compute_size.grid.height;
+      
+      compute_size.grid.depth = depth;
+      compute_size.block.depth = 1;
+      
+      return compute_size;
     }
   
 }
