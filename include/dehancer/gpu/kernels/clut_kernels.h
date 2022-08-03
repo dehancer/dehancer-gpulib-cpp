@@ -112,11 +112,11 @@ DHCR_KERNEL void kernel_resample1DLut_to_1DLut(
 inline  DHCR_DEVICE_FUNC float3 sample2DLut(float3 rgb, texture2d_read_t d2DLut){
   
   float  size    = (float)(get_texture_width(d2DLut));
-  float  clevel  = (uint)roundf(powf((float)size,1.0f/3.0f));
+  float  clevel  = roundf(powf((float)size,1.0f/3.0f));
   
   float cube_size = clevel*clevel;
   
-  float blueColor = rgb.z * (cube_size-1.0f-0.8f);
+  float blueColor = rgb.z * (cube_size-1.0f);//-0.8f);
   
   float2 quad1;
   quad1.y = floorf(floorf(blueColor) / clevel);
@@ -137,12 +137,48 @@ inline  DHCR_DEVICE_FUNC float3 sample2DLut(float3 rgb, texture2d_read_t d2DLut)
   texPos2.x = (quad2.x * denom) + 0.5f/size + ((denom - 1.0f/size) * rgb.x);
   texPos2.y = (quad2.y * denom) + 0.5f/size + ((denom - 1.0f/size) * rgb.y);
   
-  float4 newColor1 = read_image(d2DLut, texPos1);
+  float4 newColor1 =  d2DLut.sample(linear_normalized_sampler, texPos1);//d2DLut.sampleread_image(d2DLut, texPos1);
   
-  float4 newColor2 =  read_image(d2DLut, texPos2);
+  float4 newColor2 =  d2DLut.sample(linear_normalized_sampler, texPos2);//read_image(d2DLut, texPos2);
   
   return to_float3(mix(newColor1, newColor2, fracf(blueColor)));
 }
+
+
+inline  DHCR_DEVICE_FUNC float3 sample2DLut_2v(float3 rgb, texture2d_read_t d2DLut){
+  
+  float3 textureColor = rgb;
+  
+  float blueColor = textureColor.b * 63.0f;
+  
+  float2 quad1;
+  quad1.y = floor(floor(blueColor) / 8.0);
+  quad1.x = floor(blueColor) - (quad1.y * 8.0);
+  
+  float2 quad2;
+  quad2.y = floor(ceil(blueColor) / 8.0);
+  quad2.x = ceil(blueColor) - (quad2.y * 8.0);
+  
+  float2 texPos1;
+  texPos1.x = (quad1.x * 0.125) + 0.5/512.0 + ((0.125 - 1.0/512.0) * textureColor.r);
+  texPos1.y = (quad1.y * 0.125) + 0.5/512.0 + ((0.125 - 1.0/512.0) * textureColor.g);
+  
+  float2 texPos2;
+  texPos2.x = (quad2.x * 0.125) + 0.5/512.0 + ((0.125 - 1.0/512.0) * textureColor.r);
+  texPos2.y = (quad2.y * 0.125) + 0.5/512.0 + ((0.125 - 1.0/512.0) * textureColor.g);
+  
+  //float4 newColor1 = read_image(d2DLut, texPos1);
+  //float4 newColor2 = read_image(d2DLut, texPos2);
+  
+  constexpr sampler quadSampler3;
+  float4 newColor1 = d2DLut.sample(quadSampler3, texPos1);
+  constexpr sampler quadSampler4;
+  float4 newColor2 = d2DLut.sample(quadSampler4, texPos2);
+  
+  float4 newColor = mix(newColor1, newColor2, fracf(blueColor));
+  return to_float3(newColor);
+}
+
 
 DHCR_KERNEL void kernel_resample2DLut_to_2DLut(
         texture2d_read_t         DLutIdentity DHCR_BIND_TEXTURE(0),
@@ -152,10 +188,14 @@ DHCR_KERNEL void kernel_resample2DLut_to_2DLut(
 ) {
   Texel2d tex;
   get_kernel_texel2d(DLutOut, tex);
-  if (!get_texel_boundary(tex)) return;
+  //if (!get_texel_boundary(tex)) return;
   
-  float3 rgb  =  to_float3(read_image(DLutIdentity, tex.gid));
-  float3 result = sample2DLut(rgb, DLut);
+  constexpr sampler quadSampler;
+  float4 base = DLutIdentity.sample(quadSampler, (float2)tex.gid/((float2)(tex.size)-1.0f));
+  
+  //float3 rgb  =  to_float3(base);//read_image(DLutIdentity, tex.gid));
+  float3 rgb  =  to_float3(read_image(DLut, tex.gid));
+  float3 result = rgb;//sample2DLut_2v(rgb, DLut);
   
   write_image(DLutOut, to_float4(result,1.0f), tex.gid);
 }

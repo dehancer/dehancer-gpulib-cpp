@@ -2,6 +2,7 @@
 // Created by denn on 28.03.2022.
 //
 
+#include "dehancer/Log.h"
 #include "platforms/TextureOutput.h"
 #include <opencv2/opencv.hpp>
 
@@ -38,12 +39,14 @@ namespace dehancer::impl {
       #if defined(SUPPORT_NSIMAGE) || defined(SUPPORT_UIIMAGE)
       try {
   
-        id<MTLTexture> texture = reinterpret_cast<id<MTLTexture> >((__bridge id)source_->get_memory());
-
-        NSDictionary* options = @{
-                kCIImageColorSpace: (__bridge id)color_space,
+        auto texture = reinterpret_cast<id<MTLTexture> >((__bridge id)source_->get_memory());
+  
+        NSDictionary *options = @{
+                kCIImageColorSpace: (__bridge id) color_space,
                 kCIContextOutputPremultiplied: @YES,
-                kCIContextUseSoftwareRenderer: @FALSE
+                kCIContextUseSoftwareRenderer: @FALSE,
+                kCIContextHighQualityDownsample: @YES,
+                kCIContextWorkingFormat: @(pixel_format)
         };
         
         CGSize size = { static_cast<CGFloat>([texture width]),
@@ -57,16 +60,20 @@ namespace dehancer::impl {
         ciimage = [ciimage imageByApplyingTransform:CGAffineTransformMakeTranslation(0, height)];
           
         if (handle) {
-          CIContext *context = [CIContext contextWithOptions:nil];
+          CIContext *context = [CIContext contextWithOptions: options];
           #if defined(SUPPORT_NSIMAGE)
           NSCIImageRep *rep = [NSCIImageRep imageRepWithCIImage:ciimage];
           NSImage *uiImage = [[NSImage alloc] initWithSize:rep.size];
           [uiImage addRepresentation:rep];
           #else
-          CGImageRef cgImage = [context createCGImage:ciimage fromRect:[ciimage extent]];
+          CGImageRef cgImage = [context createCGImage:ciimage fromRect:[ciimage extent] format: pixel_format colorSpace: color_space];
           DImage* uiImage = [DImage imageWithCGImage:cgImage];
           CGImageRelease(cgImage);
           #endif
+  
+          #if PRINT_DEBUG
+          dehancer::log::print(" ### TextureOutput::write_as_native_image bits per pixel: %zu",  CGImageGetBitsPerPixel([uiImage CGImage]));
+          #endif //
           
           *handle = uiImage;
         }

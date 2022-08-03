@@ -32,7 +32,8 @@ namespace dehancer::impl {
     size_t TextureInput::get_length() const {
       return texture_->get_length();
     }
-
+    
+    #if not defined(IOS_SYSTEM)
     Error TextureInput::load_from_image(const std::vector<uint8_t> &buffer) {
 
       try {
@@ -88,7 +89,8 @@ namespace dehancer::impl {
       catch (const cv::Exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
       catch (const std::exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
     }
-
+    #endif
+    
     Error TextureInput::load_from_data(const std::vector<float> &buffer, size_t width, size_t height, size_t depth) {
       auto* _buffer = const_cast<float *>(buffer.data());
       return load_from_data(_buffer, width, height, depth);
@@ -138,7 +140,7 @@ namespace dehancer::impl {
       return is;
     }
     
-    #if not defined(IOS_SYSTEM)
+    #if not defined(__APPLE__)
     Error TextureInput::load_from_native_image (const void *handle) {
       return Error(CommonError::NOT_SUPPORTED);
     }
