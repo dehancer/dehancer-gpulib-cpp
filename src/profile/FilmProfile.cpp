@@ -44,7 +44,7 @@ namespace dehancer {
                   get_command_queue(),
                   square_lut,
                   type_,
-                  0,
+                  64,
                   space_,
                   direction_
           );

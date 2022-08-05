@@ -55,6 +55,8 @@ namespace dehancer::impl {
         
         #if defined(IOS_SYSTEM)
         auto image = [DImage imageWithData:data];
+        NSData* imageData =  UIImagePNGRepresentation(image);
+        image = [UIImage imageWithData:imageData];
         #else
         auto image = [[DImage alloc] initWithData:data];
         #endif
@@ -82,11 +84,25 @@ namespace dehancer::impl {
   
         try {
     
+          auto image = reinterpret_cast<DImage *>(handle);
+  
+          cv::Mat imageMat;
+          UIImageToMat(image, imageMat);
+  
+          switch (imageMat.depth()) {
+            case CV_8S:
+            case CV_8U:
+              //imageMat.convertTo(imageMat, CV_32FC4, 1.0f/256.0f);
+              imageMat.convertTo(imageMat, CV_16U);
+              image = MatToUIImage(imageMat);
+              break;
+          }
+          
           #if PRINT_DEBUG
           dehancer::log::print(" ### TextureInput::load_from_native_image bits per pixel: %zu",
-                               CGImageGetBitsPerPixel([reinterpret_cast<DImage *>(handle) CGImage]));
+                               CGImageGetBitsPerPixel([image CGImage]));
           #endif //
-    
+          
           auto command_queue = reinterpret_cast<id <MTLCommandQueue> >((__bridge id) get_command_queue());
           id <MTLDevice> device = command_queue.device;
     
@@ -106,7 +122,7 @@ namespace dehancer::impl {
     
           CIImage *ciimage = [[CIImage alloc] initWithBitmapImageRep:bitmap];
           #else
-          CIImage* ciimage = [[CIImage alloc] initWithImage: reinterpret_cast<DImage*>(handle) options: options];
+          CIImage* ciimage = [[CIImage alloc] initWithImage: image options: options];
           #endif
     
           auto height = ciimage.extent.size.height;
