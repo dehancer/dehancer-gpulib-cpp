@@ -59,17 +59,13 @@ float4 tex3D_trilinear(texture3d_read_t source, float x, float y, float z)
   y += DHCR_AXIS_OFFSET;
   z += DHCR_AXIS_OFFSET;
   
-  float3 dim = make_float3(get_texture_width(source),
-                           get_texture_height(source),
-                           get_texture_depth(source));
-  
   float  u = floorf(x);
   float  v = floorf(y);
   float  w = floorf(z);
   
-  //float  px = x - u;
-  //float  py = y - v;
-  //float  pw = z - w;
+  float  px = x - u;
+  float  py = y - v;
+  float  pz = z - w;
   
   int dx = 1;
   int dy = 1;
@@ -77,41 +73,26 @@ float4 tex3D_trilinear(texture3d_read_t source, float x, float y, float z)
   
   int3   gid_src = make_int3(u,v,w);
   
-  float3 R0G0B0 = to_float3(read_image(source, gid_src+make_int3(0,  0,  0 )));
-  float3 R0G0B1 = to_float3(read_image(source, gid_src+make_int3(0,  0,  dw)));
-  float3 R1G0B0 = to_float3(read_image(source, gid_src+make_int3(dx, 0,  0 )));
-  float3 R0G1B0 = to_float3(read_image(source, gid_src+make_int3(0,  dy, 0 )));
+  float4 q111 = read_image(source, gid_src+make_int3(0, 0,  0));
+  float4 q121 = read_image(source, gid_src+make_int3(0, dy, 0));
+  float4 q221 = read_image(source, gid_src+make_int3(dx,dy, 0));
+  float4 q211 = read_image(source, gid_src+make_int3(dx,0,  0));
   
-  float3 R1G0B1 = to_float3(read_image(source, gid_src+make_int3(dx, 0,  dw)));
-  float3 R1G1B0 = to_float3(read_image(source, gid_src+make_int3(dx, dy, 0 )));
-  float3 R0G1B1 = to_float3(read_image(source, gid_src+make_int3(0,  dy, dw)));
+  float4 q112 = read_image(source, gid_src+make_int3(0, 0,  dw));
+  float4 q122 = read_image(source, gid_src+make_int3(0, dy, dw));
+  float4 q222 = read_image(source, gid_src+make_int3(dx,dy, dw));
+  float4 q212 = read_image(source, gid_src+make_int3(dx,0,  dw));
   
-  float3 R1G1B1 = to_float3(read_image(source, gid_src+make_int3(dx, dy, dw)));
   
-  float R0 = R0G0B0.x * dim.x;
-  float G0 = R0G0B0.y * dim.y;
-  float B0 = R0G0B0.z * dim.z;
+  float4 c1  = mix(q111,q211,to_float4(px));
+  float4 c2  = mix(q121,q221,to_float4(px));
   
-  float R1 = R1G0B0.x * dim.x;
-  float G1 = R0G1B0.y * dim.y;
-  float B1 = R0G0B1.z * dim.z;
+  float4 c3  = mix(q112,q212,to_float4(pz));
+  float4 c4  = mix(q122,q222,to_float4(pz));
   
-  float tr = (x-R0)/(R1-R0);
-  float tg = (y-G0)/(G1-G0);
-  float tb = (z-B0)/(B1-B0);
+  float4 c5 = mix(c1,c2,to_float4(py));
   
-  float3 c0 = R0G0B0;
-  float3 c1 = R0G0B1 - R0G0B0;
-  float3 c2 = R1G0B0 - R0G0B0;
-  float3 c3 = R0G1B0 - R0G0B0;
-  float3 c4 = R1G0B1 - R1G0B0 - R0G0B1 + R0G0B0;
-  float3 c5 = R1G1B0 - R0G1B0 - R1G0B0 + R0G0B0;
-  float3 c6 = R0G1B1 - R0G1B0 - R0G0B1 + R0G0B0;
-  float3 c7 = R1G1B1 - R1G1B0 - R0G1B1 - R1G0B1 + R0G0B1 + R0G1B0 + R1G0B0 - R0G0B0;
-  
-  float3 rgb = c0 + c1*tb + c2*tr + c3*tg + c4*tb*tr + c5*tr*tg + c6*tg*tb + c7*tr*tg*tb;
-  
-  return to_float4(rgb,1.0f);
+  return mix(c3,c4,c5);
 }
 
 inline DHCR_DEVICE_FUNC

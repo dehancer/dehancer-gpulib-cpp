@@ -126,7 +126,7 @@ namespace dehancer::metal {
                                                                                  MTLTextureUsageShaderRead : 0;
       }
       
-      descriptor.allowGPUOptimizedContents = true;
+      descriptor.allowGPUOptimizedContents = false;
       
       auto componentBytes = sizeof(Float32);
       
@@ -403,8 +403,6 @@ namespace dehancer::metal {
       NSUInteger bytes_per_pixel = desc_.channels * componentBytes;
   
       auto queue = static_cast<id<MTLCommandQueue>>( (__bridge id) get_command_queue());
-  
-      //id<MTLCommandQueue> queue = get_command_queue();
       
       id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];
       

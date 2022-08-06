@@ -10,8 +10,8 @@
 constexpr const char* IMAGES_DIR="@IMAGES_DIR@";
 constexpr const char* DATA_DIR="@DATA_DIR@";
 static const std::vector<std::string> IMAGE_FILES = {"lena0.jpg","lena1.jpg","lena2.png","lena3.jpg","lena4.jpg", "halation14.jpg", "4K.jpg"};//, "16K.jpg"};
-//static const std::vector<std::string> IMAGE_ONE_FILE = {"lena0.jpg"};
-static const std::vector<std::string> IMAGE_ONE_FILE = {"clear/08.png"};
+static const std::vector<std::string> IMAGE_ONE_FILE = {"stress.tif"};
+//static const std::vector<std::string> IMAGE_ONE_FILE = {"clear/08.png"};
 static const std::vector<std::string> IMAGE_CLEAR_FILES = {"clear/01.png","clear/02.png","clear/03.png","clear/04.png","clear/05.png","clear/06.png","clear/07.png"};
 static const std::vector<std::string> IMAGE_LARGE_FILES = {"16K.jpg", "16K.jpg", "16K.jpg", "16K.jpg", "16K.jpg", "16K.jpg", "16K.jpg", "16K.jpg"};
 static const std::vector<std::string> VIDEO_FILES = {"video1.mp4", "video2.mov"};

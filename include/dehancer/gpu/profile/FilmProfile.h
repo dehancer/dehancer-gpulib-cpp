@@ -28,13 +28,21 @@ namespace dehancer {
                 StreamSpaceDirection direction = StreamSpaceDirection::DHCR_None,
                 bool wait_until_completed = WAIT_UNTIL_COMPLETED);
     
+        explicit FilmProfile(
+                const void *command_queue,
+                CLut::Type type,
+                const StreamSpace &space = stream_space_identity(),
+                StreamSpaceDirection direction = StreamSpaceDirection::DHCR_None,
+                bool wait_until_completed = WAIT_UNTIL_COMPLETED);
+    
         Error load(const MLutXmp &xmp);
         
         const std::shared_ptr<CLut>& get(Type type) const;
 
-    public:
+    private:
         StreamSpace space_;
         StreamSpaceDirection direction_;
         std::array<std::shared_ptr<CLut>, sizeof(Type)> cluts_;
+        CLut::Type type_;
     };
 }

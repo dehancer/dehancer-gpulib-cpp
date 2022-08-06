@@ -39,7 +39,7 @@ DHCR_KERNEL void kernel_make2DLut(
   if (!get_texel_boundary(tex)) return;
   
   float qsize = (float)(clevel*clevel);
-  float denom = qsize-1;
+  float denom = qsize;
   
   uint  bindex =
           (floorf((float)(tex.gid.x) / denom)
@@ -70,10 +70,6 @@ DHCR_KERNEL void kernel_make3DLut(
                              get_texture_height(d3DLut)-1,
                              get_texture_depth(d3DLut)-1);
   
-//  float3 denom = make_float3(get_texture_width(d3DLut),
-//                             get_texture_height(d3DLut),
-//                             get_texture_depth(d3DLut));
-
   float4 input_color  = to_float4(compress(to_float3(tex.gid)/denom, compression),1.0f);
   
   write_image(d3DLut, input_color, tex.gid);
@@ -112,11 +108,11 @@ DHCR_KERNEL void kernel_resample1DLut_to_1DLut(
 inline  DHCR_DEVICE_FUNC float3 sample2DLut(float3 rgb, texture2d_read_t d2DLut){
   
   float  size    = (float)(get_texture_width(d2DLut));
-  float  clevel  = (uint)roundf(powf((float)size,1.0f/3.0f));
+  float  clevel  = roundf(powf((float)size,1.0f/3.0f));
   
   float cube_size = clevel*clevel;
   
-  float blueColor = rgb.z * (cube_size-1.0f-0.8f);
+  float blueColor = rgb.z * (cube_size-1.0f);//-0.8f);
   
   float2 quad1;
   quad1.y = floorf(floorf(blueColor) / clevel);
@@ -139,7 +135,7 @@ inline  DHCR_DEVICE_FUNC float3 sample2DLut(float3 rgb, texture2d_read_t d2DLut)
   
   float4 newColor1 = read_image(d2DLut, texPos1);
   
-  float4 newColor2 =  read_image(d2DLut, texPos2);
+  float4 newColor2 = read_image(d2DLut, texPos2);
   
   return to_float3(mix(newColor1, newColor2, fracf(blueColor)));
 }
