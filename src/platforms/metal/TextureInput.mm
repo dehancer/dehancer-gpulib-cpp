@@ -50,13 +50,11 @@ namespace dehancer::impl {
       @autoreleasepool {
         #if defined(SUPPORT_NSIMAGE) || defined(SUPPORT_UIIMAGE)
         
-        NSData *data = [NSData dataWithBytes:buffer.data()
-                                      length:buffer.size()];
+        NSData *data = [NSData dataWithBytesNoCopy:(void*)(buffer.data())
+                                      length:buffer.size() freeWhenDone:NO] ;
         
-        #if defined(IOS_SYSTEM)
-        auto image = [DImage imageWithData:data];
-        NSData* imageData =  UIImagePNGRepresentation(image);
-        image = [UIImage imageWithData:imageData];
+      #if defined(IOS_SYSTEM)
+        auto image = [DImage imageWithData:data] ;
         #else
         auto image = [[DImage alloc] initWithData:data];
         #endif
@@ -86,18 +84,6 @@ namespace dehancer::impl {
     
           auto image = reinterpret_cast<DImage *>(handle);
   
-          cv::Mat imageMat;
-          UIImageToMat(image, imageMat);
-  
-          switch (imageMat.depth()) {
-            case CV_8S:
-            case CV_8U:
-              //imageMat.convertTo(imageMat, CV_32FC4, 1.0f/256.0f);
-              imageMat.convertTo(imageMat, CV_16U);
-              image = MatToUIImage(imageMat);
-              break;
-          }
-          
           #if PRINT_DEBUG
           dehancer::log::print(" ### TextureInput::load_from_native_image bits per pixel: %zu",
                                CGImageGetBitsPerPixel([image CGImage]));
@@ -157,7 +143,7 @@ namespace dehancer::impl {
     
           [commandBuffer commit];
           [commandBuffer waitUntilCompleted];
-    
+          
           return Error(CommonError::OK);
         }
         catch (const cv::Exception &e) { return Error(CommonError::EXCEPTION, e.what()); }

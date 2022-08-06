@@ -32,8 +32,10 @@ namespace dehancer::metal {
               .depth = depth,
               #if defined(IOS_SYSTEM)
               .pixel_format = TextureDesc::PixelFormat::rgba16float,
-              #else
+              #elif defined(DEHANCER_3DLUT_32FLOAT) || defined(DEHANCER_GPU_CUDA)
               .pixel_format = TextureDesc::PixelFormat::rgba32float,
+              #else
+              .pixel_format = TextureDesc::PixelFormat::rgba16float,
               #endif
               .type = type,
               .mem_flags = TextureDesc::MemFlags::read_write
