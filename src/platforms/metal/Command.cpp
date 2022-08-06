@@ -22,7 +22,7 @@ namespace dehancer::metal {
       if (depth>1) {
         type = TextureDesc::Type::i3d;
       }
-      else if (height==1) {
+      else if (height<1) {
         type = TextureDesc::Type::i1d;
       }
 
@@ -30,7 +30,11 @@ namespace dehancer::metal {
               .width = width,
               .height = height,
               .depth = depth,
+              #if defined(IOS_SYSTEM)
+              .pixel_format = TextureDesc::PixelFormat::rgba16float,
+              #else
               .pixel_format = TextureDesc::PixelFormat::rgba32float,
+              #endif
               .type = type,
               .mem_flags = TextureDesc::MemFlags::read_write
       };
