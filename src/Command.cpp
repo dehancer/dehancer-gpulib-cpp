@@ -19,7 +19,23 @@
 namespace dehancer {
 
     bool Command::WAIT_UNTIL_COMPLETED = false;
-
+    TextureDesc::PixelFormat Command::pixel_format_1d = TextureDesc::PixelFormat::rgba32float;
+    TextureDesc::PixelFormat Command::pixel_format_2d = TextureDesc::PixelFormat::rgba32float;
+    
+    #if defined(IOS_SYSTEM)
+    
+    TextureDesc::PixelFormat Command::pixel_format_3d = TextureDesc::PixelFormat::rgba16float;
+    
+    #elif defined(DEHANCER_3DLUT_32FLOAT) || defined(DEHANCER_GPU_CUDA)
+    
+    TextureDesc::PixelFormat Command::pixel_format_3d = TextureDesc::PixelFormat::rgba32float;
+    
+    #else
+    
+    TextureDesc::PixelFormat Command::pixel_format_3d = TextureDesc::PixelFormat::rgba32float;
+    
+    #endif
+    
     namespace impl {
         class Command: public dehancer::DEHANCER_GPU_PLATFORM::Command {
         public:

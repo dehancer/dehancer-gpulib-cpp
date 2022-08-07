@@ -22,6 +22,11 @@ namespace dehancer {
     class Command: public std::enable_shared_from_this<Command> {
 
     public:
+    
+        static TextureDesc::PixelFormat pixel_format_1d;
+        static TextureDesc::PixelFormat pixel_format_2d;
+        static TextureDesc::PixelFormat pixel_format_3d;
+    
         /***
          * Global property defines waiting or not every command execution
          */

@@ -16,7 +16,7 @@ namespace dehancer {
     public:
         
         static size_t default_lut_size;
-        
+    
         enum class Type : int {
             lut_1d   = 0, // unsupported by ofx plugin
             lut_2d   = 1,

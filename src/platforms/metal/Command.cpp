@@ -18,25 +18,22 @@ namespace dehancer::metal {
       ///
       
       TextureDesc::Type type = TextureDesc::Type::i2d;
+      TextureDesc::PixelFormat pixel_format =  dehancer::Command::pixel_format_2d;
       
       if (depth>1) {
         type = TextureDesc::Type::i3d;
+        pixel_format =  dehancer::Command::pixel_format_3d;
       }
       else if (height==1) {
         type = TextureDesc::Type::i1d;
+        pixel_format =  dehancer::Command::pixel_format_1d;
       }
       
       dehancer::TextureDesc desc = {
               .width = width,
               .height = height,
               .depth = depth,
-              #if defined(IOS_SYSTEM)
-              .pixel_format = TextureDesc::PixelFormat::rgba16float,
-              #elif defined(DEHANCER_3DLUT_32FLOAT) || defined(DEHANCER_GPU_CUDA)
-              .pixel_format = TextureDesc::PixelFormat::rgba32float,
-              #else
-              .pixel_format = TextureDesc::PixelFormat::rgba16float,
-              #endif
+              .pixel_format = pixel_format,
               .type = type,
               .mem_flags = TextureDesc::MemFlags::read_write
       };

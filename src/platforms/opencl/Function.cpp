@@ -46,7 +46,7 @@ namespace dehancer::opencl {
   
       #ifdef PRINT_KERNELS_DEBUG
       size_t buffer_size = compute_size.threads_in_grid*257*4*sizeof(unsigned int);
-      std::cout << "Function w" << kernel_name_
+      std::cout << "Function " << kernel_name_
                 << " global: "
                 << compute_size.grid.width << "x" << compute_size.grid.height << "x" << compute_size.grid.depth
                 << "  local: "
