@@ -85,10 +85,15 @@ if(LINUX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -W -Wall -Wextra -Wno-ignored-qualifiers -Wvariadic-macros")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=default -Wno-pedantic -Wunused-function")
 elseif(APPLE)
+
     if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
         set (IOS TRUE)
         add_definitions(-DIOS_SYSTEM=13)
     endif ()
+
+    if(CMAKE_OSX_ARCHITECTURES)
+        add_definitions(-DDEHANCER_ARCH="${CMAKE_OSX_ARCHITECTURES}")
+    endif()
 
     set(STATIC_LINKING ON)
     message(STATUS "Apple configuration...")
