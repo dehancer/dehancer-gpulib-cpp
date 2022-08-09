@@ -26,13 +26,17 @@ namespace dehancer {
     
     TextureDesc::PixelFormat Command::pixel_format_3d = TextureDesc::PixelFormat::rgba16float;
     
-    #elif defined(DEHANCER_3DLUT_32FLOAT) || defined(DEHANCER_GPU_CUDA)
+    #elif defined(DEHANCER_3DLUT_32FLOAT)
+    
+    TextureDesc::PixelFormat Command::pixel_format_3d = TextureDesc::PixelFormat::rgba32float;
+    
+    #elif defined(DEHANCER_GPU_OPENCL)
     
     TextureDesc::PixelFormat Command::pixel_format_3d = TextureDesc::PixelFormat::rgba32float;
     
     #else
     
-    TextureDesc::PixelFormat Command::pixel_format_3d = TextureDesc::PixelFormat::rgba32float;
+    TextureDesc::PixelFormat Command::pixel_format_3d = TextureDesc::PixelFormat::rgba16float;
     
     #endif
     

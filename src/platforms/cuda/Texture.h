@@ -46,7 +46,7 @@ namespace dehancer::cuda {
             case TextureDesc::Type::i2d:
               return std::make_shared<dehancer::nvcc::texture2d<T,is_half>>(desc_.width,desc_.height);
             case TextureDesc::Type::i3d:
-              return std::make_shared<dehancer::nvcc::texture3d<T>>(desc_.width,desc_.height,desc_.depth);
+              return std::make_shared<dehancer::nvcc::texture3d<T,is_half>>(desc_.width,desc_.height,desc_.depth);
           }
       
           return std::make_shared<dehancer::nvcc::texture2d<T>>(desc_.width,desc_.height);

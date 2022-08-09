@@ -7,10 +7,6 @@
 #include "dehancer/gpu/kernels/cuda/texture.h"
 #include <cuda_runtime_api.h>
 
-#define _HALF_FLOAT_SIZE_BASE_ (65535)
-#define _HALF_FLOAT_SIZE_      (_HALF_FLOAT_SIZE_BASE_>>1)
-#define _HALF_FLOAT_SIZE_MAX_  ((float)_HALF_FLOAT_SIZE_)
-#define _HALF_USHORT_SIZE_MAX_ ((ushort)(_HALF_FLOAT_SIZE_))
 
 namespace dehancer {
     
@@ -39,8 +35,8 @@ namespace dehancer {
                     height_(height),
                     normalized_coords_(normalized_coords),
                     is_half_(is_half_float),
-                    mem_(nullptr),
-                    pitch_(sizeof(T))
+                    pitch_(sizeof(T)),
+                    mem_(nullptr)
             {
               assert(width_ > 0 && height_ > 0);
               

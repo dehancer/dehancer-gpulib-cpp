@@ -3,6 +3,7 @@
 //
 
 #include "Command.h"
+#include "dehancer/Log.h"
 
 namespace dehancer::cuda {
 
@@ -37,6 +38,9 @@ namespace dehancer::cuda {
               .type = type,
               .mem_flags = TextureDesc::MemFlags::read_write
       };
+      
+      //printf("Command::make_texture %zux%zux%zu pixel_format = %i, type = %i, 3d_pixel_format = %i\n", desc.width, desc.height, desc.depth, desc.pixel_format, desc.type, pixel_format);
+      
       return TextureHolder::Make(get_command_queue(), desc, nullptr);
     }
 }
