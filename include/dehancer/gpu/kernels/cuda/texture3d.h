@@ -77,9 +77,7 @@ namespace dehancer {
 
               // Create texture object
               CHECK_CUDA(cudaCreateTextureObject(&texture_, &resDesc, &texDesc, nullptr));
-  
-              //rintf("texture3d %zux%zux%zu is_half_ = %i\n", width_, height_, depth_, is_half_);
-  
+              
             }
 
             ~texture3d() {

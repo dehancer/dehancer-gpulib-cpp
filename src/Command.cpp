@@ -26,7 +26,7 @@ namespace dehancer {
     
     TextureDesc::PixelFormat Command::pixel_format_3d = TextureDesc::PixelFormat::rgba16float;
     
-    #elif defined(DEHANCER_3DLUT_32FLOAT)
+    #elif defined(DEHANCER_3DLUT_32FLOAT) || defined(DEHANCER_GPU_CUDA) // TODO: Cuda trilinear interpolation is not supported yet
     
     TextureDesc::PixelFormat Command::pixel_format_3d = TextureDesc::PixelFormat::rgba32float;
     
