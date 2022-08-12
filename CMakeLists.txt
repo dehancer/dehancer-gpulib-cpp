@@ -3,9 +3,17 @@ cmake_minimum_required(VERSION 3.12)
 #
 # Project
 #
+
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
 project(${PROJECT_LIB} VERSION 1.3.2)
+
+message("PLATFORM: ${PLATFORM}")
+message("XCODE_VERSION: ${XCODE_VERSION}")
+message("SDK_NAME: ${SDK_NAME}")
+message("CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
+message("APPLE_TARGET_TRIPLE: ${APPLE_TARGET_TRIPLE}")
+message("DEPLOYMENT_TARGET: ${DEPLOYMENT_TARGET}")
 
 #
 # Options
@@ -248,25 +256,25 @@ if (LINUX)
 
     message("GFORTRAN_LIBRARY: ${GFORTRAN_LIBRARY}")
 
-#    foreach(v ${BLAS_LIBRARIES})
-#        string(REPLACE ".so" ".a" vv ${v})
-#        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-#    endforeach()
-#
-#    foreach(v ${LAPACK_LIBRARIES})
-#        string(REPLACE ".so" ".a" vv ${v})
-#        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-#    endforeach()
+    #    foreach(v ${BLAS_LIBRARIES})
+    #        string(REPLACE ".so" ".a" vv ${v})
+    #        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+    #    endforeach()
+    #
+    #    foreach(v ${LAPACK_LIBRARIES})
+    #        string(REPLACE ".so" ".a" vv ${v})
+    #        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+    #    endforeach()
 
-#    foreach(v ${GFORTRAN_LIBRARY})
-#        string(REPLACE ".so" ".a" vv ${v})
-#        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-#    endforeach()
-#
-#    foreach(v ${GQUADMATH_LIBRARY})
-#        string(REPLACE ".so" ".a" vv ${v})
-#        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-#    endforeach()
+    #    foreach(v ${GFORTRAN_LIBRARY})
+    #        string(REPLACE ".so" ".a" vv ${v})
+    #        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+    #    endforeach()
+    #
+    #    foreach(v ${GQUADMATH_LIBRARY})
+    #        string(REPLACE ".so" ".a" vv ${v})
+    #        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+    #    endforeach()
 
     set(DEHANCER_EXT_MATH_LIB ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
     find_library(GFORTRAN_LIB NAMES gfortran)
@@ -786,4 +794,3 @@ if(BUILD_TESTING)
     add_subdirectory(tests)
     enable_testing()
 endif()
-
