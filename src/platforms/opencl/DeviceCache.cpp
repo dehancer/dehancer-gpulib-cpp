@@ -182,8 +182,14 @@ namespace dehancer::opencl {
     }
 
     gpu_device_item::~gpu_device_item() {
+      #if defined(DEHANCER_OPENCL_CONTEXT_NOT_RELEASE)
+      //
+      // PS/LR hangs release context
+      //
+      #else
       if (context)
         clReleaseContext(context);
+      #endif
     }
 
     gpu_command_queue_item::~gpu_command_queue_item() {
