@@ -61,7 +61,6 @@
 #include "dehancer/gpu/ocio/cs/Deh2020.h"
 #include "dehancer/gpu/ocio/cs/CineonLog.h"
 #include "dehancer/gpu/ocio/cs/DVRWGIntermediate.h"
-#include "dehancer/gpu/ocio/cs/DVRWGIntermediateV2.h"
 #include "dehancer/gpu/ocio/cs/DVRWGRec709.h"
 #include "dehancer/gpu/ocio/cs/Rec2020.h"
 #include "dehancer/gpu/ocio/cs/Rec709.h"
