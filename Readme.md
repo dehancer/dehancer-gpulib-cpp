@@ -35,6 +35,8 @@ Build iOS
 
     cmake --build . --config Debug && cmake --install . --config Debug
 
+    lipo -create libdehancer_gpulib_metal_iphoneos.a libdehancer_gpulib_metal_iphonesimulator.a -output libdehancer_gpulib_metal.a
+
 Build Windows10 x64
 ===================
     # CUDA
