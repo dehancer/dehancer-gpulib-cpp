@@ -40,7 +40,9 @@ configure_package_config_file(
 
 install(TARGETS ${PROJECT_LIB_PLATFORM}   DESTINATION lib)
 install(FILES   ${project_config} ${version_config} DESTINATION lib/cmake/${PROJECT_LIB_PLATFORM})
+if(NOT IOS)
 install(FILES cmake/${PROJECT_LIB_PLATFORM}.cmake DESTINATION lib/cmake/${PROJECT_LIB_PLATFORM})
+endif ()
 
 install(DIRECTORY
         ${EXTERNAL_INSTALL_LOCATION}/include
@@ -77,7 +79,9 @@ set(dehancer_gpu_cpp_lib ${PROJECT_LIB_PLATFORM})
 
 configure_file(${CMAKE_SOURCE_DIR}/dehancer-gpulib-cpp.pc.in ${CMAKE_CURRENT_BINARY_DIR}/dehancer-gpulib-cpp.pc @ONLY)
 
+if(NOT IOS)
 install(FILES
         ${CMAKE_CURRENT_BINARY_DIR}/dehancer-gpulib-cpp.pc
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
         )
+endif ()

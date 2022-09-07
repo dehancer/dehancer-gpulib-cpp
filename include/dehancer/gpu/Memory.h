@@ -27,7 +27,7 @@ namespace dehancer {
     
     struct MemoryDesc {
         
-        enum MemFlags:uint32_t {
+        enum MemFlags : uint32_t {
             read_write = (1 << 0),
             write_only = (1 << 1),
             read_only  = (1 << 2),

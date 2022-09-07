@@ -10,6 +10,12 @@
 #include <cuda.h>
 #include <cuda_fp16.h>
 
+
+#define _HALF_FLOAT_SIZE_BASE_ (65535)
+#define _HALF_FLOAT_SIZE_      (_HALF_FLOAT_SIZE_BASE_>>1)
+#define _HALF_FLOAT_SIZE_MAX_  ((float)_HALF_FLOAT_SIZE_)
+#define _HALF_USHORT_SIZE_MAX_ ((ushort)(_HALF_FLOAT_SIZE_))
+
 namespace dehancer {
     
     namespace nvcc {

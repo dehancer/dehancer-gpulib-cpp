@@ -179,11 +179,12 @@ namespace dehancer::cuda {
     }
     
     gpu_device_item::~gpu_device_item() {
-      for (size_t i = 0; i < command_queue_cache.size(); ++i) {
-        CHECK_CUDA(cuStreamDestroy(command_queue_cache[i]->command_queue));
+      for (auto & i : command_queue_cache) {
+        CHECK_CUDA(cuStreamDestroy(i->command_queue));
       }
-      if (context)
+      if (context) {
         CHECK_CUDA(cuCtxDestroy(context));
+      }
       context = nullptr;
     }
     

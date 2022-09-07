@@ -139,7 +139,7 @@ namespace dehancer::opencl {
         throw std::runtime_error("Unable to create new OpenCL context for device: " + device->name);
       }
 
-      for (int i = 0; i < kMaxCommandQueues; ++i) {
+      for (int i = 0; i < (int)kMaxCommandQueues; ++i) {
 
 #ifdef __APPLE__
         auto q = clCreateCommandQueue(context, device_id, 0, &ret);
@@ -182,8 +182,14 @@ namespace dehancer::opencl {
     }
 
     gpu_device_item::~gpu_device_item() {
+      #if defined(DEHANCER_OPENCL_CONTEXT_NOT_RELEASE)
+      //
+      // PS/LR hangs release context
+      //
+      #else
       if (context)
         clReleaseContext(context);
+      #endif
     }
 
     gpu_command_queue_item::~gpu_command_queue_item() {

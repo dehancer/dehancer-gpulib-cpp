@@ -15,82 +15,70 @@ namespace dehancer::cuda {
     std::unordered_map<CUstream, Function::KernelMap> Function::kernel_map_;
     std::unordered_map<CUstream, Function::ProgamMap> Function::module_map_;
     
+    
+    void
+    Function::execute (CommandEncoder::ComputeSize compute_size, const dehancer::Function::VoidEncodeHandler &block) {
+      if (!block) return;
+  
+      execute_block([block,compute_size](dehancer::CommandEncoder& encoder){
+          block(encoder);
+          return compute_size;
+      });
+    }
+    
     void Function::execute(const dehancer::Function::EncodeHandler &block) {
+  
+      execute_block([block](dehancer::CommandEncoder& encoder){
+          auto from_block = block(encoder);
+          return encoder.ask_compute_size(from_block);
+      });
+      
+    }
+    
+    void Function::execute_block (const Function::CommonEncodeHandler& block) {
       
       command_->push();
-      
+  
       auto encoder = std::make_shared<cuda::CommandEncoder>(kernel_, this);
+  
+      auto compute_size = block(*encoder);
       
-      auto texture_size = block(*encoder);
-      
-      float pow_coef = 3 ;
-      
-      if (texture_size.depth==1) {
-        pow_coef = 2;
-      }
-      
-      if (texture_size.height==1) {
-        pow_coef = 1;
-      }
-      
-      auto size = (int)((powf((float)max_device_threads_,1/pow_coef) - 1)/2);
-      size |= size >> 1; size |= size >> 2; size |= size >> 4; size |= size >> 8; size |= size >> 16; size += 1;
-      
-      dim3 block_size(size, size, size);
-      
-      if (texture_size.depth==1) {
-        block_size.z = 1;
-        if (max_device_threads_<block_size.x*block_size.y) {
-          block_size.x = block_size.y = max_device_threads_>>2>>2>>1;
-        }
-      }
-      
-      if (texture_size.height==1) {
-        block_size.y = 1;
-        block_size.x = max_device_threads_;
-      }
-      
-      if (texture_size.width < block_size.x) block_size.x = texture_size.width;
-      if (texture_size.height < block_size.y) block_size.y = texture_size.height;
-      if (texture_size.depth < block_size.z) block_size.z = texture_size.depth;
-      
-      dim3 grid_size((texture_size.width  + block_size.x - 1) / block_size.x,
-                     (texture_size.height + block_size.y - 1) / block_size.y,
-                     (texture_size.depth  + block_size.z - 1) / block_size.z
-      );
-
-#ifdef PRINT_KERNELS_DEBUG
-      std::cout << "CUDA Function "<<kernel_name_<<"  max threads: "
-                << max_device_threads_
-                << " blocks: "
-                << block_size.x << "x" << block_size.y << "x" << block_size.z
-                << " grid: "
-                << grid_size.x << "x" << grid_size.y << "x" << grid_size.z
+      #ifdef PRINT_KERNELS_DEBUG
+      size_t buffer_size = compute_size.threads_in_grid*257*4*sizeof(unsigned int);
+      std::cout << "Function " << kernel_name_
+                << " global: "
+                << compute_size.grid.width << "x" << compute_size.grid.height << "x" << compute_size.grid.depth
+                << "  local: "
+                << compute_size.block.width << "x" << compute_size.block.height << "x" << compute_size.block.depth
+                << "  num_groups: "
+                << compute_size.threads_in_grid
+                << "  buffer size: "
+                <<     buffer_size << "b" << ", " << buffer_size/1024/1204 << "Mb"
                 << std::endl;
-#endif
-      
+      #endif
+  
       cudaEvent_t start, stop;
       if (command_->get_wait_completed()) {
         CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventCreate(&start));
         CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventCreate(&stop));
         CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventRecord(start, nullptr));
       }
-      
+  
       CHECK_CUDA_KERNEL(kernel_name_.c_str(),cuLaunchKernel(
               kernel_,
-              grid_size.x, grid_size.y, grid_size.z,
-              block_size.x, block_size.y, block_size.z,
+              compute_size.grid.width, compute_size.grid.height, compute_size.grid.depth,
+              compute_size.block.width, compute_size.block.height, compute_size.block.depth,
               0,
               command_->get_command_queue(),
               encoder->args_.data(),
               nullptr)
       );
-      
+  
       if (command_->get_wait_completed()) {
         CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventRecord(stop, nullptr));
         CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventSynchronize(stop));
       }
-      
+  
       command_->pop();
     }
     
@@ -108,18 +96,7 @@ namespace dehancer::cuda {
       
       command_->push();
       
-      #ifdef PRINT_KERNELS_DEBUG
-      CUdevice device_id = command_->get_device_id();
-      std::cout << "CUDA Function " << kernel_name_ << " context is changed to device["<<device_id<<"]" <<std::endl;
-      #endif
-      
       max_device_threads_ = command_->get_max_threads();
-      
-      #ifdef PRINT_KERNELS_DEBUG
-      cudaDeviceProp props{}; command_->get_device_info(props);
-      std::cout << "CUDA Function "<<kernel_name_ << " device["<<device_id<<"]: " << props.name << " max grid: " << props.maxGridSize[0] << "x" << props.maxGridSize[1] << "x" << props.maxGridSize[2] <<std::endl;
-      std::cout << "CUDA Function "<<kernel_name_ << " device["<<device_id<<"]: " << props.name << " max dim: " << props.maxThreadsDim[0] << "x" << props.maxThreadsDim[1] << "x" << props.maxThreadsDim[2] <<std::endl;
-      #endif
       
       std::unique_lock<std::mutex> lock(Function::mutex_);
       
@@ -207,4 +184,15 @@ namespace dehancer::cuda {
     const std::string &Function::get_library_path () const {
       return library_path_;
     }
+    
+    size_t Function::get_block_max_size () const {
+      return max_device_threads_;
+    }
+    
+    CommandEncoder::ComputeSize Function::ask_compute_size (size_t width, size_t height, size_t depth) const {
+      const auto e = std::make_shared<cuda::CommandEncoder>(kernel_, this);
+      return e->ask_compute_size(width, height, depth);
+    }
+    
+  
 }

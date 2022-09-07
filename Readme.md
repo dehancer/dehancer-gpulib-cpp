@@ -15,13 +15,14 @@ Build Intel
 
 Build iOS
 ============
-    mkdir build-arm64-ios cd build-arm64-ios
+    mkdir build-arm64-ios && cd build-arm64-ios
+    export PKG_CONFIG_PATH=/opt/homebrew/opt/zlib/lib/pkgconfig:~/Develop/local/ios/dehancer/lib/pkgconfig
     cmake -G Xcode \
-    -DCMAKE_TOOLCHAIN_FILE=~/Develop/Dehancer/Dehancer-Plugins/ios-cmake/ios.toolchain.cmake\
+    -DCMAKE_TOOLCHAIN_FILE=~/Develop/Dehancer/Dehancer-Plugins/ios-cmake/ios.toolchain.cmake \
     -DPLATFORM=OS64COMBINED \
-    -DDEPLOYMENT_TARGET=13.0 \ 
-    -DENABLE_BITCODE=ON \ 
-    -DBUILD_TESTING=OFF \ 
+    -DDEPLOYMENT_TARGET=13.0 \
+    -DENABLE_BITCODE=ON \
+    -DBUILD_TESTING=OFF \
     -DCMAKE_INSTALL_PREFIX=~/Develop/local/ios/dehancer \
     -DOPENCV_FRAMEWORK_PATH=~/Develop/local/ios/lib \
     -DOPENCV_INCLUDES_PATH=~/Develop/local/ios/include \
@@ -29,7 +30,12 @@ Build iOS
     -DDEHANCER_GPU_METAL=ON \
     -DDEHANCER_GPU_OPENCL=OFF \
     -DDEHANCER_GPU_CUDA=OFF \
-    -DUSE_OPENCOLORIO=OFF
+    -DUSE_OPENCOLORIO=OFF \
+    ..
+
+    cmake --build . --config Debug && cmake --install . --config Debug
+
+    lipo -create libdehancer_gpulib_metal_iphoneos.a libdehancer_gpulib_metal_iphonesimulator.a -output libdehancer_gpulib_metal.a
 
 Build Windows10 x64
 ===================
@@ -44,6 +50,7 @@ Build Windows10 x64
     -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
     -DVCPKG_TARGET_TRIPLET=x64-windows-static 
     ..
+
 
 Requirements
 ===========

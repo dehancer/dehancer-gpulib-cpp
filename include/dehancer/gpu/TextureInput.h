@@ -114,7 +114,7 @@ namespace dehancer {
          */
         friend std::istream& operator>>(std::istream& is, TextureInput& texture_output);
 
-        ~TextureInput()  ;
+        virtual ~TextureInput()  ;
 
     private:
         std::shared_ptr<impl::TextureInput> impl_;

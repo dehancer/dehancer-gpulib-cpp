@@ -5,7 +5,8 @@
 #ifndef DEHANCER_GPULIB_OPENCL_H
 #define DEHANCER_GPULIB_OPENCL_H
 
-// #pragma OPENCL EXTENSION cl_khr_3d_image_writes : enable
+#pragma OPENCL EXTENSION cl_khr_3d_image_writes : enable
+#pragma OPENCL EXTENSION cl_khr_local_int32_base_atomics : enable
 
 #include "dehancer/gpu/kernels/constants.h"
 #include "dehancer/gpu/kernels/types.h"

@@ -21,10 +21,33 @@
 #define DHCR_THREAD_ARG    thread
 #define DHCR_CONST_ARG     constant
 #define DHCR_CONST_ARG_REF(T) DHCR_CONST_ARG T&
+#define DHCR_BLOCK_MEMORY  threadgroup
 
-#define DHCR_KERNEL_GID_1D ,uint  __dehancer_kernel_gid_1d__ [[thread_position_in_grid]]
-#define DHCR_KERNEL_GID_2D ,uint2 __dehancer_kernel_gid_2d__ [[thread_position_in_grid]]
-#define DHCR_KERNEL_GID_3D ,uint3 __dehancer_kernel_gid_3d__ [[thread_position_in_grid]]
+
+#define DHCR_KERNEL_GID_1D  ,uint __dehancer_kernel_gid_1d__ [[thread_position_in_grid]] \
+                            ,uint __dehancer_compute_size_1d__ [[threads_per_grid]]      \
+                            ,uint __dehancer_grid_size_1d__    [[threadgroups_per_grid]] \
+                            ,uint __dehancer_block_size_1d__   [[threads_per_threadgroup]] \
+                            ,uint __dehancer_block_id_1d__     [[threadgroup_position_in_grid]] \
+                            ,uint __dehancer_thread_in_block_id_1d__ [[thread_position_in_threadgroup]]
+                            
+#define DHCR_KERNEL_GID_2D  ,uint2 __dehancer_kernel_gid_2d__ [[thread_position_in_grid]] \
+                            ,uint2 __dehancer_compute_size_2d__ [[threads_per_grid]]      \
+                            ,uint2 __dehancer_grid_size_2d__    [[threadgroups_per_grid]] \
+                            ,uint2 __dehancer_block_size_2d__   [[threads_per_threadgroup]] \
+                            ,uint2 __dehancer_block_id_2d__     [[threadgroup_position_in_grid]] \
+                            ,uint2 __dehancer_thread_in_block_id_2d__ [[thread_position_in_threadgroup]]
+
+#define DHCR_KERNEL_GID_3D  ,uint3 __dehancer_kernel_gid_3d__ [[thread_position_in_grid]] \
+                            ,uint3 __dehancer_compute_size_3d__ [[threads_per_grid]]      \
+                            ,uint3 __dehancer_grid_size_3d__    [[threadgroups_per_grid]] \
+                            ,uint3 __dehancer_block_size_3d__   [[threads_per_threadgroup]] \
+                            ,uint3 __dehancer_block_id_3d__     [[threadgroup_position_in_grid]] \
+                            ,uint3 __dehancer_thread_in_block_id_3d__ [[thread_position_in_threadgroup]]
+
+using atomic_int_t = metal::atomic_int;
+using atomic_bool_t = metal::atomic_uint;
+using atomic_uint_t = metal::atomic_uint;
 
 #define bool_ref_t bool&
 #define bool_t bool

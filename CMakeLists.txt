@@ -3,9 +3,17 @@ cmake_minimum_required(VERSION 3.12)
 #
 # Project
 #
+
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 1.3.2)
+project(${PROJECT_LIB} VERSION 1.4.0)
+
+message("PLATFORM: ${PLATFORM}")
+message("XCODE_VERSION: ${XCODE_VERSION}")
+message("SDK_NAME: ${SDK_NAME}")
+message("CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
+message("APPLE_TARGET_TRIPLE: ${APPLE_TARGET_TRIPLE}")
+message("DEPLOYMENT_TARGET: ${DEPLOYMENT_TARGET}")
 
 #
 # Options
@@ -23,6 +31,7 @@ option (DEHANCER_DEBUG OFF)
 option (USE_OPENCOLORIO OFF)
 option (DEHANCER_USE_NATIVE_APPLE_API ON)
 option (BUILD_UTILS OFF)
+option (DEHANCER_OPENCL_CONTEXT_NOT_RELEASE OFF)
 
 if (NOT DEHANCER_COMMON_DIR)
     set(DEHANCER_COMMON_DIR "${CMAKE_BINARY_DIR}/tmp")
@@ -39,6 +48,9 @@ if (DEHANCER_TARGET_ARCH)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target ${DEHANCER_TARGET_ARCH}")
 endif ()
 
+if(DEHANCER_OPENCL_CONTEXT_NOT_RELEASE)
+    add_definitions(-DDEHANCER_OPENCL_CONTEXT_NOT_RELEASE=1)
+endif ()
 #
 #
 # C++
@@ -85,10 +97,15 @@ if(LINUX)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -W -Wall -Wextra -Wno-ignored-qualifiers -Wvariadic-macros")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=default -Wno-pedantic -Wunused-function")
 elseif(APPLE)
+
     if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
         set (IOS TRUE)
         add_definitions(-DIOS_SYSTEM=13)
     endif ()
+
+    if(CMAKE_OSX_ARCHITECTURES)
+        add_definitions(-DDEHANCER_ARCH="${CMAKE_OSX_ARCHITECTURES}")
+    endif()
 
     set(STATIC_LINKING ON)
     message(STATUS "Apple configuration...")
@@ -243,25 +260,25 @@ if (LINUX)
 
     message("GFORTRAN_LIBRARY: ${GFORTRAN_LIBRARY}")
 
-#    foreach(v ${BLAS_LIBRARIES})
-#        string(REPLACE ".so" ".a" vv ${v})
-#        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-#    endforeach()
-#
-#    foreach(v ${LAPACK_LIBRARIES})
-#        string(REPLACE ".so" ".a" vv ${v})
-#        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-#    endforeach()
+    #    foreach(v ${BLAS_LIBRARIES})
+    #        string(REPLACE ".so" ".a" vv ${v})
+    #        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+    #    endforeach()
+    #
+    #    foreach(v ${LAPACK_LIBRARIES})
+    #        string(REPLACE ".so" ".a" vv ${v})
+    #        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+    #    endforeach()
 
-#    foreach(v ${GFORTRAN_LIBRARY})
-#        string(REPLACE ".so" ".a" vv ${v})
-#        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-#    endforeach()
-#
-#    foreach(v ${GQUADMATH_LIBRARY})
-#        string(REPLACE ".so" ".a" vv ${v})
-#        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-#    endforeach()
+    #    foreach(v ${GFORTRAN_LIBRARY})
+    #        string(REPLACE ".so" ".a" vv ${v})
+    #        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+    #    endforeach()
+    #
+    #    foreach(v ${GQUADMATH_LIBRARY})
+    #        string(REPLACE ".so" ".a" vv ${v})
+    #        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
+    #    endforeach()
 
     set(DEHANCER_EXT_MATH_LIB ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
     find_library(GFORTRAN_LIB NAMES gfortran)
@@ -374,6 +391,7 @@ if (DEHANCER_GPU_OPENCL)
         set(DEHANCER_GPU_OPENCL OFF)
         message("OpenCL is not found on this platform")
     endif ()
+    add_definitions(-DDEHANCER_GPU_OPENCL=1)
 endif ()
 
 
@@ -564,7 +582,8 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.9.1
+            GIT_TAG 0.9.2
+#            GIT_TAG develop
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
@@ -608,7 +627,8 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-maths-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.6.5
+            GIT_TAG 0.6.6
+#            GIT_TAG develop
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
@@ -653,7 +673,7 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-xmp-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.8.5
+            GIT_TAG 0.8.7
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
@@ -778,4 +798,3 @@ if(BUILD_TESTING)
     add_subdirectory(tests)
     enable_testing()
 endif()
-

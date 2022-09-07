@@ -10,7 +10,6 @@
 namespace dehancer {
     
     /**
-     * Bypass kernel.
      */
     class BlendKernel: public Kernel {
     

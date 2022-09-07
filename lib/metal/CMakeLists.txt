@@ -7,6 +7,10 @@ endif ()
 set (PROJECT_LIB_PLATFORM_SUFFIX _metal)
 set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}${PROJECT_LIB_PLATFORM_SUFFIX})
 
+if(IOS)
+    set (PROJECT_LIB_PLATFORM ${PROJECT_LIB_PLATFORM}_${SDK_NAME})
+endif()
+
 file (GLOB COMMON_IMPL_SRC ${COMMON_IMPL_SRC}
         ${CMAKE_SOURCE_DIR}/src/platforms/metal/*.cpp
         ${CMAKE_SOURCE_DIR}/src/platforms/metal/*.mm

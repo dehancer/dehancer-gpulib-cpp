@@ -34,6 +34,7 @@ DHCR_KERNEL void kernel_convolve_horizontal(
   __syncthreads();
   
   if (!is_loaded) {
+#pragma unroll 4
     for(int i = 0; i < size && i < WEIGHTS_MAX_SIZE; ++i) {
       tmp_weights[i] = weights[i];
     }

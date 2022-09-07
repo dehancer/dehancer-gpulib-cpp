@@ -73,7 +73,7 @@ inline static void run_images(std::string platform,
             );
 #else
     auto devices = dehancer::DeviceCache::Instance().get_device_list(
-            dehancer::device::Type::gpu
+            //dehancer::device::Type::cpu
     );
 #endif
     assert(!devices.empty());
@@ -93,6 +93,7 @@ inline static void run_images(std::string platform,
     
     for (auto d: devices) {
       try {
+        if (dehancer::device::get_name(d) =="Intel(R) Corporation: Intel(R) UHD Graphics") continue;
         if (run_on_device(dev_num++, d, platform, block, images) != 0) return;
       }
       catch (const std::runtime_error &e) {

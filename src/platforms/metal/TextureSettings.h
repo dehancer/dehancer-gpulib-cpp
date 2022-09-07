@@ -29,6 +29,7 @@
 #if defined(SUPPORT_NSIMAGE) || defined(SUPPORT_UIIMAGE)
 namespace dehancer::impl {
     static const CGColorSpaceRef color_space = CGColorSpaceCreateDeviceRGB();
+    static const CIFormat pixel_format = kCIFormatRGBAh;
 }
 #endif
 

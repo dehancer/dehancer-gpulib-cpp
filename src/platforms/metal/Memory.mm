@@ -99,8 +99,20 @@ namespace dehancer::metal {
       
       if (static_cast<id <MTLBuffer>>(memobj_).length>length)
         return Error(CommonError::OUT_OF_RANGE, error_string("Device memory length greater then buffer allocated"));
+  
+      auto queue = static_cast<id<MTLCommandQueue>>( (__bridge id)get_command_queue());
+      id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+  
+      #if not defined(IOS_SYSTEM)
+      id <MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
+      [blitEncoder synchronizeResource:reinterpret_cast<id <MTLBuffer>>(memobj_)];
+      [blitEncoder endEncoding];
+      #endif
+  
+      [commandBuffer commit];
+      [commandBuffer waitUntilCompleted];
       
-      memcpy(buffer, static_cast<id <MTLBuffer>>(memobj_).contents, length);
+      memcpy(buffer, reinterpret_cast<id <MTLBuffer>>(memobj_).contents, length);
       
       return Error(CommonError::OK);
     }
