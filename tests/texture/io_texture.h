@@ -20,9 +20,13 @@ auto io_texture_test = [] (int dev_num,
     
     auto command = dehancer::Command(command_queue);
     
-    std::cout << "Maximum texture 1D size: " << command.get_max_texture_size(dehancer::TextureDesc::Type::i1d) << std::endl;
-    std::cout << "Maximum texture 2D size: " << command.get_max_texture_size(dehancer::TextureDesc::Type::i2d) << std::endl;
-    std::cout << "Maximum texture 3D size: " << command.get_max_texture_size(dehancer::TextureDesc::Type::i3d) << std::endl;
+    auto texture_info_1d = command.get_texture_info(dehancer::TextureDesc::Type::i1d);
+    auto texture_info_2d = command.get_texture_info(dehancer::TextureDesc::Type::i2d);
+    auto texture_info_3d = command.get_texture_info(dehancer::TextureDesc::Type::i3d);
+    
+    std::cout << "Maximum texture 1D size: " << texture_info_1d.max_width  << std::endl;
+    std::cout << "Maximum texture 2D size: " << texture_info_2d.max_width << "x" << texture_info_2d.max_height << std::endl;
+    std::cout << "Maximum texture 3D size: " << texture_info_3d.max_width << "x" << texture_info_3d.max_height << "x" << texture_info_3d.max_depth << std::endl;
     
     std::ifstream ifs(input_image, std::ios::binary);
     ifs >> input_text;

@@ -75,8 +75,8 @@ namespace dehancer {
     
     }
     
-    size_t Command::get_max_texture_size (TextureDesc::Type texture_type) const {
-      return impl_->get_max_texture_size(texture_type);
+    TextureInfo Command::get_texture_info (TextureDesc::Type texture_type) const {
+      return impl_->get_texture_info(texture_type);
     }
     
     Command::~Command() = default;

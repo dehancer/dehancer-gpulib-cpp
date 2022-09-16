@@ -207,6 +207,9 @@ namespace dehancer::opencl {
                              nullptr           /* event */);
   
         }
+        else {
+          throw std::runtime_error("Unable to copy image from object buffer type " + std::to_string(m_type));
+        }
       }
       
       if (last_error_ != CL_SUCCESS)

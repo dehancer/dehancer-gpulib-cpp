@@ -33,7 +33,9 @@ namespace dehancer::metal {
       return false;
     }
     
-    size_t Context::get_max_texture_size (TextureDesc::Type texture_type) const {
+    TextureInfo Context::get_texture_info (TextureDesc::Type texture_type) const {
+      
+      size_t size;
       
       auto device = static_cast<id <MTLCommandQueue>>((__bridge id) command_queue_).device;
       if (texture_type == TextureDesc::Type::i2d){
@@ -52,9 +54,10 @@ namespace dehancer::metal {
                 ||
                 [device supportsFamily:MTLGPUFamilyMacCatalyst2]
                 ) {
-          return 16384;
+          size = 16384;
         }
-        return 8192;
+        else
+          size = 8192;
       }
       else if (texture_type == TextureDesc::Type::i1d){
         if (
@@ -72,12 +75,19 @@ namespace dehancer::metal {
                 ||
                 [device supportsFamily:MTLGPUFamilyMacCatalyst2]
                 ) {
-          return 16384;
+          size = 16384;
         }
-        return 8192;
+        else
+          size = 8192;
       }
       else {
-        return 2048;
+        size = 2048;
       }
+      
+      return {
+        .max_width = size,
+        .max_height = size,
+        .max_depth = size
+      };
     }
 }

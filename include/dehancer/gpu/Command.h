@@ -22,7 +22,7 @@ namespace dehancer {
     class Command: public std::enable_shared_from_this<Command> {
 
     public:
-    
+        
         static TextureDesc::PixelFormat pixel_format_1d;
         static TextureDesc::PixelFormat pixel_format_2d;
         static TextureDesc::PixelFormat pixel_format_3d;
@@ -83,7 +83,7 @@ namespace dehancer {
          */
         std::shared_ptr<Command> get_ptr() { return shared_from_this(); }
     
-        virtual size_t get_max_texture_size(TextureDesc::Type texture_type) const;
+        virtual TextureInfo get_texture_info(TextureDesc::Type texture_type) const;
         
         virtual ~Command();
 
