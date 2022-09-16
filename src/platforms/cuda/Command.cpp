@@ -13,10 +13,6 @@ namespace dehancer::cuda {
     {
     }
     
-    size_t Command::get_max_texture_size(TextureDesc::Type texture_type) const {
-      return 0;
-    };
-    
     Texture Command::make_texture(size_t width, size_t height, size_t depth) {
       ///
       /// TODO: right desc
