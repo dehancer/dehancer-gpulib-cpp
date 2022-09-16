@@ -12,7 +12,11 @@ namespace dehancer::cuda {
             wait_until_completed_(wait_until_completed)
     {
     }
-
+    
+    size_t Command::get_max_texture_size(TextureDesc::Type texture_type) const {
+      return 0;
+    };
+    
     Texture Command::make_texture(size_t width, size_t height, size_t depth) {
       ///
       /// TODO: right desc
@@ -38,8 +42,6 @@ namespace dehancer::cuda {
               .type = type,
               .mem_flags = TextureDesc::MemFlags::read_write
       };
-      
-      //printf("Command::make_texture %zux%zux%zu pixel_format = %i, type = %i, 3d_pixel_format = %i\n", desc.width, desc.height, desc.depth, desc.pixel_format, desc.type, pixel_format);
       
       return TextureHolder::Make(get_command_queue(), desc, nullptr);
     }

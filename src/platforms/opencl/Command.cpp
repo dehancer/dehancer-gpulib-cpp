@@ -11,7 +11,8 @@ namespace dehancer::opencl {
             wait_until_completed_(wait_until_completed)
     {
     }
-
+    
+    
     Texture Command::make_texture(size_t width, size_t height, size_t depth) {
       ///
       /// TODO: right desc

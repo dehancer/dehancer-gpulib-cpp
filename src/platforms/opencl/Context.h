@@ -5,6 +5,7 @@
 #pragma once
 
 #include "dehancer/opencl/embeddedProgram.h"
+#include "dehancer/gpu/Texture.h"
 
 namespace dehancer::opencl {
 
@@ -15,6 +16,7 @@ namespace dehancer::opencl {
         [[nodiscard]] cl_command_queue get_command_queue() const;
         [[nodiscard]] cl_device_id get_device_id() const;
         [[nodiscard]] cl_context get_context() const;
+        [[nodiscard]] size_t get_max_texture_size(TextureDesc::Type texture_type) const;
 
     private:
         const void *command_queue_;
@@ -22,7 +24,7 @@ namespace dehancer::opencl {
         cl_context context_{};
 
     protected:
-        cl_int last_error_{};
+        mutable cl_int last_error_{};
     };
 }
 

@@ -77,8 +77,14 @@ namespace dehancer {
          */
         void* get_command_queue();
     
+        /**
+         * Get self command pointer
+         * @return
+         */
         std::shared_ptr<Command> get_ptr() { return shared_from_this(); }
     
+        virtual size_t get_max_texture_size(TextureDesc::Type texture_type) const;
+        
         virtual ~Command();
 
     protected:
