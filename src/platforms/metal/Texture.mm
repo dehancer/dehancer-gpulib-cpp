@@ -92,6 +92,14 @@ namespace dehancer::metal {
       
       auto text_hash = desc_.get_hash();
       
+      auto info = get_texture_info(desc.type);
+      
+      if (desc.width>info.max_width || desc.height>info.max_height || desc.depth>info.max_depth) {
+        auto mess = message_string("GPU runtime error: image size limit. \r\n");
+        dehancer::log::error(true, "Metal make texture limit error: %s", mess.c_str());
+        throw dehancer::texture::memory_exception(mess);
+      }
+      
       MTLTextureDescriptor *descriptor = [[MTLTextureDescriptor new] autorelease];
       
       descriptor.width  = (NSUInteger)desc.width;
