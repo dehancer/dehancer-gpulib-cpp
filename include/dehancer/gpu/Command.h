@@ -84,7 +84,7 @@ namespace dehancer {
         std::shared_ptr<Command> get_ptr() { return shared_from_this(); }
     
         /**
-         * Get command queue texture info and limits.
+         * Get command queue available texture info and limits.
          * @param texture_type
          * @return texture info structure
          */
