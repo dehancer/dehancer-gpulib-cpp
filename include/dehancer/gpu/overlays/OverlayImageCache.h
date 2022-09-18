@@ -111,7 +111,7 @@ namespace dehancer::overlay {
           std::call_once(flag, [&]{
               if (!instance)
               {
-                instance = new InstanceType();
+                instance = new InstanceType(N);
               }
           });
           return *instance;
