@@ -32,6 +32,7 @@ option (USE_OPENCOLORIO OFF)
 option (DEHANCER_USE_NATIVE_APPLE_API ON)
 option (BUILD_UTILS OFF)
 option (DEHANCER_OPENCL_CONTEXT_NOT_RELEASE OFF)
+option (DEHANCER_CONTROLLED_SINGLETON OFF)
 
 if (NOT DEHANCER_COMMON_DIR)
     set(DEHANCER_COMMON_DIR "${CMAKE_BINARY_DIR}/tmp")
@@ -51,6 +52,10 @@ endif ()
 if(DEHANCER_OPENCL_CONTEXT_NOT_RELEASE)
     add_definitions(-DDEHANCER_OPENCL_CONTEXT_NOT_RELEASE=1)
 endif ()
+
+if(DEHANCER_CONTROLLED_SINGLETON)
+    add_definitions(-DDEHANCER_CONTROLLED_SINGLETON=1)
+endif()
 #
 #
 # C++
@@ -582,9 +587,10 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.9.2
-#            GIT_TAG develop
+#            GIT_TAG 0.9.2
+            GIT_TAG develop
             CMAKE_ARGS
+            -DDEHANCER_CONTROLLED_SINGLETON=${DEHANCER_CONTROLLED_SINGLETON}
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
