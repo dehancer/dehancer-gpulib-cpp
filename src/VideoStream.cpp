@@ -127,16 +127,27 @@ namespace dehancer {
     
     Texture VideoStream::next_texture () const {
 
-      cv::Mat frame; impl_->m_cap->read(frame);
-
-      impl_->m_current_time = static_cast<float>(impl_->m_cap->get(cv::CAP_PROP_POS_MSEC));
-      impl_->m_keyframe_pos = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
-
-      if (frame.empty()) {
+      try {
+        cv::Mat frame;
+        impl_->m_cap->read(frame);
+  
+        impl_->m_current_time = static_cast<float>(impl_->m_cap->get(cv::CAP_PROP_POS_MSEC));
+        impl_->m_keyframe_pos = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
+  
+        if (frame.empty()) {
+          return nullptr;
+        }
+  
+        return impl_->convert(frame);
+      }
+      catch (cv::Exception &e) {
+        dehancer::log::error(true, "VideoStream error: %s", e.what());
         return nullptr;
       }
-
-      return impl_->convert(frame);
+      catch (std::runtime_error &e) {
+        dehancer::log::error(true, "VideoStream error: %s", e.what());
+        return nullptr;
+      }
     }
     
     Texture VideoStream::previous_texture () const {
@@ -145,30 +156,40 @@ namespace dehancer {
     
     Texture VideoStream::get_texture_at_time (float time) const {
       
-      impl_->m_current_time = time;
-      
-      if (impl_->m_current_time >= impl_->m_desc.time) {
-        impl_->m_keyframe_pos = impl_->m_desc.keyframe.count;
-        impl_->m_current_time = impl_->m_desc.time - impl_->m_desc.keyframe.duration;
+      try {
+        impl_->m_current_time = time;
+  
+        if (impl_->m_current_time >= impl_->m_desc.time) {
+          impl_->m_keyframe_pos = impl_->m_desc.keyframe.count;
+          impl_->m_current_time = impl_->m_desc.time - impl_->m_desc.keyframe.duration;
+          return nullptr;
+        } else if (impl_->m_current_time < 0) {
+          impl_->m_keyframe_pos = 0;
+          impl_->m_current_time = 0;
+          return nullptr;
+        }
+  
+        impl_->m_cap->set(cv::CAP_PROP_POS_MSEC, impl_->m_current_time);
+  
+        impl_->m_keyframe_pos = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
+  
+        cv::Mat frame;
+        impl_->m_cap->read(frame);
+  
+        if (frame.empty()) {
+          return nullptr;
+        }
+  
+        return impl_->convert(frame);
+      }
+      catch (cv::Exception &e) {
+        dehancer::log::error(true, "VideoStream error: %s", e.what());
         return nullptr;
       }
-      else if (impl_->m_current_time < 0) {
-        impl_->m_keyframe_pos = 0;
-        impl_->m_current_time = 0;
+      catch (std::runtime_error &e) {
+        dehancer::log::error(true, "VideoStream error: %s", e.what());
         return nullptr;
       }
-      
-      impl_->m_cap->set(cv::CAP_PROP_POS_MSEC, impl_->m_current_time);
-      
-      impl_->m_keyframe_pos = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
-      
-      cv::Mat frame; impl_->m_cap->read(frame);
-      
-      if (frame.empty()) {
-        return nullptr;
-      }
-      
-      return impl_->convert(frame);
     }
     
     Texture VideoStream::get_texture_in_keyframe (int position) const {
@@ -201,12 +222,10 @@ namespace dehancer {
     }
     
     void VideoStream::skip_forward () {
-      impl_->m_cap->set(cv::CAP_PROP_POS_MSEC,
-                        impl_->m_desc.time - impl_->m_desc.keyframe.duration);
-      //impl_->m_cap->set(cv::CAP_PROP_POS_AVI_RATIO, 1);
-      //impl_->m_keyframe_time = static_cast<float>(impl_->m_cap->get(cv::CAP_PROP_POS_MSEC));
-      //impl_->m_keyframe_pos = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
+      impl_->m_cap->set(cv::CAP_PROP_POS_AVI_RATIO, 1);
+      impl_->m_keyframe_pos = static_cast<int>(impl_->m_cap->get(cv::CAP_PROP_POS_FRAMES));
+      impl_->m_keyframe_pos--;
+      impl_->m_cap->set(cv::CAP_PROP_POS_FRAMES, impl_->m_keyframe_pos);
+      impl_->m_current_time = static_cast<float>(impl_->m_cap->get(cv::CAP_PROP_POS_MSEC));
     }
-    
-  
 }
