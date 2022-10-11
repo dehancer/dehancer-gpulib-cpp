@@ -10,6 +10,7 @@ namespace dehancer::metal {
     
     TextureItem::~TextureItem(){
       if (texture && releasable) {
+        dehancer::log::print( "Metal make texture FREE: %p, %dx%d", texture, [static_cast<id <MTLTexture>>(texture) width],  [static_cast<id <MTLTexture>>(texture) height]);
         [static_cast<id <MTLTexture>>(texture) release];
       }
     }
@@ -277,7 +278,6 @@ namespace dehancer::metal {
         return Error(CommonError::OUT_OF_RANGE, "Texture length greater then buffer length");
       }
       
-      //id<MTLCommandQueue> queue = get_command_queue();
       auto queue = static_cast<id<MTLCommandQueue>>( (__bridge id) get_command_queue());
       
       id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];

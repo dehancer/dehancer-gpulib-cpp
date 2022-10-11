@@ -143,7 +143,7 @@ namespace dehancer::impl {
     
           [commandBuffer commit];
           [commandBuffer waitUntilCompleted];
-          
+  
           return Error(CommonError::OK);
         }
         catch (const cv::Exception &e) { return Error(CommonError::EXCEPTION, e.what()); }

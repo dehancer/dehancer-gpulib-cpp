@@ -183,7 +183,6 @@ namespace dehancer::metal {
             throw std::runtime_error(error_string("Not New default library nor default_" DEHANCER_ARCH " cannot be created for kernel %s ", kernel_name.c_str()));
           }
         }
-          //throw std::runtime_error(error_string("New default library cannot be created for kernel %s", kernel_name.c_str()));
       }
       else
       if (!(metalLibrary    = [device newLibraryWithFile:@(libpath.c_str()) error:&err]))
@@ -241,7 +240,6 @@ namespace dehancer::metal {
         state.arg_list.push_back(info);
       }
       
-      //Release resources
       [metalLibrary release];
       [kernelFunction release];
       

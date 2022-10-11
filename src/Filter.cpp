@@ -166,8 +166,9 @@ namespace dehancer {
                    impl_->library_path).process();
       }
       
-      if (!cache_enabled)
+      if (!cache_enabled) {
         impl_->ping_pong = {nullptr, nullptr};
+      }
       
       return *this;
     }
