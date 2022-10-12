@@ -53,10 +53,17 @@ namespace dehancer::impl {
       if (ret) return ret;
       
       try {
+        
+        auto pixel_format = CV_32FC4;
+        
+        if (source_->get_desc().pixel_format == TextureDesc::PixelFormat::rgba16float) {
+          pixel_format = CV_16FC4;
+        }
+        
         auto cv_result = cv::Mat(
                 (int)source_->get_height(),
                 (int)source_->get_width(),
-                CV_32FC4,
+                pixel_format,
                 reinterpret_cast<uchar *>(to_memory.data())
         );
         

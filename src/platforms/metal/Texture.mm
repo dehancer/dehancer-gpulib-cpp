@@ -269,9 +269,13 @@ namespace dehancer::metal {
         case TextureDesc::PixelFormat::rgba32float:
           componentBytes = sizeof(Float32);
           break;
-        
+  
+        case TextureDesc::PixelFormat::rgba16float:
+          componentBytes =sizeof(Float32)/2;
+          break;
+  
         default:
-          return Error(CommonError::NOT_SUPPORTED, "Texture should be rgba32float");
+          return Error(CommonError::NOT_SUPPORTED, "Texture should be rgba16float, rgba32float");
       }
       
       if (length< this->get_length()) {

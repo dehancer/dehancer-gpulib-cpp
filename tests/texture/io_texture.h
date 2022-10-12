@@ -31,8 +31,17 @@ auto io_texture_test = [] (int dev_num,
     std::ifstream ifs(input_image, std::ios::binary);
     ifs >> input_text;
     
+    auto desc = input_text.get_texture()->get_desc();
+    desc.pixel_format = dehancer::TextureDesc::PixelFormat::rgba16float;
+    
+    auto texture_16 = desc.make(command_queue);
+    
+    
     auto texture = input_text.get_texture();
-    auto native_texture = texture->get_memory();
+    
+    dehancer::PassKernel(command_queue, input_text.get_texture(), texture_16, true).process();
+    
+    auto native_texture = texture_16->get_memory();
     
     auto texture_from_native = dehancer::TextureHolder::Make(command_queue,native_texture);
     
