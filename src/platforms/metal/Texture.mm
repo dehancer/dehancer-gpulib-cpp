@@ -10,7 +10,7 @@ namespace dehancer::metal {
     
     TextureItem::~TextureItem(){
       if (texture && releasable) {
-        dehancer::log::print( "Metal make texture FREE: %p, %dx%d", texture, [static_cast<id <MTLTexture>>(texture) width],  [static_cast<id <MTLTexture>>(texture) height]);
+//        dehancer::log::print( "Metal make texture FREE: %p, %dx%d", texture, [static_cast<id <MTLTexture>>(texture) width],  [static_cast<id <MTLTexture>>(texture) height]);
         [static_cast<id <MTLTexture>>(texture) release];
       }
     }
