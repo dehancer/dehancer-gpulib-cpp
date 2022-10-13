@@ -164,7 +164,7 @@ namespace dehancer::metal {
           break;
         
         case TextureDesc::PixelFormat::rgba8uint:
-          descriptor.pixelFormat = MTLPixelFormatRGBA8Uint;
+          descriptor.pixelFormat = MTLPixelFormatRGBA8Unorm_sRGB;
           componentBytes = sizeof(uint8_t);
           break;
       }

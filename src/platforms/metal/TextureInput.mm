@@ -112,10 +112,15 @@ namespace dehancer::impl {
           #endif
     
           auto height = ciimage.extent.size.height;
-    
-          ciimage = [ciimage imageByApplyingTransform:CGAffineTransformMakeScale(1, -1)];
-          ciimage = [ciimage imageByApplyingTransform:CGAffineTransformMakeTranslation(0, height)];
-    
+  
+          CIImage* ciimage2 = [ciimage imageByApplyingTransform:CGAffineTransformMakeScale(1, -1)];
+          
+          [ciimage clearCaches]; [ciimage release];
+          
+          ciimage = [ciimage2 imageByApplyingTransform:CGAffineTransformMakeTranslation(0, height)];
+  
+          [ciimage2 clearCaches]; [ciimage2 release];
+          
           dehancer::TextureDesc desc = {
                   .width = static_cast<size_t>(ciimage.extent.size.width),
                   .height = static_cast<size_t>(ciimage.extent.size.height),
@@ -144,6 +149,10 @@ namespace dehancer::impl {
           [commandBuffer commit];
           [commandBuffer waitUntilCompleted];
   
+          [ciimage clearCaches];
+          [ciimage release];
+          [context release];
+          
           return Error(CommonError::OK);
         }
         catch (const cv::Exception &e) { return Error(CommonError::EXCEPTION, e.what()); }
