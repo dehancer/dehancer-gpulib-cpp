@@ -45,26 +45,26 @@ typedef NSImage DImage;
 
 namespace dehancer::impl {
     
-    #if defined(IOS_SYSTEM)
+    #if defined(IOS_SYSTEM) and defined(DEHANCER_IOS_LOAD_NATIVE_IMAGE_LUT)
     Error TextureInput::load_from_image (const std::vector<uint8_t> &buffer) {
       @autoreleasepool {
         #if defined(SUPPORT_NSIMAGE) || defined(SUPPORT_UIIMAGE)
-        
+
         NSData *data = [NSData dataWithBytesNoCopy:(void*)(buffer.data())
                                       length:buffer.size() freeWhenDone:NO] ;
-        
+
       #if defined(IOS_SYSTEM)
         auto image = [DImage imageWithData:data] ;
         #else
         auto image = [[DImage alloc] initWithData:data];
         #endif
-        
+
         #if PRINT_DEBUG
         dehancer::log::print(" ### TextureInput::load_from_image bits per pixel: %zu",  CGImageGetBitsPerPixel([image CGImage]));
         #endif //
-        
+
         return load_from_native_image(image);
-        
+
         #else
         return Error(CommonError::NOT_SUPPORTED);
         #endif
@@ -113,14 +113,9 @@ namespace dehancer::impl {
     
           auto height = ciimage.extent.size.height;
   
-          CIImage* ciimage2 = [ciimage imageByApplyingTransform:CGAffineTransformMakeScale(1, -1)];
-          
-          [ciimage clearCaches]; [ciimage release];
-          
-          ciimage = [ciimage2 imageByApplyingTransform:CGAffineTransformMakeTranslation(0, height)];
+          ciimage = [ciimage imageByApplyingTransform:CGAffineTransformMakeScale(1, -1)];
+          ciimage = [ciimage imageByApplyingTransform:CGAffineTransformMakeTranslation(0, height)];
   
-          [ciimage2 clearCaches]; [ciimage2 release];
-          
           dehancer::TextureDesc desc = {
                   .width = static_cast<size_t>(ciimage.extent.size.width),
                   .height = static_cast<size_t>(ciimage.extent.size.height),
@@ -148,10 +143,6 @@ namespace dehancer::impl {
     
           [commandBuffer commit];
           [commandBuffer waitUntilCompleted];
-  
-          [ciimage clearCaches];
-          [ciimage release];
-          [context release];
           
           return Error(CommonError::OK);
         }

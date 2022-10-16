@@ -33,7 +33,7 @@ namespace dehancer::impl {
       return texture_->get_length();
     }
     
-    #if not defined(IOS_SYSTEM)
+    #if not (defined(IOS_SYSTEM) and defined(DEHANCER_IOS_LOAD_NATIVE_IMAGE_LUT))
     Error TextureInput::load_from_image(const std::vector<uint8_t> &buffer) {
 
       try {
