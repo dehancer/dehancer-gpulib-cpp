@@ -39,6 +39,8 @@ add_custom_target(
 #        --generate-code arch=compute_80,code=sm_80
 #        --generate-code arch=compute_86,code=sm_86
 #        --generate-code arch=compute_87,code=sm_87
+#        --generate-code arch=compute_89,code=sm_89
+
         --use_fast_math
         -ftz=true -prec-div=false -prec-sqrt=false
         --extra-device-vectorization
