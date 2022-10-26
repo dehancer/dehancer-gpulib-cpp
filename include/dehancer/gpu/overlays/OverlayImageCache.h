@@ -82,7 +82,7 @@ namespace dehancer::overlay {
      * @tparam T
      */
     template<typename T, size_t N>
-    class ImageCache {
+    class SimpleImageCache {
     public:
         
         static T &Instance() {
@@ -91,12 +91,55 @@ namespace dehancer::overlay {
         }
     
     protected:
-        ImageCache() = default;
-        ~ImageCache() = default;
+        SimpleImageCache() = default;
+        ~SimpleImageCache() = default;
     
     public:
-        ImageCache(ImageCache const &) = delete;
-        ImageCache &operator=(ImageCache const &) = delete;
+        SimpleImageCache(SimpleImageCache const &) = delete;
+        SimpleImageCache &operator=(SimpleImageCache const &) = delete;
     };
-  
+    
+    template<typename T, size_t N>
+    class ControlledImageCache {
+    public:
+        
+        using InstanceType = T;
+        
+        static InstanceType& Instance() {
+          static InstanceType* instance = nullptr;
+          static std::once_flag flag;
+          std::call_once(flag, [&]{
+              if (!instance)
+              {
+                instance = new InstanceType(N);
+              }
+          });
+          return *instance;
+        }
+        
+        static
+        void CreateInstance() {
+          InstanceType& p = Instance();
+        }
+        
+        static
+        void DestroyInstance() {
+          InstanceType& p = Instance();
+          delete &p;
+        }
+    
+    protected:
+        ControlledImageCache() = default;
+        ~ControlledImageCache() = default;
+    
+    public:
+        ControlledImageCache(ControlledImageCache const &) = delete;
+        ControlledImageCache &operator=(ControlledImageCache const &) = delete;
+    };
+    
+    #if defined(DEHANCER_CONTROLLED_SINGLETON)
+    template<class T, size_t N>using ImageCache=ControlledImageCache<T,N>;
+    #else
+    template<class T, size_t N>using ImageCache=SimpleImageCache<T,N>;
+    #endif
 }

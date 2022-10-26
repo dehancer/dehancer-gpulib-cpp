@@ -72,6 +72,7 @@ namespace dehancer::metal {
     
     MemoryHolder::~MemoryHolder() {
       if (memobj_ && is_self_allocated_) {
+//        dehancer::log::print( "Metal make  memory FREE: %p: %dKb", memobj_, [static_cast<id <MTLBuffer>>(memobj_) length]/1024);
         [static_cast<id <MTLBuffer>>(memobj_) release];
       }
     }

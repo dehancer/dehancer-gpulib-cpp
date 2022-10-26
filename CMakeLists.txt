@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.12)
 
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 1.4.0)
+project(${PROJECT_LIB} VERSION 1.4.1)
 
 message("PLATFORM: ${PLATFORM}")
 message("XCODE_VERSION: ${XCODE_VERSION}")
@@ -32,6 +32,7 @@ option (USE_OPENCOLORIO OFF)
 option (DEHANCER_USE_NATIVE_APPLE_API ON)
 option (BUILD_UTILS OFF)
 option (DEHANCER_OPENCL_CONTEXT_NOT_RELEASE OFF)
+option (DEHANCER_CONTROLLED_SINGLETON OFF)
 
 if (NOT DEHANCER_COMMON_DIR)
     set(DEHANCER_COMMON_DIR "${CMAKE_BINARY_DIR}/tmp")
@@ -51,6 +52,10 @@ endif ()
 if(DEHANCER_OPENCL_CONTEXT_NOT_RELEASE)
     add_definitions(-DDEHANCER_OPENCL_CONTEXT_NOT_RELEASE=1)
 endif ()
+
+if(DEHANCER_CONTROLLED_SINGLETON)
+    add_definitions(-DDEHANCER_CONTROLLED_SINGLETON=1)
+endif()
 #
 #
 # C++
@@ -305,10 +310,13 @@ if (DEHANCER_GPU_CUDA)
 
             set(CUDA_INSTALLATION_DIR_V115 "${CUDA_INSTALLATION_DIR}/v11.5")
             set(CUDA_INSTALLATION_DIR_V116 "${CUDA_INSTALLATION_DIR}/v11.6")
+            set(CUDA_INSTALLATION_DIR_V118 "${CUDA_INSTALLATION_DIR}/v11.8")
             set(CUDA_INSTALLATION_DIR_V10 "${CUDA_INSTALLATION_DIR}/v10.2")
 
-            if(EXISTS ${CUDA_INSTALLATION_DIR_V116})
-                set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V116})
+            if(EXISTS ${CUDA_INSTALLATION_DIR_V118})
+                set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V118})
+            elseif(EXISTS ${CUDA_INSTALLATION_DIR_V116})
+                    set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V116})
             elseif(EXISTS ${CUDA_INSTALLATION_DIR_V115})
                 set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V115})
             elseif(EXISTS ${CUDA_INSTALLATION_DIR_V10})
@@ -582,9 +590,10 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.9.2
+            GIT_TAG 0.10.0
 #            GIT_TAG develop
             CMAKE_ARGS
+            -DDEHANCER_CONTROLLED_SINGLETON=${DEHANCER_CONTROLLED_SINGLETON}
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -627,7 +636,7 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-maths-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.6.6
+            GIT_TAG 0.6.7
 #            GIT_TAG develop
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
@@ -673,7 +682,7 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-xmp-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.8.7
+            GIT_TAG 0.9.0
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}

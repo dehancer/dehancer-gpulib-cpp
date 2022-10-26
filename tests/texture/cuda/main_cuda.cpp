@@ -26,4 +26,9 @@ namespace dehancer::device {
     std::string get_lib_path() {
       return CUDA_KERNELS_LIBRARY;// + std::string("++");
     }
+    
+    
+    extern std::size_t get_lib_source(std::string& source) {
+      return 0;
+    }
 }

@@ -75,6 +75,10 @@ namespace dehancer {
     
     }
     
+    TextureInfo Command::get_texture_info (TextureDesc::Type texture_type) const {
+      return impl_->get_texture_info(texture_type);
+    }
+    
     Command::~Command() = default;
 }
 

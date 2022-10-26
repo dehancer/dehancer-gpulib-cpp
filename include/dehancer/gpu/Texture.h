@@ -29,6 +29,12 @@ namespace dehancer {
         };
     }
     
+    struct TextureInfo {
+        size_t max_width;
+        size_t max_height;
+        size_t max_depth;
+    };
+    
     /***
      * Texture description
      */

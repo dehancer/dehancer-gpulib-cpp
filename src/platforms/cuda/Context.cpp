@@ -38,6 +38,10 @@ namespace dehancer::cuda {
         device_ref_.max_threads_dim.y=info.maxThreadsDim[1];
         device_ref_.max_threads_dim.z=info.maxThreadsDim[2];
   
+        device_ref_.max_1d_dim = {static_cast<unsigned int>(info.maxTexture1D), 1, 1};
+        device_ref_.max_2d_dim = {static_cast<unsigned int>(info.maxTexture2D[0]),static_cast<unsigned int>(info.maxTexture2D[1]) , 1};
+        device_ref_.max_3d_dim = {static_cast<unsigned int>(info.maxTexture3D[0]),static_cast<unsigned int>(info.maxTexture3D[1]) , static_cast<unsigned int>(info.maxTexture3D[3])};
+  
         cache_[id] = device_ref_;
         
       }
@@ -84,5 +88,32 @@ namespace dehancer::cuda {
     
     dim3 Context::get_max_threads_dim () const {
       return device_ref_.max_threads_dim;
+    }
+    
+    TextureInfo Context::get_texture_info (TextureDesc::Type texture_type) const {
+      
+      TextureInfo info{};
+  
+      dim3 max_size;
+      
+      switch (texture_type) {
+        case TextureDesc::Type::i1d:
+          max_size = device_ref_.max_1d_dim;
+          break;
+        case TextureDesc::Type::i2d:
+          max_size = device_ref_.max_2d_dim;
+          break;
+        case TextureDesc::Type::i3d:
+          max_size = device_ref_.max_3d_dim;
+          break;
+      }
+      
+      info = {
+        .max_width  = max_size.x,
+        .max_height = max_size.y,
+        .max_depth  = max_size.z
+      };
+      
+      return info;
     }
 }

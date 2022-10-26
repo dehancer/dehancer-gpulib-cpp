@@ -12,16 +12,76 @@ namespace dehancer::opencl {
             dehancer::TextureHolder(),
             Context(command_queue),
             desc_(),
-            memobj_(nullptr)
+            memobj_(nullptr),
+            releasable_(false)
     {
-      assert(memobj_);
+      assert(from_native_memory);
+      memobj_ = static_cast<cl_mem>((void*)from_native_memory);
+      
+      cl_image_format image_format;
+      last_error_ = clGetImageInfo(memobj_,CL_IMAGE_FORMAT, sizeof(image_format),&image_format,nullptr);
+      if (last_error_ != CL_SUCCESS) throw std::runtime_error("Unable to create texture from native memory: " + std::to_string(last_error_));
+  
+      if (CL_RGBA!=image_format.image_channel_order)
+        if (last_error_ != CL_SUCCESS) throw std::runtime_error("Unable to create texture from native memory: image channel order is not RGBA");
+      
+      size_t width=0, height=0, depth=0;
+      last_error_ = clGetImageInfo(memobj_,CL_IMAGE_WIDTH, sizeof(width),&width,nullptr);
+      if (last_error_ != CL_SUCCESS) throw std::runtime_error("Unable to create texture from native memory: " + std::to_string(last_error_));
+      
+      last_error_ = clGetImageInfo(memobj_,CL_IMAGE_HEIGHT, sizeof(height),&height,nullptr);
+      if (last_error_ != CL_SUCCESS) throw std::runtime_error("Unable to create texture from native memory: " + std::to_string(last_error_));
+      
+      last_error_ = clGetImageInfo(memobj_,CL_IMAGE_DEPTH, sizeof(depth),&depth,nullptr);
+      if (last_error_ != CL_SUCCESS) throw std::runtime_error("Unable to create texture from native memory: " + std::to_string(last_error_));
+  
+      desc_.type = TextureDesc::Type::i1d;
+      
+      if (depth>1)
+        desc_.type = TextureDesc::Type::i3d;
+      else if (height>1)
+        desc_.type = TextureDesc::Type::i2d;
+      
+      switch (image_format.image_channel_data_type) {
+        case CL_FLOAT:
+          desc_.pixel_format = TextureDesc::PixelFormat::rgba32float;
+        break;
+    
+        case CL_HALF_FLOAT:
+          desc_.pixel_format = TextureDesc::PixelFormat::rgba16float;
+        break;
+  
+        case CL_SIGNED_INT32:
+        case CL_UNSIGNED_INT32:
+          desc_.pixel_format = TextureDesc::PixelFormat::rgba32uint;
+        break;
+  
+        case CL_SIGNED_INT16:
+        case CL_UNSIGNED_INT16:
+          desc_.pixel_format = TextureDesc::PixelFormat::rgba16uint;
+        break;
+    
+        case CL_SIGNED_INT8:
+        case CL_UNSIGNED_INT8:
+          desc_.pixel_format = TextureDesc::PixelFormat::rgba8uint;
+        break;
+    
+        default:
+          throw std::runtime_error("Unsupported texture pixel format");
+      }
+  
+      desc_.channels = 4;
+      desc_.width = width;
+      desc_.height = std::max((int)height,1);
+      desc_.depth = std::max((int)depth,1);
     }
     
     TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory, bool is_device_buffer) :
             dehancer::TextureHolder(),
             Context(command_queue),
             desc_(desc),
-            memobj_(nullptr)
+            memobj_(nullptr),
+            releasable_(true)
     {
       cl_image_format format;
       cl_image_desc   image_desc;
@@ -92,6 +152,8 @@ namespace dehancer::opencl {
       if (is_device_buffer){
         buffer = nullptr;
       }
+  
+      last_error_ = CL_SUCCESS;
       
       memobj_ = clCreateImage(
               get_context(),
@@ -100,7 +162,10 @@ namespace dehancer::opencl {
               &image_desc,
               buffer,
               &last_error_);
-      
+  
+      if (last_error_ != CL_SUCCESS)
+        throw std::runtime_error("Unable to create texture: " + std::to_string(last_error_));
+  
       if (is_device_buffer) {
         
         auto src = reinterpret_cast<cl_mem>((void*)from_memory);
@@ -112,18 +177,39 @@ namespace dehancer::opencl {
         region[1] = get_height();
         region[2] = get_depth();
         
-        clEnqueueCopyBufferToImage(
-                get_command_queue() /* command_queue */,
-                src           /* src_buffer */,
-                memobj_       /* dst_image */,
-                0             /* src_offset */,
-                dst_origin    /* dst_origin[3] */,
-                region        /* region[3] */,
-                0             /* num_events_in_wait_list */,
-                nullptr       /* event_wait_list */,
-                nullptr       /* event */
-        ) ;
-        
+        cl_mem_object_type m_type;
+        last_error_ = clGetMemObjectInfo(src,CL_MEM_TYPE,sizeof(m_type),&m_type,nullptr);
+        if (last_error_ != CL_SUCCESS)
+          throw std::runtime_error("Unable to create texture: " + std::to_string(last_error_));
+  
+        if (CL_MEM_OBJECT_BUFFER==m_type) {
+          last_error_ = clEnqueueCopyBufferToImage(
+                  get_command_queue() /* command_queue */,
+                  src           /* src_buffer */,
+                  memobj_       /* dst_image */,
+                  0             /* src_offset */,
+                  dst_origin    /* dst_origin[3] */,
+                  region        /* region[3] */,
+                  0             /* num_events_in_wait_list */,
+                  nullptr       /* event_wait_list */,
+                  nullptr       /* event */
+          );
+        }
+        else if (CL_MEM_OBJECT_IMAGE2D==m_type){
+          last_error_ = clEnqueueCopyImage(get_command_queue()     /* command_queue */,
+                             src               /* src_image */,
+                             memobj_           /* dst_image */,
+                             dst_origin        /* src_origin[3] */,
+                             dst_origin        /* dst_origin[3] */,
+                             region            /* region[3] */,
+                             0                 /* num_events_in_wait_list */,
+                             nullptr           /* event_wait_list */,
+                             nullptr           /* event */);
+  
+        }
+        else {
+          throw std::runtime_error("Unable to copy image from object buffer type " + std::to_string(m_type));
+        }
       }
       
       if (last_error_ != CL_SUCCESS)
@@ -186,10 +272,10 @@ namespace dehancer::opencl {
     }
     
     TextureHolder::~TextureHolder() {
-      if(memobj_)
+      if(releasable_ && memobj_)
         clReleaseMemObject(memobj_);
       #ifdef PRINT_KERNELS_DEBUG
-      //std::cout << "TextureHolder::~TextureHolder(" << memobj_ << ")"  << std::endl;
+      std::cout << "TextureHolder::~TextureHolder(" << memobj_ << ", "<< releasable_<<")"  << std::endl;
       #endif
     }
     
@@ -201,21 +287,21 @@ namespace dehancer::opencl {
     dehancer::Error TextureHolder::get_contents(void *buffer, size_t length) const {
       size_t originst[3];
       size_t regionst[3];
-      size_t  rowPitch = 0;
-      size_t  slicePitch = 0;
       originst[0] = 0; originst[1] = 0; originst[2] = 0;
       regionst[0] = get_width();
       regionst[1] = get_height();
       regionst[2] = get_depth();
-      
+      size_t  rowPitch = 0;
+      size_t  slicePitch = 0;
+  
       if (length < this->get_length()) {
         return Error(CommonError::OUT_OF_RANGE, "Texture length greater then buffer length");
       }
       
-      auto ret = clEnqueueReadImage(
+      last_error_ = clEnqueueReadImage(
               get_command_queue(),
               memobj_,
-              CL_TRUE,
+              CL_BLOCKING,
               originst,
               regionst,
               rowPitch,
@@ -225,7 +311,7 @@ namespace dehancer::opencl {
               nullptr,
               nullptr );
       
-      if (ret != CL_SUCCESS) {
+      if (last_error_ != CL_SUCCESS) {
         return Error(CommonError::EXCEPTION, "Texture could not be read");
       }
       
@@ -246,7 +332,7 @@ namespace dehancer::opencl {
       
       auto dst = reinterpret_cast<cl_mem>(buffer);
       
-      auto ret =
+      last_error_ =
               
               clEnqueueCopyImageToBuffer(
                       get_command_queue() /* command_queue */,
@@ -259,8 +345,8 @@ namespace dehancer::opencl {
                       nullptr             /* event_wait_list */,
                       nullptr             /* event */);
 
-      if (ret != CL_SUCCESS) {
-        return Error(CommonError::EXCEPTION, "Texture could not be read");
+      if (last_error_ != CL_SUCCESS) {
+        return Error(CommonError::EXCEPTION, "Texture could not be copied to device");
       }
       
       return Error(CommonError::OK);

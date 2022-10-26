@@ -14,35 +14,61 @@ auto io_texture_test = [] (int dev_num,
                            const std::string& output_image,
                            int image_index) {
 
+  try {
     std::cout << "Load file: " << input_image << std::endl;
-
+  
     auto input_text = dehancer::TextureInput(command_queue);
-    
+  
+    auto command = dehancer::Command(command_queue);
+  
+    auto texture_info_1d = command.get_texture_info(dehancer::TextureDesc::Type::i1d);
+    auto texture_info_2d = command.get_texture_info(dehancer::TextureDesc::Type::i2d);
+    auto texture_info_3d = command.get_texture_info(dehancer::TextureDesc::Type::i3d);
+  
+    std::cout << "Maximum texture 1D size: " << texture_info_1d.max_width << std::endl;
+    std::cout << "Maximum texture 2D size: " << texture_info_2d.max_width << "x" << texture_info_2d.max_height
+              << std::endl;
+    std::cout << "Maximum texture 3D size: " << texture_info_3d.max_width << "x" << texture_info_3d.max_height << "x"
+              << texture_info_3d.max_depth << std::endl;
+  
     std::ifstream ifs(input_image, std::ios::binary);
     ifs >> input_text;
-    
+  
+    auto desc = input_text.get_texture()->get_desc();
+    desc.pixel_format = dehancer::TextureDesc::PixelFormat::rgba16float;
+  
+    auto texture_16 = desc.make(command_queue);
+  
+  
     auto texture = input_text.get_texture();
-    auto native_texture = texture->get_memory();
-    
-    auto texture_from_native = dehancer::TextureHolder::Make(command_queue,native_texture);
-    
+  
+    dehancer::PassKernel(command_queue, input_text.get_texture(), texture_16, true).process();
+  
+    auto native_texture = texture_16->get_memory();
+  
+    auto texture_from_native = dehancer::TextureHolder::Make(command_queue, native_texture);
+  
     auto output_text = dehancer::TextureOutput(command_queue, texture_from_native, {
             .type = test::type,
             .compression = test::compression
     });
-
+  
     {
       std::ofstream os(output_image, std::ostream::binary | std::ostream::trunc);
       if (os.is_open()) {
         os << output_text << std::flush;
-
+      
         std::cout << "Save to: " << output_image << std::endl;
-
+      
       } else {
         std::cerr << "File: " << output_image << " could not been opened..." << std::endl;
       }
     }
-
+  
+  }
+  catch (const std::runtime_error &e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+  }
     return 0;
 };
 

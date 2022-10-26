@@ -10,6 +10,7 @@ namespace dehancer::metal {
     
     TextureItem::~TextureItem(){
       if (texture && releasable) {
+//        dehancer::log::print( "Metal make texture FREE: %p, %dx%d", texture, [static_cast<id <MTLTexture>>(texture) width],  [static_cast<id <MTLTexture>>(texture) height]);
         [static_cast<id <MTLTexture>>(texture) release];
       }
     }
@@ -92,6 +93,14 @@ namespace dehancer::metal {
       
       auto text_hash = desc_.get_hash();
       
+      auto info = get_texture_info(desc.type);
+      
+      if (desc.width>info.max_width || desc.height>info.max_height || desc.depth>info.max_depth) {
+        auto mess = message_string("GPU runtime error: image size limit. \r\n");
+        dehancer::log::error(true, "Metal make texture limit error: %s", mess.c_str());
+        throw dehancer::texture::memory_exception(mess);
+      }
+      
       MTLTextureDescriptor *descriptor = [[MTLTextureDescriptor new] autorelease];
       
       descriptor.width  = (NSUInteger)desc.width;
@@ -155,7 +164,7 @@ namespace dehancer::metal {
           break;
         
         case TextureDesc::PixelFormat::rgba8uint:
-          descriptor.pixelFormat = MTLPixelFormatRGBA8Uint;
+          descriptor.pixelFormat = MTLPixelFormatRGBA8Unorm_sRGB;
           componentBytes = sizeof(uint8_t);
           break;
       }
@@ -260,16 +269,19 @@ namespace dehancer::metal {
         case TextureDesc::PixelFormat::rgba32float:
           componentBytes = sizeof(Float32);
           break;
-        
+  
+        case TextureDesc::PixelFormat::rgba16float:
+          componentBytes =sizeof(Float32)/2;
+          break;
+  
         default:
-          return Error(CommonError::NOT_SUPPORTED, "Texture should be rgba32float");
+          return Error(CommonError::NOT_SUPPORTED, "Texture should be rgba16float, rgba32float");
       }
       
       if (length< this->get_length()) {
         return Error(CommonError::OUT_OF_RANGE, "Texture length greater then buffer length");
       }
       
-      //id<MTLCommandQueue> queue = get_command_queue();
       auto queue = static_cast<id<MTLCommandQueue>>( (__bridge id) get_command_queue());
       
       id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];

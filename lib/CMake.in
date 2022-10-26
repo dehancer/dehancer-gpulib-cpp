@@ -79,9 +79,9 @@ set(dehancer_gpu_cpp_lib ${PROJECT_LIB_PLATFORM})
 
 configure_file(${CMAKE_SOURCE_DIR}/dehancer-gpulib-cpp.pc.in ${CMAKE_CURRENT_BINARY_DIR}/dehancer-gpulib-cpp.pc @ONLY)
 
-if(NOT IOS)
+#if(NOT IOS)
 install(FILES
         ${CMAKE_CURRENT_BINARY_DIR}/dehancer-gpulib-cpp.pc
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
         )
-endif ()
+#endif ()
