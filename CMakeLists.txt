@@ -109,7 +109,11 @@ elseif(APPLE)
     endif ()
 
     if(CMAKE_OSX_ARCHITECTURES)
-        add_definitions(-DDEHANCER_ARCH="${CMAKE_OSX_ARCHITECTURES}")
+        if(NOT CMAKE_OSX_ARCHITECTURES STREQUAL "arm64")
+            add_definitions(-DDEHANCER_ARCH="arm64")
+        else()
+            add_definitions(-DDEHANCER_ARCH="x86_64")
+        endif ()
     endif()
 
     set(STATIC_LINKING ON)
