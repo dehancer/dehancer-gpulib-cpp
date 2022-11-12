@@ -38,56 +38,65 @@ namespace dehancer::metal {
       size_t size;
       
       auto device = static_cast<id <MTLCommandQueue>>((__bridge id) command_queue_).device;
-      if (texture_type == TextureDesc::Type::i2d){
+      
+      if (![[device class] instancesRespondToSelector:@selector(supportsFamily:)]) {
+        size = 16384;
+      }
+//      if (@available(iOS 13, macOS 10.15, *)) {
+//      #if DEHANCER_ARCH_IS_X86_64 and DEHANCER_ARCH_MACOS
+//      size = 16384;
+//      #else
+      else if (texture_type == TextureDesc::Type::i2d) {
         if (
                 [device supportsFamily:MTLGPUFamilyApple3]
                 ||
                 [device supportsFamily:MTLGPUFamilyApple4]
                 ||
                 [device supportsFamily:MTLGPUFamilyApple5]
+                #if !DEHANCER_ARCH_IS_X86_64
                 ||
-                [device supportsFamily:MTLGPUFamilyApple6]
-                ||
-                [device supportsFamily:MTLGPUFamilyApple7]
+                  [device supportsFamily:MTLGPUFamilyApple6]
+                  ||
+                  [device supportsFamily:MTLGPUFamilyApple7]
+                #endif
                 ||
                 [device supportsFamily:MTLGPUFamilyMac2]
                 ||
                 [device supportsFamily:MTLGPUFamilyMacCatalyst2]
                 ) {
           size = 16384;
-        }
-        else
+        } else
           size = 8192;
-      }
-      else if (texture_type == TextureDesc::Type::i1d){
+      } else if (texture_type == TextureDesc::Type::i1d) {
         if (
                 [device supportsFamily:MTLGPUFamilyApple3]
                 ||
                 [device supportsFamily:MTLGPUFamilyApple4]
                 ||
                 [device supportsFamily:MTLGPUFamilyApple5]
+                #if !DEHANCER_ARCH_IS_X86_64
                 ||
-                [device supportsFamily:MTLGPUFamilyApple6]
-                ||
-                [device supportsFamily:MTLGPUFamilyApple7]
+                  [device supportsFamily:MTLGPUFamilyApple6]
+                  ||
+                  [device supportsFamily:MTLGPUFamilyApple7]
+                #endif
                 ||
                 [device supportsFamily:MTLGPUFamilyMac2]
                 ||
                 [device supportsFamily:MTLGPUFamilyMacCatalyst2]
                 ) {
           size = 16384;
-        }
-        else
+        } else
           size = 8192;
-      }
-      else {
+      } else {
         size = 2048;
       }
+//      #endif
       
       return {
-        .max_width = size,
-        .max_height = size,
-        .max_depth = size
+              .max_width = size,
+              .max_height = size,
+              .max_depth = size
       };
     }
 }
