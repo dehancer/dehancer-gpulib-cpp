@@ -33,6 +33,8 @@ inline static void test_device() {
     std::vector<void*> queues;
     for (int j = 0; j < 32; ++j) {
       auto* q = dehancer::DeviceCache::Instance().get_default_command_queue();
+      std::cout << "Metal Queue["<<static_cast<void*>(q)<<"]" << std::endl;
+      if (!q) continue;
       queues.push_back(q);
     }
     for (auto q: queues){
