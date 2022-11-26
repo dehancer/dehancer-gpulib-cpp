@@ -6,6 +6,7 @@
 
 #include "dehancer/gpu/kernels/histogram_common.h"
 #include "dehancer/gpu/HistogramImage.h"
+#include "dehancer/gpu/spaces/StreamTransform.h"
 #include "dehancer/math.hpp"
 using float3=dehancer::math::float3;
 using float4=dehancer::math::float4;
@@ -108,11 +109,33 @@ namespace dehancer {
   
       auto workgroup_size = get_block_max_size();
       auto compute_size = Function::ask_compute_size(impl_->source);
+  
+      auto real_source = get_source();
       
-      execute(compute_size, [this,compute_size](CommandEncoder& encoder) {
-          encoder.set(get_source(),0);
-          encoder.set(impl_->partial_histogram_buffer,1);
-          encoder.set((int)compute_size.threads_in_grid,2);
+      if (impl_->options.transform.enabled) {
+        auto dest = get_source()->get_desc().make(get_command_queue());
+        auto transformer = dehancer::StreamTransform(get_command_queue(),
+                                                     get_source(),
+                                                     dest,
+                                                     impl_->options.transform.space,
+                                                     impl_->options.transform.direction,
+                                                     1.0f,
+                                                     true,
+                                                     get_library_path()
+                                                     );
+  
+//        transformer.set_impact(1.0f);
+//        transformer.set_source(get_source());
+//        transformer.set_destination(dest);
+        transformer.process();
+        real_source = dest;
+      }
+      
+      execute(compute_size, [this,compute_size,&real_source](CommandEncoder& encoder) {
+          encoder.set(real_source,0);
+          encoder.set(static_cast<int>(impl_->options.luma_type), 1);
+          encoder.set(impl_->partial_histogram_buffer,2);
+          encoder.set((int)compute_size.threads_in_grid,3);
       });
       
       auto grid_size = impl_->histogram.get_size().size * impl_->histogram.get_size().num_channels;
@@ -192,7 +215,7 @@ namespace dehancer {
             for (int i = 0; i < (int)size_; ++i) {
               histogram_[c][i] = static_cast<float>(buffer[c*DEHANCER_HISTOGRAM_BUFF_SIZE+i]);
             }
-            if (options_.ignore_edges) {
+            if (options_.edges.ignore) {
               int width = floor(options_.edges.left_trim);
               float left_fract = (1.0f - (options_.edges.left_trim - static_cast<float>(width)));
               for (int i = 0; i < width && i< size_ ; ++i) {
