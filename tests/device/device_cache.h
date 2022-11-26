@@ -4,7 +4,7 @@
 
 #include "gtest/gtest.h"
 
-#include "dehancer/gpu/DeviceCache.h"
+#include "dehancer/gpu/Lib.h"
 
 #include <chrono>
 
@@ -33,6 +33,18 @@ inline static void test_device() {
     std::vector<void*> queues;
     for (int j = 0; j < 32; ++j) {
       auto* q = dehancer::DeviceCache::Instance().get_default_command_queue();
+      
+      if (!q) continue;
+  
+      dehancer::TextureDesc desc = {
+              .width = 1920,
+              .height = 1080
+      };
+  
+      auto texture = desc.make(q);
+  
+      std::cout << "Metal Queue["<<static_cast<void*>(q)<<"]" << " texture length: " << texture->get_length() << std::endl;
+  
       queues.push_back(q);
     }
     for (auto q: queues){

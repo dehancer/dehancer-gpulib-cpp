@@ -6,7 +6,7 @@
 #include "../device_cache.h"
 
 
-TEST(TEST, DeviceCache_OpenCL) {
+TEST(TEST, DeviceCache_Cuda) {
 
   std::cout << std::endl;
   std::cerr << "Cuda device cache..." << std::endl;
