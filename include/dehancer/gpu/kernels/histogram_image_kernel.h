@@ -10,8 +10,9 @@
 
 DHCR_KERNEL void kernel_histogram_image(
         texture2d_read_t       img       DHCR_BIND_TEXTURE(0),
-        DHCR_DEVICE_ARG uint*  partial_histogram DHCR_BIND_BUFFER(1),
-        DHCR_CONST_ARG  int_ref_t num_groups DHCR_BIND_BUFFER(2)
+        DHCR_CONST_ARG  int_ref_t luma_type DHCR_BIND_BUFFER(1),
+        DHCR_DEVICE_ARG uint*  partial_histogram DHCR_BIND_BUFFER(2),
+        DHCR_CONST_ARG  int_ref_t num_groups DHCR_BIND_BUFFER(3)
         DHCR_KERNEL_GID_2D
 ) {
   
@@ -54,19 +55,41 @@ DHCR_KERNEL void kernel_histogram_image(
      * #pragma unroll DEHANCER_HISTOGRAM_CHANNELS
      * for (;i<DEHANCER_HISTOGRAM_CHANNELS;)
      */
-    uint   nindx = (uint)(min(clr.x, 1.0f) * DEHANCER_HISTOGRAM_MULT);
+    uint   nindx = (uint)ceilf((min(clr.x, 1.0f) * DEHANCER_HISTOGRAM_MULT));
     dhr_atomic_fetch_inc(tmp_histogram[0*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
     
-    nindx = (uint)(min(clr.y, 1.0f) * DEHANCER_HISTOGRAM_MULT);
+    nindx = (uint)ceilf((min(clr.y, 1.0f) * DEHANCER_HISTOGRAM_MULT));
     dhr_atomic_fetch_inc(tmp_histogram[1*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
     
-    nindx = (uint)(min(clr.z, 1.0f) * DEHANCER_HISTOGRAM_MULT);
+    nindx = (uint)ceilf((min(clr.z, 1.0f) * DEHANCER_HISTOGRAM_MULT));
     dhr_atomic_fetch_inc(tmp_histogram[2*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
   
     float3        c = make_float3(clr.x, clr.y, clr.z);
-    float luminance = dot(c, kIMP_Y_YCbCr_factor);
+    
+    float luminance = 0.0f;
+    
+    switch (luma_type) {
+      
+      case DEHANCER_LUMA_TYPE_YCbCr:
+        luminance = dot(c, kIMP_Y_YCbCr_factor);
+        break;
+     
+      case DEHANCER_LUMA_TYPE_YUV:
+        luminance = dot(c, kIMP_Y_YUV_factor);
+        break;
   
-    nindx = (uint)(min(luminance, 1.0f) * DEHANCER_HISTOGRAM_MULT);
+      case DEHANCER_LUMA_TYPE_Mean:
+        luminance = dot(c, kIMP_Y_mean_factor);
+        break;
+  
+      default:
+        break;
+    }
+    
+    
+//    float luminance = dot(c, kIMP_Y_mean_factor);
+  
+    nindx = (uint)ceilf((min(luminance, 1.0f) * (DEHANCER_HISTOGRAM_MULT)));
     dhr_atomic_fetch_inc(tmp_histogram[3*DEHANCER_HISTOGRAM_BUFF_SIZE+nindx]);
   }
   

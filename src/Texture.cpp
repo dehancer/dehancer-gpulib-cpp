@@ -20,7 +20,7 @@ namespace dehancer {
     
     Texture TextureHolder::Make(const void *command_queue, const TextureDesc &desc, const float *from_memory, bool is_device_buffer) {
       try {
-        return std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::TextureHolder>(command_queue,desc,from_memory,is_device_buffer);
+        return std::move(std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::TextureHolder>(command_queue,desc,from_memory,is_device_buffer));
       }
       
       catch (const dehancer::texture::memory_exception &e) {
@@ -41,7 +41,7 @@ namespace dehancer {
     
     Texture TextureHolder::Make (const void *command_queue, const void *from_memory) {
       try {
-        return std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::TextureHolder>(command_queue,from_memory);
+        return std::move(std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::TextureHolder>(command_queue,from_memory));
       }
   
       catch (const dehancer::texture::memory_exception &e) {
@@ -64,7 +64,7 @@ namespace dehancer {
     TextureHolder::~TextureHolder () = default;
     
     Texture TextureDesc::make(const void *command_queue, const float *from_memory) const {
-      return dehancer::TextureHolder::Make(command_queue, *this, from_memory);
+      return std::move(dehancer::TextureHolder::Make(command_queue, *this, from_memory));
     }
     
     size_t TextureDesc::get_hash () const {
