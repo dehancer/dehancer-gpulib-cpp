@@ -122,6 +122,9 @@ OpenCV from sources
     mkdir build_opencv_arm64 && cd build_opencv_arm64
     cmake -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_INSTALL_PREFIX:PATH=/usr/local/arm64 \
     -DBUILD_SHARED_LIBS=OFF -DWITH_FFMPEG=OFF -DWITH_V4L=OFF -DWITH_EIGEN=ON\
+    -DWITH_JPEG=ON -DBUILD_JPEG=OFF \
+    -DJPEG_INCLUDE_DIR=/usr/local/jpeg-turbo/include \
+    -DJPEG_LIBRARY=/usr/local/jpeg-turbo/lib/libjpeg.a \
     -DVIDEOIO_ENABLE_PLUGINS=OFF -DOPENCV_GENERATE_PKGCONFIG=ON \
     -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DCMAKE_FIND_LIBRARY_SUFFIXES=".a" ..
     # on centos add -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
@@ -129,6 +132,9 @@ OpenCV from sources
     mkdir build_opencv_x86_64 && cd build_opencv_x86_64
     cmake -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 \
     -DCMAKE_INSTALL_PREFIX:PATH=/usr/local/x86_64 \
+    -DWITH_JPEG=ON -DBUILD_JPEG=OFF \
+    -DJPEG_INCLUDE_DIR=/usr/local/jpeg-turbo/include \
+    -DJPEG_LIBRARY=/usr/local/jpeg-turbo/lib/libjpeg.a \
     -DBUILD_SHARED_LIBS=OFF -DWITH_FFMPEG=OFF -DWITH_V4L=OFF -DVIDEOIO_ENABLE_PLUGINS=OFF -DWITH_EIGEN=ON\
     -DOPENCV_GENERATE_PKGCONFIG=ON DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF \
     -DCMAKE_FIND_LIBRARY_SUFFIXES=".a" ..
