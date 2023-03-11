@@ -8,12 +8,17 @@
 
 namespace dehancer::opencl {
     
+    const void *TextureHolder::get_command_queue () const {
+      return command_queue_;
+    }
+    
     TextureHolder::TextureHolder (const void *command_queue, const void *from_native_memory):
             dehancer::TextureHolder(),
             Context(command_queue),
             desc_(),
             memobj_(nullptr),
-            releasable_(false)
+            releasable_(false),
+            command_queue_((void*)command_queue)
     {
       assert(from_native_memory);
       memobj_ = static_cast<cl_mem>((void*)from_native_memory);
@@ -81,7 +86,8 @@ namespace dehancer::opencl {
             Context(command_queue),
             desc_(desc),
             memobj_(nullptr),
-            releasable_(true)
+            releasable_(true),
+            command_queue_((void*)command_queue)
     {
       cl_image_format format;
       cl_image_desc   image_desc;

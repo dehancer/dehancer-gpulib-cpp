@@ -16,6 +16,8 @@
 
 #ifdef DEHANCER_GPU_PLATFORM
 
+#include "dehancer/gpu/Function.h"
+
 namespace dehancer {
     
     Texture TextureHolder::Make(const void *command_queue, const TextureDesc &desc, const float *from_memory, bool is_device_buffer) {
@@ -60,6 +62,43 @@ namespace dehancer {
       }
     }
     
+    Texture TextureHolder::Crop (const Texture &texture, float left, float right, float top, float bottom) {
+      
+      auto desc = texture->get_desc();
+
+      int origin_left = (int)(float(desc.width)  * left);
+      int origin_top  = (int)(float(desc.height)  * top);
+
+      desc.width = (size_t)(float(desc.width)  * (1.0f - left - right));
+      desc.height = (size_t)(float(desc.height)  * (1.0f - top - bottom));
+
+      if (desc.width<=0) return nullptr;
+      if (desc.height<=0) return nullptr;
+
+      /***
+       * TODO:
+       * add Function from kernel source code
+       */
+      auto function = dehancer::Function(texture->get_command_queue(),
+                                                           "kernel_crop");
+      
+      auto result = desc.make(texture->get_command_queue());
+
+      function.execute([&texture,&result,origin_left,origin_top](dehancer::CommandEncoder &command_encoder) {
+          command_encoder.set(texture, 0);
+          command_encoder.set(result, 1);
+          command_encoder.set(origin_left,2);
+          command_encoder.set(origin_top,3);
+          return dehancer::CommandEncoder::Size::From(result);
+      });
+
+      return std::move(result);
+    }
+    
+//    Texture TextureHolder::make_cropped (float left, float right, float top, float bottom) const {
+//      Texture source_texture = TextureHolder::Make(this->get_command_queue(), this->get_memory());
+//      return std::move(Crop(source_texture, left, right, top, bottom));
+//    }
     
     TextureHolder::~TextureHolder () = default;
     

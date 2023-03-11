@@ -142,13 +142,26 @@ namespace dehancer {
         static Texture Make(const void *command_queue, const void *from_native_texture);
     
         /***
+         * Make a new cropped read/write texture in its command_queue
+         * @param texture - source texture
+         * @param left - left edge of the source rectangle
+         * @param right - right edge of the source rectangle
+         * @param top - top edge of the source rectangle
+         * @param bottom - bottom edge of the source rectangle
+         * @return Texture object
+         */
+         static Texture Crop(const Texture& texture, float left, float right, float top, float bottom);
+        
+        /***
          * Get a weak shared pointer to texture object.
          * @return
          */
         Texture get_ptr() { return shared_from_this(); }
-        
+    
         virtual ~TextureHolder();
-        
+    
+        [[nodiscard]] virtual const void* get_command_queue() const = 0;
+    
         /***
          * Get platform specific handler of texture placed in device memory.
          * @return device memory handler

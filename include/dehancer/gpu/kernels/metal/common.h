@@ -11,8 +11,9 @@
 #include "dehancer/gpu/kernels/hash_utils.h"
 #include "dehancer/gpu/kernels/cmath.h"
 
-constexpr sampler linear_normalized_sampler(address::mirrored_repeat, filter::linear, coord::normalized);
-constexpr sampler nearest_sampler(address::clamp_to_edge, filter::nearest, coord::pixel);
+//constexpr sampler linear_normalized_sampler(address::mirrored_repeat, filter::linear, coord::normalized);
+constexpr sampler linear_normalized_sampler(address::clamp_to_zero, filter::linear, coord::normalized);
+constexpr sampler nearest_sampler(address::clamp_to_zero, filter::nearest, coord::pixel);
 
 #define  get_num_blocks_1d() ((int)__dehancer_grid_size_1d__)
 #define  get_num_blocks_2d() ((int)__dehancer_grid_size_2d__.x)

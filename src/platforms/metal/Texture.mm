@@ -15,12 +15,16 @@ namespace dehancer::metal {
       }
     }
     
+    const void *TextureHolder::get_command_queue () const {
+      return command_queue_;
+    }
     
     TextureHolder::TextureHolder (const void *command_queue, const void *from_memory):
             dehancer::TextureHolder(),
             Context(command_queue),
             desc_(),
-            texture_item_(nullptr)
+            texture_item_(nullptr),
+            command_queue_((void*)command_queue)
     {
       
       if (!from_memory) return;
@@ -88,7 +92,8 @@ namespace dehancer::metal {
             dehancer::TextureHolder(),
             Context(command_queue),
             desc_(desc),
-            texture_item_(nullptr)
+            texture_item_(nullptr),
+            command_queue_((void*)command_queue)
     {
       
       auto text_hash = desc_.get_hash();

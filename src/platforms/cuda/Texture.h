@@ -37,6 +37,7 @@ namespace dehancer::cuda {
     private:
         TextureDesc desc_;
         std::shared_ptr<dehancer::nvcc::texture> mem_;
+        void *command_queue_;
     
         template<class T, bool is_half = false>
         std::shared_ptr<dehancer::nvcc::texture> make_texture() {

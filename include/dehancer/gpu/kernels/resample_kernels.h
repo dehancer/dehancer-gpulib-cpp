@@ -7,6 +7,35 @@
 
 #include "dehancer/gpu/kernels/resample.h"
 
+DHCR_KERNEL void kernel_crop(
+        texture2d_read_t       source DHCR_BIND_TEXTURE(0),
+        texture2d_write_t destination DHCR_BIND_TEXTURE(1),
+        DHCR_CONST_ARG int_ref_t   origin_left DHCR_BIND_BUFFER(2),
+        DHCR_CONST_ARG int_ref_t    origin_top DHCR_BIND_BUFFER(3)
+        DHCR_KERNEL_GID_2D
+){
+  Texel2d tex; get_kernel_texel2d(destination,tex);
+  
+  if (!get_texel_boundary(tex)) return;
+  
+//  if (tex.gid.x >= (tex.size.x - origin_left - origin_right)
+//      ||
+//      tex.gid.y >= (tex.size.y - origin_top - origin_bottom)
+//      ||
+//      tex.gid.x < origin_left
+//      ||
+//      tex.gid.y < origin_top
+//          ) {
+//    return ;
+//  }
+  
+  int2 gid = make_int2(tex.gid.x + origin_left, tex.gid.y + origin_top);
+  
+  float4 rgb  =  read_image(source, gid);
+  
+  write_image(destination, rgb, tex.gid);
+}
+
 DHCR_KERNEL void kernel_bilinear(
         texture2d_read_t       source DHCR_BIND_TEXTURE(0),
         texture2d_write_t destination DHCR_BIND_TEXTURE(1)

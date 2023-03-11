@@ -9,11 +9,16 @@
 namespace dehancer::cuda {
     
     
+    const void *TextureHolder::get_command_queue () const {
+      return command_queue_;
+    }
+    
     TextureHolder::TextureHolder (const void *command_queue, const void *from_native_memory) :
             dehancer::TextureHolder(),
             Context(command_queue),
             desc_(),
-            mem_(nullptr)
+            mem_(nullptr),
+            command_queue_((void*)command_queue)
     {
       assert(mem_);
     }
@@ -22,7 +27,8 @@ namespace dehancer::cuda {
             dehancer::TextureHolder(),
             Context(command_queue),
             desc_(desc),
-            mem_(nullptr)
+            mem_(nullptr),
+            command_queue_((void*)command_queue)
     {
       
       push();
