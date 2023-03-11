@@ -2,10 +2,12 @@
 // Created by denn nevera on 15/11/2020.
 //
 
-#include "gtest/gtest.h"
 #include "../../include/run_test.h"
+#include "tests/metal/paths_config.h"
 
 #include <iostream>
+
+//#include "gtest/gtest.h"
 
 auto io_texture_test = [] (int num,
                            const void* command_queue,

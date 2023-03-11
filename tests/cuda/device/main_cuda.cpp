@@ -6,6 +6,7 @@
 #include "dehancer/gpu/Lib.h"
 #include "tests/cuda/paths_config.h"
 #include "tests/shaders/test_struct.h"
+#include "tests/test_config.h"
 
 #include "dehancer/gpu/DeviceCache.h"
 
@@ -101,15 +102,4 @@ TEST(TEST, AddVector_CUDA) {
 
   dehancer::DeviceCache::Instance().return_command_queue(command_queue);
 
-}
-
-namespace dehancer::device {
-
-    /**
-      * MUST BE defined in certain plugin module
-      * @return metal lib path.
-      */
-    std::string get_lib_path() {
-      return CUDA_KERNELS_LIBRARY;// + std::string("++");
-    }
 }

@@ -34,18 +34,3 @@ TEST(TEST, METAL_VIDEO_PLAY_LAST) {
   run_on_devices("metal_last",io_texture_test_last);
   
 }
-
-namespace dehancer::device {
-    
-    /**
-      * MUST BE defined in certain plugin module
-      * @return metal lib path.
-      */
-    std::string get_lib_path() {
-      return METAL_KERNELS_LIBRARY;
-    }
-    
-    extern std::size_t get_lib_source(std::string& source) {
-      return 0;
-    }
-}
