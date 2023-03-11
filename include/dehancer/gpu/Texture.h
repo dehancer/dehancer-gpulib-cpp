@@ -148,9 +148,14 @@ namespace dehancer {
          * @param right - right edge of the source rectangle
          * @param top - top edge of the source rectangle
          * @param bottom - bottom edge of the source rectangle
+         * @param format - texture pixel format
          * @return Texture object
          */
-         static Texture Crop(const Texture& texture, float left, float right, float top, float bottom);
+         static Texture Crop(const Texture& texture,
+                             float left, float right,
+                             float top, float bottom,
+                             TextureDesc::PixelFormat format = TextureDesc::PixelFormat::rgba16float
+                             );
         
         /***
          * Get a weak shared pointer to texture object.

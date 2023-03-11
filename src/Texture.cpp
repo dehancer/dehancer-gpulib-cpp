@@ -62,10 +62,15 @@ namespace dehancer {
       }
     }
     
-    Texture TextureHolder::Crop (const Texture &texture, float left, float right, float top, float bottom) {
+    Texture TextureHolder::Crop (const Texture &texture,
+                                 float left, float right, float top, float bottom,
+                                 TextureDesc::PixelFormat format
+                                 ) {
       
       auto desc = texture->get_desc();
-
+  
+      desc.pixel_format = format;
+      
       int origin_left = (int)(float(desc.width)  * left);
       int origin_top  = (int)(float(desc.height)  * top);
 
