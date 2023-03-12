@@ -29,6 +29,4 @@ namespace dehancer {
                                     const std::string &library_path):
             ResampleKernel(command_queue, nullptr, nullptr, mode, wait_until_completed, library_path)
     {}
-    
-    void ResampleKernel::set_mode (float Mode) {}
 }

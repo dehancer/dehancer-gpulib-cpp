@@ -8,6 +8,7 @@
 #include <utility>
 #include "dehancer/Common.h"
 #include "dehancer/gpu/Memory.h"
+#include <type_traits>
 
 namespace dehancer {
     
@@ -118,6 +119,29 @@ namespace dehancer {
     bool operator==(const TextureDesc& lhs, const TextureDesc& rhs);
     bool operator!=(const TextureDesc& lhs, const TextureDesc& rhs);
     
+    enum class FlipMode: int {
+        nope       = 0,
+        horizontal = 1<<0,
+        vertical   = 1<<1
+    };
+    
+    inline FlipMode operator | (FlipMode lhs, FlipMode rhs)
+    {
+      using T = std::underlying_type_t <FlipMode>;
+      return static_cast<FlipMode>(static_cast<T>(lhs) | static_cast<T>(rhs));
+    }
+    
+    inline FlipMode& operator |= (FlipMode& lhs, FlipMode rhs)
+    {
+      lhs = lhs | rhs;
+      return lhs;
+    }
+    
+    enum class Rotate90Mode: int {
+        up   = 1,
+        down = 2
+    };
+    
     /***
      * Texture object holder. U must use only Texture pointer object.
      */
@@ -154,9 +178,19 @@ namespace dehancer {
          static Texture Crop(const Texture& texture,
                              float left, float right,
                              float top, float bottom,
-                             TextureDesc::PixelFormat format = TextureDesc::PixelFormat::rgba16float
+                             TextureDesc::PixelFormat format = TextureDesc::PixelFormat::rgba32float
                              );
-        
+    
+        static Texture Flip(const Texture& texture,
+                            FlipMode mode = FlipMode::nope,
+                            TextureDesc::PixelFormat format = TextureDesc::PixelFormat::rgba32float
+        );
+    
+        static Texture Rotate90(const Texture& texture,
+                                Rotate90Mode mode = Rotate90Mode::up,
+                                TextureDesc::PixelFormat format = TextureDesc::PixelFormat::rgba32float
+        );
+    
         /***
          * Get a weak shared pointer to texture object.
          * @return
