@@ -11,7 +11,6 @@ DHCR_KERNEL void kernel_rotate90(
         texture2d_read_t       source DHCR_BIND_TEXTURE(0),
         texture2d_write_t destination DHCR_BIND_TEXTURE(1),
         DHCR_CONST_ARG int_ref_t    up DHCR_BIND_BUFFER(2)
-        //DHCR_CONST_ARG bool_ref_t  down DHCR_BIND_BUFFER(3)
         DHCR_KERNEL_GID_2D
 ){
   
@@ -21,8 +20,8 @@ DHCR_KERNEL void kernel_rotate90(
   
   int2 gid = make_int2(tex.gid.x, tex.gid.y);
   
-  if (up == 1) {gid.y = tex.gid.x; gid.x = tex.size.y-tex.gid.y-1; }
-  else {gid.y = tex.size.x-tex.gid.x-1; gid.x = tex.gid.y; }
+  if (up == 1)      {gid.y = tex.gid.x; gid.x = tex.size.y-tex.gid.y-1; }
+  else if (up == 2) {gid.y = tex.size.x-tex.gid.x-1; gid.x = tex.gid.y; }
   
   
   float4 rgb  =  read_image(source, gid);

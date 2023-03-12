@@ -135,10 +135,10 @@ namespace dehancer {
       if (desc.pixel_format!=format)
         desc.pixel_format = format;
       
-      //if (mode==Rotate90Mode::up) {
+      if (mode!=Rotate90Mode::nope) {
         desc.width = desc.height;
         desc.height = texture->get_desc().width;
-      //}
+      }
       
       /***
       * TODO:

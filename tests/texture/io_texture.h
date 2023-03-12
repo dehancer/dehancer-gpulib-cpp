@@ -53,7 +53,7 @@ auto io_texture_test = [] (int dev_num,
   
     using mode = dehancer::FlipMode;
     texture_from_native = dehancer::TextureHolder::Flip(texture_from_native,
-                                                        mode::horizontal|mode::nope);
+                                                        mode::horizontal|mode::vertical);
 
   
     auto cropped_texture = dehancer::TextureHolder::Crop(texture_from_native, 0.1f, 0.0f, 0.0f, 0.2f);

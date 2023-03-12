@@ -138,6 +138,7 @@ namespace dehancer {
     }
     
     enum class Rotate90Mode: int {
+        nope = 0,
         up   = 1,
         down = 2
     };
