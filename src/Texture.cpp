@@ -63,6 +63,12 @@ namespace dehancer {
     }
     
     Texture TextureHolder::Crop (const Texture &texture,
+                                 float left, float right, float top, float bottom
+    ) {
+      return std::move(Crop(texture, left, right, top, bottom, texture->get_desc().pixel_format));
+    }
+    
+    Texture TextureHolder::Crop (const Texture &texture,
                                  float left, float right, float top, float bottom,
                                  TextureDesc::PixelFormat format
                                  ) {
@@ -101,6 +107,10 @@ namespace dehancer {
       return std::move(result);
     }
     
+    Texture TextureHolder::Flip (const Texture &texture, FlipMode mode) {
+      return std::move(Flip(texture, mode, texture->get_desc().pixel_format));
+    }
+    
     Texture TextureHolder::Flip (const Texture &texture, FlipMode mode, TextureDesc::PixelFormat format) {
       auto desc = texture->get_desc();
   
@@ -128,7 +138,11 @@ namespace dehancer {
       return std::move(result);
     }
     
-    Texture TextureHolder::Rotate90 (const Texture &texture, Rotate90Mode mode, TextureDesc::PixelFormat format) {
+    Texture TextureHolder::Rotate90 (const Texture &texture, Rotate90Mode mode) {
+      return std::move(Rotate90(texture, mode, texture->get_desc().pixel_format));
+    }
+      
+      Texture TextureHolder::Rotate90 (const Texture &texture, Rotate90Mode mode, TextureDesc::PixelFormat format) {
      
       auto desc = texture->get_desc();
       
@@ -158,11 +172,6 @@ namespace dehancer {
       
       return std::move(result);
     }
-
-//    Texture TextureHolder::make_cropped (float left, float right, float top, float bottom) const {
-//      Texture source_texture = TextureHolder::Make(this->get_command_queue(), this->get_memory());
-//      return std::move(Crop(source_texture, left, right, top, bottom));
-//    }
     
     TextureHolder::~TextureHolder () = default;
     

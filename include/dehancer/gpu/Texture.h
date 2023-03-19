@@ -24,7 +24,7 @@ namespace dehancer {
         public:
             explicit memory_exception(std::string  message): message_(std::move(message)){}
             [[nodiscard]] const char * what() const noexcept override { return message_.c_str(); };
-
+        
         private:
             std::string message_;
         };
@@ -156,7 +156,7 @@ namespace dehancer {
          * @return Texture object
          */
         static Texture Make(const void *command_queue, const TextureDesc &desc, const float *from_memory = nullptr, bool is_device_buffer = false);
-    
+        
         /***
          * Make a new empty read/write texture in command_queue
          * @param command_queue - device command_queue or context
@@ -165,7 +165,7 @@ namespace dehancer {
          * @return Texture object
          */
         static Texture Make(const void *command_queue, const void *from_native_texture);
-    
+        
         /***
          * Make a new cropped read/write texture in its command_queue
          * @param texture - source texture
@@ -176,32 +176,44 @@ namespace dehancer {
          * @param format - texture pixel format
          * @return Texture object
          */
-         static Texture Crop(const Texture& texture,
-                             float left, float right,
-                             float top, float bottom,
-                             TextureDesc::PixelFormat format = TextureDesc::PixelFormat::rgba32float
-                             );
+        static Texture Crop(const Texture& texture,
+                            float left, float right,
+                            float top, float bottom,
+                            TextureDesc::PixelFormat format
+        );
+    
+        static Texture Crop(const Texture& texture,
+                            float left, float right,
+                            float top, float bottom
+        );
+        
+        static Texture Flip(const Texture& texture,
+                            FlipMode mode,
+                            TextureDesc::PixelFormat format);
     
         static Texture Flip(const Texture& texture,
-                            FlipMode mode = FlipMode::nope,
-                            TextureDesc::PixelFormat format = TextureDesc::PixelFormat::rgba32float
+                            FlipMode mode = FlipMode::nope
+        );
+        
+        static Texture Rotate90(const Texture& texture,
+                                Rotate90Mode mode,
+                                TextureDesc::PixelFormat format
         );
     
         static Texture Rotate90(const Texture& texture,
-                                Rotate90Mode mode = Rotate90Mode::up,
-                                TextureDesc::PixelFormat format = TextureDesc::PixelFormat::rgba32float
+                                Rotate90Mode mode = Rotate90Mode::up
         );
-    
+        
         /***
          * Get a weak shared pointer to texture object.
          * @return
          */
         Texture get_ptr() { return shared_from_this(); }
-    
+        
         virtual ~TextureHolder();
-    
+        
         [[nodiscard]] virtual const void* get_command_queue() const = 0;
-    
+        
         /***
          * Get platform specific handler of texture placed in device memory.
          * @return device memory handler
@@ -221,7 +233,7 @@ namespace dehancer {
         virtual Error get_contents(std::vector<float>& buffer) const = 0;
         
         virtual Error get_contents(void* buffer, size_t length) const = 0;
-    
+        
         virtual dehancer::Error copy_to_device(void* buffer) const = 0;
         
         /***

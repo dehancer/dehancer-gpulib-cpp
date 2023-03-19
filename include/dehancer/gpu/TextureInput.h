@@ -24,9 +24,9 @@ namespace dehancer {
          * Create texture input from command queue
          * @param command_queue - device command queue
          * @param space - color space transformation
-         * @param direction - color space transformation diration
+         * @param direction - color space transformation direction
          */
-        explicit TextureInput(const void *command_queue);
+        explicit TextureInput(const void *command_queue, TextureDesc::PixelFormat pixelFormat = TextureDesc::PixelFormat::rgba32float);
 
         /***
          * Get texture object

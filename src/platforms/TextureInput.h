@@ -15,7 +15,7 @@ namespace dehancer::impl {
 
     public:
 
-        explicit TextureInput(const void *command_queue);
+        explicit TextureInput(const void *command_queue, TextureDesc::PixelFormat pixelFormat);
 
         const Texture& get_texture() { return texture_; };
         [[nodiscard]] const Texture& get_texture() const { return texture_; };
@@ -50,6 +50,7 @@ namespace dehancer::impl {
 
     private:
         Texture texture_;
+        TextureDesc::PixelFormat pixelFormat_;
     };
 }
 

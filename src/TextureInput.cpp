@@ -7,9 +7,9 @@
 
 namespace dehancer {
 
-    TextureInput::TextureInput(const void *command_queue):
+    TextureInput::TextureInput(const void *command_queue, TextureDesc::PixelFormat pixelFormat):
     TextureIO(),
-    impl_(std::make_shared<impl::TextureInput>(command_queue))
+    impl_(std::make_shared<impl::TextureInput>(command_queue, pixelFormat))
     {}
 
     const Texture & TextureInput::get_texture() {

@@ -7,9 +7,10 @@
 
 namespace dehancer::impl {
 
-    TextureInput::TextureInput(const void *command_queue):
+    TextureInput::TextureInput(const void *command_queue, TextureDesc::PixelFormat pixelFormat):
             Command(command_queue, true),
-            texture_(nullptr)
+            texture_(nullptr),
+            pixelFormat_(pixelFormat)
     {
     }
 
@@ -78,7 +79,17 @@ namespace dehancer::impl {
         cv::cvtColor(image, image, color_cvt);
 
         image.convertTo(image, CV_32FC4, scale);
-
+  
+        switch (pixelFormat_) {
+          case TextureDesc::PixelFormat::rgba8uint:
+            image.convertTo(image, CV_8UC4);
+            break;
+          case TextureDesc::PixelFormat::rgba16uint:
+            image.convertTo(image, CV_16UC4);
+            break;
+          default: break;
+        }
+  
         return load_from_data(reinterpret_cast<float *>(image.data),
                               static_cast<size_t>(image.cols),
                               static_cast<size_t>(image.rows),
@@ -111,7 +122,7 @@ namespace dehancer::impl {
                 .width = width,
                 .height = height,
                 .depth = depth,
-                .pixel_format = TextureDesc::PixelFormat::rgba32float,
+                .pixel_format = pixelFormat_,//TextureDesc::PixelFormat::rgba32float,
                 .type = type,
                 .mem_flags = TextureDesc::MemFlags::read_write
         };
