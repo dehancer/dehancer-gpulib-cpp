@@ -25,8 +25,10 @@ namespace dehancer {
          * @param command_queue - device command queue
          * @param space - color space transformation
          * @param direction - color space transformation direction
+         * @param pixel_format - pixel format
          */
-        explicit TextureInput(const void *command_queue, TextureDesc::PixelFormat pixelFormat = TextureDesc::PixelFormat::rgba32float);
+        explicit TextureInput(const void *command_queue,
+                              TextureDesc::PixelFormat pixel_format = TextureDesc::PixelFormat::rgba32float);
 
         /***
          * Get texture object
@@ -41,7 +43,39 @@ namespace dehancer {
          * @return error or ok
          */
         virtual Error load_from_image(const std::vector<uint8_t>& buffer);
-        
+    
+       /***
+        *
+        * Transform image format buffer to continues pixels array buffer.
+        *
+        * @param image
+        * @param result
+        * @param pixel_format
+        * @return
+        */
+        static Error image_to_data(
+                const std::vector<uint8_t>& image,
+                TextureDesc::PixelFormat pixel_format,
+                std::vector<uint8_t>& result,
+                size_t& width,
+                size_t& height,
+                size_t& channels
+                );
+    
+        /**
+         * Transform image format buffer to continues pixels array buffer.
+         *
+         * @param image
+         * @param result
+         * @return
+         */
+        virtual Error image_to_data(
+                const std::vector<uint8_t>& image,
+                std::vector<uint8_t>& result,
+                size_t& width,
+                size_t& height,
+                size_t& channels);
+    
         /***
          * Load texture from Image buffer. Buffer can contain data with one of defined image codec.
          * @param buffer
@@ -76,6 +110,10 @@ namespace dehancer {
                 size_t width,
                 size_t height);
     
+        virtual Error load_from_data(
+                const std::vector<std::uint8_t> &buffer,
+                size_t width,
+                size_t height);
     
         virtual Error load_from_data(
                 const std::vector<float> &buffer,

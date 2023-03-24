@@ -27,7 +27,21 @@ namespace dehancer::impl {
         [[nodiscard]] size_t get_length() const;
 
         Error load_from_image(const std::vector<uint8_t>& buffer);
+    
+        static Error image_to_data(
+                const std::vector<uint8_t>& image,
+                TextureDesc::PixelFormat pixel_format,
+                std::vector<uint8_t>& result,
+                size_t& width,
+                size_t& height,
+                size_t& channels);
         
+        Error image_to_data(const std::vector<uint8_t>& image,
+                            std::vector<uint8_t>& result,
+                            size_t& width,
+                            size_t& height,
+                            size_t& channels);
+    
         Error load_from_native_image(const void* handle);
 
         Error

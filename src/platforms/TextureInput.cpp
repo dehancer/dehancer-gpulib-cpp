@@ -7,43 +7,13 @@
 
 namespace dehancer::impl {
 
-    TextureInput::TextureInput(const void *command_queue, TextureDesc::PixelFormat pixelFormat):
-            Command(command_queue, true),
-            texture_(nullptr),
-            pixelFormat_(pixelFormat)
-    {
-    }
-
-    size_t TextureInput::get_width() const {
-      return texture_->get_width();
-    }
-
-    size_t TextureInput::get_height() const {
-      return texture_->get_height();
-    }
-
-    size_t TextureInput::get_depth() const {
-      return texture_->get_depth();
-    }
-
-    size_t TextureInput::get_channels() const {
-      return texture_->get_channels();
-    }
-
-    size_t TextureInput::get_length() const {
-      return texture_->get_length();
-    }
-    
-    #if not (defined(IOS_SYSTEM) and defined(DEHANCER_IOS_LOAD_NATIVE_IMAGE_LUT))
-    Error TextureInput::load_from_image(const std::vector<uint8_t> &buffer) {
-
+    Error load_from_image_data_to_buffer(const std::vector<uint8_t> &buffer,
+                                         TextureDesc::PixelFormat pixelFormat_,
+                                         cv::Mat& image
+                                         ) {
       try {
-        auto image = cv::Mat(cv::imdecode(buffer,cv::IMREAD_UNCHANGED));
-
         auto scale = 1.0f;
-
-        std::cout << " #### IMAGE: DEPTH: " << image.depth() << std::endl;
-        
+    
         switch (image.depth()) {
           case CV_8S:
           case CV_8U:
@@ -104,7 +74,7 @@ namespace dehancer::impl {
           default:
             return Error(CommonError::NOT_SUPPORTED, error_string("Image pixel depth is not supported"));
         }
-
+    
         auto color_cvt = cv::COLOR_BGR2RGBA;
         if (image.channels() == 1){
           color_cvt = cv::COLOR_GRAY2RGBA;
@@ -118,9 +88,9 @@ namespace dehancer::impl {
         else {
           return Error(CommonError::NOT_SUPPORTED, error_string("Image channels depth is not supported"));
         }
-
+    
         cv::cvtColor(image, image, color_cvt);
-  
+    
         switch (pixelFormat_) {
           case TextureDesc::PixelFormat::rgba8uint:
             image.convertTo(image, CV_8UC4, scale);
@@ -133,18 +103,94 @@ namespace dehancer::impl {
             break;
         }
   
-        return load_from_data(reinterpret_cast<float *>(image.data),
-                              static_cast<size_t>(image.cols),
-                              static_cast<size_t>(image.rows),
-                              1
-        );
-
+        return Error(CommonError::OK);
       }
       catch (const cv::Exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
       catch (const std::exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
     }
+    
+    TextureInput::TextureInput(const void *command_queue, TextureDesc::PixelFormat pixelFormat):
+            Command(command_queue, true),
+            texture_(nullptr),
+            pixelFormat_(pixelFormat)
+    {
+    }
+
+    size_t TextureInput::get_width() const {
+      return texture_->get_width();
+    }
+
+    size_t TextureInput::get_height() const {
+      return texture_->get_height();
+    }
+
+    size_t TextureInput::get_depth() const {
+      return texture_->get_depth();
+    }
+
+    size_t TextureInput::get_channels() const {
+      return texture_->get_channels();
+    }
+
+    size_t TextureInput::get_length() const {
+      return texture_->get_length();
+    }
+    
+    Error TextureInput::image_to_data (const std::vector<uint8_t> &image,
+                                       TextureDesc::PixelFormat pixel_format,
+                                       std::vector<uint8_t> &result,
+                                       size_t& width,
+                                       size_t& height,
+                                       size_t& channels
+                                       ) {
+      width = height = channels = 0;
+      auto mat = cv::Mat(cv::imdecode(image,cv::IMREAD_UNCHANGED));
+      auto error = load_from_image_data_to_buffer(image, pixel_format, mat);
+      if (error) { return error; }
+      uint8_t *arr = mat.isContinuous() ? mat.data: mat.clone().data;
+      uint length = mat.total()*mat.channels();
+      result = std::vector<uint8_t>(arr, arr + length);
+      width = mat.cols;
+      height = mat.rows;
+      channels = mat.channels();
+      return Error(CommonError::OK);
+    }
+    
+    Error TextureInput::image_to_data (const std::vector<uint8_t> &image,
+                                       std::vector<uint8_t> &result,
+                                       size_t& width,
+                                       size_t& height,
+                                       size_t& channels) {
+      return image_to_data(image, pixelFormat_, result, width, height, channels);
+    }
+    
+    
+    #if not (defined(IOS_SYSTEM) and defined(DEHANCER_IOS_LOAD_NATIVE_IMAGE_LUT))
+    
+    Error TextureInput::load_from_image(const std::vector<uint8_t> &buffer) {
+
+      try {
+  
+        auto mat = cv::Mat(cv::imdecode(buffer,cv::IMREAD_UNCHANGED));
+
+        auto error = load_from_image_data_to_buffer(buffer, pixelFormat_, mat);
+
+        if (error) { return error; }
+
+        return load_from_data(reinterpret_cast<float *>(mat.data),
+                              static_cast<size_t>(mat.cols),
+                              static_cast<size_t>(mat.rows),
+                              1
+        );
+        
+      }
+      catch (const cv::Exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
+      catch (const std::exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
+      
+    }
     #endif
     
+  
     Error TextureInput::load_from_data(const std::vector<float> &buffer, size_t width, size_t height, size_t depth) {
       auto* _buffer = const_cast<float *>(buffer.data());
       return load_from_data(_buffer, width, height, depth);
@@ -193,6 +239,7 @@ namespace dehancer::impl {
 
       return is;
     }
+    
     
     #if not defined(__APPLE__)
     Error TextureInput::load_from_native_image (const void *handle) {

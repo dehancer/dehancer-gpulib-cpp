@@ -17,7 +17,8 @@ auto io_texture_test = [] (int dev_num,
   try {
     std::cout << "Load file: " << input_image << std::endl;
   
-    auto input_text = dehancer::TextureInput(command_queue, dehancer::TextureDesc::PixelFormat::rgba8uint);
+    auto input_text = dehancer::TextureInput(command_queue,
+                                             dehancer::TextureDesc::PixelFormat::rgba8uint);
   
     auto command = dehancer::Command(command_queue);
   
@@ -32,7 +33,19 @@ auto io_texture_test = [] (int dev_num,
               << texture_info_3d.max_depth << std::endl;
   
     std::ifstream ifs(input_image, std::ios::binary);
-    ifs >> input_text;
+    //ifs >> input_text;
+    std::vector<uint8_t> image_buffer((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+    std::vector<uint8_t> image_bytes;
+    std::size_t width = 0, height = 0, channels = 0;
+    
+    dehancer::TextureInput::image_to_data(image_buffer,
+                                          dehancer::TextureDesc::PixelFormat::rgba8uint,
+                                          image_bytes,
+                                          width,
+                                          height,
+                                          channels);
+  
+    input_text.load_from_data(image_bytes,width,height);
   
     auto desc = input_text.get_texture()->get_desc();
     desc.pixel_format = dehancer::TextureDesc::PixelFormat::rgba16float;
