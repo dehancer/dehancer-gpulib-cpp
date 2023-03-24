@@ -42,21 +42,64 @@ namespace dehancer::impl {
 
         auto scale = 1.0f;
 
+        std::cout << " #### IMAGE: DEPTH: " << image.depth() << std::endl;
+        
         switch (image.depth()) {
           case CV_8S:
           case CV_8U:
-            scale = 1.0f/256.0f;
+            switch (pixelFormat_) {
+              case TextureDesc::PixelFormat::rgba8uint:
+                scale = 1.0f;
+                break;
+              case TextureDesc::PixelFormat::rgba16uint:
+                scale = 256.0f;
+                break;
+              default:
+                scale = 1.0f/256.0f;
+                break;
+            }
             break;
           case CV_16U:
-            scale = 1.0f/65536.0f;
+            switch (pixelFormat_) {
+              case TextureDesc::PixelFormat::rgba8uint:
+                scale = 1.0f/256.0f;
+                break;
+              case TextureDesc::PixelFormat::rgba16uint:
+                scale = 1.0f;
+                break;
+              default:
+                scale = 1.0f/65536.0f;
+                break;
+            }
             break;
           case CV_32S:
-            scale = 1.0f/16777216.0f;
+            switch (pixelFormat_) {
+              case TextureDesc::PixelFormat::rgba8uint:
+                scale = 256.0f/16777216.0f;
+                break;
+              case TextureDesc::PixelFormat::rgba16uint:
+                scale = 65536.0f/16777216.0f;
+                break;
+              default:
+                scale = 1.0f/16777216.0f;
+                break;
+            }
             break;
           case CV_16F:
           case CV_32F:
           case CV_64F:
-            scale = 1.0f;
+            switch (pixelFormat_) {
+              case TextureDesc::PixelFormat::rgba8uint:
+                scale = 256.0f;
+                break;
+              case TextureDesc::PixelFormat::rgba16uint:
+                scale = 65536.0f;
+                break;
+              default:
+                scale = 1.0f;
+                break;
+            }
+            break;
             break;
           default:
             return Error(CommonError::NOT_SUPPORTED, error_string("Image pixel depth is not supported"));
@@ -77,17 +120,17 @@ namespace dehancer::impl {
         }
 
         cv::cvtColor(image, image, color_cvt);
-
-        image.convertTo(image, CV_32FC4, scale);
   
         switch (pixelFormat_) {
           case TextureDesc::PixelFormat::rgba8uint:
-            image.convertTo(image, CV_8UC4);
+            image.convertTo(image, CV_8UC4, scale);
             break;
           case TextureDesc::PixelFormat::rgba16uint:
-            image.convertTo(image, CV_16UC4);
+            image.convertTo(image, CV_16UC4, scale);
             break;
-          default: break;
+          default:
+            image.convertTo(image, CV_32FC4, scale);
+            break;
         }
   
         return load_from_data(reinterpret_cast<float *>(image.data),

@@ -17,7 +17,7 @@ auto io_texture_test = [] (int dev_num,
   try {
     std::cout << "Load file: " << input_image << std::endl;
   
-    auto input_text = dehancer::TextureInput(command_queue);
+    auto input_text = dehancer::TextureInput(command_queue, dehancer::TextureDesc::PixelFormat::rgba8uint);
   
     auto command = dehancer::Command(command_queue);
   
