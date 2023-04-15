@@ -108,7 +108,8 @@ namespace dehancer {
     }
     
     Texture TextureHolder::Flip (const Texture &texture, FlipMode mode) {
-      return std::move(Flip(texture, mode, texture->get_desc().pixel_format));
+      //return std::move(Flip(texture, mode, texture->get_desc().pixel_format));
+      return Flip(texture, mode, texture->get_desc().pixel_format);
     }
     
     Texture TextureHolder::Flip (const Texture &texture, FlipMode mode, TextureDesc::PixelFormat format) {
@@ -135,7 +136,8 @@ namespace dehancer {
           return dehancer::CommandEncoder::Size::From(result);
       });
       
-      return std::move(result);
+      //return std::move(result);
+      return result;
     }
     
     Texture TextureHolder::Rotate90 (const Texture &texture, Rotate90Mode mode) {
