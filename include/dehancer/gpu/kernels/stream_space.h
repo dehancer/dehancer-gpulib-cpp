@@ -241,12 +241,16 @@ float4_multiply_float4x4( float4 v,
 #elif defined(__METAL_VERSION__)
   return v*M;
 #elif defined(CL_VERSION_1_2)
+#if DEHANCER_GPU_CODE
   return make_float4(
           M.s0*v.x + M.s1*v.y + M.s2*v.z + M.s3*v.w,
           M.s4*v.x + M.s5*v.y + M.s6*v.z + M.s7*v.w,
           M.s8*v.x + M.s9*v.y + M.sA*v.z + M.sB*v.w,
           M.sC*v.x + M.sD*v.y + M.sE*v.z + M.sF*v.w
   );
+#else
+  return v*M;
+#endif
 #else
   return (float4){0.000000f, 0.000000f, 0.000000f, 0.000000f};
 #endif
@@ -260,12 +264,16 @@ float4x4 float4x4_multiply_float4x4( float4x4 M,  float4x4 N)
 #elif defined(__METAL_VERSION__)
   return M*N;
 #elif defined(CL_VERSION_1_2)
+#if DEHANCER_GPU_CODE
   return (float4x4){
           M.s0*N.s0+M.s1*N.s4+M.s2*N.s8+M.s3*N.sC , M.s0*N.s1+M.s1*N.s5+M.s2*N.s9+M.s3*N.sD , M.s0*N.s2+M.s1*N.s6+M.s2*N.sA+M.s3*N.sE , M.s0*N.s3+M.s1*N.s7+M.s2*N.sB+M.s3*N.sF ,
           M.s4*N.s0+M.s5*N.s4+M.s6*N.s8+M.s7*N.sC , M.s4*N.s1+M.s5*N.s5+M.s6*N.s9+M.s7*N.sD , M.s4*N.s2+M.s5*N.s6+M.s6*N.sA+M.s7*N.sE , M.s4*N.s3+M.s5*N.s7+M.s6*N.sB+M.s7*N.sF ,
           M.s8*N.s0+M.s9*N.s4+M.sA*N.s8+M.sB*N.sC , M.s8*N.s1+M.s9*N.s5+M.sA*N.s9+M.sB*N.sD , M.s8*N.s2+M.s9*N.s6+M.sA*N.sA+M.sB*N.sE , M.s8*N.s3+M.s9*N.s7+M.sA*N.sB+M.sB*N.sF ,
           M.sC*N.s0+M.sD*N.s4+M.sE*N.s8+M.sF*N.sC , M.sC*N.s1+M.sD*N.s5+M.sE*N.s9+M.sF*N.sD , M.sC*N.s2+M.sD*N.s6+M.sE*N.sA+M.sF*N.sE , M.sC*N.s3+M.sD*N.s7+M.sE*N.sB+M.sF*N.sF
   };
+#else
+  return M*N;
+#endif
 #else
   return M*N;
 #endif

@@ -138,6 +138,7 @@ elseif(APPLE)
         endif()
     elseif(DEHANCER_GPU_OPENCL)
         message(STATUS "Apple uses OpenCL...")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
     endif()
 endif()
 

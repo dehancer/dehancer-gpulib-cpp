@@ -6,7 +6,11 @@
 
 #include <vector>
 #include <string>
+#if DEHANCER_GPU_METAL
 #include "tests/metal/paths_config.h"
+#elif DEHANCER_GPU_CUDA
+#include "tests/cuda/paths_config.h"
+#endif
 
 constexpr const char* IMAGES_DIR="@IMAGES_DIR@";
 constexpr const char* DATA_DIR="@DATA_DIR@";

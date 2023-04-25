@@ -7,7 +7,7 @@
 #include "dehancer/gpu/Typedefs.h"
 #include "dehancer/gpu/Texture.h"
 #include "dehancer/gpu/Memory.h"
-#include "StreamSpace.h"
+#include "dehancer/gpu/StreamSpace.h"
 
 namespace dehancer {
     /***

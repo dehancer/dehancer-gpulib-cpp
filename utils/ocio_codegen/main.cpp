@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 
+#include "dehancer/Utils.h"
 #include "dehancer/gpu/Lib.h"
 #include "OpenColorIO/OpenColorIO.h"
 #include "OpenColorIO/OpenColorTransforms.h"
@@ -13,6 +14,21 @@
 #include "utils/metal/paths_config.h"
 
 namespace OCIO = OCIO_NAMESPACE;
+
+static inline std::string dirname_of(const std::string& fname)
+{
+  static std::string  pathSeparator =
+  #if WIN32
+  "\\";
+  #else
+  "/";
+  #endif
+  
+  size_t pos = fname.find_last_of(pathSeparator);
+  return (std::string::npos == pos)
+         ? ""
+         : fname.substr(0, pos);
+}
 
 int main(int argc, char** argv) {
   
@@ -101,31 +117,31 @@ int main(int argc, char** argv) {
     
     
     /* INVERSE */
-    std::vector<float> vals_inverese(identity_data.size(), -1.0f);
+    std::vector<float> vals_inverse(identity_data.size(), -1.0f);
     OCIO::PackedImageDesc out_inverse_desc(
-            vals_inverese.data(),
-            long(vals_inverese.size() / lut_channels),
+            vals_inverse.data(),
+            long(vals_inverse.size() / lut_channels),
             1,
             lut_channels);
     
     /***
-     * Configureing inverse transformation
+     * Configuring inverse transformation
      */
   
-    OCIO::FileTransformRcPtr cube_transform_inverese = OCIO::FileTransform::Create();
-    cube_transform_inverese->setInterpolation(OCIO::INTERP_TETRAHEDRAL);
-    cube_transform_inverese->setDirection(OCIO::TRANSFORM_DIR_INVERSE);
-    cube_transform_inverese->setSrc(file_forward_path.c_str());
-    cube_transform_inverese->validate();
+    OCIO::FileTransformRcPtr cube_transform_inverse = OCIO::FileTransform::Create();
+    cube_transform_inverse->setInterpolation(OCIO::INTERP_TETRAHEDRAL);
+    cube_transform_inverse->setDirection(OCIO::TRANSFORM_DIR_INVERSE);
+    cube_transform_inverse->setSrc(file_forward_path.c_str());
+    cube_transform_inverse->validate();
   
-    OCIO::ConstProcessorRcPtr    proc_inverse = config->getProcessor(cube_transform_inverese);
+    OCIO::ConstProcessorRcPtr    proc_inverse = config->getProcessor(cube_transform_inverse);
     OCIO::ConstCPUProcessorRcPtr cpu_inverese = proc_inverse->getDefaultCPUProcessor();
     
     cpu_forward->apply(in_desc, out_forward_desc);
     cpu_inverese->apply(in_desc, out_inverse_desc);
   
     luts_data[0] = vals_froward;
-    luts_data[1] = vals_inverese;
+    luts_data[1] = vals_inverse;
     
     /* Release GPU */
     dehancer::DeviceCache::Instance().return_command_queue(command_queue);
@@ -136,6 +152,9 @@ int main(int argc, char** argv) {
     
     int index = 0;
     ++argc_next;
+    
+    std::string base_path = argv[index+argc_next];
+    
     for(auto& data: luts_data ) {
       
       std::ofstream os(argv[index+argc_next]);
@@ -224,8 +243,11 @@ int main(int argc, char** argv) {
                                 "    }"
                                 "}";
   
+    
+    std::string file_code_prefix = dirname_of(base_path)
+                                    + "/";
   
-    std::string file_code_prefix = "./";
+    std::cout << " file_code_prefix: " << file_code_prefix << std::endl;
   
     {
       auto file = file_code_prefix+ocio_namespace + ".h";

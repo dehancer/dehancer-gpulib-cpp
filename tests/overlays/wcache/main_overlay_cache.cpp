@@ -3,7 +3,11 @@
 //
 
 #include "../../include/run_test.h"
+#if DEHANCER_GPU_METAL
 #include "tests/metal/paths_config.h"
+#elif DEHANCER_GPU_CUDA
+#include "tests/cuda/paths_config.h"
+#endif
 
 #include <iostream>
 

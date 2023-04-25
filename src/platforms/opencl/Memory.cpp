@@ -111,7 +111,7 @@ namespace dehancer::opencl {
       if (length<get_length())
         return Error(CommonError::OUT_OF_RANGE, "Buffer length not enough to copy memory object");
 
-      auto ret = clEnqueueReadBuffer(get_command_queue(),
+      auto ret = clEnqueueReadBuffer(get_cl_command_queue(),
                                      memobj_,
                                      CL_TRUE,
                                      0,
