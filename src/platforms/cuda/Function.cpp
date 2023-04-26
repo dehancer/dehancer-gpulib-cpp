@@ -69,7 +69,7 @@ namespace dehancer::cuda {
               compute_size.grid.width, compute_size.grid.height, compute_size.grid.depth,
               compute_size.block.width, compute_size.block.height, compute_size.block.depth,
               0,
-              command_->get_command_queue(),
+              command_->get_cu_command_queue(),
               encoder->args_.data(),
               nullptr)
       );
@@ -100,9 +100,9 @@ namespace dehancer::cuda {
       
       std::unique_lock<std::mutex> lock(Function::mutex_);
       
-      if (kernel_map_.find(command_->get_command_queue()) != kernel_map_.end())
+      if (kernel_map_.find(command_->get_cu_command_queue()) != kernel_map_.end())
       {
-        auto& km =  kernel_map_[command_->get_command_queue()];
+        auto& km =  kernel_map_[command_->get_cu_command_queue()];
         if (km.find(kernel_name_) != km.end()) {
           kernel_ = km[kernel_name_];
           command_->pop();
@@ -110,7 +110,7 @@ namespace dehancer::cuda {
         }
       }
       else {
-        kernel_map_[command_->get_command_queue()] = {};
+        kernel_map_[command_->get_cu_command_queue()] = {};
       }
       
       CUmodule module = nullptr;
@@ -127,15 +127,15 @@ namespace dehancer::cuda {
         }
       }
       
-      if (module_map_.find(command_->get_command_queue()) != module_map_.end())
+      if (module_map_.find(command_->get_cu_command_queue()) != module_map_.end())
       {
-        auto& pm =  module_map_[command_->get_command_queue()];
+        auto& pm =  module_map_[command_->get_cu_command_queue()];
         if (pm.find(p_path_hash) != pm.end()) {
           module = pm[p_path_hash];
         }
       }
       else {
-        module_map_[command_->get_command_queue()] = {};
+        module_map_[command_->get_cu_command_queue()] = {};
       }
       
       if (module == nullptr) {
@@ -150,7 +150,7 @@ namespace dehancer::cuda {
           command_->pop();
           throw std::runtime_error(e.what() + std::string(" module: ") + p_path);
         }
-        module_map_[command_->get_command_queue()][p_path_hash] = module ;
+        module_map_[command_->get_cu_command_queue()][p_path_hash] = module ;
       }
       
       // Get function handle from module
@@ -162,7 +162,7 @@ namespace dehancer::cuda {
         throw std::runtime_error(e.what() + std::string(" kernel: ") + kernel_name_);
       }
       
-      kernel_map_[command_->get_command_queue()][kernel_name_]=kernel_;
+      kernel_map_[command_->get_cu_command_queue()][kernel_name_]=kernel_;
       command_->pop();
     }
     

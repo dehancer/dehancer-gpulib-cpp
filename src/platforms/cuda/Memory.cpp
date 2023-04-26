@@ -27,7 +27,7 @@ namespace dehancer::cuda {
       
       if (buffer) {
         auto *p = static_cast<uint8_t*>((void*)buffer);
-        CHECK_CUDA(cudaMemcpyAsync((void*)memobj_, p, length, cudaMemcpyHostToDevice, get_command_queue()));
+        CHECK_CUDA(cudaMemcpyAsync((void*)memobj_, p, length, cudaMemcpyHostToDevice, get_cu_command_queue()));
       }
       pop();
     }
@@ -95,7 +95,8 @@ namespace dehancer::cuda {
 
       try {
         this->push();
-        CHECK_CUDA(cudaMemcpyAsync(buffer, (const void *)memobj_, get_length(), cudaMemcpyDeviceToHost, get_command_queue()));
+        CHECK_CUDA(cudaMemcpyAsync(buffer, (const void *)memobj_, get_length(), cudaMemcpyDeviceToHost,
+                                   get_cu_command_queue()));
         this->pop();
       }
       catch (const std::runtime_error &e) {

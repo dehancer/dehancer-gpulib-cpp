@@ -66,6 +66,8 @@ namespace dehancer {
     const void *Command::get_command_queue() const {
 #if DEHANCER_GPU_OPENCL
       return impl_->get_cl_command_queue();
+#elif defined(DEHANCER_GPU_CUDA)
+      return impl_->get_cu_command_queue();
 #else
       return impl_->get_command_queue();
 #endif
@@ -74,6 +76,8 @@ namespace dehancer {
     void *Command::get_command_queue() {
 #if DEHANCER_GPU_OPENCL
       return impl_->get_cl_command_queue();
+#elif defined(DEHANCER_GPU_CUDA)
+      return impl_->get_cu_command_queue();
 #else
       return impl_->get_command_queue();
 #endif
