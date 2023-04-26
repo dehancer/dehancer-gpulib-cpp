@@ -22,7 +22,7 @@ namespace dehancer {
     
     Texture TextureHolder::Make(const void *command_queue, const TextureDesc &desc, const float *from_memory, bool is_device_buffer) {
       try {
-        return std::move(std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::TextureHolder>(command_queue,desc,from_memory,is_device_buffer));
+        return std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::TextureHolder>(command_queue,desc,from_memory,is_device_buffer);
       }
       
       catch (const dehancer::texture::memory_exception &e) {
@@ -43,7 +43,7 @@ namespace dehancer {
     
     Texture TextureHolder::Make (const void *command_queue, const void *from_memory) {
       try {
-        return std::move(std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::TextureHolder>(command_queue,from_memory));
+        return std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::TextureHolder>(command_queue,from_memory);
       }
   
       catch (const dehancer::texture::memory_exception &e) {
@@ -65,7 +65,7 @@ namespace dehancer {
     Texture TextureHolder::Crop (const Texture &texture,
                                  float left, float right, float top, float bottom
     ) {
-      return std::move(Crop(texture, left, right, top, bottom, texture->get_desc().pixel_format));
+      return Crop(texture, left, right, top, bottom, texture->get_desc().pixel_format);
     }
     
     Texture TextureHolder::Crop (const Texture &texture,
@@ -104,11 +104,11 @@ namespace dehancer {
           return dehancer::CommandEncoder::Size::From(result);
       });
 
-      return std::move(result);
+      return result;
     }
     
     Texture TextureHolder::Flip (const Texture &texture, FlipMode mode) {
-      return std::move(Flip(texture, mode, texture->get_desc().pixel_format));
+      return Flip(texture, mode, texture->get_desc().pixel_format);
     }
     
     Texture TextureHolder::Flip (const Texture &texture, FlipMode mode, TextureDesc::PixelFormat format) {
@@ -135,11 +135,11 @@ namespace dehancer {
           return dehancer::CommandEncoder::Size::From(result);
       });
       
-      return std::move(result);
+      return result;
     }
     
     Texture TextureHolder::Rotate90 (const Texture &texture, Rotate90Mode mode) {
-      return std::move(Rotate90(texture, mode, texture->get_desc().pixel_format));
+      return Rotate90(texture, mode, texture->get_desc().pixel_format);
     }
       
       Texture TextureHolder::Rotate90 (const Texture &texture, Rotate90Mode mode, TextureDesc::PixelFormat format) {
@@ -170,13 +170,13 @@ namespace dehancer {
           return dehancer::CommandEncoder::Size::From(result);
       });
       
-      return std::move(result);
+      return result;
     }
     
     TextureHolder::~TextureHolder () = default;
     
     Texture TextureDesc::make(const void *command_queue, const float *from_memory) const {
-      return std::move(dehancer::TextureHolder::Make(command_queue, *this, from_memory));
+      return dehancer::TextureHolder::Make(command_queue, *this, from_memory);
     }
     
     size_t TextureDesc::get_hash () const {

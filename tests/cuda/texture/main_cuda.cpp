@@ -17,6 +17,9 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+#include "tests/test_config.h"
+
+
 template< typename memT>
 cv::Mat cudaArrayToImage(cudaArray* iCuArray, size_t width, size_t height, CUstream stream)
 {

@@ -173,20 +173,20 @@ typedef struct _DHCR_StreamSpace_ {
      * deprecated
      *
      */
-    inline _DHCR_StreamSpace_& operator=(const _DHCR_StreamSpace_& c) {
-      
-      if (this == &c)
-        return *this;
-
-      type = c.type;
-      expandable = c.expandable;
-      transform_func = c.transform_func;
-      transform_lut = c.transform_lut;
-      id = c.id;
-      name = c.name;
-
-      return *this;
-    };
+//    inline _DHCR_StreamSpace_& operator=(const _DHCR_StreamSpace_& c) {
+//
+//      if (this == &c)
+//        return *this;
+//
+//      type = c.type;
+//      expandable = c.expandable;
+//      transform_func = c.transform_func;
+//      transform_lut = c.transform_lut;
+//      id = c.id;
+//      name = c.name;
+//
+//      return *this;
+//    };
     
 
     bool operator==(const _DHCR_StreamSpace_ &c) const { return type == c.type && id == c.id; }
@@ -196,7 +196,7 @@ typedef struct _DHCR_StreamSpace_ {
 } DHCR_StreamSpace;
 
 
-//#if DEHANCER_GPU_CODE
+#if __cplusplus && !DEHANCER_GPU_CODE
 static inline DHCR_DEVICE_FUNC
 DHCR_StreamSpace stream_space_identity() {
   
@@ -229,7 +229,7 @@ DHCR_StreamSpace stream_space_identity() {
 //  return identity;
 //
 //}
-//#endif
+#endif
 
 static inline DHCR_DEVICE_FUNC
 float4

@@ -10,15 +10,15 @@ namespace dehancer::cuda {
     
     
     const void *TextureHolder::get_command_queue () const {
-      return command_queue_;
+      return Context::get_command_queue();
     }
     
     TextureHolder::TextureHolder (const void *command_queue, const void *from_native_memory) :
             dehancer::TextureHolder(),
             Context(command_queue),
             desc_(),
-            mem_(nullptr),
-            command_queue_((void*)command_queue)
+            mem_(nullptr)//,
+//            command_queue_((void*)command_queue)
     {
       assert(mem_);
     }
@@ -27,8 +27,8 @@ namespace dehancer::cuda {
             dehancer::TextureHolder(),
             Context(command_queue),
             desc_(desc),
-            mem_(nullptr),
-            command_queue_((void*)command_queue)
+            mem_(nullptr)//,
+//            command_queue_((void*)command_queue)
     {
       
       push();
@@ -82,7 +82,7 @@ namespace dehancer::cuda {
                                                 mem_->get_width() * dpitch,
                                                 mem_->get_height(),
                                                 is_device_buffer ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice,
-                                                get_command_queue()));
+                                                Context::get_command_queue()));
           } else if (desc_.type == TextureDesc::Type::i3d) {
             
             
@@ -97,7 +97,7 @@ namespace dehancer::cuda {
             
             cpy_params.kind = is_device_buffer ? cudaMemcpyDeviceToDevice : cudaMemcpyHostToDevice;
             
-            cudaMemcpy3DAsync(&cpy_params, get_command_queue());
+            cudaMemcpy3DAsync(&cpy_params, Context::get_command_queue());
           }
         }
       }
@@ -184,7 +184,7 @@ namespace dehancer::cuda {
                             mem_->get_width() * dpitch,
                             mem_->get_height(),
                             cudaMemcpyDeviceToHost,
-                            get_command_queue()));
+                            Context::get_command_queue()));
         pop();
       }
       catch (const std::runtime_error &e) {
@@ -286,7 +286,7 @@ namespace dehancer::cuda {
                                               mem_->get_width() * dpitch,
                                               mem_->get_height(),
                                               cudaMemcpyDeviceToDevice,
-                                              get_command_queue()));
+                                              Context::get_command_queue()));
         pop();
       }
       catch (const std::runtime_error &e) {

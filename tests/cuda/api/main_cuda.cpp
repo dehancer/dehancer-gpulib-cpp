@@ -10,6 +10,7 @@
 #include <chrono>
 #include <cuda.h>
 #include <cuda_runtime.h>
+#include "tests/test_config.h"
 
 template <typename T>
 void check(T result, char const *const func, const char *const file,
