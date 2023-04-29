@@ -147,12 +147,13 @@ namespace dehancer::impl {
       auto mat = cv::Mat(cv::imdecode(image,cv::IMREAD_UNCHANGED));
       auto error = load_from_image_data_to_buffer(image, pixel_format, mat);
       if (error) { return error; }
-      uint8_t *arr = mat.isContinuous() ? mat.data: mat.clone().data;
-      uint length = mat.total()*mat.channels();
+      auto cl = mat.clone();
+      uint8_t *arr = cl.data;
+      uint length = cl.total() * cl.channels();
       result = std::vector<uint8_t>(arr, arr + length);
-      width = mat.cols;
-      height = mat.rows;
-      channels = mat.channels();
+      width = cl.cols;
+      height = cl.rows;
+      channels = cl.channels();
       return Error(CommonError::OK);
     }
     

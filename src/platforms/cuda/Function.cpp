@@ -5,6 +5,7 @@
 #include "Function.h"
 #include "CommandEncoder.h"
 #include "dehancer/gpu/Paths.h"
+#include "dehancer/Log.h"
 #include "utils.h"
 
 #include <cuda_runtime.h>
@@ -40,6 +41,8 @@ namespace dehancer::cuda {
       command_->push();
   
       auto encoder = std::make_shared<cuda::CommandEncoder>(kernel_, this);
+      
+//      auto encoder = (cuda::CommandEncoder*)(encoder_.get());
   
       auto compute_size = block(*encoder);
       
@@ -64,14 +67,19 @@ namespace dehancer::cuda {
         CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventRecord(start, nullptr));
       }
   
-      CHECK_CUDA_KERNEL(kernel_name_.c_str(),cuLaunchKernel(
-              kernel_,
-              compute_size.grid.width, compute_size.grid.height, compute_size.grid.depth,
-              compute_size.block.width, compute_size.block.height, compute_size.block.depth,
-              0,
-              command_->get_cu_command_queue(),
-              encoder->args_.data(),
-              nullptr)
+      std::cout << " ==== cuda::Function::execute_block["<<kernel_name_<<"] encoder size: " << encoder->args_.size() << std::endl;
+  
+      dehancer::log::print(" === cuda::Function::execute_block[%s] encoder size: %i", kernel_name_.c_str(), encoder->args_.size());
+      
+      CHECK_CUDA_KERNEL(kernel_name_.c_str(),
+                        cuLaunchKernel(
+                                kernel_,
+                                compute_size.grid.width, compute_size.grid.height, compute_size.grid.depth,
+                                compute_size.block.width, compute_size.block.height, compute_size.block.depth,
+                                0,
+                                command_->get_cu_command_queue(),
+                                encoder->args_.data(),
+                                nullptr)
       );
   
       if (command_->get_wait_completed()) {
@@ -95,6 +103,8 @@ namespace dehancer::cuda {
     {
       
       command_->push();
+      
+//      encoder_ = std::make_shared<cuda::CommandEncoder>(kernel_, this);
       
       max_device_threads_ = command_->get_max_threads();
       
@@ -190,6 +200,7 @@ namespace dehancer::cuda {
     }
     
     CommandEncoder::ComputeSize Function::ask_compute_size (size_t width, size_t height, size_t depth) const {
+//      const auto e = (cuda::CommandEncoder*)(encoder_.get());//std::make_shared<cuda::CommandEncoder>(kernel_, this);
       const auto e = std::make_shared<cuda::CommandEncoder>(kernel_, this);
       return e->ask_compute_size(width, height, depth);
     }
