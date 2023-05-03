@@ -17,18 +17,26 @@ namespace dehancer::cuda {
             dehancer::TextureHolder(),
             Context(command_queue),
             desc_(),
-            mem_(nullptr)//,
-//            command_queue_((void*)command_queue)
+            mem_((dehancer::nvcc::texture*)from_native_memory),
+            releasable_(false)
     {
       assert(mem_);
+      desc_ = {
+              .width = mem_->get_width(),
+              .height = mem_->get_height(),
+              .depth = mem_->get_depth(),
+              .channels = 4,
+              .pixel_format = (TextureDesc::PixelFormat)mem_->get_pixel_format(),
+              .type = (TextureDesc::Type)mem_->get_type(),
+              .label = mem_->get_label()
+      };
     }
     
     TextureHolder::TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory, bool is_device_buffer) :
             dehancer::TextureHolder(),
             Context(command_queue),
             desc_(desc),
-            mem_(nullptr)//,
-//            command_queue_((void*)command_queue)
+            mem_(nullptr)
     {
       
       push();
@@ -86,7 +94,7 @@ namespace dehancer::cuda {
           } else if (desc_.type == TextureDesc::Type::i3d) {
             
             
-            cudaMemcpy3DParms cpy_params = {0};
+            cudaMemcpy3DParms cpy_params = {};
             
             size_t nx = mem_->get_width(), ny = mem_->get_height(), nz = mem_->get_depth();
             
@@ -123,16 +131,20 @@ namespace dehancer::cuda {
     
     TextureHolder::~TextureHolder() {
       //push();
-      mem_ = nullptr;
+      if (mem_) {
+        if (releasable_)
+          delete mem_;
+        mem_ = nullptr;
+      }
 //      pop();
     };
     
     const void *TextureHolder::get_memory() const {
-      return mem_.get();
+      return mem_;
     }
     
     void *TextureHolder::get_memory() {
-      return mem_.get();
+      return mem_;
     }
     
     dehancer::Error TextureHolder::get_contents(std::vector<float> &buffer) const {

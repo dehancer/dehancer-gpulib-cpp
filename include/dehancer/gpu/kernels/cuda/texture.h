@@ -20,12 +20,28 @@ namespace dehancer {
     
     namespace nvcc {
         
+        enum class Type:int {
+            i1d = 0,
+            i2d,
+            i3d
+        };
+        
+        enum class PixelFormat:int {
+            rgba16float = 0,
+            rgba32float,
+            rgba8uint,
+            rgba16uint,
+            rgba32uint
+        };
+        
         struct texture {
 #ifndef CUDA_KERNEL
             __host__ [[nodiscard]] virtual const cudaArray *get_contents() const = 0;
             __host__ [[nodiscard]] virtual cudaArray *get_contents() = 0;
             __host__ [[nodiscard]] virtual const std::string& get_label() const = 0 ;
             __host__ virtual void set_label(const std::string& label) = 0;
+            __host__ virtual Type get_type() = 0;
+            __host__ virtual PixelFormat get_pixel_format() = 0;
 #endif
             __device__ [[nodiscard]] virtual size_t get_width() const = 0;
             __device__ [[nodiscard]] virtual size_t get_height() const = 0;
@@ -36,7 +52,7 @@ namespace dehancer {
   
             #endif
         
-            //__host__ virtual ~texture() = default;
+            __host__ virtual ~texture() = default;
         };
       
     }
