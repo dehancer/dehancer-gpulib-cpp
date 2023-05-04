@@ -39,14 +39,10 @@ namespace dehancer::cuda {
         
     private:
         TextureDesc desc_;
-        //std::shared_ptr<dehancer::nvcc::texture> mem_;
         dehancer::nvcc::texture* mem_;
         bool   releasable_ = true;
-        
-        //    void *command_queue_;
-    
+
         template<class T, bool is_half = false>
-        //std::shared_ptr<dehancer::nvcc::texture> make_texture() {
         dehancer::nvcc::texture* make_texture() {
           switch (desc_.type) {
             case TextureDesc::Type::i1d:

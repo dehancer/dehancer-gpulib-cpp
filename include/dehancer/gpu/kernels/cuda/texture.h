@@ -48,11 +48,9 @@ namespace dehancer {
             __device__ [[nodiscard]] virtual size_t get_depth() const = 0 ;
             __device__ [[nodiscard]] virtual bool is_half() const {return false;} ;
         
-            #ifndef CUDA_KERNEL
-  
-            #endif
-        
+#ifndef CUDA_KERNEL
             __host__ virtual ~texture() = default;
+#endif
         };
       
     }

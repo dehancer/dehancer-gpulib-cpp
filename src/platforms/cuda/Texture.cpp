@@ -130,13 +130,12 @@ namespace dehancer::cuda {
     }
     
     TextureHolder::~TextureHolder() {
-      //push();
-      if (mem_) {
-        if (releasable_)
-          delete mem_;
-        mem_ = nullptr;
+      if (releasable_ && mem_) {
+        push();
+        delete mem_;
+        pop();
       }
-//      pop();
+      mem_ = nullptr;
     };
     
     const void *TextureHolder::get_memory() const {
