@@ -41,12 +41,10 @@ namespace dehancer::cuda {
       command_->push();
   
       auto encoder = std::make_shared<cuda::CommandEncoder>(kernel_, this);
-      
-//      auto encoder = (cuda::CommandEncoder*)(encoder_.get());
-  
+
       auto compute_size = block(*encoder);
       
-      #ifdef PRINT_KERNELS_DEBUG
+#ifdef PRINT_KERNELS_DEBUG
       size_t buffer_size = compute_size.threads_in_grid*257*4*sizeof(unsigned int);
       std::cout << "Function " << kernel_name_
                 << " global: "
@@ -58,7 +56,7 @@ namespace dehancer::cuda {
                 << "  buffer size: "
                 <<     buffer_size << "b" << ", " << buffer_size/1024/1204 << "Mb"
                 << std::endl;
-      #endif
+#endif
   
       cudaEvent_t start, stop;
       if (command_->get_wait_completed()) {
@@ -66,11 +64,11 @@ namespace dehancer::cuda {
         CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventCreate(&stop));
         CHECK_CUDA_KERNEL(kernel_name_.c_str(),cudaEventRecord(start, nullptr));
       }
-  
-      std::cout << " ==== cuda::Function::execute_block["<<kernel_name_<<"] encoder size: " << encoder->args_.size() << std::endl;
-  
+
+#ifdef PRINT_KERNELS_DEBUG
       dehancer::log::print(" === cuda::Function::execute_block[%s] encoder size: %i", kernel_name_.c_str(), encoder->args_.size());
-      
+#endif
+
       CHECK_CUDA_KERNEL(kernel_name_.c_str(),
                         cuLaunchKernel(
                                 kernel_,
@@ -103,9 +101,7 @@ namespace dehancer::cuda {
     {
       
       command_->push();
-      
-//      encoder_ = std::make_shared<cuda::CommandEncoder>(kernel_, this);
-      
+
       max_device_threads_ = command_->get_max_threads();
       
       std::unique_lock<std::mutex> lock(Function::mutex_);
@@ -200,7 +196,6 @@ namespace dehancer::cuda {
     }
     
     CommandEncoder::ComputeSize Function::ask_compute_size (size_t width, size_t height, size_t depth) const {
-//      const auto e = (cuda::CommandEncoder*)(encoder_.get());//std::make_shared<cuda::CommandEncoder>(kernel_, this);
       const auto e = std::make_shared<cuda::CommandEncoder>(kernel_, this);
       return e->ask_compute_size(width, height, depth);
     }

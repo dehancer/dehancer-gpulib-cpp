@@ -6,7 +6,6 @@
 
 #include <dehancer/gpu/Texture.h>
 #include <dehancer/gpu/Function.h>
-//#include "CommandEncoder.h"
 #include "Command.h"
 
 namespace dehancer::cuda {
@@ -52,8 +51,7 @@ namespace dehancer::cuda {
         static std::unordered_map<CUstream, KernelMap> kernel_map_;
         static std::unordered_map<CUstream, ProgamMap> module_map_;
         static std::mutex mutex_;
-//        std::shared_ptr<dehancer::CommandEncoder> encoder_;
-    
+
         void execute_block(const CommonEncodeHandler& block);
   
     };
