@@ -61,16 +61,16 @@
 #  undef make_uchar4
 #endif
 
-#define make_float2(x, y)        ((float2)(x, y))
-#define make_float3(x, y, z)     ((float3)(x, y, z))
-#define make_float4(x, y, z, w)  ((float4)(x, y, z, w))
-#define make_int2(x, y)          ((int2)(x, y))
-#define make_int3(x, y, z)       ((int3)(x, y, z))
-#define make_int4(x, y, z, w)    ((int4)(x, y, z, w))
-#define make_uint2(x, y)         ((uint2)(x, y))
-#define make_uint3(x, y, z)      ((uint3)(x, y, z))
-#define make_uint4(x, y, z, w)   ((uint4)(x, y, z, w))
-#define make_uchar4(x, y, z, w)  ((uchar4)(x, y, z, w))
+#define make_float2(x, y)        ((float2){x, y})
+#define make_float3(x, y, z)     ((float3){x, y, z})
+#define make_float4(x, y, z, w)  ((float4){x, y, z, w})
+#define make_int2(x, y)          ((int2){x, y})
+#define make_int3(x, y, z)       ((int3){x, y, z})
+#define make_int4(x, y, z, w)    ((int4){x, y, z, w})
+#define make_uint2(x, y)         ((uint2){x, y})
+#define make_uint3(x, y, z)      ((uint3){x, y, z})
+#define make_uint4(x, y, z, w)   ((uint4){x, y, z, w})
+#define make_uchar4(x, y, z, w)  ((uchar4){x, y, z, w})
 
 /***
  * TODO: float2x2,float3x3,float4x4 constructors

@@ -69,15 +69,15 @@ auto io_texture_test = [] (int dev_num,
   
     auto texture_from_native = dehancer::TextureHolder::Make(command_queue, native_texture);
   
-//    texture_from_native = dehancer::TextureHolder::Rotate90(texture_from_native,
-//                                                            dehancer::Rotate90Mode::up);
-//
-//    using mode = dehancer::FlipMode;
-//    texture_from_native = dehancer::TextureHolder::Flip(texture_from_native,
-//                                                        mode::horizontal|mode::vertical);
+    texture_from_native = dehancer::TextureHolder::Rotate90(texture_from_native,
+                                                            dehancer::Rotate90Mode::up);
+
+    using mode = dehancer::FlipMode;
+    texture_from_native = dehancer::TextureHolder::Flip(texture_from_native,
+                                                        mode::horizontal|mode::vertical);
 
   
-    auto cropped_texture =  texture_from_native; //dehancer::TextureHolder::Crop(texture_from_native, 0.1f, 0.0f, 0.0f, 0.2f);
+    auto cropped_texture =  dehancer::TextureHolder::Crop(texture_from_native, 0.1f, 0.0f, 0.0f, 0.2f);
   
     if (!cropped_texture) {
       std::cout << "Failed to crop texture: ..." << std::endl;
