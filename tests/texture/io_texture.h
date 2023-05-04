@@ -56,7 +56,7 @@ auto io_texture_test = [] (int dev_num,
     }
   
     auto desc = input_text.get_texture()->get_desc();
-    desc.pixel_format = dehancer::TextureDesc::PixelFormat::rgba16float;
+    desc.pixel_format = dehancer::TextureDesc::PixelFormat::rgba32float;
   
     auto texture_16 = desc.make(command_queue);
   
