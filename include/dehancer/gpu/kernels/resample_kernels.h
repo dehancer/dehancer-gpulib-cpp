@@ -7,6 +7,50 @@
 
 #include "dehancer/gpu/kernels/resample.h"
 
+DHCR_KERNEL void kernel_rotate90(
+        texture2d_read_t       source DHCR_BIND_TEXTURE(0),
+        texture2d_write_t destination DHCR_BIND_TEXTURE(1),
+        DHCR_CONST_ARG int_ref_t    up DHCR_BIND_BUFFER(2)
+        DHCR_KERNEL_GID_2D
+){
+  
+  Texel2d tex; get_kernel_texel2d(destination,tex);
+  
+  if (!get_texel_boundary(tex)) return;
+  
+  int2 gid = make_int2(tex.gid.x, tex.gid.y);
+  
+  if (up == 1)      {gid.y = tex.gid.x; gid.x = tex.size.y-tex.gid.y-1; }
+  else if (up == 2) {gid.y = tex.size.x-tex.gid.x-1; gid.x = tex.gid.y; }
+  
+  
+  float4 rgb  =  read_image(source, gid);
+  
+  write_image(destination, rgb, tex.gid);
+}
+
+DHCR_KERNEL void kernel_flip(
+        texture2d_read_t       source DHCR_BIND_TEXTURE(0),
+        texture2d_write_t destination DHCR_BIND_TEXTURE(1),
+        DHCR_CONST_ARG bool_ref_t    horizon DHCR_BIND_BUFFER(2),
+        DHCR_CONST_ARG bool_ref_t   vertical DHCR_BIND_BUFFER(3)
+        DHCR_KERNEL_GID_2D
+){
+  
+  Texel2d tex; get_kernel_texel2d(destination,tex);
+  
+  if (!get_texel_boundary(tex)) return;
+  
+  int2 gid = make_int2(tex.gid.x, tex.gid.y);
+
+  if (horizon)  gid.x = tex.size.x-gid.x-1;
+  if (vertical) gid.y = tex.size.y-gid.y-1;
+  
+  float4 rgb  =  read_image(source, gid);
+  
+  write_image(destination, rgb, tex.gid);
+}
+
 DHCR_KERNEL void kernel_crop(
         texture2d_read_t       source DHCR_BIND_TEXTURE(0),
         texture2d_write_t destination DHCR_BIND_TEXTURE(1),
@@ -17,17 +61,6 @@ DHCR_KERNEL void kernel_crop(
   Texel2d tex; get_kernel_texel2d(destination,tex);
   
   if (!get_texel_boundary(tex)) return;
-  
-//  if (tex.gid.x >= (tex.size.x - origin_left - origin_right)
-//      ||
-//      tex.gid.y >= (tex.size.y - origin_top - origin_bottom)
-//      ||
-//      tex.gid.x < origin_left
-//      ||
-//      tex.gid.y < origin_top
-//          ) {
-//    return ;
-//  }
   
   int2 gid = make_int2(tex.gid.x + origin_left, tex.gid.y + origin_top);
   

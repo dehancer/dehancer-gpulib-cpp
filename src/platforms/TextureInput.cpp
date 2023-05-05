@@ -7,9 +7,112 @@
 
 namespace dehancer::impl {
 
-    TextureInput::TextureInput(const void *command_queue):
+    Error load_from_image_data_to_buffer(const std::vector<uint8_t> &buffer,
+                                         TextureDesc::PixelFormat pixelFormat_,
+                                         cv::Mat& image
+                                         ) {
+      try {
+        auto scale = 1.0f;
+    
+        switch (image.depth()) {
+          case CV_8S:
+          case CV_8U:
+            switch (pixelFormat_) {
+              case TextureDesc::PixelFormat::rgba8uint:
+                scale = 1.0f;
+                break;
+              case TextureDesc::PixelFormat::rgba16uint:
+                scale = 256.0f;
+                break;
+              default:
+                scale = 1.0f/256.0f;
+                break;
+            }
+            break;
+          case CV_16U:
+            switch (pixelFormat_) {
+              case TextureDesc::PixelFormat::rgba8uint:
+                scale = 1.0f/256.0f;
+                break;
+              case TextureDesc::PixelFormat::rgba16uint:
+                scale = 1.0f;
+                break;
+              default:
+                scale = 1.0f/65536.0f;
+                break;
+            }
+            break;
+          case CV_32S:
+            switch (pixelFormat_) {
+              case TextureDesc::PixelFormat::rgba8uint:
+                scale = 256.0f/16777216.0f;
+                break;
+              case TextureDesc::PixelFormat::rgba16uint:
+                scale = 65536.0f/16777216.0f;
+                break;
+              default:
+                scale = 1.0f/16777216.0f;
+                break;
+            }
+            break;
+          case CV_16F:
+          case CV_32F:
+          case CV_64F:
+            switch (pixelFormat_) {
+              case TextureDesc::PixelFormat::rgba8uint:
+                scale = 256.0f;
+                break;
+              case TextureDesc::PixelFormat::rgba16uint:
+                scale = 65536.0f;
+                break;
+              default:
+                scale = 1.0f;
+                break;
+            }
+            break;
+            break;
+          default:
+            return Error(CommonError::NOT_SUPPORTED, error_string("Image pixel depth is not supported"));
+        }
+    
+        auto color_cvt = cv::COLOR_BGR2RGBA;
+        if (image.channels() == 1){
+          color_cvt = cv::COLOR_GRAY2RGBA;
+        }
+        else if (image.channels() == 3){
+          color_cvt = cv::COLOR_BGR2RGBA;
+        }
+        else if (image.channels() == 4){
+          color_cvt = cv::COLOR_BGRA2RGBA;
+        }
+        else {
+          return Error(CommonError::NOT_SUPPORTED, error_string("Image channels depth is not supported"));
+        }
+    
+        cv::cvtColor(image, image, color_cvt);
+    
+        switch (pixelFormat_) {
+          case TextureDesc::PixelFormat::rgba8uint:
+            image.convertTo(image, CV_8UC4, scale);
+            break;
+          case TextureDesc::PixelFormat::rgba16uint:
+            image.convertTo(image, CV_16UC4, scale);
+            break;
+          default:
+            image.convertTo(image, CV_32FC4, scale);
+            break;
+        }
+  
+        return Error(CommonError::OK);
+      }
+      catch (const cv::Exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
+      catch (const std::exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
+    }
+    
+    TextureInput::TextureInput(const void *command_queue, TextureDesc::PixelFormat pixelFormat):
             Command(command_queue, true),
-            texture_(nullptr)
+            texture_(nullptr),
+            pixelFormat_(pixelFormat)
     {
     }
 
@@ -33,64 +136,62 @@ namespace dehancer::impl {
       return texture_->get_length();
     }
     
+    Error TextureInput::image_to_data (const std::vector<uint8_t> &image,
+                                       TextureDesc::PixelFormat pixel_format,
+                                       std::vector<uint8_t> &result,
+                                       size_t& width,
+                                       size_t& height,
+                                       size_t& channels
+                                       ) {
+      width = height = channels = 0;
+      auto mat = cv::Mat(cv::imdecode(image,cv::IMREAD_UNCHANGED));
+      auto error = load_from_image_data_to_buffer(image, pixel_format, mat);
+      if (error) { return error; }
+      auto cl = mat.clone();
+      uint8_t *arr = cl.data;
+      uint length = cl.total() * cl.channels();
+      result = std::vector<uint8_t>(arr, arr + length);
+      width = cl.cols;
+      height = cl.rows;
+      channels = cl.channels();
+      return Error(CommonError::OK);
+    }
+    
+    Error TextureInput::image_to_data (const std::vector<uint8_t> &image,
+                                       std::vector<uint8_t> &result,
+                                       size_t& width,
+                                       size_t& height,
+                                       size_t& channels) {
+      return image_to_data(image, pixelFormat_, result, width, height, channels);
+    }
+    
+    
     #if not (defined(IOS_SYSTEM) and defined(DEHANCER_IOS_LOAD_NATIVE_IMAGE_LUT))
+    
     Error TextureInput::load_from_image(const std::vector<uint8_t> &buffer) {
 
       try {
-        auto image = cv::Mat(cv::imdecode(buffer,cv::IMREAD_UNCHANGED));
+  
+        auto mat = cv::Mat(cv::imdecode(buffer,cv::IMREAD_UNCHANGED));
 
-        auto scale = 1.0f;
+        auto error = load_from_image_data_to_buffer(buffer, pixelFormat_, mat);
 
-        switch (image.depth()) {
-          case CV_8S:
-          case CV_8U:
-            scale = 1.0f/256.0f;
-            break;
-          case CV_16U:
-            scale = 1.0f/65536.0f;
-            break;
-          case CV_32S:
-            scale = 1.0f/16777216.0f;
-            break;
-          case CV_16F:
-          case CV_32F:
-          case CV_64F:
-            scale = 1.0f;
-            break;
-          default:
-            return Error(CommonError::NOT_SUPPORTED, error_string("Image pixel depth is not supported"));
-        }
+        if (error) { return error; }
 
-        auto color_cvt = cv::COLOR_BGR2RGBA;
-        if (image.channels() == 1){
-          color_cvt = cv::COLOR_GRAY2RGBA;
-        }
-        else if (image.channels() == 3){
-          color_cvt = cv::COLOR_BGR2RGBA;
-        }
-        else if (image.channels() == 4){
-          color_cvt = cv::COLOR_BGRA2RGBA;
-        }
-        else {
-          return Error(CommonError::NOT_SUPPORTED, error_string("Image channels depth is not supported"));
-        }
-
-        cv::cvtColor(image, image, color_cvt);
-
-        image.convertTo(image, CV_32FC4, scale);
-
-        return load_from_data(reinterpret_cast<float *>(image.data),
-                              static_cast<size_t>(image.cols),
-                              static_cast<size_t>(image.rows),
+        return load_from_data(reinterpret_cast<float *>(mat.data),
+                              static_cast<size_t>(mat.cols),
+                              static_cast<size_t>(mat.rows),
                               1
         );
-
+        
       }
       catch (const cv::Exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
       catch (const std::exception & e) { return Error(CommonError::EXCEPTION, e.what()); }
+      
     }
     #endif
     
+  
     Error TextureInput::load_from_data(const std::vector<float> &buffer, size_t width, size_t height, size_t depth) {
       auto* _buffer = const_cast<float *>(buffer.data());
       return load_from_data(_buffer, width, height, depth);
@@ -111,7 +212,7 @@ namespace dehancer::impl {
                 .width = width,
                 .height = height,
                 .depth = depth,
-                .pixel_format = TextureDesc::PixelFormat::rgba32float,
+                .pixel_format = pixelFormat_,//TextureDesc::PixelFormat::rgba32float,
                 .type = type,
                 .mem_flags = TextureDesc::MemFlags::read_write
         };
@@ -139,6 +240,7 @@ namespace dehancer::impl {
 
       return is;
     }
+    
     
     #if not defined(__APPLE__)
     Error TextureInput::load_from_native_image (const void *handle) {

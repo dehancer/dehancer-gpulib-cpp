@@ -29,7 +29,7 @@ namespace dehancer::cuda {
     public:
         explicit Context (const void *command_queue);
         
-        [[nodiscard]] CUstream get_command_queue () const;
+        [[nodiscard]] CUstream get_cu_command_queue () const;
         
         [[nodiscard]] CUcontext get_command_context () const;
         

@@ -5,7 +5,16 @@ set(DATA_DIR ${CMAKE_SOURCE_DIR}/tests/data)
 configure_file(${CMAKE_SOURCE_DIR}/tests/include/test_config.h.in ${CMAKE_BINARY_DIR}/generated/tests/test_config.h)
 
 if (DEHANCER_GPU_CUDA)
+    add_definitions("-DDEHANCER_GPU_CUDA=1")
     add_subdirectory(cuda)
+endif ()
+
+if (DEHANCER_GPU_METAL)
+    add_definitions("-DDEHANCER_GPU_METAL=1")
+endif ()
+
+if (DEHANCER_GPU_OPENCL)
+    add_definitions("-DDEHANCER_GPU_OPENCL=1")
 endif ()
 
 add_subdirectory(shaders)

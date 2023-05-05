@@ -6,6 +6,12 @@
 
 #include "dehancer/gpu/Lib.h"
 #include "tests/test_config.h"
+#if DEHANCER_GPU_METAL
+#include "tests/metal/paths_config.h"
+#elif DEHANCER_GPU_CUDA
+#include "tests/cuda/paths_config.h"
+#endif
+
 #include "gtest/gtest.h"
 
 using dh_test_function = std::function<int (int num,

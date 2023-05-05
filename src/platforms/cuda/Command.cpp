@@ -39,6 +39,6 @@ namespace dehancer::cuda {
               .mem_flags = TextureDesc::MemFlags::read_write
       };
       
-      return TextureHolder::Make(get_command_queue(), desc, nullptr);
+      return TextureHolder::Make(get_cu_command_queue(), desc, nullptr);
     }
 }

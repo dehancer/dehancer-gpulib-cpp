@@ -4,6 +4,7 @@
 
 #include "gtest/gtest.h"
 #include "../device_cache.h"
+#include "tests/test_config.h"
 
 
 TEST(TEST, DeviceCache_Cuda) {

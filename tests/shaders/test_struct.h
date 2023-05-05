@@ -17,8 +17,8 @@ typedef struct  {
 //#else
 //  dehancer::math::float4x4 mat;
 //#endif
-//    DHCR_TransformDirection direction;
-//    DHCR_TransformType transform_type;
+    DHCR_TransformDirection direction;
+    DHCR_TransformType transform_type;
     bool_t  enabled;
     int     size;
     float   data;

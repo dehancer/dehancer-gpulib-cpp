@@ -6,6 +6,7 @@
 
 #include "tests/cuda/paths_config.h"
 #include "tests/filter/filter_test.h"
+#include "tests/test_config.h"
 
 TEST(TEST, FILTER_BASE_OpenCL) {
   
@@ -14,19 +15,4 @@ TEST(TEST, FILTER_BASE_OpenCL) {
   
   run_images("cuda", filter_test);
   
-}
-
-namespace dehancer::device {
-
-    /**
-      * MUST BE defined in certain plugin module
-      * @return metal lib path.
-      */
-    std::string get_lib_path() {
-      return CUDA_KERNELS_LIBRARY;
-    }
-
-    extern std::size_t get_lib_source(std::string& source) {
-      return 0;
-    }
 }

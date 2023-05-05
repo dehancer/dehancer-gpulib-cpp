@@ -56,7 +56,7 @@ typedef  unsigned int uint;
 #define float_ref_t  float
 #define float2_ref_t float2
 #define float3_ref_t float3
-#define float3x3_ref_t float4x3
+#define float3x3_ref_t float3x3
 #define float4x4_ref_t float4x4
 
 #define uint2_ref_t uint2

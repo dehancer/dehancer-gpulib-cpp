@@ -22,7 +22,7 @@ namespace dehancer {
     
     Texture TextureHolder::Make(const void *command_queue, const TextureDesc &desc, const float *from_memory, bool is_device_buffer) {
       try {
-        return std::move(std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::TextureHolder>(command_queue,desc,from_memory,is_device_buffer));
+        return std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::TextureHolder>(command_queue,desc,from_memory,is_device_buffer);
       }
       
       catch (const dehancer::texture::memory_exception &e) {
@@ -43,7 +43,7 @@ namespace dehancer {
     
     Texture TextureHolder::Make (const void *command_queue, const void *from_memory) {
       try {
-        return std::move(std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::TextureHolder>(command_queue,from_memory));
+        return std::make_shared<dehancer::DEHANCER_GPU_PLATFORM::TextureHolder>(command_queue,from_memory);
       }
   
       catch (const dehancer::texture::memory_exception &e) {
@@ -62,10 +62,22 @@ namespace dehancer {
       }
     }
     
-    Texture TextureHolder::Crop (const Texture &texture, float left, float right, float top, float bottom) {
+    Texture TextureHolder::Crop (const Texture &texture,
+                                 float left, float right, float top, float bottom
+    ) {
+      return Crop(texture, left, right, top, bottom, texture->get_desc().pixel_format);
+    }
+    
+    Texture TextureHolder::Crop (const Texture &texture,
+                                 float left, float right, float top, float bottom,
+                                 TextureDesc::PixelFormat format
+                                 ) {
       
       auto desc = texture->get_desc();
-
+  
+      if (desc.pixel_format!=format)
+        desc.pixel_format = format;
+      
       int origin_left = (int)(float(desc.width)  * left);
       int origin_top  = (int)(float(desc.height)  * top);
 
@@ -77,7 +89,7 @@ namespace dehancer {
 
       /***
        * TODO:
-       * add Function from kernel source code
+       * it needs to be right adding Function from kernel source code constructor
        */
       auto function = dehancer::Function(texture->get_command_queue(),
                                                            "kernel_crop");
@@ -92,18 +104,79 @@ namespace dehancer {
           return dehancer::CommandEncoder::Size::From(result);
       });
 
-      return std::move(result);
+      return result;
     }
     
-//    Texture TextureHolder::make_cropped (float left, float right, float top, float bottom) const {
-//      Texture source_texture = TextureHolder::Make(this->get_command_queue(), this->get_memory());
-//      return std::move(Crop(source_texture, left, right, top, bottom));
-//    }
+    Texture TextureHolder::Flip (const Texture &texture, FlipMode mode) {
+      return Flip(texture, mode, texture->get_desc().pixel_format);
+    }
+    
+    Texture TextureHolder::Flip (const Texture &texture, FlipMode mode, TextureDesc::PixelFormat format) {
+      auto desc = texture->get_desc();
+  
+      if (desc.pixel_format!=format)
+        desc.pixel_format = format;
+  
+      /***
+      * TODO:
+      * it needs to be right adding Function from kernel source code constructor
+      */
+      auto function = dehancer::Function(texture->get_command_queue(),
+                                         "kernel_flip");
+  
+      
+      auto result = desc.make(texture->get_command_queue());
+  
+      function.execute([&texture,&result,mode](dehancer::CommandEncoder &command_encoder) {
+          command_encoder.set(texture, 0);
+          command_encoder.set(result, 1);
+          command_encoder.set((bool)((int)mode&(int)FlipMode::horizontal),2);
+          command_encoder.set((bool)((int)mode&(int)FlipMode::vertical),3);
+          return dehancer::CommandEncoder::Size::From(result);
+      });
+      
+      return result;
+    }
+    
+    Texture TextureHolder::Rotate90 (const Texture &texture, Rotate90Mode mode) {
+      return Rotate90(texture, mode, texture->get_desc().pixel_format);
+    }
+      
+      Texture TextureHolder::Rotate90 (const Texture &texture, Rotate90Mode mode, TextureDesc::PixelFormat format) {
+     
+      auto desc = texture->get_desc();
+      
+      if (desc.pixel_format!=format)
+        desc.pixel_format = format;
+      
+      if (mode!=Rotate90Mode::nope) {
+        desc.width = desc.height;
+        desc.height = texture->get_desc().width;
+      }
+      
+      /***
+      * TODO:
+      * it needs to be right adding Function from kernel source code constructor
+      */
+      auto function = dehancer::Function(texture->get_command_queue(),
+                                         "kernel_rotate90");
+      
+      auto result = desc.make(texture->get_command_queue());
+      
+      function.execute([&texture,&result,mode](dehancer::CommandEncoder &command_encoder) {
+          command_encoder.set(texture, 0);
+          command_encoder.set(result, 1);
+          command_encoder.set((int)mode,2);
+          return dehancer::CommandEncoder::Size::From(result);
+      });
+      
+      return result;
+    }
     
     TextureHolder::~TextureHolder () = default;
     
     Texture TextureDesc::make(const void *command_queue, const float *from_memory) const {
-      return std::move(dehancer::TextureHolder::Make(command_queue, *this, from_memory));
+      return dehancer::TextureHolder::Make(command_queue, *this, from_memory);
     }
     
     size_t TextureDesc::get_hash () const {

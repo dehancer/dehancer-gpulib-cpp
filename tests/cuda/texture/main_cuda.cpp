@@ -17,6 +17,9 @@
 #include <cuda.h>
 #include <cuda_runtime.h>
 
+#include "tests/test_config.h"
+
+
 template< typename memT>
 cv::Mat cudaArrayToImage(cudaArray* iCuArray, size_t width, size_t height, CUstream stream)
 {
@@ -203,15 +206,4 @@ TEST(TEST, CUDA_TEXTURE_LOW_LAYER) {
 
   dehancer::DeviceCache::Instance().return_command_queue(command_queue);
 
-}
-
-namespace dehancer::device {
-
-    /**
-      * MUST BE defined in certain plugin module
-      * @return metal lib path.
-      */
-    std::string get_lib_path() {
-      return CUDA_KERNELS_LIBRARY;// + std::string("++");
-    }
 }
