@@ -3,6 +3,7 @@
 //
 
 #include <dehancer/gpu/CommandEncoder.h>
+#include <dehancer/Log.h>
 
 #include "CommandEncoder.h"
 
@@ -12,10 +13,16 @@ namespace dehancer::opencl {
 
     void CommandEncoder::set(const Texture &texture, int index)  {
       if (kernel_) {
-        auto memobj = static_cast<cl_mem>(texture->get_memory());
+        auto memobj = reinterpret_cast<cl_mem>(texture->get_memory());
+        if (!memobj) {
+          throw std::runtime_error("Unable to pass to kernel "+function_->get_name()+" the memory object at index: " + std::to_string(index));
+        }
         auto ret = clSetKernelArg(kernel_, index, sizeof(cl_mem), (void *)&memobj);
-        if (ret != CL_SUCCESS)
-          throw std::runtime_error("Unable to pass to kernel "+function_->get_name()+" the texture buffer at index: " + std::to_string(index));
+        if (ret != CL_SUCCESS) {
+          throw std::runtime_error(
+                  "Unable to pass to kernel " + function_->get_name() + " the texture buffer at index: " +
+                  std::to_string(index));
+        }
       }
       else {
         throw std::runtime_error("Unable to pass texture to null kernel "+function_->get_name());
@@ -24,9 +31,17 @@ namespace dehancer::opencl {
 
     void CommandEncoder::set(const void *bytes, size_t bytes_length, int index)  {
       if (kernel_){
+
+        if (!bytes) {
+          throw std::runtime_error("Unable to pass to kernel "+function_->get_name()+" the memory object at index: " + std::to_string(index));
+        }
+
         auto ret = clSetKernelArg(kernel_, index, bytes_length,  bytes);
-        if (ret != CL_SUCCESS)
-          throw std::runtime_error("Unable to pass to kernel "+function_->get_name()+" bytes at index: " + std::to_string(index) + ", error code: " + std::to_string(ret));
+        if (ret != CL_SUCCESS) {
+          throw std::runtime_error(
+                  "Unable to pass to kernel " + function_->get_name() + " bytes at index: " + std::to_string(index) +
+                  ", error code: " + std::to_string(ret));
+        }
       }
       else {
         throw std::runtime_error("Unable to pass bytes to null kernel "+function_->get_name());
@@ -35,10 +50,14 @@ namespace dehancer::opencl {
 
     void CommandEncoder::set(const Memory &memory, int index) {
       if (kernel_) {
-        auto memobj = static_cast<cl_mem>(memory->get_memory());
-        auto ret = clSetKernelArg(kernel_, index, sizeof(cl_mem), (void *)&memobj);
-        if (ret != CL_SUCCESS)
+        auto memobj = reinterpret_cast<cl_mem>(memory->get_memory());
+        if (!memobj) {
           throw std::runtime_error("Unable to pass to kernel "+function_->get_name()+" the memory object at index: " + std::to_string(index));
+        }
+        auto ret = clSetKernelArg(kernel_, index, sizeof(cl_mem), (void *)&memobj);
+        if (ret != CL_SUCCESS){
+          throw std::runtime_error("Unable to pass to kernel "+function_->get_name()+" the memory object at index: " + std::to_string(index));
+        }
       }
       else {
         throw std::runtime_error("Unable to pass memory to null kernel "+function_->get_name());

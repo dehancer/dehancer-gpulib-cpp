@@ -57,7 +57,7 @@ namespace dehancer::opencl {
                 <<     buffer_size << "b" << ", " << buffer_size/1024/1204 << "Mb"
                 << std::endl;
       #endif
-      
+
       last_error = clEnqueueNDRangeKernel(command_->get_cl_command_queue(),
                                           kernel_,
                                           dim,
@@ -67,12 +67,14 @@ namespace dehancer::opencl {
                                           0,
                                           nullptr,
                                           &waiting_event);
-  
+
+
       if (last_error != CL_SUCCESS) {
         throw std::runtime_error("Unable to enqueue kernel: " + kernel_name_ + " error code: " + std::to_string(last_error));
       }
   
       if (waiting_event && command_->get_wait_completed()) {
+
         last_error = clWaitForEvents(1, &waiting_event);
     
         clReleaseEvent(waiting_event);
