@@ -35,6 +35,5 @@ namespace dehancer::opencl {
         TextureDesc desc_;
         cl_mem memobj_;
         bool   releasable_ = true;
-//        void *command_queue_;
     };
 }

@@ -17,8 +17,7 @@ namespace dehancer::opencl {
             Context(command_queue),
             desc_(),
             memobj_(nullptr),
-            releasable_(false)//,
-//            command_queue_((void*)command_queue)
+            releasable_(false)
     {
       assert(from_native_memory);
       memobj_ = static_cast<cl_mem>((void*)from_native_memory);
@@ -86,8 +85,7 @@ namespace dehancer::opencl {
             Context(command_queue),
             desc_(desc),
             memobj_(nullptr),
-            releasable_(true)//,
-            //command_queue_((void*)command_queue)
+            releasable_(true)
     {
       cl_image_format format;
       cl_image_desc   image_desc;
