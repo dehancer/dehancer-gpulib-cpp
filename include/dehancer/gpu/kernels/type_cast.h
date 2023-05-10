@@ -11,6 +11,14 @@
 
 #include <cuda.h>
 
+#ifndef float_as_uint
+#define float_as_uint(x) __float_as_uint(x)
+#endif
+
+#ifndef uint_as_float
+#define uint_as_float(x) __uint_as_float(x)
+#endif
+
 #elif defined(CL_VERSION_1_2)
 
 inline DHCR_DEVICE_FUNC float uint_as_float(uint m ) {
