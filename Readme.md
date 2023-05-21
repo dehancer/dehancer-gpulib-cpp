@@ -120,6 +120,20 @@ OpenCV from sources
     # ...
     
     mkdir build_opencv_arm64 && cd build_opencv_arm64
+
+    # M2 Macos Ventura
+    
+    arch -arm64 cmake -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DCMAKE_OSX_SYSROOT=macosx -DCMAKE_INSTALL_PREFIX:PATH=/usr/local/arm64 \
+    -DBUILD_SHARED_LIBS=OFF -DWITH_FFMPEG=OFF -DWITH_V4L=OFF -DWITH_EIGEN=OFF\
+    -DWITH_JPEG=ON -DBUILD_JPEG=ON -DCMAKE_OSX_SYSROOT=macosx \
+    -DVIDEOIO_ENABLE_PLUGINS=ON -DOPENCV_GENERATE_PKGCONFIG=ON \
+    -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DCMAKE_FIND_LIBRARY_SUFFIXES=".a" ..
+    
+    arch -arm64 cmake --build . -j16  --config Release
+
+    sudo cmake --install . --config Release
+
+    M1
     cmake -DCMAKE_OSX_ARCHITECTURES=arm64 -DCMAKE_INSTALL_PREFIX:PATH=/usr/local/arm64 \
     -DBUILD_SHARED_LIBS=OFF -DWITH_FFMPEG=OFF -DWITH_V4L=OFF -DWITH_EIGEN=ON\
     -DWITH_JPEG=ON -DBUILD_JPEG=OFF \
@@ -127,7 +141,6 @@ OpenCV from sources
     -DJPEG_LIBRARY=/usr/local/jpeg-turbo/lib/libjpeg.a \
     -DVIDEOIO_ENABLE_PLUGINS=OFF -DOPENCV_GENERATE_PKGCONFIG=ON \
     -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DCMAKE_FIND_LIBRARY_SUFFIXES=".a" ..
-    # on centos add -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 
     mkdir build_opencv_x86_64 && cd build_opencv_x86_64
     cmake -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 \
@@ -138,6 +151,7 @@ OpenCV from sources
     -DBUILD_SHARED_LIBS=OFF -DWITH_FFMPEG=OFF -DWITH_V4L=OFF -DVIDEOIO_ENABLE_PLUGINS=OFF -DWITH_EIGEN=ON\
     -DOPENCV_GENERATE_PKGCONFIG=ON DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF \
     -DCMAKE_FIND_LIBRARY_SUFFIXES=".a" ..
+    # on centos add -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
 
     make -j7 && make install
 
