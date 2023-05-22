@@ -649,8 +649,8 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-maths-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.6.7
-#            GIT_TAG develop
+#            GIT_TAG 0.6.7
+            GIT_TAG develop
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
