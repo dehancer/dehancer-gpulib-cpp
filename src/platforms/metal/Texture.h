@@ -20,7 +20,8 @@ namespace dehancer::metal {
         TextureHolder(const void *command_queue, const TextureDesc &desc, const void *from_memory, bool is_device_buffer);
         TextureHolder(const void *command_queue, const void *from_memory);
         ~TextureHolder() override ;
-
+    
+        [[nodiscard]] const void* get_command_queue() const override;
         [[nodiscard]] const void*  get_memory() const override;
         [[nodiscard]] void*  get_memory() override;
         dehancer::Error get_contents(std::vector<float>& buffer) const override;
@@ -40,5 +41,6 @@ namespace dehancer::metal {
     private:
         TextureDesc  desc_;
         std::shared_ptr<TextureItem> texture_item_;
+        void *command_queue_;
     };
 }

@@ -54,7 +54,7 @@ auto function_test =  [] (int dev_num,
                 .left_trim = 1.0f,
                 .right_trim = 1.0f
         },
-        .transform {
+        .transform = {
           .enabled = true,
           .space = space,
           .direction = DHCR_Forward

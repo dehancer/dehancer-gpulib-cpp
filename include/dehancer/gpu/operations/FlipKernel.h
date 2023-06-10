@@ -12,30 +12,33 @@ namespace dehancer {
     /**
      * Resample kernel
      */
-    class ResampleKernel: public Kernel {
+    class FlipKernel: public Kernel {
     
     public:
         using Kernel::Kernel;
     
         /***
-         * Resample mode
+         * Flip mode
          */
-        enum Mode {
-            bilinear = DHCR_Bilinear ,
-            bicubic  = DHCR_Bicubic,
-            box_average = DHCR_BoxAverage
-        };
+        using Mode = FlipMode;
         
-        explicit ResampleKernel(const void *command_queue,
+        explicit FlipKernel(const void *command_queue,
                                 const Texture &source,
                                 const Texture &destination,
-                                Mode mode = bilinear,
+                                Mode mode = Mode::nope,
                                 bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                                 const std::string &library_path = "");
         
-        explicit ResampleKernel(const void *command_queue,
-                                Mode mode = bilinear,
+        explicit FlipKernel(const void *command_queue,
+                                Mode mode = Mode::nope,
                                 bool wait_until_completed = WAIT_UNTIL_COMPLETED,
                                 const std::string &library_path = "");
+    
+        void setup(CommandEncoder &encoder) override;
+    
+        [[maybe_unused]] void set_mode(Mode mode);
+        
+    private:
+        Mode mode_;
     };
 }

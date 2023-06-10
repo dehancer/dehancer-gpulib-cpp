@@ -16,19 +16,3 @@ TEST(TEST, CUDA_TEXTURE) {
   run_images("cuda", io_texture_test);
 
 }
-
-namespace dehancer::device {
-
-    /**
-      * MUST BE defined in certain plugin module
-      * @return metal lib path.
-      */
-    std::string get_lib_path() {
-      return CUDA_KERNELS_LIBRARY;// + std::string("++");
-    }
-    
-    
-    extern std::size_t get_lib_source(std::string& source) {
-      return 0;
-    }
-}

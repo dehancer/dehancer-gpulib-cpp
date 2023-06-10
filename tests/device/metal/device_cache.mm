@@ -2,8 +2,6 @@
 // Created by denn nevera on 15/11/2020.
 //
 
-//#import <Metal/Metal.h>
-
 #include "gtest/gtest.h"
 
 #include "gtest/gtest.h"
@@ -11,6 +9,8 @@
 #include <chrono>
 
 #include "../device_cache.h"
+#include "tests/test_config.h"
+#include "tests/metal/paths_config.h"
 
 TEST(TEST, DeviceCache_Metal) {
 

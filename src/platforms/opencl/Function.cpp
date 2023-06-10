@@ -57,8 +57,8 @@ namespace dehancer::opencl {
                 <<     buffer_size << "b" << ", " << buffer_size/1024/1204 << "Mb"
                 << std::endl;
       #endif
-      
-      last_error = clEnqueueNDRangeKernel(command_->get_command_queue(),
+
+      last_error = clEnqueueNDRangeKernel(command_->get_cl_command_queue(),
                                           kernel_,
                                           dim,
                                           nullptr,
@@ -67,12 +67,14 @@ namespace dehancer::opencl {
                                           0,
                                           nullptr,
                                           &waiting_event);
-  
+
+
       if (last_error != CL_SUCCESS) {
         throw std::runtime_error("Unable to enqueue kernel: " + kernel_name_ + " error code: " + std::to_string(last_error));
       }
   
       if (waiting_event && command_->get_wait_completed()) {
+
         last_error = clWaitForEvents(1, &waiting_event);
     
         clReleaseEvent(waiting_event);
@@ -132,9 +134,9 @@ namespace dehancer::opencl {
     {
       std::unique_lock<std::mutex> lock(Function::mutex_);
       
-      if (kernel_map_.find(command_->get_command_queue()) != kernel_map_.end())
+      if (kernel_map_.find(command_->get_cl_command_queue()) != kernel_map_.end())
       {
-        auto& km =  kernel_map_[command_->get_command_queue()];
+        auto& km =  kernel_map_[command_->get_cl_command_queue()];
         if (km.find(kernel_name_) != km.end()) {
           kernel_ = km[kernel_name_];
           encoder_ = std::make_shared<opencl::CommandEncoder>(kernel_,this);
@@ -142,7 +144,7 @@ namespace dehancer::opencl {
         }
       }
       else {
-        kernel_map_[command_->get_command_queue()] = {};
+        kernel_map_[command_->get_cl_command_queue()] = {};
       }
       
       cl_program program_ = nullptr;
@@ -157,15 +159,15 @@ namespace dehancer::opencl {
           throw std::runtime_error("Could not find embedded opencl source code for '" + kernel_name + "'");
       }
       
-      if (program_map_.find(command_->get_command_queue()) != program_map_.end())
+      if (program_map_.find(command_->get_cl_command_queue()) != program_map_.end())
       {
-        auto& pm =  program_map_[command_->get_command_queue()];
+        auto& pm =  program_map_[command_->get_cl_command_queue()];
         if (pm.find(p_path_hash) != pm.end()) {
           program_ = pm[p_path_hash];
         }
       }
       else {
-        program_map_[command_->get_command_queue()] = {};
+        program_map_[command_->get_cl_command_queue()] = {};
       }
       
       cl_int last_error = 0;
@@ -214,12 +216,12 @@ namespace dehancer::opencl {
           throw std::runtime_error("Unable to build OpenCL program from: '" + p_path + "' on: " + kernel_name_ + ": \n[" + std::to_string(log_size) + "] " + log);
         }
         
-        program_map_[command_->get_command_queue()][p_path_hash] = program_ ;
+        program_map_[command_->get_cl_command_queue()][p_path_hash] = program_ ;
       }
       
       kernel_ = clCreateKernel(program_, kernel_name_.c_str(), &last_error);
       
-      kernel_map_[command_->get_command_queue()][kernel_name_]=kernel_;
+      kernel_map_[command_->get_cl_command_queue()][kernel_name_]=kernel_;
       
       if (last_error != CL_SUCCESS) {
         throw std::runtime_error("Unable to create kernel for: " + kernel_name_);

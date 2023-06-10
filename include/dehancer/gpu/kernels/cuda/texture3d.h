@@ -18,6 +18,17 @@ namespace dehancer {
             __host__ [[nodiscard]] cudaArray* get_contents() override { return mem_; };
             __host__ [[nodiscard]] const std::string& get_label() const override {return label_;};
             __host__ void set_label(const std::string& label) override {label_ = label;};
+            __host__ Type get_type() override { return Type::i3d; };
+            __host__ PixelFormat get_pixel_format() override {
+              if (std::is_same_v<T,uint4>)
+                return PixelFormat::rgba32uint;
+              else if (std::is_same_v<T,float4>)
+                return is_half_float ? PixelFormat::rgba16float : PixelFormat::rgba32float;
+              else if (std::is_same_v<T,ushort4>)
+                return PixelFormat::rgba16uint;
+              else if (std::is_same_v<T,uchar4>)
+                return PixelFormat::rgba8uint;
+            };
 #endif
             __device__ [[nodiscard]] size_t get_width() const override { return width_;};
             __device__ [[nodiscard]] size_t get_height() const override { return height_;};
@@ -80,7 +91,7 @@ namespace dehancer {
               
             }
 
-            ~texture3d() {
+            ~texture3d() override {
               if (texture_)
                 cuTexObjectDestroy(texture_);
               texture_ = 0;

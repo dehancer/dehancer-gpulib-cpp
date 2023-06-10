@@ -3,7 +3,7 @@
 //
 
 #include "gtest/gtest.h"
-#include "tests/paths_config.h"
+//#include "tests/paths_config.h"
 
 #include "tests/aobench/aobench.h"
 
@@ -14,15 +14,4 @@ TEST(TEST, AOBENCH_Metal) {
 
   test_bench("metal");
 
-}
-
-namespace dehancer::device {
-
-    /**
-      * MUST BE defined in certain plugin module
-      * @return metal lib path.
-      */
-    std::string get_lib_path() {
-      return METAL_KERNELS_LIBRARY;
-    }
 }

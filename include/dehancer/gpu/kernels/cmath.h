@@ -37,6 +37,8 @@ static inline DHCR_DEVICE_FUNC float __attribute__((overloadable)) log10f(float 
 
 #endif
 
+#if DEHANCER_GPU_CODE
+
 static inline DHCR_HOST_DEVICE_FUNC float2 __attribute__((overloadable)) to_float2(float C) { return make_float2(C,C); }
 static inline DHCR_HOST_DEVICE_FUNC float3 __attribute__((overloadable)) to_float3(float C) { return make_float3(C,C,C); }
 static inline DHCR_HOST_DEVICE_FUNC float4 __attribute__((overloadable)) to_float4(float C) { return make_float4(C,C,C,C); }
@@ -353,6 +355,8 @@ static inline DHCR_HOST_DEVICE_FUNC float4 __attribute__((overloadable)) linear_
   
   return result;
 }
+
+#endif
 
 //
 // flow control

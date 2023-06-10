@@ -21,6 +21,17 @@ namespace dehancer {
             __host__ [[nodiscard]] cudaArray* get_contents() override { return mem_; };
             __host__ [[nodiscard]] const std::string& get_label() const override {return label_;};
             __host__ void set_label(const std::string& label) override {label_ = label;};
+            __host__ Type get_type() override { return Type::i2d; };
+            __host__ PixelFormat get_pixel_format() override {
+              if (std::is_same_v<T,uint4>)
+                return PixelFormat::rgba32uint;
+              else if (std::is_same_v<T,float4>)
+                return is_half_float ? PixelFormat::rgba16float : PixelFormat::rgba32float;
+              else if (std::is_same_v<T,ushort4>)
+                return PixelFormat::rgba16uint;
+              else if (std::is_same_v<T,uchar4>)
+                return PixelFormat::rgba8uint;
+            };
 #endif
             __device__ [[nodiscard]] size_t get_width() const override { return width_;};
             __device__ [[nodiscard]] size_t get_height() const override { return height_;};
@@ -88,7 +99,7 @@ namespace dehancer {
               CHECK_CUDA(cudaCreateTextureObject(&texture_normalized_, &resDesc, &texDesc, nullptr));
             }
             
-            ~texture2d() {
+            ~texture2d() override {
               if (texture_normalized_)
                 cuTexObjectDestroy(texture_normalized_);
               texture_normalized_ = 0;
@@ -187,10 +198,12 @@ namespace dehancer {
 
 #ifndef CUDA_KERNEL
             cudaArray* mem_ = nullptr;
-            std::string label_;
+            std::string label_{};
 #endif
         };
     }
 }
 
-typedef dehancer::nvcc::texture2d<float4> image2d_t;
+typedef dehancer::nvcc::texture2d<float4>  image2d_t;
+typedef image2d_t image2d_32t;
+typedef dehancer::nvcc::texture2d<uchar4>  image2d_8t;

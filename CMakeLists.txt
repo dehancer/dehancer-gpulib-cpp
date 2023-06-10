@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.12)
 
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 1.4.4)
+project(${PROJECT_LIB} VERSION 1.4.5)
 
 message("PLATFORM: ${PLATFORM}")
 message("XCODE_VERSION: ${XCODE_VERSION}")
@@ -123,7 +123,7 @@ elseif(APPLE)
     message(STATUS "Apple configuration...")
     if (DEHANCER_GPU_METAL)
         message(STATUS "Apple uses Metal...")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -fno-objc-arc -Wno-unused-command-line-argument -F/Library/Frameworks ")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ObjC++ -fno-objc-arc -Wno-unused-command-line-argument -F/Library/Frameworks -Wno-unqualified-std-cast-call")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework Metal")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework MetalKit")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -framework MetalPerformanceShaders")
@@ -138,6 +138,7 @@ elseif(APPLE)
         endif()
     elseif(DEHANCER_GPU_OPENCL)
         message(STATUS "Apple uses OpenCL...")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
     endif()
 endif()
 
@@ -146,7 +147,7 @@ set(BUILD_SHARED_LIBS OFF)
 if (WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -EHsc -Wno-deprecated-declarations")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-    add_definitions(/MT /DWIN32=1 /D_ITERATOR_DEBUG_LEVEL=0)
+    add_definitions(/MT /DWIN32=1 /D_ITERATOR_DEBUG_LEVEL=0 /D_USE_MATH_DEFINES)
 
     string(TOLOWER  ${CMAKE_BUILD_TYPE} BUILD_TYPE)
 
@@ -318,10 +319,13 @@ if (DEHANCER_GPU_CUDA)
             set(CUDA_INSTALLATION_DIR_V115 "${CUDA_INSTALLATION_DIR}/v11.5")
             set(CUDA_INSTALLATION_DIR_V116 "${CUDA_INSTALLATION_DIR}/v11.6")
             set(CUDA_INSTALLATION_DIR_V118 "${CUDA_INSTALLATION_DIR}/v11.8")
+            set(CUDA_INSTALLATION_DIR_V121 "${CUDA_INSTALLATION_DIR}/v12.1")
             set(CUDA_INSTALLATION_DIR_V10 "${CUDA_INSTALLATION_DIR}/v10.2")
 
-            if(EXISTS ${CUDA_INSTALLATION_DIR_V118})
-                set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V118})
+            if(EXISTS ${CUDA_INSTALLATION_DIR_V121})
+                set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V121})
+            elseif(EXISTS ${CUDA_INSTALLATION_DIR_V118})
+                    set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V118})
             elseif(EXISTS ${CUDA_INSTALLATION_DIR_V116})
                     set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V116})
             elseif(EXISTS ${CUDA_INSTALLATION_DIR_V115})
@@ -331,6 +335,7 @@ if (DEHANCER_GPU_CUDA)
             else()
                 message(FATAL_ERROR "NO CUDAToolkit is found...")
             endif()
+
         endif ()
 
         if (NOT CUDA_BIN_COMPILER)
@@ -597,7 +602,7 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.10.0
+            GIT_TAG 0.12.0
 #            GIT_TAG develop
             CMAKE_ARGS
             -DDEHANCER_CONTROLLED_SINGLETON=${DEHANCER_CONTROLLED_SINGLETON}
@@ -609,6 +614,7 @@ else()
             -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
             -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DPRINT_DEBUG=${PRINT_DEBUG}
             -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
             -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
             -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
@@ -643,7 +649,7 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-maths-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.6.7
+            GIT_TAG 0.7.0
 #            GIT_TAG develop
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
@@ -689,7 +695,7 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-xmp-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.9.0
+            GIT_TAG 0.9.1
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
@@ -697,6 +703,7 @@ else()
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_C_FLAGS=${C_FLAGS}
             -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
+            -DPRINT_DEBUG=${PRINT_DEBUG}
             -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
             -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
             -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}

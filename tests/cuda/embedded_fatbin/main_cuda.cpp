@@ -60,24 +60,3 @@ TEST(TEST, CUDA_EMBEDED_FATBIN) {
   
   
 }
-
-extern "C" char TestKernels_cuda_fatbin[];
-extern  "C" int  TestKernels_cuda_fatbin_len;
-
-namespace dehancer::device {
-
-    /**
-      * MUST BE defined in certain plugin module
-      * @return metal lib path.
-      */
-    std::string get_lib_path() {
-      return "";
-    }
-    
-    extern std::size_t get_lib_source(std::string& source) {
-      source.clear();
-      source.append(TestKernels_cuda_fatbin,TestKernels_cuda_fatbin_len);
-      return std::hash<std::string>{}(source);
-    }
-    
-}

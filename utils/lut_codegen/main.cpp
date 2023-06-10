@@ -9,6 +9,21 @@
 #include "dehancer/gpu/Lib.h"
 #include "utils/metal/paths_config.h"
 
+static inline std::string dirname_of(const std::string& fname)
+{
+  static std::string  pathSeparator =
+          #if WIN32
+          "\\";
+          #else
+          "/";
+  #endif
+  
+  size_t pos = fname.find_last_of(pathSeparator);
+  return (std::string::npos == pos)
+         ? ""
+         : fname.substr(0, pos);
+}
+
 int main(int argc, char** argv) {
   
   if (argc != 6) {
@@ -82,6 +97,7 @@ int main(int argc, char** argv) {
     
     int index = 0;
     ++argc_next;
+    std::string base_path = argv[index+argc_next];
     for(auto& data: luts_data ) {
       
       std::ofstream os(argv[index+argc_next]);
@@ -171,8 +187,11 @@ int main(int argc, char** argv) {
                                 "}";
   
   
-    std::string file_code_prefix = "./";
-    
+    std::string file_code_prefix = dirname_of(base_path)
+                                   + "/";
+  
+    std::cout << " file_code_prefix: " << file_code_prefix << std::endl;
+  
     {
       auto file = file_code_prefix+ocio_namespace + ".h";
       std::ofstream hpp_os(file);

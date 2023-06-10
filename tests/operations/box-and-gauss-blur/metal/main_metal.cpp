@@ -24,18 +24,3 @@ TEST(TEST, METAL_BOX_BLUR_FUNCTUON) {
   run_images("metal", box_test);
 
 }
-
-namespace dehancer::device {
-
-    /**
-      * MUST BE defined in certain plugin module
-      * @return metal lib path.
-      */
-    std::string get_lib_path() {
-      return METAL_KERNELS_LIBRARY;
-    }
-
-    extern std::size_t get_lib_source(std::string& source) {
-      return 0;
-    }
-}

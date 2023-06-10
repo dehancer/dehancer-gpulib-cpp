@@ -2,10 +2,16 @@
 // Created by denn nevera on 15/11/2020.
 //
 
-#include "gtest/gtest.h"
 #include "../../include/run_test.h"
+#if DEHANCER_GPU_METAL
+#include "tests/metal/paths_config.h"
+#elif DEHANCER_GPU_CUDA
+#include "tests/cuda/paths_config.h"
+#endif
 
 #include <iostream>
+
+//#include "gtest/gtest.h"
 
 auto io_texture_test = [] (int num,
                            const void* command_queue,

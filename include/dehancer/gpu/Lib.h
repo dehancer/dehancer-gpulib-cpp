@@ -32,6 +32,8 @@
 #include "dehancer/gpu/operations/MorphKernel.h"
 #include "dehancer/gpu/operations/DilateKernel.h"
 #include "dehancer/gpu/operations/ErodeKernel.h"
+#include "dehancer/gpu/operations/FlipKernel.h"
+#include "dehancer/gpu/operations/Rotate90Kernel.h"
 
 #include "dehancer/gpu/math/ConvolveUtils.h"
 

@@ -8,6 +8,10 @@
 
 namespace dehancer::opencl {
     
+    const void *TextureHolder::get_command_queue () const {
+      return get_cl_command_queue();
+    }
+    
     TextureHolder::TextureHolder (const void *command_queue, const void *from_native_memory):
             dehancer::TextureHolder(),
             Context(command_queue),
@@ -184,7 +188,7 @@ namespace dehancer::opencl {
   
         if (CL_MEM_OBJECT_BUFFER==m_type) {
           last_error_ = clEnqueueCopyBufferToImage(
-                  get_command_queue() /* command_queue */,
+                  get_cl_command_queue() /* command_queue */,
                   src           /* src_buffer */,
                   memobj_       /* dst_image */,
                   0             /* src_offset */,
@@ -196,15 +200,15 @@ namespace dehancer::opencl {
           );
         }
         else if (CL_MEM_OBJECT_IMAGE2D==m_type){
-          last_error_ = clEnqueueCopyImage(get_command_queue()     /* command_queue */,
-                             src               /* src_image */,
-                             memobj_           /* dst_image */,
-                             dst_origin        /* src_origin[3] */,
-                             dst_origin        /* dst_origin[3] */,
-                             region            /* region[3] */,
-                             0                 /* num_events_in_wait_list */,
-                             nullptr           /* event_wait_list */,
-                             nullptr           /* event */);
+          last_error_ = clEnqueueCopyImage(get_cl_command_queue()     /* command_queue */,
+                                           src               /* src_image */,
+                                           memobj_           /* dst_image */,
+                                           dst_origin        /* src_origin[3] */,
+                                           dst_origin        /* dst_origin[3] */,
+                                           region            /* region[3] */,
+                                           0                 /* num_events_in_wait_list */,
+                                           nullptr           /* event_wait_list */,
+                                           nullptr           /* event */);
   
         }
         else {
@@ -299,7 +303,7 @@ namespace dehancer::opencl {
       }
       
       last_error_ = clEnqueueReadImage(
-              get_command_queue(),
+              get_cl_command_queue(),
               memobj_,
               CL_BLOCKING,
               originst,
@@ -335,7 +339,7 @@ namespace dehancer::opencl {
       last_error_ =
               
               clEnqueueCopyImageToBuffer(
-                      get_command_queue() /* command_queue */,
+                      get_cl_command_queue() /* command_queue */,
                       memobj_             /* src_image */,
                       dst                 /* dst_buffer */,
                       originst            /* src_origin[3] */,

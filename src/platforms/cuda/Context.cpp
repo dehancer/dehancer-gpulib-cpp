@@ -16,13 +16,13 @@ namespace dehancer::cuda {
     {
       std::lock_guard lock(mutex_);
       
-      auto id = reinterpret_cast<std::size_t>(get_command_queue());
+      auto id = reinterpret_cast<std::size_t>(get_cu_command_queue());
       
       auto it = cache_.find(id);
       
       if (it==cache_.end()) {
         
-        CHECK_CUDA(cuStreamGetCtx(get_command_queue(), &device_ref_.context));
+        CHECK_CUDA(cuStreamGetCtx(get_cu_command_queue(), &device_ref_.context));
         push();
         CHECK_CUDA(cuCtxGetDevice(&device_ref_.device_id));
         pop();
@@ -50,7 +50,7 @@ namespace dehancer::cuda {
       }
     }
     
-    CUstream Context::get_command_queue() const {
+    CUstream Context::get_cu_command_queue() const {
       return static_cast<CUstream>((void *) command_queue_);
     }
     

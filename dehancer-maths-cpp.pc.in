@@ -1,0 +1,13 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: dehancer-maths-cpp
+Description: Dehancer math layer SDK
+Version: @PROJECT_VERSION@
+URL: https://github.com/dehancer/dehancer-maths-cpp
+Requires.private: @requires_private@
+Libs: -L${libdir} -ldehancer_maths_cpp -larmadillo
+Libs.private: @libs_private@
+CFlags: -I${includedir}

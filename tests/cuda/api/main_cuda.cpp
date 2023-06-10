@@ -10,6 +10,7 @@
 #include <chrono>
 #include <cuda.h>
 #include <cuda_runtime.h>
+#include "tests/test_config.h"
 
 template <typename T>
 void check(T result, char const *const func, const char *const file,
@@ -185,15 +186,4 @@ TEST(TEST, DeviceCache_OpenCL) {
 
   //delete[] test_data;
   
-}
-
-namespace dehancer::device {
-
-    /**
-      * MUST BE defined in certain plugin module
-      * @return metal lib path.
-      */
-    std::string get_lib_path() {
-      return CUDA_KERNELS_LIBRARY;// + std::string("++");
-    }
 }
