@@ -89,7 +89,7 @@ namespace dehancer {
           
           auto desc_o = overlay_src_->get_desc();
           
-          float scale = std::fmin((float)desc.width/(float)desc_o.width, (float)desc.height/(float)desc_o.height);
+          float const scale = std::fmin((float)desc.width/(float)desc_o.width, (float)desc.height/(float)desc_o.height);
           
           desc_o.height = std::floor((float) desc_o.height * scale);
           desc_o.width = std::floor((float) desc_o.width * scale);
