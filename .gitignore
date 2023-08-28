@@ -44,6 +44,7 @@ compile_commands.json
 CTestTestfile.cmake
 build
 build-*
+!BUILD-*.md
 cmake-build-*
 !.idea
 .idea/*
