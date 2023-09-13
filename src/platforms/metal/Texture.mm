@@ -292,13 +292,13 @@ namespace dehancer::metal {
       id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];
   
       #if not defined(IOS_SYSTEM)
-        id <MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
-        [blitEncoder synchronizeTexture:static_cast<id <MTLTexture>>(texture_item_->texture) slice:0 level:0];
-        [blitEncoder endEncoding];
+        //id <MTLBlitCommandEncoder> blitEncoder = [commandBuffer blitCommandEncoder];
+        //[blitEncoder synchronizeTexture:static_cast<id <MTLTexture>>(texture_item_->texture) slice:0 level:0];
+        //[blitEncoder endEncoding];
       #endif
       
       [commandBuffer commit];
-      [commandBuffer waitUntilCompleted];
+      //[commandBuffer waitUntilCompleted];
       
       MTLRegion region;
       
