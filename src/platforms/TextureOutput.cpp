@@ -78,7 +78,7 @@ namespace dehancer::impl {
           case TextureIO::Options::Type::png:
             ext = ".png";
             params.push_back(cv::IMWRITE_PNG_COMPRESSION);
-            params.push_back((int)(64.0f * options_.compression));
+            params.push_back((int)(9.0f * options_.compression));
             output_type = CV_16U;
             output_color = cv::COLOR_RGBA2BGRA;
             scale = 65355.0f;
@@ -87,7 +87,7 @@ namespace dehancer::impl {
           case TextureIO::Options::Type::webp:
             ext = ".webp";
             params.push_back(cv::IMWRITE_WEBP_QUALITY);
-            params.push_back((int)(9.0f * options_.compression));
+            params.push_back((int)(100.0f - 100.0f * options_.compression));
             output_type = CV_8U;
             output_color = cv::COLOR_RGBA2BGR;
             scale = 255.0f;
