@@ -602,8 +602,7 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.12.0
-#            GIT_TAG develop
+            GIT_TAG develop
             CMAKE_ARGS
             -DDEHANCER_CONTROLLED_SINGLETON=${DEHANCER_CONTROLLED_SINGLETON}
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
