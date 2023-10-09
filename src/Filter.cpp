@@ -124,7 +124,8 @@ namespace dehancer {
       int index = 0;
       
       bool make_last_copy = true;
-      
+
+#pragma unroll
       for (const auto& f: impl_->list) {
         
         if (!f->enabled) continue;
@@ -221,34 +222,35 @@ namespace dehancer {
     }
     
     bool Filter::is_enable (const Filter::FilterItem &item) const {
-      int index = get_index_of(item);
+      int const index = get_index_of(item);
       if(index>=0)
         return is_enable(index);
       return false;
     }
     
     bool Filter::is_enable (const Filter::KernelItem &item) const {
-      int index = get_index_of(item);
+      int const index = get_index_of(item);
       if(index>=0)
         return is_enable(index);
       return false;
     }
     
     bool Filter::set_enable (const Filter::FilterItem &item, bool enabled) {
-      int index = get_index_of(item);
+      int const index = get_index_of(item);
       if(index>=0)
         return set_enable(index, enabled);
       return false;
     }
     
     bool Filter::set_enable (const Filter::KernelItem &item, bool enabled) {
-      int index = get_index_of(item);
+      int const index = get_index_of(item);
       if(index>=0)
         return set_enable(index, enabled);
       return false;
     }
     
     int Filter::get_index_of (const Filter::FilterItem &item) const {
+#pragma unroll
       for (int i = 0; i < (int)impl_->list.size(); ++i) {
         if(auto f = impl_->list.at(i)->filter) {
           if (f.get() == item.get())
@@ -259,6 +261,7 @@ namespace dehancer {
     }
     
     int Filter::get_index_of (const Filter::KernelItem &item) const {
+#pragma unroll
       for (int i = 0; i < (int)impl_->list.size(); ++i) {
         if(auto k = impl_->list.at(i)->kernel) {
           if (k.get() == item.get())
