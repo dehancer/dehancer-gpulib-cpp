@@ -39,6 +39,11 @@ DHCR_KERNEL void  kernel_blend(
       base          = bicubic_sampled_color(source, tex.size, tex.gid);
       overlay_color = bicubic_sampled_color(overlay, tex.size, tex.gid);
       break;
+
+    case DHCR_Smooth_Bicubic:
+      base          = smooth_bicubic_sampled_color(source, tex.size, tex.gid);
+      overlay_color = smooth_bicubic_sampled_color(overlay, tex.size, tex.gid);
+      break;
   
     case DHCR_BoxAverage:
       base          = box_average_sampled_color(source, tex.size, tex.gid);

@@ -8,7 +8,7 @@
 #include "dehancer/gpu/kernels/common.h"
 #include "dehancer/gpu/kernels/types.h"
 
-#define DHCR_AXIS_OFFSET 0.0f // -0.5f
+#define DHCR_AXIS_OFFSET (-0.5f)
 
 /***
  * Bilinear interpolation
@@ -25,9 +25,12 @@ float4  tex2D_bilinear(texture2d_read_t source, float x, float y)
   
   float  u = floorf(x);
   float  v = floorf(y);
-  
-  float  px = x - u;
-  float  py = y - v;
+
+//  float  u = ceilf(x);
+//  float  v = ceilf(y);
+
+  float  px = x-u;
+  float  py = y-v;
   
   int dx = 1;
   int dy = 1;
@@ -35,14 +38,15 @@ float4  tex2D_bilinear(texture2d_read_t source, float x, float y)
   int2   gid_src = make_int2(u,v);
   
   float4 q11 = read_image(source, gid_src+make_int2(0, 0 ));
+  float4 q21 = read_image(source, gid_src+make_int2(dx,0 ));
+
   float4 q12 = read_image(source, gid_src+make_int2(0, dy));
   float4 q22 = read_image(source, gid_src+make_int2(dx,dy));
-  float4 q21 = read_image(source, gid_src+make_int2(dx,0 ));
-  
-  float4 c1  = mix(q11,q21,to_float4(px));
-  float4 c2  = mix(q12,q22,to_float4(px));
-  
-  return mix(c1,c2,to_float4(py));
+
+  float4 c1  = mix(q11,q21,px);
+  float4 c2  = mix(q12,q22,px);
+
+  return mix(c1,c2,py);
 }
 
 /***
@@ -219,6 +223,44 @@ float4 tex2D_bicubic(texture2d_read_t tex, float x, float y)
                            read_image(tex, gid+make_int2(+1,+2)),
                            read_image(tex, gid+make_int2(+2,+2)));
   
+  return cubicFilter(fy,c0,c1,c2,c3);
+}
+
+inline DHCR_DEVICE_FUNC
+float4 tex2D_smooth_bicubic(texture2d_read_t tex, float x, float y)
+{
+  x += DHCR_AXIS_OFFSET;
+  y += DHCR_AXIS_OFFSET;
+
+  float px = floorf(x);
+  float py = floorf(y);
+  float fx = x - px;
+  float fy = y - py;
+
+  float2 gid = make_float2(px,py);
+  float2 fx2 = make_float2(get_texture_width(tex)-1, get_texture_height(tex)-1);
+
+  float4 c0 = cubicFilter(fx,
+                          read_image(tex, (gid+make_float2(-1,-1)) /fx2 ),
+                          read_image(tex, (gid+make_float2( 0,-1)) /fx2 ),
+                          read_image(tex, (gid+make_float2(+1,-1)) /fx2 ),
+                          read_image(tex, (gid+make_float2(+2,-1)) /fx2 ));
+  float4 c1 = cubicFilter(fx,
+                          read_image(tex, (gid+make_float2(-1, 0)) /fx2 ),
+                          read_image(tex, (gid+make_float2( 0, 0)) /fx2 ),
+                          read_image(tex, (gid+make_float2(+1, 0)) /fx2 ),
+                          read_image(tex, (gid+make_float2(+2, 0)) /fx2 ));
+  float4 c2 =  cubicFilter(fx,
+                           read_image(tex, (gid+make_float2(-1,+1)) /fx2 ),
+                           read_image(tex, (gid+make_float2( 0,+1)) /fx2 ),
+                           read_image(tex, (gid+make_float2(+1,+1)) /fx2 ),
+                           read_image(tex, (gid+make_float2(+2,+1)) /fx2 ));
+  float4 c3 =  cubicFilter(fx,
+                           read_image(tex, (gid+make_float2(-1,+2)) /fx2 ),
+                           read_image(tex, (gid+make_float2( 0,+2)) /fx2 ),
+                           read_image(tex, (gid+make_float2(+1,+2)) /fx2 ),
+                           read_image(tex, (gid+make_float2(+2,+2)) /fx2 ));
+
   return cubicFilter(fy,c0,c1,c2,c3);
 }
 

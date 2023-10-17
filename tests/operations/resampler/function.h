@@ -8,7 +8,7 @@
 #include "dehancer/gpu/Lib.h"
 #include "tests/test_config.h"
 
-float scale = 1./2.0f;
+float scale = 1./4.0f;
 auto  interpolation = dehancer::ResampleKernel::Mode::bilinear;
 
 auto function_test =  [] (int dev_num,
@@ -38,12 +38,14 @@ auto function_test =  [] (int dev_num,
                                                          .compression = test::compression
                                                  });
       
-      auto kernel = dehancer::ResampleKernel(command_queue, interpolation);
-      
-      kernel.set_source(input_text.get_texture());
-      kernel.set_destination(output_text.get_texture());
-      
-      kernel.process();
+      auto resampler = dehancer::ResampleKernel(command_queue, interpolation);
+//      auto resampler = dehancer::GaussianBlur(command_queue, 1.2f);
+//      auto resampler = dehancer::PassKernel(command_queue);
+
+      resampler.set_source(input_text.get_texture());
+      resampler.set_destination(output_text.get_texture());
+
+      resampler.process();
       
       {
         std::ofstream os(output_image, std::ostream::binary | std::ostream::trunc);
