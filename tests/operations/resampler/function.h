@@ -9,7 +9,8 @@
 #include "tests/test_config.h"
 
 float scale = 1./4.0f;
-auto  interpolation = dehancer::ResampleKernel::Mode::bilinear;
+//auto  interpolation = dehancer::ResampleKernel::Mode::smooth_bicubic;
+auto  interpolation = dehancer::ResizeKernel::Mode::lanczos;
 
 auto function_test =  [] (int dev_num,
                           const void* command_queue,
@@ -38,8 +39,8 @@ auto function_test =  [] (int dev_num,
                                                          .compression = test::compression
                                                  });
       
-      auto resampler = dehancer::ResampleKernel(command_queue, interpolation);
-//      auto resampler = dehancer::GaussianBlur(command_queue, 1.2f);
+      auto resampler = dehancer::ResizeKernel(command_queue, interpolation, 1.5f);
+//      auto resampler = dehancer::ResampleKernel(command_queue, interpolation);
 //      auto resampler = dehancer::PassKernel(command_queue);
 
       resampler.set_source(input_text.get_texture());
