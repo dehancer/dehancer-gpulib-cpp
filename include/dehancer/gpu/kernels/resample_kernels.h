@@ -81,7 +81,6 @@ DHCR_KERNEL void kernel_bilinear(
   Texel2d tex_src;  get_kernel_texel2d(source,tex_src);
   
   float2 coords = get_texel_coords(tex_dest) * make_float2(tex_src.size.x-1,tex_src.size.y-1);
-//  float2 coords = get_texel_coords(tex_dest) * make_float2(tex_src.size.x,tex_src.size.y);
   
   float4 color = tex2D_bilinear(source, coords.x, coords.y);
   
@@ -101,7 +100,7 @@ DHCR_KERNEL void kernel_bicubic(
   Texel2d tex_src;  get_kernel_texel2d(source,tex_src);
   
   float2 coords = get_texel_coords(tex_dest) * make_float2(tex_src.size.x-1,tex_src.size.y-1);
-  
+
   float4 color = tex2D_bicubic(source, coords.x, coords.y);
   
   write_image(destination, color, tex_dest.gid);
@@ -137,7 +136,7 @@ DHCR_KERNEL void kernel_box_average(
   Texel2d tex_src;  get_kernel_texel2d(source,tex_src);
   
   float2 coords = get_texel_coords(tex_dest) * make_float2(tex_src.size.x-1,tex_src.size.y-1);
-  
+
   float4 color = tex2D_box_average(source, coords.x, coords.y);
   
   write_image(destination, color, tex_dest.gid);

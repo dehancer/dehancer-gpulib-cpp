@@ -8,7 +8,7 @@
 #include "dehancer/gpu/kernels/common.h"
 #include "dehancer/gpu/kernels/types.h"
 
-#define DHCR_AXIS_OFFSET (-0.5f)
+#define DHCR_AXIS_OFFSET (-0.1f)
 
 /***
  * Bilinear interpolation
@@ -25,9 +25,6 @@ float4  tex2D_bilinear(texture2d_read_t source, float x, float y)
   
   float  u = floorf(x);
   float  v = floorf(y);
-
-//  float  u = ceilf(x);
-//  float  v = ceilf(y);
 
   float  px = x-u;
   float  py = y-v;
