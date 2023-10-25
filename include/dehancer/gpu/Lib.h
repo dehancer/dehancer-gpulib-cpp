@@ -23,6 +23,7 @@
 
 #include "dehancer/gpu/operations/BlendKernel.h"
 #include "dehancer/gpu/operations/ResampleKernel.h"
+#include "dehancer/gpu/operations/ResizeKernel.h"
 #include "dehancer/gpu/operations/PassKernel.h"
 #include "dehancer/gpu/operations/UnaryKernel.h"
 #include "dehancer/gpu/operations/BoxBlur.h"

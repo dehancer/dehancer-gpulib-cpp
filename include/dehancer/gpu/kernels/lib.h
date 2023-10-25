@@ -14,6 +14,7 @@
 #include "dehancer/gpu/kernels/unary_kernels.h"
 #endif
 #include "dehancer/gpu/kernels/resample_kernels.h"
+#include "dehancer/gpu/kernels/resize_kernels.h"
 #include "dehancer/gpu/kernels/gamma_kernels.h"
 #include "dehancer/gpu/kernels/morph_kernels.h"
 #include "dehancer/gpu/kernels/channel_utils.h"

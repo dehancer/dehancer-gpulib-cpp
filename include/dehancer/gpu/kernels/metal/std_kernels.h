@@ -22,12 +22,12 @@ static inline float4 __attribute__((overloadable)) sampled_color(
   int2 size = int2(source.get_width(), source.get_height());
 
   if (size.y == destination_size.y && destination_size.x == size.x)
-    return source.sample(nearest_sampler, (float2)(gid));
+    return source.read(uint2(gid));
   else {
     float2 coords = (float2){(float)gid.x / (float)(destination_size.x - 1),
                              (float)gid.y / (float)(destination_size.y - 1)};
-    coords = coords * (to_float2(size)-1.0f);// + to_float2(0.5f);
-    return tex2D_bilinear(source, coords.x, coords.y);
+    coords = coords * (to_float2(size)-1.0f);
+    return  tex2D_bilinear(source, coords.x, coords.y);
   }
 }
 
@@ -56,6 +56,30 @@ static inline float4 __attribute__((overloadable)) bicubic_sampled_color(
 }
 
 /***
+ * Bicubic sampler
+ * @param source
+ * @param destination
+ * @param gid
+ * @return
+ */
+static inline float4 __attribute__((overloadable)) smooth_bicubic_sampled_color(
+  texture2d_read_t source,
+  int2 destination_size,
+  int2 gid
+){
+  int2 size = int2(source.get_width(), source.get_height());
+
+  if (size.y==destination_size.y && destination_size.x==size.x)
+    return read_image(source, gid);
+  else {
+    float2 coords = (float2){(float)gid.x / (float)(destination_size.x - 1),
+                             (float)gid.y / (float)(destination_size.y - 1)};
+    coords = coords * (to_float2(size)-1.0f);
+    return tex2D_smooth_bicubic(source, coords.x, coords.y);
+  }
+}
+
+/***
  * Box average sampler
  * @param source
  * @param destination
@@ -73,7 +97,7 @@ static inline float4 __attribute__((overloadable)) box_average_sampled_color(
     return read_image(source, gid);
   else {
     float2 coords = (float2){(float)gid.x / (float)(destination_size.x - 1),
-                             (float)gid.y / (float)(destination_size.y- 1)};
+                             (float)gid.y / (float)(destination_size.y - 1)};
     coords = coords * (to_float2(size)-1.0f);
     return tex2D_box_average(source, coords.x, coords.y);
   }
