@@ -10,7 +10,7 @@
 
 #define RESIZE_ON 0
 
-float scale = 2.0f/1.0f;
+float scale = 1.0f/2.0f;
 
 #if RESIZE_ON
 auto  interpolation = dehancer::ResizeKernel::Mode::lanczos;
