@@ -36,10 +36,11 @@ add_custom_target(
 #        --generate-code arch=compute_70,code=sm_70
         --generate-code arch=compute_72,code=sm_72
         --generate-code arch=compute_75,code=sm_75
-#        --generate-code arch=compute_80,code=sm_80
-#        --generate-code arch=compute_86,code=sm_86
-#        --generate-code arch=compute_87,code=sm_87
-#        --generate-code arch=compute_89,code=sm_89
+        --generate-code arch=compute_80,code=sm_80
+        --generate-code arch=compute_86,code=sm_86
+        --generate-code arch=compute_87,code=sm_87
+        --generate-code arch=compute_89,code=sm_89
+        --generate-code arch=compute_90,code=sm_90
 
         --use_fast_math
         -ftz=true -prec-div=false -prec-sqrt=false
