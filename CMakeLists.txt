@@ -320,9 +320,12 @@ if (DEHANCER_GPU_CUDA)
             set(CUDA_INSTALLATION_DIR_V116 "${CUDA_INSTALLATION_DIR}/v11.6")
             set(CUDA_INSTALLATION_DIR_V118 "${CUDA_INSTALLATION_DIR}/v11.8")
             set(CUDA_INSTALLATION_DIR_V121 "${CUDA_INSTALLATION_DIR}/v12.1")
+            set(CUDA_INSTALLATION_DIR_V123 "${CUDA_INSTALLATION_DIR}/v12.3")
             set(CUDA_INSTALLATION_DIR_V10 "${CUDA_INSTALLATION_DIR}/v10.2")
 
-            if(EXISTS ${CUDA_INSTALLATION_DIR_V121})
+            if(EXISTS ${CUDA_INSTALLATION_DIR_V123})
+                set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V123})
+            elseif(EXISTS ${CUDA_INSTALLATION_DIR_V121})
                 set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V121})
             elseif(EXISTS ${CUDA_INSTALLATION_DIR_V118})
                     set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V118})
@@ -338,8 +341,17 @@ if (DEHANCER_GPU_CUDA)
 
         endif ()
 
+        set(MSVC_2019 "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\Llvm\\x64\\bin")
+        set(MSVC_2022 "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\Llvm\\x64\\bin")
+
         if (NOT CUDA_BIN_COMPILER)
-            set(CUDA_BIN_COMPILER "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\Llvm\\x64\\bin")
+            IF(EXISTS ${MSVC_2019})
+                set(CUDA_BIN_COMPILER ${MSVC_2019})
+            elseif (EXISTS ${MSVC_2022})
+                set(CUDA_BIN_COMPILER  ${MSVC_2022})
+            else ()
+                message(FATAL_ERROR "No MSVC found")
+            endif ()
         endif ()
         set(CMAKE_CUDA_COMPILER_FLAGS  "-DWIN32 -DWIN64 -D_CONSOLE -D_MBCS /EHsc")
 
@@ -602,7 +614,8 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG develop
+            GIT_TAG 0.12.0
+#            GIT_TAG develop
             CMAKE_ARGS
             -DDEHANCER_CONTROLLED_SINGLETON=${DEHANCER_CONTROLLED_SINGLETON}
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
@@ -694,7 +707,7 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-xmp-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG develop
+            GIT_TAG 0.9.1
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
