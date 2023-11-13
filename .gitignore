@@ -46,6 +46,7 @@ build
 build-*
 !BUILD-*.md
 cmake-build-*
+.vs/*
 !.idea
 .idea/*
 !.idea/cmake.xml
