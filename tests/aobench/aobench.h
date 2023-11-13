@@ -102,8 +102,8 @@ int run_on_device(int num, const void* device, std::string patform) {
   bench_kernel.execute([&ao_bench_text](dehancer::CommandEncoder& command_encoder){
       int numSubSamples = 4;
 
-      command_encoder.set(numSubSamples, 0);
-      command_encoder.set(ao_bench_text, 1);
+      command_encoder.set(ao_bench_text, 0);
+      command_encoder.set(numSubSamples, 1);
 
       return dehancer::CommandEncoder::Size::From(ao_bench_text);
   });

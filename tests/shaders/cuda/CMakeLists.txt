@@ -47,6 +47,7 @@ add_custom_target(
         --extra-device-vectorization
         --keep-device-functions
         -Wno-deprecated-declarations
+        -Xptxas -v
         -o ${CURRENT_TARGET_LIB}
         -fatbin ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.cu
         -I${CMAKE_SOURCE_DIR}/include
