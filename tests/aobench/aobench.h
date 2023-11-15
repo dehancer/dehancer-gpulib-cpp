@@ -88,7 +88,7 @@ int run_on_device(int num, const void* device, std::string patform) {
    */
 
   std::cout << "Device: " << dehancer::device::get_name(device) << "["<<dehancer::device::get_id(device)<<"] >> " << std::endl;
-  std::cout << "[aobench kernel " << bench_kernel.get_name() << " args: " << std::endl;
+  std::cout << "[ao_bench kernel " << bench_kernel.get_name() << " args: " << std::endl;
   for (auto& a: bench_kernel.get_arg_list()) {
     std::cout << std::setw(20) << a.name << "["<<a.index<<"]: " << a.type_name << std::endl;
   }
@@ -194,6 +194,8 @@ void test_bench(const std::string& platform) {
 
     int dev_num = 0;
     std::cout << "Platform: " << platform << std::endl;
+
+#pragma unroll 2
     for (auto d: devices) {
       std::cout << " #" << dev_num++ << std::endl;
       std::cout << "    Device '" << dehancer::device::get_name(d) << " ["<<dehancer::device::get_id(d)<<"]'"<< std::endl;
@@ -202,9 +204,9 @@ void test_bench(const std::string& platform) {
     std::cout << "Bench: " << std::endl;
     dev_num = 0;
 
-    for (auto d: devices) {
+#pragma unroll 2
+    for (auto d: devices)
       if (run_on_device(dev_num++, d, platform) != 0) return;
-    }
 
   }
   catch (const std::runtime_error &e) {
