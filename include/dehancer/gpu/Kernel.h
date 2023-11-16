@@ -5,6 +5,7 @@
 #pragma once
 
 #include "dehancer/gpu/Function.h"
+#include "dehancer/gpu/ViewPort.h"
 
 namespace dehancer {
 
@@ -77,6 +78,14 @@ namespace dehancer {
          * @param dest - texture object
          */
         virtual void set_destination(const Texture& destination);
+
+        /***
+         * Set source size normalized viewport
+         * @param view_port - ViewPort object
+         */
+        void set_view_port(const ViewPort& view_port);
+        
+        [[ nodiscard ]] virtual const ViewPort& get_view_port() const;
         
         [[nodiscard]] virtual CommandEncoder::Size get_encoder_size() const;
 
