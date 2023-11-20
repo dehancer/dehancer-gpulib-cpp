@@ -6,11 +6,16 @@
 //
 
 #include "dehancer/gpu/ViewPort.h"
+#include <algorithm>
 
 namespace dehancer {
     ViewPortHolder::ViewPortHolder(const viewport::Origin &origin, const viewport::Size &size)
     : _origin(origin), _size(size) {
-        
+        _origin.x = std::clamp(_origin.x, 0.f, 1.f);
+        _origin.y = std::clamp(_origin.y, 0.f, 1.f);
+
+        if(_origin.x + _size.width > 1.f) _size.width = 1.f - _origin.x;
+        if(_origin.y + _size.height > 1.f) _size.height = 1.f - _origin.y;
     }
 
     ViewPort ViewPortHolder::Make(const viewport::Origin &origin, const viewport::Size &size)
