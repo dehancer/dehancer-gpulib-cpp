@@ -23,6 +23,7 @@ namespace dehancer {
         enum Mode {
             bilinear = DHCR_Bilinear ,
             bicubic  = DHCR_Bicubic,
+            smooth_bicubic   = DHCR_Smooth_Bicubic ,
             box_average = DHCR_BoxAverage
         };
         

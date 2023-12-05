@@ -58,6 +58,30 @@ static inline float4 __attribute__((overloadable)) bicubic_sampled_color(
 }
 
 /***
+ * Bicubic sampler
+ * @param source
+ * @param destination
+ * @param gid
+ * @return
+ */
+static inline float4 __attribute__((overloadable)) smooth_bicubic_sampled_color(
+  __read_only image2d_t source,
+  int2 destination_size,
+  int2 gid
+){
+  int2 size = (int2){get_image_width(source), get_image_height(source)};
+
+  if (size.y==destination_size.y && destination_size.x==size.x)
+    return read_image(source, gid);
+  else {
+    float2 coords = (float2){(float)gid.x / (float)(destination_size.x - 1),
+                             (float)gid.y / (float)(destination_size.y - 1)};
+    coords = coords * (to_float2(size)-1.0f);
+    return tex2D_smooth_bicubic(source, coords.x, coords.y);
+  }
+}
+
+/***
  * Box average sampler
  * @param source
  * @param destination

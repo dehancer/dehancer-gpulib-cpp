@@ -110,7 +110,8 @@ typedef enum {
 typedef enum {
     DHCR_Bilinear = 0 ,
     DHCR_Bicubic  = 1,
-    DHCR_BoxAverage  = 2
+    DHCR_Smooth_Bicubic  = 2,
+    DHCR_BoxAverage  = 3
 } DHCR_InterpolationMode;
 
 typedef struct {

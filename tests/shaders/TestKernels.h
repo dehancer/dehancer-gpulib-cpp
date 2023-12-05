@@ -142,19 +142,19 @@ DHCR_KERNEL void kernel_test_transform(
 
 
 DHCR_KERNEL void ao_bench_kernel(
-        DHCR_CONST_ARG int_ref_t nsubsamples DHCR_BIND_BUFFER(0),
-        texture2d_write_t        destination DHCR_BIND_TEXTURE(1)
+        texture2d_write_t        destination DHCR_BIND_TEXTURE(0),
+        DHCR_CONST_ARG int_ref_t nsubsamples DHCR_BIND_BUFFER(1)
         DHCR_KERNEL_GID_2D
 )
 {
   
   Texel2d tex; get_kernel_texel2d(destination,tex);
-  
+
   if (!get_texel_boundary(tex)) return;
-  
+
   float4 color = ao_bench(nsubsamples, tex.gid.x, tex.gid.y, tex.size.x, tex.size.y);
-  
-  write_image(destination, color, tex.gid);
+
+  write_image(destination, color, make_int2(0, 0));
 }
 
 DHCR_KERNEL void blend_kernel(

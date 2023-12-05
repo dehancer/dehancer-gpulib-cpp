@@ -69,7 +69,8 @@ namespace dehancer {
     }
     
     Texture TextureHolder::Crop (const Texture &texture,
-                                 float left, float right, float top, float bottom,
+                                 float left, float right,
+                                 float top,  float bottom,
                                  TextureDesc::PixelFormat format
                                  ) {
       
@@ -77,12 +78,14 @@ namespace dehancer {
   
       if (desc.pixel_format!=format)
         desc.pixel_format = format;
-      
-      int origin_left = (int)(float(desc.width)  * left);
-      int origin_top  = (int)(float(desc.height)  * top);
 
-      desc.width = (size_t)(float(desc.width)  * (1.0f - left - right));
-      desc.height = (size_t)(float(desc.height)  * (1.0f - top - bottom));
+      int const origin_left = (int)std::floor(float(desc.width)  * left);
+      int const origin_right = (int)std::floor(float(desc.width)  * right);
+      int const origin_top  = (int)std::floor(float(desc.height)  * top);
+      int const origin_bottom  = (int)std::floor(float(desc.height)  * bottom);
+
+      desc.width = desc.width - origin_left - origin_right;
+      desc.height = desc.height - origin_top - origin_bottom;
 
       if (desc.width<=0) return nullptr;
       if (desc.height<=0) return nullptr;

@@ -11,7 +11,14 @@
 #include "dehancer/gpu/kernels/hash_utils.h"
 #include "dehancer/gpu/kernels/cmath.h"
 
-constexpr sampler linear_normalized_sampler(address::mirrored_repeat, filter::linear, coord::normalized);
+constexpr sampler linear_normalized_sampler(address::mirrored_repeat,
+                                            filter::linear,
+                                            coord::normalized,
+                                            mag_filter::linear,
+                                            min_filter::linear,
+                                            mip_filter::linear
+                                            );
+
 constexpr sampler nearest_sampler(address::clamp_to_zero, filter::nearest, coord::pixel);
 
 #define  get_num_blocks_1d() ((int)__dehancer_grid_size_1d__)
@@ -135,14 +142,22 @@ static inline void __attribute__((overloadable)) write_image(texture1d_write_t d
 
 // 2D
 static inline float4 __attribute__((overloadable)) read_image(texture2d_read_t source, int2 gid) {
-  float2 coord = (float2)gid;
-  float x = get_texture_width(source);
-  float y = get_texture_height(source);
-  if (coord.x<0.0f)  coord.x = -coord.x;
-  if (coord.x>x)     coord.x = 2.0f*x - coord.x;
-  if (coord.y<0.0f)  coord.y = -coord.y;
-  if (coord.y>y)     coord.y = 2.0f*y - coord.y;
-  return source.sample(nearest_sampler, coord);
+//  float2 coord = (float2)gid;
+//  float x = get_texture_width(source);
+//  float y = get_texture_height(source);
+//  if (coord.x<0.0f)  coord.x = -coord.x;
+//  if (coord.x>x)     coord.x = 2.0f*x - coord.x;
+//  if (coord.y<0.0f)  coord.y = -coord.y;
+//  if (coord.y>y)     coord.y = 2.0f*y - coord.y;
+//  return source.sample(nearest_sampler, coord);
+  uint2 coord = uint2(gid);
+  int x = get_texture_width(source);
+  int y = get_texture_height(source);
+  if (gid.x<0)  coord.x = -gid.x;
+  if (gid.x>x)  coord.x = 2.0f*x - gid.x;
+  if (gid.y<0)  coord.y = -gid.y;
+  if (gid.y>y)  coord.y = 2.0f*y - gid.y;
+  return  source.read(coord);
 }
 
 static inline float4 __attribute__((overloadable)) read_image(texture2d_read_t source, float2 coords) {
