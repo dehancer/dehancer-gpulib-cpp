@@ -23,7 +23,8 @@ namespace dehancer {
                 png,
                 tiff,
                 ppm,
-                bmp
+                bmp,
+                webp
             };
 
             Type type = Options::Type::png;
@@ -47,6 +48,8 @@ namespace dehancer {
               return ".bmp";
             case Options::Type::tiff:
               return ".tif";
+            case Options::Type::webp:
+              return ".webp";
           }
         }
     };
