@@ -96,6 +96,7 @@ Ubuntu (20.04)
     sudo ln -s /usr/bin/clang-11 /usr/bin/clang
     sudo ln -s /usr/bin/clang++-11 /usr/bin/clang++
     sudo apt install libssl1.1 ocl-icd-opencl-dev fakeroot xorriso
+    sudo apt install gfortran
     sudo aptitude install liblapack-dev
     
 
@@ -103,7 +104,7 @@ BLAS/Lapack Library
 ===================
 
     git clone https://github.com/Reference-LAPACK/lapack-release.git
-    cd lapack-release && make build && cd build
+    cd lapack-release && mkdir build && cd build
     cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_COMPILER=clang  ..
     make -j6 && sudo make install
 
