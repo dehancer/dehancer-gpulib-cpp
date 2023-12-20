@@ -36,7 +36,19 @@
     make -j12 && sudo make install
 
 # Debug support
-    export INSTALL_PREFIX=~/Develop/local/ubuntu/dehancer
-    export PKG_CONFIG_PATH=$INSTALL_PREFIX/lib/pkgconfig
-    cmake  -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -DCMAKE_BUILD_TYPE=Debug -DPRINT_DEBUG=ON -DPRINT_KERNELS_DEBUG=OFF -DBUILD_TESTING=ON -DDEHANCER_GPU_OPENCL=OFF -DDEHANCER_GPU_METAL=ON -DDEHANCER_GPU_CUDA=OFF -DUSE_OPENCOLORIO=ON -DBUILD_UTILS=ON -DDEHANCER_USE_NATIVE_APPLE_API=ON -DDEHANCER_CONTROLLED_SINGLETON=OFF -G "CodeBlocks - Unix Makefiles" ..
+    export INSTALL_PREFIX=~/Develop/local/ubuntu/x86_64/cuda/dehancer
+    export PKG_CONFIG_PATH=~/Develop/local/ubuntu/x86_64/dehancer/lib/pkgconfig
+    cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/usr/bin/make -DCMAKE_C_COMPILER=/usr/bin/clang\
+    -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DBUILD_TESTING=ON -DPRINT_DEBUG=ON -DPRINT_KERNELS_DEBUG=OFF\
+    -DDEHANCER_GPU_CUDA=ON -DDEHANCER_GPU_OPENCL=OFF -DDEHANCER_GPU_METAL=OFF -DCMAKE_FIND_LIBRARY_SUFFIXES=.a\
+    -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -G "CodeBlocks - Unix Makefiles" ..     
     cmake --build . --config Debug -j8 && cmake --install . --config Debug
+
+# Release support
+    export INSTALL_PREFIX=~/Develop/local/release/ubuntu/x86_64/cuda/dehancer
+    export PKG_CONFIG_PATH=~/Develop/local/release/ubuntu/x86_64/dehancer/lib/pkgconfig
+    cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=/usr/bin/make -DCMAKE_C_COMPILER=/usr/bin/clang\
+    -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DBUILD_TESTING=OFF -DPRINT_DEBUG=OFF -DPRINT_KERNELS_DEBUG=OFF\
+    -DDEHANCER_GPU_CUDA=ON -DDEHANCER_GPU_OPENCL=OFF -DDEHANCER_GPU_METAL=OFF -DCMAKE_FIND_LIBRARY_SUFFIXES=.a\
+    -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX -G "CodeBlocks - Unix Makefiles" ..     
+    cmake --build . --config Release -j8 && cmake --install . --config Release
