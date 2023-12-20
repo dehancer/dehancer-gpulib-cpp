@@ -22,8 +22,8 @@
     # works with new nvidia drivers only, > 545.xx.xx
     # wget https://developer.download.nvidia.com/compute/cuda/12.3.1/local_installers/cuda_12.3.1_545.23.08_linux.run
     
-    chmod a+x cuda_12.3.1_545.23.08_linux.run
-    sudo sh cuda_12.3.1_545.23.08_linux.run --no-drm --toolkit
+    chmod a+x cuda_11.8.0_520.61.05_linux.run
+    sudo sh cuda_11.8.0_520.61.05_linux.run --no-drm --toolkit
 
     # OpenCV support
     sudo apt-get install libavcodec-dev libavformat-dev libavutil-dev libswscale-dev
