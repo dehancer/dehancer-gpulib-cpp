@@ -115,7 +115,16 @@ OpenCV from sources
     cd opencv
 
     # To make opencv on M1 for x86 copy Terminal.app to Intel Terminal.app
-    # open "Get Info", choose "Open using Rosetta"  
+    # open "Get Info", choose "Open using Rosetta"
+    #
+    ################################################################
+    #
+    # On mode i386:
+    # $env /usr/bin/arch -x86_64 /bin/zsh 
+    # Check mode 
+    # $ arch 
+    #
+    ################################################################
     # mkdir build_opencv_x86_64 && cd build_opencv_x86_64
     # cmake -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_INSTALL_PREFIX:PATH=/usr/local/x86_64
     # ...
@@ -143,6 +152,7 @@ OpenCV from sources
     -DVIDEOIO_ENABLE_PLUGINS=OFF -DOPENCV_GENERATE_PKGCONFIG=ON \
     -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DCMAKE_FIND_LIBRARY_SUFFIXES=".a" ..
 
+    $env /usr/bin/arch -x86_64 /bin/zsh
     mkdir build_opencv_x86_64 && cd build_opencv_x86_64
     cmake -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 \
     -DCMAKE_INSTALL_PREFIX:PATH=/usr/local/x86_64 \
