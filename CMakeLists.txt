@@ -390,6 +390,7 @@ if (DEHANCER_GPU_CUDA)
         message("CUDAToolkit_LIBRARY_ROOT ${CUDAToolkit_LIBRARY_ROOT}")
         message("CUDAToolkit_TARGET_DIR ${CUDAToolkit_TARGET_DIR}")
         message("NVCC BIN: ${CMAKE_CXX_COMPILER}")
+        message("CUDA_LIBS: ${CUDA_LIBS}")
 
         #
         # TODO: check gcc/clang version
