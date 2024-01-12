@@ -17,6 +17,7 @@ namespace dehancer {
 
             Texture source_;
             Texture destination_;
+            ViewPort view_port_;
         };
     }
 
@@ -74,6 +75,14 @@ namespace dehancer {
     
     void Kernel::set_destination(const Texture &dest) {
       impl_->destination_ = dest;
+    }
+
+    void Kernel::set_view_port(const ViewPort &view_port) {
+      impl_->view_port_ = view_port;
+    }
+
+    const ViewPort& Kernel::get_view_port() const {
+      return impl_->view_port_;
     }
 
     CommandEncoder::Size Kernel::get_encoder_size() const {
