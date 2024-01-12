@@ -322,7 +322,7 @@ inline DHCR_DEVICE_FUNC float4 ao_bench(int nsubsamples, int x, int y, int w, in
             isect.t   = 1.0e+17f;
             isect.hit = 0;
   
-            #pragma unroll
+            #pragma unroll 3
             for (int snum = 0; snum < 3; ++snum)
               ray_sphere_intersect(&isect, ray, spheres[snum]);
             ray_plane_intersect(&isect, ray, plane);

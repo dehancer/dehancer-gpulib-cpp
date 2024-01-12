@@ -6,7 +6,7 @@ cmake_minimum_required(VERSION 3.12)
 
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 1.4.5)
+project(${PROJECT_LIB} VERSION 1.5.0)
 
 message("PLATFORM: ${PLATFORM}")
 message("XCODE_VERSION: ${XCODE_VERSION}")
@@ -181,7 +181,6 @@ if (WIN32)
 else()
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -rdynamic")
-    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=hidden -Wno-unused-command-line-argument -Wno-missing-braces -Wno-unused-parameter")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
     if (PRINT_KERNELS_DEBUG)
@@ -232,7 +231,7 @@ else()
             find_package(OpenCV REQUIRED)
             add_definitions(/DCV_IGNORE_DEBUG_BUILD_GUARD=1)
         else()
-            find_package (OpenCV REQUIRED )
+            find_package (OpenCV REQUIRED)
         endif()
     endif()
 endif()
@@ -391,6 +390,7 @@ if (DEHANCER_GPU_CUDA)
         message("CUDAToolkit_LIBRARY_ROOT ${CUDAToolkit_LIBRARY_ROOT}")
         message("CUDAToolkit_TARGET_DIR ${CUDAToolkit_TARGET_DIR}")
         message("NVCC BIN: ${CMAKE_CXX_COMPILER}")
+        message("CUDA_LIBS: ${CUDA_LIBS}")
 
         #
         # TODO: check gcc/clang version
@@ -567,6 +567,7 @@ if (BUILD_TESTING)
 endif ()
 
 if (DEHANCER_GPU_OPENCL)
+    add_definitions(-DCL_TARGET_OPENCL_VERSION=120)
     #
     # OpenCL
     #
@@ -574,6 +575,7 @@ if (DEHANCER_GPU_OPENCL)
             GIT_REPOSITORY https://github.com/dehancer/dehancer-opencl-helper
             GIT_PROGRESS YES
             GIT_SHALLOW YES
+            GIT_TAG develop
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -614,8 +616,8 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.12.0
-#            GIT_TAG develop
+#            GIT_TAG 0.12.0
+            GIT_TAG develop
             CMAKE_ARGS
             -DDEHANCER_CONTROLLED_SINGLETON=${DEHANCER_CONTROLLED_SINGLETON}
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
@@ -661,8 +663,8 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-maths-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.7.0
-#            GIT_TAG develop
+#            GIT_TAG 0.7.0
+            GIT_TAG develop
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
@@ -707,7 +709,8 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-xmp-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG 0.9.1
+#            GIT_TAG 0.9.1
+            GIT_TAG develop
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
