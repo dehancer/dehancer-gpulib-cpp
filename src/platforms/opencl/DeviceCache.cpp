@@ -69,7 +69,8 @@ namespace dehancer::opencl {
 
       for (const auto& item: device_caches_) {
         auto device = item->device;
-        if (device && device->clDeviceID && device::get_id(device->clDeviceID) == id) {
+        //if (device && device->clDeviceID && device::get_id(device->clDeviceID) == id) {
+        if (device && device->clDeviceID && device::get_id((const void *)device.get()) == id) {
           return item->device.get();
         }
       }
