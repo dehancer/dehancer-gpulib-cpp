@@ -574,7 +574,8 @@ if (DEHANCER_GPU_OPENCL)
             GIT_REPOSITORY https://github.com/dehancer/dehancer-opencl-helper
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-            GIT_TAG develop
+#                        GIT_TAG develop
+            GIT_TAG 0.4.1
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -615,8 +616,8 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-#            GIT_TAG 0.12.0
-            GIT_TAG develop
+            GIT_TAG 0.13.0
+#            GIT_TAG develop
             CMAKE_ARGS
             -DDEHANCER_CONTROLLED_SINGLETON=${DEHANCER_CONTROLLED_SINGLETON}
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
@@ -662,8 +663,8 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-maths-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-#            GIT_TAG 0.7.0
-            GIT_TAG develop
+            GIT_TAG 0.7.0
+#            GIT_TAG develop
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
@@ -708,8 +709,8 @@ else()
             GIT_REPOSITORY https://github.com/dehancer/dehancer-xmp-cpp
             GIT_PROGRESS YES
             GIT_SHALLOW YES
-#            GIT_TAG 0.9.1
-            GIT_TAG develop
+            GIT_TAG 0.9.2
+#            GIT_TAG develop
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
