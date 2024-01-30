@@ -69,7 +69,8 @@ namespace dehancer::opencl {
 
       for (const auto& item: device_caches_) {
         auto device = item->device;
-        if (device && device->clDeviceID && device::get_id(device->clDeviceID) == id) {
+        //if (device && device->clDeviceID && device::get_id(device->clDeviceID) == id) {
+        if (device && device->clDeviceID && device::get_id((const void *)device.get()) == id) {
           return item->device.get();
         }
       }
@@ -146,8 +147,9 @@ namespace dehancer::opencl {
 #elif WIN32
         auto q = clCreateCommandQueue(context, device_id, 0, &ret);
 #else
-        cl_queue_properties devQueueProps[] = { 0 };
-        auto q = clCreateCommandQueueWithProperties(context, device_id, devQueueProps, &ret);
+        //cl_queue_properties devQueueProps[] = { 0 };
+//        auto q = clCreateCommandQueueWithProperties(context, device_id, devQueueProps, &ret);
+        auto q = clCreateCommandQueue(context, device_id, 0, &ret);
 #endif
 
         if (ret != CL_SUCCESS) {

@@ -96,6 +96,7 @@ Ubuntu (20.04)
     sudo ln -s /usr/bin/clang-11 /usr/bin/clang
     sudo ln -s /usr/bin/clang++-11 /usr/bin/clang++
     sudo apt install libssl1.1 ocl-icd-opencl-dev fakeroot xorriso
+    sudo apt install gfortran
     sudo aptitude install liblapack-dev
     
 
@@ -103,7 +104,7 @@ BLAS/Lapack Library
 ===================
 
     git clone https://github.com/Reference-LAPACK/lapack-release.git
-    cd lapack-release && make build && cd build
+    cd lapack-release && mkdir build && cd build
     cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_COMPILER=clang  ..
     make -j6 && sudo make install
 
@@ -114,7 +115,16 @@ OpenCV from sources
     cd opencv
 
     # To make opencv on M1 for x86 copy Terminal.app to Intel Terminal.app
-    # open "Get Info", choose "Open using Rosetta"  
+    # open "Get Info", choose "Open using Rosetta"
+    #
+    ################################################################
+    #
+    # On mode i386:
+    # $env /usr/bin/arch -x86_64 /bin/zsh 
+    # Check mode 
+    # $ arch 
+    #
+    ################################################################
     # mkdir build_opencv_x86_64 && cd build_opencv_x86_64
     # cmake -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_INSTALL_PREFIX:PATH=/usr/local/x86_64
     # ...
@@ -142,6 +152,7 @@ OpenCV from sources
     -DVIDEOIO_ENABLE_PLUGINS=OFF -DOPENCV_GENERATE_PKGCONFIG=ON \
     -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DCMAKE_FIND_LIBRARY_SUFFIXES=".a" ..
 
+    $env /usr/bin/arch -x86_64 /bin/zsh
     mkdir build_opencv_x86_64 && cd build_opencv_x86_64
     cmake -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.14 \
     -DCMAKE_INSTALL_PREFIX:PATH=/usr/local/x86_64 \

@@ -24,11 +24,23 @@ add_custom_target(
         DEPENDS ${DEPENDS_SOURCES}
         COMMAND ${CMAKE_CUDA_COMPILER}
         -Xcompiler ${CMAKE_CUDA_COMPILER_FLAGS}
-        -ccbin ${CUDA_BIN_COMPILER} -m64 -gencode arch=compute_35,code=compute_35
+        -ccbin ${CUDA_BIN_COMPILER} -m64
+        --gpu-architecture=all
+        ${CUDA_EXTRA_ARCH}
+        --use_fast_math
+        -ftz=true -prec-div=false -prec-sqrt=false
+        --extra-device-vectorization
+        --keep-device-functions
+        -O3
+        -Wno-deprecated-declarations
+        -Wno-deprecated-gpu-targets
         -o ${CURRENT_TARGET_LIB}
-        -fatbin ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.cu
-        -I${CMAKE_SOURCE_DIR}/include
-        -I${CMAKE_SOURCE_DIR}/tests/shaders
+        -fatbin ${KERNEL_SOURCE}
+        -I${CMAKE_BINARY_DIR}/external/include
+        -I${CMAKE_SOURCE_DIR}/framework/include/dehancer/framework
+        -I${CMAKE_SOURCE_DIR}/framework
+        -I${CMAKE_CURRENT_SOURCE_DIR}
+        ${GPU_INCLUDE_DIRS}
         -DCUDA_KERNEL=1
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )

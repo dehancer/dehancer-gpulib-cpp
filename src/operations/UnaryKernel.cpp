@@ -79,7 +79,7 @@ namespace dehancer {
             channels_transformer(nullptr),
             channels_finalizer(nullptr),
             channels_unary_ops(nullptr),
-            channels_scale({1.f,1.f,1.f,1.0f}),
+            channels_scale({{ {1.f,1.f}, {1.f,1.f}, {1.f,1.f}, {1.f,1.f} }}),
             library_path(library_path),
             horizontal_kernel(std::make_shared<Function>(root_->get_command_queue(),
                                                          "kernel_convolve_horizontal",
