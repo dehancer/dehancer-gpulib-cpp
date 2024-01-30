@@ -145,7 +145,7 @@ endif()
 set(BUILD_SHARED_LIBS OFF)
 
 if (WIN32)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -EHsc -Wno-deprecated-declarations")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -EHsc -Wno-deprecated-declarations -Wno-unused-function")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
     add_definitions(/MT /DWIN32=1 /D_ITERATOR_DEBUG_LEVEL=0 /D_USE_MATH_DEFINES)
 
@@ -165,7 +165,6 @@ if (WIN32)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEBUG=1 -DZ7=1")
         add_definitions(/DEBUG /Z7)
     endif ()
-
 
     if (PRINT_KERNELS_DEBUG)
         add_compile_definitions(PRINT_KERNELS_DEBUG=1)
