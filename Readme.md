@@ -16,16 +16,16 @@ Build Intel
 Build iOS
 ============
     mkdir build-arm64-ios && cd build-arm64-ios
-    export PKG_CONFIG_PATH=/opt/homebrew/opt/zlib/lib/pkgconfig:~/Develop/local/ios/dehancer/lib/pkgconfig
+    export PKG_CONFIG_PATH=~/Develop/local/ios-debug/dehancer/lib/pkgconfig
     cmake -G Xcode \
     -DCMAKE_TOOLCHAIN_FILE=~/Develop/Dehancer/Dehancer-Plugins/ios-cmake/ios.toolchain.cmake \
     -DPLATFORM=OS64COMBINED \
     -DDEPLOYMENT_TARGET=13.0 \
     -DENABLE_BITCODE=ON \
     -DBUILD_TESTING=OFF \
-    -DCMAKE_INSTALL_PREFIX=~/Develop/local/ios/dehancer \
-    -DOPENCV_FRAMEWORK_PATH=~/Develop/local/ios/lib \
-    -DOPENCV_INCLUDES_PATH=~/Develop/local/ios/include \
+    -DCMAKE_INSTALL_PREFIX=~/Develop/local/ios-debug/dehancer \
+    -DOPENCV_FRAMEWORK_PATH=~/Develop/local/ios-debug/lib \
+    -DOPENCV_INCLUDES_PATH=~/Develop/local/ios-debug/include \
     -DENABLE_ARC=OFF \
     -DDEHANCER_GPU_METAL=ON \
     -DDEHANCER_GPU_OPENCL=OFF \
@@ -33,6 +33,7 @@ Build iOS
     -DUSE_OPENCOLORIO=OFF \
     ..
 
+    cmake --build . --config Debug --target EmbeddedWatermarks_metal
     cmake --build . --config Debug && cmake --install . --config Debug
 
     lipo -create libdehancer_gpulib_metal_iphoneos.a libdehancer_gpulib_metal_iphonesimulator.a -output libdehancer_gpulib_metal.a
