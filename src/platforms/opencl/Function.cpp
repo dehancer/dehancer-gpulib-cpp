@@ -169,19 +169,8 @@ namespace dehancer::opencl {
         cl_int last_error = 0;
 
         if (program_ == nullptr) {
-            std::string source;
-            const char *source_str;
-            size_t source_size = source.size();
 
-            if (library_source_.empty()) {
-                source = clHelper::getEmbeddedProgram(p_path);
-                source_str = source.c_str();
-                source_size = source.size();
-            } else {
-                source = library_source_;
-                source_str = library_source_.c_str();
-                source_size = library_source_.size();
-            }
+            std::string source = (library_source_.empty()) ? clHelper::getEmbeddedProgram(p_path) : library_source_;
 
             program_ = OpenCLCache::Instance().program_for_source(command_->get_context(), source,
                                                                   command_->get_device_id());
