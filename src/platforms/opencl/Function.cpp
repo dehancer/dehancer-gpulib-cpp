@@ -5,7 +5,6 @@
 #include "Function.h"
 #include "CommandEncoder.h"
 #include "dehancer/gpu/Paths.h"
-#include "dehancer/gpu/Log.h"
 #include "OpenCLCache.h"
 
 namespace dehancer::opencl {
@@ -173,40 +172,7 @@ namespace dehancer::opencl {
             std::string source = (library_source_.empty()) ? clHelper::getEmbeddedProgram(p_path) : library_source_;
 
             program_ = OpenCLCache::Instance().program_for_source(command_->get_context(), source,
-                                                                  command_->get_device_id());
-
-//            program_ = clCreateProgramWithSource(command_->get_context(), 1, (const char **) &source_str,
-//                                                 (const size_t *) &source_size, &last_error);
-//
-//            if (last_error != CL_SUCCESS) {
-//                throw std::runtime_error("Unable to create OpenCL program from exampleKernel.cl");
-//            }
-
-            /* Build Kernel Program */
-            auto device_id = command_->get_device_id();
-            last_error = clBuildProgram(program_, 1, &device_id,
-                                        "-cl-std=CL2.0 -cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant",
-                                        nullptr, nullptr);
-
-            if (last_error != CL_SUCCESS) {
-
-                std::string log = "Unable to build OpenCL program from: " + kernel_name_;
-
-                // Determine the size of the log
-                size_t log_size;
-                clGetProgramBuildInfo(program_, command_->get_device_id(), CL_PROGRAM_BUILD_LOG,
-                                      0, nullptr, &log_size);
-                log.resize(log_size);
-
-                // Get the log
-                clGetProgramBuildInfo(program_, command_->get_device_id(), CL_PROGRAM_BUILD_LOG,
-                                      log_size, log.data(), nullptr);
-
-                log::error(true, "OpenCL Function build Error[%i]: %s", last_error, log.c_str());
-                throw std::runtime_error(
-                        "Unable to build OpenCL program from: '" + p_path + "' on: " + kernel_name_ + ": \n[" +
-                        std::to_string(log_size) + "] " + log);
-            }
+                                                                  command_->get_device_id(), p_path, kernel_name_);
 
             program_map_[command_->get_cl_command_queue()][p_path_hash] = program_;
         }

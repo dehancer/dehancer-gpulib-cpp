@@ -10,15 +10,20 @@
 #include "dehancer/Common.h"
 
 namespace dehancer::opencl {
-    using oclProgramCompileHandlerDecl = void (*)(const bool started, const std::string& device_name, void* context);
+    using oclProgramCompileHandlerDecl = void (*)(const bool started, const std::string &device_name, void *context);
 
     class OpenCLCache : public Singleton<OpenCLCache> {
     public:
-        cl_program program_for_source(cl_context context, const std::string& library_source, cl_device_id device_id);
-        void add_compile_handler(oclProgramCompileHandlerDecl, void* context);
+        cl_program program_for_source(cl_context context, const std::string &library_source, cl_device_id device_id,
+                                      const std::string &p_path, const std::string &kernel_name);
+
+        void add_compile_handler(oclProgramCompileHandlerDecl, void *context);
+
         void remove_compile_handler(oclProgramCompileHandlerDecl);
+
     private:
-        void notify_compile_handlers(const bool started, const std::string& device_name);
+        void notify_compile_handlers(const bool started, const std::string &device_name);
+
     private:
         std::mutex _handlers_mutex;
         std::set<std::pair<void *, oclProgramCompileHandlerDecl>> _compile_handlers;
