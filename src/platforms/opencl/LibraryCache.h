@@ -14,7 +14,7 @@ namespace dehancer::opencl {
     public:
         explicit GPULibraryCache(dehancer::opencl::Command *command);
 
-        bool has_cache(const std::string &library_source = "");
+        bool exists(const std::string &library_source = "");
 
         bool compile_program(const std::string &library_source = "");
 

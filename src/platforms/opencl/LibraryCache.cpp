@@ -87,7 +87,7 @@ namespace dehancer::opencl {
     }
 
 
-    bool GPULibraryCache::has_cache(const std::string &library_source) {
+    bool GPULibraryCache::exists(const std::string &library_source) {
 
         auto device = command_->get_device_id();
 

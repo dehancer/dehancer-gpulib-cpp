@@ -24,7 +24,7 @@ namespace dehancer {
 
         explicit GPULibraryCache(const void *command_queue);
 
-        virtual bool has_cache(const std::string &library_source);
+        virtual bool exists(const std::string &library_source);
 
         virtual bool compile_program(const std::string &library_source);
 
