@@ -6,12 +6,6 @@
 #include "../function.h"
 #include "tests/include/run_test.h"
 
-namespace dehancer::device {
-    extern std::string get_opencl_cache_path() {
-        return "c:/clcache";
-    }
-}
-
 TEST(TEST, CUDA_FUNCTUON) {
 
   std::cout << std::endl;
