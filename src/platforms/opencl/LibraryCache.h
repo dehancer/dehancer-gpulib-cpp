@@ -23,4 +23,8 @@ namespace dehancer::opencl {
 
     };
 
+    class LibraryCache : public SimpleSingleton<gpu_library_cache> {
+
+    };
+
 }

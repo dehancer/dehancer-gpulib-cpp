@@ -98,6 +98,17 @@ namespace dehancer::opencl {
         auto p_path = dehancer::device::get_lib_path();
         std::string source = (library_source.empty()) ? clHelper::getEmbeddedProgram(p_path) : library_source;
 
+        auto cache_path = dehancer::device::get_opencl_cache_path();
+
+        auto h1 = std::hash<std::string>{}(library_source);
+        auto h2 = std::hash<std::string>{}(device_name);
+
+        std::stringstream ss;
+        ss << std::setfill('0') << std::setw(sizeof(size_t) * 2) << std::hex << h1 << "_" << h2;
+        std::string cache_file_name(ss.str());
+
+        std::ifstream f((cache_path + "/" + cache_file_name).c_str());
+        return f.good();
     }
 
     bool gpu_library_cache::compile_program_for_device(dehancer::opencl::Command *command, const uint64_t device_id,
@@ -152,7 +163,7 @@ namespace dehancer::opencl {
         ss << std::setfill('0') << std::setw(sizeof(size_t) * 2) << std::hex << h1 << "_" << h2;
         std::string cache_file_name(ss.str());
         {
-            std::ofstream ostrm(cache_path + cache_file_name, std::ios::binary);
+            std::ofstream ostrm(cache_path + "/" + cache_file_name, std::ios::binary);
             ostrm.write(reinterpret_cast<char*>(&binaries[0]), sizeof source_size);
         }
 
