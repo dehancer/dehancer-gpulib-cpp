@@ -6,6 +6,7 @@
 #define DEHANCER_GPULIB_LIBRARYCACHE_H
 
 #include "dehancer/gpu/DeviceConfig.h"
+#include "dehancer/gpu/Command.h"
 #include "dehancer/Common.h"
 #include <memory>
 
@@ -14,34 +15,21 @@
 namespace dehancer {
 
     namespace impl {
-        struct gpu_library_cache;
+        class GPULibraryCache;
     }
 
-    struct gpu_library_cache {
+    class GPULibraryCache : public Command {
     public:
-        virtual bool has_cache(const void *command,
-                               const std::string &library_source = "");
+        explicit GPULibraryCache(const void *command_queue);
 
-        virtual bool compile_program(const void *command,
-                                     const std::string &library_source = "");
+        virtual bool has_cache(const std::string &library_source = "");
 
-#if defined(DEHANCER_CONTROLLED_SINGLETON)
-        friend class ControlledSingleton<gpu_device_cache>;
-#else
+        virtual bool compile_program(const std::string &library_source = "");
 
-        friend class SimpleSingleton<gpu_library_cache>;
-
-#endif
     private:
-        gpu_library_cache();
+        GPULibraryCache() = default;
 
-        std::shared_ptr<impl::gpu_library_cache> impl_;
-    };
-
-    class LibraryCache : public SimpleSingleton<gpu_library_cache> {
-    public:
-    public:
-        LibraryCache() = default;
+        std::shared_ptr<impl::GPULibraryCache> impl_;
     };
 }
 #endif

@@ -10,21 +10,19 @@
 #include "Command.h"
 
 namespace dehancer::opencl {
-    struct gpu_library_cache {
+    struct GPULibraryCache {
     public:
-        bool has_cache(dehancer::opencl::Command *command,
-                                  const std::string &library_source = "");
+        explicit GPULibraryCache(dehancer::opencl::Command *command);
 
-        bool compile_program(dehancer::opencl::Command *command,
-                                        const std::string &library_source = "");
+        bool has_cache(const std::string &library_source = "");
 
-        cl_program program_for_source(cl_context context, const std::string &library_source, cl_device_id device_id,
+        bool compile_program(const std::string &library_source = "");
+
+        cl_program program_for_source(const std::string &library_source, cl_device_id device_id,
                                       const std::string &p_path, const std::string &kernel_name);
 
+    private:
+        static std::mutex mutex_;
+        dehancer::opencl::Command* command_;
     };
-
-    class LibraryCache : public SimpleSingleton<gpu_library_cache> {
-
-    };
-
 }

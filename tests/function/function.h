@@ -19,7 +19,7 @@ auto function_test =  [] (int dev_num,
       std::string lib_src;
       auto src_size = dehancer::device::get_lib_source(lib_src);
       if(src_size > 0) {
-          dehancer::LibraryCache::Instance().compile_program(command_queue, lib_src);
+          dehancer::GPULibraryCache(command_queue).compile_program(lib_src);
       }
 
       std::cout << "Load file: " << input_image << std::endl;

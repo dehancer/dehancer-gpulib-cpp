@@ -13,10 +13,19 @@
 #include "dehancer/opencl/embeddedProgram.h"
 
 namespace dehancer::opencl {
+    std::mutex GPULibraryCache::mutex_;
 
-    cl_program gpu_library_cache::program_for_source(cl_context context, const std::string &library_source,
-                                                const cl_device_id device_id, const std::string &p_path,
-                                                const std::string &kernel_name) {
+    GPULibraryCache::GPULibraryCache(dehancer::opencl::Command *command)
+    : command_(command) {
+
+    }
+
+
+    cl_program GPULibraryCache::program_for_source(const std::string &library_source,
+                                                   const cl_device_id device_id, const std::string &p_path,
+                                                   const std::string &kernel_name) {
+        std::unique_lock<std::mutex> lock(GPULibraryCache::mutex_);
+
         if (device_id == nullptr) {
             return nullptr;
         }
@@ -43,7 +52,7 @@ namespace dehancer::opencl {
         const char *source_str = library_source.c_str();
         size_t source_size = library_source.size();
 
-        cl_program program = clCreateProgramWithSource(context, 1, (const char **) &source_str,
+        cl_program program = clCreateProgramWithSource(command_->get_context(), 1, (const char **) &source_str,
                                                        (const size_t *) &source_size, &err);
 
         if (err != CL_SUCCESS) {
@@ -78,10 +87,9 @@ namespace dehancer::opencl {
     }
 
 
-    bool gpu_library_cache::has_cache(dehancer::opencl::Command *command,
-                                            const std::string &library_source) {
+    bool GPULibraryCache::has_cache(const std::string &library_source) {
 
-        auto device = command->get_device_id();
+        auto device = command_->get_device_id();
 
         if (device == nullptr) {
             return false;
@@ -112,9 +120,11 @@ namespace dehancer::opencl {
         return f.good();
     }
 
-    bool gpu_library_cache::compile_program(dehancer::opencl::Command *command,
-                                                  const std::string &library_source) {
-        auto device =command->get_device_id();
+    bool GPULibraryCache::compile_program(const std::string &library_source) {
+
+        std::unique_lock<std::mutex> lock(GPULibraryCache::mutex_);
+
+        auto device =command_->get_device_id();
 
         if (device == nullptr) {
             return false;
@@ -140,7 +150,7 @@ namespace dehancer::opencl {
         const char *source_str = library_source.c_str();
         size_t source_size = library_source.size();
 
-        cl_program program = clCreateProgramWithSource(command->get_context(), 1, (const char **) &source_str,
+        cl_program program = clCreateProgramWithSource(command_->get_context(), 1, (const char **) &source_str,
                                                        (const size_t *) &source_size, &err);
 
         if (err != CL_SUCCESS) {
