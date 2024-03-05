@@ -4,12 +4,12 @@
 
 #include <dehancer/gpu/LibraryCache.h>
 #include "platforms/PlatformConfig.h"
-#include "dehancer/gpu/Command.h"
 
 #if defined(DEHANCER_GPU_OPENCL)
 #ifdef DEHANCER_GPU_PLATFORM
 
 #include "platforms/opencl/LibraryCache.h"
+#include "platforms/opencl/Command.h"
 
 namespace dehancer {
     namespace impl {
@@ -30,15 +30,15 @@ namespace dehancer {
     bool gpu_library_cache::has_cache_for_device(const void *command, uint64_t device_id,
                                                  const std::string &library_source) {
 
-        Command cmd(command, true);
-        impl_->has_cache_for_device(cmd.get(), device_id, library_source);
+        opencl::Command cmd(command, true);
+        impl_->has_cache_for_device(&cmd, device_id, library_source);
 
     }
 
     bool gpu_library_cache::compile_program_for_device(const void *command, uint64_t device_id,
                                                        const std::string &library_source) {
-        Command cmd(command, true);
-        impl_->compile_program_for_device(cmd.get(), device_id, library_source);
+        opencl::Command cmd(command, true);
+        impl_->compile_program_for_device(&cmd, device_id, library_source);
 
     }
 
