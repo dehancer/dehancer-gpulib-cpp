@@ -5,7 +5,8 @@
 #include "Function.h"
 #include "CommandEncoder.h"
 #include "dehancer/gpu/Paths.h"
-#include "OpenCLCache.h"
+#include "LibraryCache.h"
+#include "dehancer/Common.h"
 
 namespace dehancer::opencl {
     
@@ -171,8 +172,8 @@ namespace dehancer::opencl {
 
             std::string source = (library_source_.empty()) ? clHelper::getEmbeddedProgram(p_path) : library_source_;
 
-            program_ = OpenCLCache::Instance().program_for_source(command_->get_context(), source,
-                                                                  command_->get_device_id(), p_path, kernel_name_);
+            program_ = LibraryCache::Instance().program_for_source(command_->get_context(), source,
+                                                                   command_->get_device_id(), p_path, kernel_name_);
 
             program_map_[command_->get_cl_command_queue()][p_path_hash] = program_;
         }

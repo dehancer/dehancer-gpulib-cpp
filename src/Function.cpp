@@ -5,7 +5,6 @@
 #include <dehancer/gpu/Function.h>
 
 #include "platforms/PlatformConfig.h"
-#include "platforms/PlatformConfig.h"
 
 #if defined(DEHANCER_GPU_METAL)
 #include "platforms/metal/Function.h"
