@@ -20,15 +20,15 @@ namespace dehancer {
 
     class GPULibraryCache : public Command {
     public:
+        GPULibraryCache() = delete;
+
         explicit GPULibraryCache(const void *command_queue);
 
-        virtual bool has_cache(const std::string &library_source = "");
+        virtual bool has_cache(const std::string &library_source);
 
-        virtual bool compile_program(const std::string &library_source = "");
+        virtual bool compile_program(const std::string &library_source);
 
-    private:
-        GPULibraryCache() = default;
-
+    protected:
         std::shared_ptr<impl::GPULibraryCache> impl_;
     };
 }

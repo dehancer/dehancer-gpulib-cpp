@@ -165,12 +165,15 @@ namespace dehancer::opencl {
         cl_uint n;
         err = clGetProgramInfo(program, CL_PROGRAM_NUM_DEVICES, sizeof(cl_uint), &n, nullptr);
         size_t sizes[n];
-        err = clGetProgramInfo(program, CL_PROGRAM_BINARY_SIZES, n * sizeof(size_t), sizes, nullptr);
+        err = clGetProgramInfo(program, CL_PROGRAM_BINARY_SIZES, n * sizeof(size_t), &sizes[0], nullptr);
+
 
         auto **binaries = new unsigned char *[n];
         for (int i = 0; i < (int) n; ++i) {
             binaries[i] = new unsigned char[sizes[i]];
         }
+
+        std::cout << sizes[0] << std::endl;
         err = clGetProgramInfo(program, CL_PROGRAM_BINARIES, n * sizeof(unsigned char *), binaries, nullptr);
         auto cache_path = dehancer::device::get_opencl_cache_path();
 
@@ -182,7 +185,7 @@ namespace dehancer::opencl {
         std::string cache_file_name(ss.str());
         {
             std::ofstream ostrm(cache_path + "/" + cache_file_name, std::ios::binary);
-            ostrm.write(reinterpret_cast<char*>(&binaries[0]), sizeof source_size);
+            ostrm.write(reinterpret_cast<char*>(binaries[0]), sizes[0]);
         }
 
         return true;

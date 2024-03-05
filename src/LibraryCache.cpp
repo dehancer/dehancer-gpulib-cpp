@@ -30,13 +30,11 @@ namespace dehancer {
     }
 
     bool GPULibraryCache::has_cache(const std::string &library_source) {
-
-        impl_->has_cache(library_source);
-
+        return impl_->has_cache(library_source);
     }
 
     bool GPULibraryCache::compile_program( const std::string &library_source) {
-        impl_->compile_program(library_source);
+        return impl_->compile_program(library_source);
     }
 
 }
