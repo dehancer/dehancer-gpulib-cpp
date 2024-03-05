@@ -26,25 +26,40 @@ namespace dehancer::opencl {
                                                    const std::string &kernel_name) {
         std::unique_lock<std::mutex> lock(GPULibraryCache::mutex_);
 
+        auto device_id = command_->get_device_id();
+        cl_int err;
         cl_program program = nullptr;
 
         if (exists(library_source)) {
+            cl_int bin_status;
 
+            auto cache_path = dehancer::device::get_opencl_cache_path();
+            auto cache_file_name = get_cache_file_name(library_source);
+            {
+                std::ifstream file((cache_path + "/" + cache_file_name).c_str(), std::ios::binary);
+                auto data = std::vector<unsigned char>((std::istreambuf_iterator<char>(file)),
+                                                       std::istreambuf_iterator<char>());
+
+                size_t size = data.size();
+                unsigned char *data_ptr = data.data();
+
+                program = clCreateProgramWithBinary(command_->get_context(), 1, &device_id,
+                                                    (const size_t *) &size,
+                                                    (const unsigned char **) &data_ptr, &bin_status, &err);
+            }
+        } else {
+
+            //else create from source
+            const char *source_str = library_source.c_str();
+            size_t source_size = library_source.size();
+
+            program = clCreateProgramWithSource(command_->get_context(), 1, (const char **) &source_str,
+                                                (const size_t *) &source_size, &err);
         }
-
-        //else create from source
-        const char *source_str = library_source.c_str();
-        size_t source_size = library_source.size();
-
-        cl_int err;
-        program = clCreateProgramWithSource(command_->get_context(), 1, (const char **) &source_str,
-                                                       (const size_t *) &source_size, &err);
 
         if (err != CL_SUCCESS) {
             throw std::runtime_error("Unable to create OpenCL program from exampleKernel.cl");
         }
-
-        auto device_id = command_->get_device_id();
 
         err = clBuildProgram(program, 1, &device_id,
                              "-cl-std=CL2.0 -cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant",
@@ -102,7 +117,7 @@ namespace dehancer::opencl {
             throw std::runtime_error("Unable to get OpenCL device info");
         }
 
-        return {cBuffer };
+        return {cBuffer};
     }
 
     std::string GPULibraryCache::get_cache_file_name(const std::string &library_source) const {
