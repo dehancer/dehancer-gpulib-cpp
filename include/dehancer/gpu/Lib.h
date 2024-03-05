@@ -10,6 +10,7 @@
 #include "dehancer/gpu/Texture.h"
 #include "dehancer/gpu/ViewPort.h"
 #include "dehancer/gpu/Kernel.h"
+#include "dehancer/gpu/LibraryCache.h"
 #include "dehancer/gpu/TextureInput.h"
 #include "dehancer/gpu/TextureOutput.h"
 #include "dehancer/gpu/VideoStream.h"

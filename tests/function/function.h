@@ -16,6 +16,13 @@ auto function_test =  [] (int dev_num,
                           int image_index) {
 
     try {
+      auto devices = dehancer::DeviceCache::Instance().get_device_list();
+      std::string lib_src;
+      auto src_size = dehancer::device::get_lib_source(lib_src);
+      dehancer::LibraryCache::Instance().compile_program_for_device(command_queue,
+                                                                    dehancer::device::get_id(devices.front()),
+                                                                    lib_src);
+
       std::cout << "Load file: " << input_image << std::endl;
 
       /***

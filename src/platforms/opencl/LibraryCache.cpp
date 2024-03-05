@@ -139,15 +139,16 @@ namespace dehancer::opencl {
             throw std::runtime_error("Unable to create OpenCL program from exampleKernel.cl");
         }
 
-        err = clBuildProgram(program, 1, &device,
+        auto d = command->get_device_id();
+        err = clBuildProgram(program, 1, &d,
                              "-cl-std=CL2.0 -cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant",
                              nullptr, nullptr);
 
 
-        size_t n;
-        clGetProgramInfo(program, CL_PROGRAM_NUM_DEVICES, 0, nullptr, &n);
+        cl_uint n;
+        err = clGetProgramInfo(program, CL_PROGRAM_NUM_DEVICES, sizeof(cl_uint), &n, nullptr);
         size_t sizes[n];
-        clGetProgramInfo(program, CL_PROGRAM_BINARY_SIZES, n * sizeof(size_t), sizes, nullptr);
+        err = clGetProgramInfo(program, CL_PROGRAM_BINARY_SIZES, n * sizeof(size_t), sizes, nullptr);
 
         auto **binaries = new unsigned char *[n];
         for (int i = 0; i < (int) n; ++i) {
