@@ -12,10 +12,10 @@
 namespace dehancer::opencl {
     struct gpu_library_cache {
     public:
-        bool has_cache_for_device(dehancer::opencl::Command *command, uint64_t device_id,
+        bool has_cache(dehancer::opencl::Command *command,
                                   const std::string &library_source = "");
 
-        bool compile_program_for_device(dehancer::opencl::Command *command, uint64_t device_id,
+        bool compile_program(dehancer::opencl::Command *command,
                                         const std::string &library_source = "");
 
         cl_program program_for_source(cl_context context, const std::string &library_source, cl_device_id device_id,

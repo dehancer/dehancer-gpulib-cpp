@@ -19,19 +19,22 @@ namespace dehancer {
 
     struct gpu_library_cache {
     public:
-        virtual bool has_cache_for_device(const void *command, uint64_t device_id,
-                                  const std::string &library_source = "");
+        virtual bool has_cache(const void *command,
+                               const std::string &library_source = "");
 
-        virtual bool compile_program_for_device(const void *command, uint64_t device_id,
-                                        const std::string &library_source = "");
+        virtual bool compile_program(const void *command,
+                                     const std::string &library_source = "");
 
 #if defined(DEHANCER_CONTROLLED_SINGLETON)
         friend class ControlledSingleton<gpu_device_cache>;
 #else
+
         friend class SimpleSingleton<gpu_library_cache>;
+
 #endif
     private:
         gpu_library_cache();
+
         std::shared_ptr<impl::gpu_library_cache> impl_;
     };
 

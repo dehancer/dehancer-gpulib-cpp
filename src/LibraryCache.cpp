@@ -18,7 +18,7 @@ namespace dehancer {
             using dehancer::DEHANCER_GPU_PLATFORM::gpu_library_cache::gpu_library_cache;
         };
 
-        class Command: public dehancer::DEHANCER_GPU_PLATFORM::Command {
+        class Command : public dehancer::DEHANCER_GPU_PLATFORM::Command {
         public:
             using dehancer::DEHANCER_GPU_PLATFORM::Command::Command;
         };
@@ -27,18 +27,18 @@ namespace dehancer {
     gpu_library_cache::gpu_library_cache() :
             impl_(std::make_shared<impl::gpu_library_cache>()) {}
 
-    bool gpu_library_cache::has_cache_for_device(const void *command, uint64_t device_id,
-                                                 const std::string &library_source) {
+    bool gpu_library_cache::has_cache(const void *command,
+                                      const std::string &library_source) {
 
         opencl::Command cmd(command, true);
-        impl_->has_cache_for_device(&cmd, device_id, library_source);
+        impl_->has_cache(&cmd, library_source);
 
     }
 
-    bool gpu_library_cache::compile_program_for_device(const void *command, uint64_t device_id,
-                                                       const std::string &library_source) {
+    bool gpu_library_cache::compile_program(const void *command,
+                                            const std::string &library_source) {
         opencl::Command cmd(command, true);
-        impl_->compile_program_for_device(&cmd, device_id, library_source);
+        impl_->compile_program(&cmd, library_source);
 
     }
 

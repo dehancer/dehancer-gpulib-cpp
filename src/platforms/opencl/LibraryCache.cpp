@@ -78,9 +78,10 @@ namespace dehancer::opencl {
     }
 
 
-    bool gpu_library_cache::has_cache_for_device(dehancer::opencl::Command *command, const uint64_t device_id,
+    bool gpu_library_cache::has_cache(dehancer::opencl::Command *command,
                                             const std::string &library_source) {
-        auto device = static_cast<cl_device_id>( DeviceCache::Instance().get_device(device_id));
+
+        auto device = command->get_device_id();
 
         if (device == nullptr) {
             return false;
@@ -111,15 +112,23 @@ namespace dehancer::opencl {
         return f.good();
     }
 
-    bool gpu_library_cache::compile_program_for_device(dehancer::opencl::Command *command, const uint64_t device_id,
+    bool gpu_library_cache::compile_program(dehancer::opencl::Command *command,
                                                   const std::string &library_source) {
-        auto device = static_cast<cl_device_id>( DeviceCache::Instance().get_device(device_id));
+        auto device =command->get_device_id();
 
         if (device == nullptr) {
             return false;
         }
 
-        std::string device_name = device::get_name(device);
+        char cBuffer[1024];
+        char *cBufferN;
+
+        cl_int err = clGetDeviceInfo(device, CL_DEVICE_NAME, sizeof(cBuffer), &cBuffer, NULL);
+
+        if (err != CL_SUCCESS) {
+            return false;
+        }
+        std::string device_name(cBuffer);
 
         if(device_name.empty()) {
             return false;
@@ -131,7 +140,6 @@ namespace dehancer::opencl {
         const char *source_str = library_source.c_str();
         size_t source_size = library_source.size();
 
-        cl_int err;
         cl_program program = clCreateProgramWithSource(command->get_context(), 1, (const char **) &source_str,
                                                        (const size_t *) &source_size, &err);
 
@@ -139,8 +147,7 @@ namespace dehancer::opencl {
             throw std::runtime_error("Unable to create OpenCL program from exampleKernel.cl");
         }
 
-        auto d = command->get_device_id();
-        err = clBuildProgram(program, 1, &d,
+        err = clBuildProgram(program, 1, &device,
                              "-cl-std=CL2.0 -cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant",
                              nullptr, nullptr);
 
@@ -154,7 +161,7 @@ namespace dehancer::opencl {
         for (int i = 0; i < (int) n; ++i) {
             binaries[i] = new unsigned char[sizes[i]];
         }
-        clGetProgramInfo(program, CL_PROGRAM_BINARIES, n * sizeof(unsigned char *), binaries, nullptr);
+        err = clGetProgramInfo(program, CL_PROGRAM_BINARIES, n * sizeof(unsigned char *), binaries, nullptr);
         auto cache_path = dehancer::device::get_opencl_cache_path();
 
         auto h1 = std::hash<std::string>{}(library_source);
