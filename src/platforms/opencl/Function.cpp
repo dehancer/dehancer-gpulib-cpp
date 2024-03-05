@@ -126,6 +126,7 @@ namespace dehancer::opencl {
             dehancer::opencl::Command *command,
             const std::string &kernel_name,
             const std::string &library_path) :
+            cache_(command),
             command_(command),
             kernel_name_(kernel_name),
             library_path_(library_path),
@@ -172,9 +173,10 @@ namespace dehancer::opencl {
 
             std::string source = (library_source_.empty()) ? clHelper::getEmbeddedProgram(p_path) : library_source_;
 
-            GPULibraryCache cache(command);
-            program_ = cache.program_for_source(source,
-                                                command_->get_device_id(), p_path, kernel_name_);
+            if(!cache_.exists(source)) {
+                cache_.compile_program(source);
+            }
+            program_ = cache_.program_for_source(source, p_path, kernel_name_);
 
             program_map_[command_->get_cl_command_queue()][p_path_hash] = program_;
         }

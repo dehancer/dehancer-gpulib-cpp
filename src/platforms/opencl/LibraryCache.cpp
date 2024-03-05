@@ -16,48 +16,35 @@ namespace dehancer::opencl {
     std::mutex GPULibraryCache::mutex_;
 
     GPULibraryCache::GPULibraryCache(dehancer::opencl::Command *command)
-    : command_(command) {
+            : command_(command) {
 
     }
 
 
     cl_program GPULibraryCache::program_for_source(const std::string &library_source,
-                                                   const cl_device_id device_id, const std::string &p_path,
+                                                   const std::string &p_path,
                                                    const std::string &kernel_name) {
         std::unique_lock<std::mutex> lock(GPULibraryCache::mutex_);
 
-        if (device_id == nullptr) {
-            return nullptr;
+        cl_program program = nullptr;
+
+        if (exists(library_source)) {
+
         }
-
-        char cBuffer[1024];
-        char *cBufferN;
-        cl_int err = clGetDeviceInfo(device_id, CL_DEVICE_NAME, sizeof(cBuffer), &cBuffer, NULL);
-
-        if (err != CL_SUCCESS) {
-            return nullptr;
-        }
-
-        std::string device_name(cBuffer);
-        auto h1 = std::hash<std::string>{}(library_source);
-        auto h2 = std::hash<std::string>{}(device_name);
-
-        std::stringstream ss;
-        ss << std::setfill('0') << std::setw(sizeof(size_t) * 2) << std::hex << h1 << "_" << h2;
-        std::string cache_file_name(ss.str());
-
-        //test cache_file_existst here
 
         //else create from source
         const char *source_str = library_source.c_str();
         size_t source_size = library_source.size();
 
-        cl_program program = clCreateProgramWithSource(command_->get_context(), 1, (const char **) &source_str,
+        cl_int err;
+        program = clCreateProgramWithSource(command_->get_context(), 1, (const char **) &source_str,
                                                        (const size_t *) &source_size, &err);
 
         if (err != CL_SUCCESS) {
             throw std::runtime_error("Unable to create OpenCL program from exampleKernel.cl");
         }
+
+        auto device_id = command_->get_device_id();
 
         err = clBuildProgram(program, 1, &device_id,
                              "-cl-std=CL2.0 -cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant",
@@ -95,52 +82,47 @@ namespace dehancer::opencl {
             return false;
         }
 
-        char cBuffer[1024];
-        char *cBufferN;
-
-        cl_int err = clGetDeviceInfo(device, CL_DEVICE_NAME, sizeof(cBuffer), &cBuffer, NULL);
-
-        if (err != CL_SUCCESS) {
-            return false;
-        }
-        std::string device_name(cBuffer);
         auto p_path = dehancer::device::get_lib_path();
         std::string source = (library_source.empty()) ? clHelper::getEmbeddedProgram(p_path) : library_source;
 
         auto cache_path = dehancer::device::get_opencl_cache_path();
-
-        auto h1 = std::hash<std::string>{}(library_source);
-        auto h2 = std::hash<std::string>{}(device_name);
-
-        std::stringstream ss;
-        ss << std::setfill('0') << std::setw(sizeof(size_t) * 2) << std::hex << h1 << "_" << h2;
-        std::string cache_file_name(ss.str());
+        std::string cache_file_name = get_cache_file_name(library_source);
 
         std::ifstream f((cache_path + "/" + cache_file_name).c_str());
         return f.good();
+    }
+
+    std::string GPULibraryCache::get_device_name() const {
+        char cBuffer[1024];
+        char *cBufferN;
+
+        cl_int err = clGetDeviceInfo(command_->get_device_id(), CL_DEVICE_NAME, sizeof(cBuffer), &cBuffer, NULL);
+
+        if (err != CL_SUCCESS) {
+            throw std::runtime_error("Unable to get OpenCL device info");
+        }
+
+        return {cBuffer };
+    }
+
+    std::string GPULibraryCache::get_cache_file_name(const std::string &library_source) const {
+        auto cache_path = dehancer::device::get_opencl_cache_path();
+
+        auto h1 = std::hash<std::string>{}(library_source);
+        auto h2 = std::hash<std::string>{}(get_device_name());
+
+        std::stringstream ss;
+        ss << std::setfill('0') << std::setw(sizeof(size_t) * 2) << std::hex << h1 << "_" << h2;
+        return std::string(ss.str());
     }
 
     bool GPULibraryCache::compile_program(const std::string &library_source) {
 
         std::unique_lock<std::mutex> lock(GPULibraryCache::mutex_);
 
-        auto device =command_->get_device_id();
+        auto device = command_->get_device_id();
 
         if (device == nullptr) {
-            return false;
-        }
-
-        char cBuffer[1024];
-        char *cBufferN;
-
-        cl_int err = clGetDeviceInfo(device, CL_DEVICE_NAME, sizeof(cBuffer), &cBuffer, NULL);
-
-        if (err != CL_SUCCESS) {
-            return false;
-        }
-        std::string device_name(cBuffer);
-
-        if(device_name.empty()) {
             return false;
         }
 
@@ -150,6 +132,7 @@ namespace dehancer::opencl {
         const char *source_str = library_source.c_str();
         size_t source_size = library_source.size();
 
+        cl_int err;
         cl_program program = clCreateProgramWithSource(command_->get_context(), 1, (const char **) &source_str,
                                                        (const size_t *) &source_size, &err);
 
@@ -161,33 +144,45 @@ namespace dehancer::opencl {
                              "-cl-std=CL2.0 -cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant",
                              nullptr, nullptr);
 
+        if (err != CL_SUCCESS) {
+            throw std::runtime_error("Unable to build OpenCL program");
+        }
 
         cl_uint n;
         err = clGetProgramInfo(program, CL_PROGRAM_NUM_DEVICES, sizeof(cl_uint), &n, nullptr);
+
+        if (n == 0 || err != CL_SUCCESS) {
+            return false;
+        }
+
         size_t sizes[n];
         err = clGetProgramInfo(program, CL_PROGRAM_BINARY_SIZES, n * sizeof(size_t), &sizes[0], nullptr);
 
+        if (err != CL_SUCCESS) {
+            return false;
+        }
 
-        auto **binaries = new unsigned char *[n];
+        unsigned char *binaries[n];
         for (int i = 0; i < (int) n; ++i) {
             binaries[i] = new unsigned char[sizes[i]];
         }
 
-        std::cout << sizes[0] << std::endl;
-        err = clGetProgramInfo(program, CL_PROGRAM_BINARIES, n * sizeof(unsigned char *), binaries, nullptr);
-        auto cache_path = dehancer::device::get_opencl_cache_path();
+        err = clGetProgramInfo(program, CL_PROGRAM_BINARIES, n * sizeof(unsigned char *), &binaries[0], nullptr);
 
-        auto h1 = std::hash<std::string>{}(library_source);
-        auto h2 = std::hash<std::string>{}(device_name);
-
-        std::stringstream ss;
-        ss << std::setfill('0') << std::setw(sizeof(size_t) * 2) << std::hex << h1 << "_" << h2;
-        std::string cache_file_name(ss.str());
-        {
-            std::ofstream ostrm(cache_path + "/" + cache_file_name, std::ios::binary);
-            ostrm.write(reinterpret_cast<char*>(binaries[0]), sizes[0]);
+        if (err != CL_SUCCESS) {
+            return false;
         }
 
+        auto cache_path = dehancer::device::get_opencl_cache_path();
+        auto cache_file_name = get_cache_file_name(library_source);
+        {
+            std::ofstream ostrm(cache_path + "/" + cache_file_name, std::ios::binary);
+            ostrm.write(reinterpret_cast<char *>(binaries[0]), sizes[0]);
+        }
+
+        for (int i = 0; i < (int) n; ++i) {
+            delete binaries[i];
+        }
         return true;
     }
 

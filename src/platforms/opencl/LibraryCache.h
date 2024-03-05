@@ -10,7 +10,7 @@
 #include "Command.h"
 
 namespace dehancer::opencl {
-    struct GPULibraryCache {
+    class GPULibraryCache {
     public:
         explicit GPULibraryCache(dehancer::opencl::Command *command);
 
@@ -18,11 +18,16 @@ namespace dehancer::opencl {
 
         bool compile_program(const std::string &library_source = "");
 
-        cl_program program_for_source(const std::string &library_source, cl_device_id device_id,
+        cl_program program_for_source(const std::string &library_source,
                                       const std::string &p_path, const std::string &kernel_name);
 
     private:
+        [[nodiscard]] std::string get_cache_file_name(const std::string &library_source) const;
+
+        [[nodiscard]] std::string get_device_name() const;
+
+    private:
         static std::mutex mutex_;
-        dehancer::opencl::Command* command_;
+        dehancer::opencl::Command *command_;
     };
 }

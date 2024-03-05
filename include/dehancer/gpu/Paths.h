@@ -32,13 +32,4 @@ namespace dehancer::device {
      * @return string
      */
      extern std::string get_opencl_cache_path();
-
-     /**
-      * CAN Be defined in certain plugin
-      * @param name file name (in opencl_cache_path)
-      * @param size size in bytes
-      * @param lib_binary precompiled lib bynary pointer
-      * @return true if success
-      */
-     extern bool get_opencl_lib_binary(const std::string &name, const unsigned char **lib_binary, const size_t **size);
 }
