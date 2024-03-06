@@ -702,7 +702,7 @@ if(USE_OPENCOLORIO)
     #
     ExternalProject_Add(OpenColorIO
             #GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/OpenColorIO
-            SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/OpenColorIO
+            SOURCE_DIR ${DEHANCER_GPULIB_CPP_SOURCE}/external/OpenColorIO
             INSTALL_DIR ${EXTERNAL_INSTALL_LOCATION}
             #PREFIX OpenColorIO
             CMAKE_ARGS
@@ -744,7 +744,7 @@ endif()
 include_directories(
         ${CMAKE_BINARY_DIR}/generated
         ${CMAKE_BINARY_DIR}/external/include
-        ${CMAKE_SOURCE_DIR}/include
+        ${DEHANCER_GPULIB_CPP_SOURCE}/include
         ${OpenCV_INCLUDE_DIRS}
         ./
 )

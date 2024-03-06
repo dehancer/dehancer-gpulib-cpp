@@ -27,7 +27,7 @@ file (GLOB COMMON_SRC ${COMMON_SRC}
         )
 
 include_directories(
-        ${CMAKE_SOURCE_DIR}/src
+        ${DEHANCER_GPULIB_CPP_SOURCE}/src
 )
 
 if (DEHANCER_GPU_METAL)
