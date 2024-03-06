@@ -4,6 +4,10 @@ set(IMAGES_DIR ${DEHANCER_GPULIB_CPP_SOURCE}/tests/images)
 set(DATA_DIR ${DEHANCER_GPULIB_CPP_SOURCE}/tests/data)
 configure_file(${DEHANCER_GPULIB_CPP_SOURCE}/tests/include/test_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/generated/tests/test_config.h)
 
+include_directories(
+        ${CMAKE_CURRENT_BINARY_DIR}/generated
+)
+
 if (DEHANCER_GPU_CUDA)
     add_definitions("-DDEHANCER_GPU_CUDA=1")
     add_subdirectory(cuda)
