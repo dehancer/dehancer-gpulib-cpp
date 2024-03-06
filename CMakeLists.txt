@@ -23,6 +23,7 @@ endif()
 # Options
 #
 option (BUILD_TESTING "Enable creation of  tests." OFF)
+option (BUILD_TESTING_GPULIB "Override BUILD_TESTING for GPULIB" ON)
 option (DEHANCER_GPU_METAL "Dehancer GPU Layer is Metal" ON)
 option (DEHANCER_GPU_OPENCL "Dehancer GPU Layer is OpenCL" ON)
 option (DEHANCER_GPU_CUDA "Dehancer GPU Layer is CUDA" ON)
@@ -49,6 +50,10 @@ if (NOT OpenCV_DIR)
     else ()
         set (OpenCV_DIR "" CACHE INTERNAL "OpenCV Root" )
     endif ()
+endif ()
+
+if (NOT BUILD_TESTING_GPULIB)
+    set (BUILD_TESTING OFF CACHE INTERNAL "-")
 endif ()
 
 
