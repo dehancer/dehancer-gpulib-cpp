@@ -87,6 +87,9 @@ endif ()
 #
 find_program(CCACHE_FOUND ccache)
 find_program(MAKE_EXE NAMES  nmake make)
+find_package (EXPAT REQUIRED)
+find_package (Iconv REQUIRED)
+find_package (ZLIB REQUIRED)
 
 #
 # CCache settings
@@ -95,8 +98,6 @@ if(CCACHE_FOUND)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
 endif(CCACHE_FOUND)
-
-
 
 if(LINUX)
     set(STATIC_LINKING OFF)
@@ -570,7 +571,7 @@ if (DEHANCER_GPU_OPENCL)
     FetchContent_Declare(
             dehancer_opencl_helper
             GIT_REPOSITORY  https://github.com/dehancer/dehancer-opencl-helper
-            GIT_TAG     develop
+            GIT_TAG     feature/build-fetcher-deps
             SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_opencl_helper-src"
             BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_opencl_helper-build"
     )
@@ -581,8 +582,9 @@ if (DEHANCER_GPU_OPENCL)
         add_subdirectory(${dehancer_opencl_helper_SOURCE_DIR} ${dehancer_opencl_helper_BINARY_DIR})
     endif()
 
+    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};clHelperLib)
     set(clHelper_DIR ${dehancer_opencl_helper_SOURCE_DIR}/clHelper)
-
+    include_directories(${clHelper_DIR})
     set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};clHelperLib;${OpenCL_LIBRARIES};)
 
 endif ()
@@ -623,14 +625,14 @@ else ()
     FetchContent_GetProperties(dehancer_xmp_cpp)
     if(NOT dehancer_xmp_cpp_POPULATED)
         FetchContent_Populate(dehancer_xmp_cpp)
-        add_subdirectory(${dehancer_xmp_cpp_SOURCE_DIR} ${dehancer_xmp_cpp_BINARY_DIR})
+        add_subdirectory(${dehancer_xmp_cpp_SOURCE_DIR} ${dehancer_xmp_cpp_BINARY_DIR} EXCLUDE_FROM_ALL)
     endif()
 
     FetchContent_GetProperties(exiv2)
 
     if(NOT exiv2_POPULATED)
         FetchContent_Populate(exiv2)
-        add_subdirectory(${exiv2_SOURCE_DIR} ${exiv2_BINARY_DIR})
+        add_subdirectory(${exiv2_SOURCE_DIR} ${exiv2_BINARY_DIR} EXCLUDE_FROM_ALL)
     endif()
 
     include_directories(
@@ -643,7 +645,7 @@ else ()
             ${CMAKE_CURRENT_BINARY_DIR}
     )
 
-    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};dehancer_xmp_cpp;dehancer_common_cpp;exiv2lib;ed25519cpp;base64cpp)
+    set(COMMON_LIBRARIES dehancer_xmp_cpp;dehancer_common_cpp;exiv2lib;ed25519cpp;base64cpp;${COMMON_LIBRARIES})
 
 endif ()
 
@@ -651,47 +653,26 @@ endif ()
 ##
 ## Maths
 ##
-pkg_check_modules(dehancer_maths_cpp dehancer-maths-cpp)
-if (dehancer_maths_cpp_FOUND)
+FetchContent_Declare(
+        dehancer_maths_cpp
+        GIT_REPOSITORY  https://github.com/dehancer/dehancer-maths-cpp
+        GIT_TAG     feature/build-fetcher-deps
+        SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-src"
+        BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-build"
+)
 
-    message(STATUS "maths: ${dehancer_maths_cpp_LIBRARIES}, ${dehancer_maths_cpp_LIBRARY_DIRS} ${dehancer_maths_cpp_INCLUDE_DIRS}")
-    include_directories(
-            ${dehancer_maths_cpp_INCLUDE_DIRS}
-    )
-    link_directories(
-            ${dehancer_maths_cpp_LIBRARY_DIRS}
-    )
-    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${dehancer_maths_cpp_LIBRARIES})
-else()
-
-    ExternalProject_Add(dmcpp
-            GIT_REPOSITORY https://github.com/dehancer/dehancer-maths-cpp
-            GIT_PROGRESS YES
-            GIT_SHALLOW YES
-#            GIT_TAG 0.7.0
-            GIT_TAG develop
-            CMAKE_ARGS
-            -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
-            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-            -DCMAKE_C_FLAGS=${C_FLAGS}
-            -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
-            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-            -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-            -DBUILD_TESTING=OFF
-            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-            -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}
-            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
-            PREFIX ${DEHANCER_COMMON_DIR}
-            )
-    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dmcpp)
-    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};dehancer_maths_cpp;armadillo)
+FetchContent_GetProperties(dehancer_maths_cpp)
+if(NOT dehancer_maths_cpp_POPULATED)
+    FetchContent_Populate(dehancer_maths_cpp)
+    add_subdirectory(${dehancer_maths_cpp_SOURCE_DIR} ${dehancer_maths_cpp_BINARY_DIR})
 endif()
+
+include_directories(
+        ${dehancer_maths_cpp_SOURCE_DIR}/include
+        ${armadillo_SOURCE_DIR}/include
+)
+
+set(COMMON_LIBRARIES dehancer_maths_cpp;${COMMON_LIBRARIES})
 
 if(USE_OPENCOLORIO)
     #
@@ -739,10 +720,6 @@ if(USE_OPENCOLORIO)
 
 endif()
 
-link_directories(
-        ${CMAKE_BINARY_DIR}/external/lib
-)
-
 include_directories(
         ${CMAKE_BINARY_DIR}/generated
         ${CMAKE_BINARY_DIR}/external/include
@@ -772,13 +749,18 @@ set(COMMON_LIBRARIES
         ${COMMON_LIBRARIES};
         ${DEHANCER_EXT_MATH_LIB};
         ${OpenCV_LIBRARIES};
+        ${EXPAT_LIBRARIES}
+        ${Iconv_LIBRARIES};
+        ${ZLIB_LIBRARIES};
         ${CMAKE_DL_LIBS};
         )
 
 message("COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
 
-if (NOT IOS)
-    add_subdirectory(utils)
+if (BUILD_UTILS)
+    if (NOT IOS)
+        add_subdirectory(utils)
+    endif ()
 endif ()
 
 if(BUILD_TESTING)

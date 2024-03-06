@@ -78,14 +78,8 @@ set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
 set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
 set(dehancer_gpu_cpp_lib ${PROJECT_LIB_PLATFORM})
 
-if (NOT dehancer_maths_cpp_FOUND)
-    configure_file(${CMAKE_SOURCE_DIR}/dehancer-maths-cpp.pc.in ${CMAKE_CURRENT_BINARY_DIR}/dehancer-maths-cpp.pc @ONLY)
-    configure_file(${CMAKE_SOURCE_DIR}/armadillo.pc.in ${CMAKE_CURRENT_BINARY_DIR}/armadillo.pc @ONLY)
-    install(FILES
-            ${CMAKE_CURRENT_BINARY_DIR}/armadillo.pc
-            ${CMAKE_CURRENT_BINARY_DIR}/dehancer-maths-cpp.pc
-            DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-            )
+if (DEHANCER_GPU_OPENCL)
+    set(dehancer_clHelperLib "-lclHelperLib")
 endif ()
 
 configure_file(${CMAKE_SOURCE_DIR}/dehancer-gpulib-cpp.pc.in ${CMAKE_CURRENT_BINARY_DIR}/dehancer-gpulib-cpp.pc @ONLY)
