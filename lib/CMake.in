@@ -9,7 +9,7 @@ if (NOT CMAKE_INSTALL_INCLUDEDIR)
     set(CMAKE_INSTALL_INCLUDEDIR include)
 endif ()
 
-include(${CMAKE_SOURCE_DIR}/lib/CMakeOverlays.in)
+include(${DEHANCER_GPULIB_CPP_SOURCE}/lib/CMakeOverlays.in)
 
 add_library(${PROJECT_LIB_PLATFORM}
         ${COMMON_SRC} ${COMMON_IMPL_SRC} ${EMBEDDED_EMBEDDED_IMAGE_C_FILES})
