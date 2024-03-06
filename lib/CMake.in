@@ -16,8 +16,13 @@ add_library(${PROJECT_LIB_PLATFORM}
 
 if (COMMON_DEPENDENCIES)
     add_dependencies(${PROJECT_LIB_PLATFORM}
-            ${COMMON_DEPENDENCIES} ${EMBEDDED_OVERLAYS_C_TARGET})
+            ${COMMON_DEPENDENCIES})
 endif()
+
+add_dependencies(
+        ${PROJECT_LIB_PLATFORM}
+        ${EMBEDDED_OVERLAYS_C_TARGET}
+)
 
 set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
