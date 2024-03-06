@@ -9,21 +9,21 @@ if (NOT ${lock_result} EQUAL 0)
     message(FATAL_ERROR "DEADLOCKED: ${lock_result}")
 endif()
 
-set (PUBLIC_INCLUDE_FILES ${CMAKE_SOURCE_DIR}/include/dehancer)
-set (EMBEDDED_IMAGES_DIR ${CMAKE_BINARY_DIR}/generated/embedded)
+set (PUBLIC_INCLUDE_FILES ${DEHANCER_GPULIB_CPP_SOURCE}/include/dehancer)
+set (EMBEDDED_IMAGES_DIR ${CMAKE_CURRENT_BINARY_DIR}/generated/embedded)
 
 file (GLOB COMMON_SRC ${COMMON_SRC}
-        ${CMAKE_SOURCE_DIR}/src/*.cpp
-        ${CMAKE_SOURCE_DIR}/src/*.c
-        ${CMAKE_SOURCE_DIR}/src/spaces/*.cpp
-        ${CMAKE_SOURCE_DIR}/src/clut/*.cpp
-        ${CMAKE_SOURCE_DIR}/src/clut/utils/*.cpp
-        ${CMAKE_SOURCE_DIR}/src/profile/*.cpp
-        ${CMAKE_SOURCE_DIR}/src/math/*.cpp
-        ${CMAKE_SOURCE_DIR}/src/ocio/*.cpp
-        ${CMAKE_SOURCE_DIR}/src/operations/*.cpp
-        ${CMAKE_SOURCE_DIR}/src/overlays/*.cpp
-        ${CMAKE_SOURCE_DIR}/src/platforms/*.cpp
+        ${DEHANCER_GPULIB_CPP_SOURCE}/src/*.cpp
+        ${DEHANCER_GPULIB_CPP_SOURCE}/src/*.c
+        ${DEHANCER_GPULIB_CPP_SOURCE}/src/spaces/*.cpp
+        ${DEHANCER_GPULIB_CPP_SOURCE}/src/clut/*.cpp
+        ${DEHANCER_GPULIB_CPP_SOURCE}/src/clut/utils/*.cpp
+        ${DEHANCER_GPULIB_CPP_SOURCE}/src/profile/*.cpp
+        ${DEHANCER_GPULIB_CPP_SOURCE}/src/math/*.cpp
+        ${DEHANCER_GPULIB_CPP_SOURCE}/src/ocio/*.cpp
+        ${DEHANCER_GPULIB_CPP_SOURCE}/src/operations/*.cpp
+        ${DEHANCER_GPULIB_CPP_SOURCE}/src/overlays/*.cpp
+        ${DEHANCER_GPULIB_CPP_SOURCE}/src/platforms/*.cpp
         )
 
 include_directories(
@@ -42,12 +42,3 @@ endif ()
 if(DEHANCER_GPU_CUDA)
     add_subdirectory(cuda)
 endif ()
-
-
-#install(DIRECTORY ${PUBLIC_INCLUDE_FILES}
-#        DESTINATION include
-#        FILES_MATCHING PATTERN "*.h"
-#        )
-
-#file(LOCK ${lock} RELEASE)
-#message("RELEASE ${lock}")

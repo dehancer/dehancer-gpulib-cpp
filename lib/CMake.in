@@ -33,7 +33,7 @@ write_basic_package_version_file(
 )
 
 configure_package_config_file(
-        "${CMAKE_SOURCE_DIR}/lib/cmake/Config.cmake.in"
+        "${DEHANCER_GPULIB_CPP_SOURCE}/lib/cmake/Config.cmake.in"
         "${project_config}"
         INSTALL_DESTINATION "${config_install_dir}"
 )
@@ -82,7 +82,7 @@ if (DEHANCER_GPU_OPENCL)
     set(dehancer_clHelperLib "-lclHelperLib")
 endif ()
 
-configure_file(${CMAKE_SOURCE_DIR}/dehancer-gpulib-cpp.pc.in ${CMAKE_CURRENT_BINARY_DIR}/dehancer-gpulib-cpp.pc @ONLY)
+configure_file(${DEHANCER_GPULIB_CPP_SOURCE}/dehancer-gpulib-cpp.pc.in ${CMAKE_CURRENT_BINARY_DIR}/dehancer-gpulib-cpp.pc @ONLY)
 
 install(FILES
         ${CMAKE_CURRENT_BINARY_DIR}/dehancer-gpulib-cpp.pc
