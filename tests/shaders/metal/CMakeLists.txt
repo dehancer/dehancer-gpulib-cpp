@@ -44,7 +44,9 @@
          -O3 -ffast-math
          -c
          -Wno-unused-variable
-         -target ${METAL_TARGET_FLAGS}
+         -target air64-apple-macos11.0
+         -target air64-apple-macos10.14
+         #${METAL_TARGET_FLAGS}
          ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.metal
          -o ${CMAKE_CURRENT_BINARY_DIR}/${CURRENT_KERNEL_TARGET_NAME}.air
          VERBATIM

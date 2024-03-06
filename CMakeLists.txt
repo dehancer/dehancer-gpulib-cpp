@@ -8,12 +8,16 @@ set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
 project(${PROJECT_LIB} VERSION 1.6.0)
 
-message("PLATFORM: ${PLATFORM}")
-message("XCODE_VERSION: ${XCODE_VERSION}")
-message("SDK_NAME: ${SDK_NAME}")
-message("CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
-message("APPLE_TARGET_TRIPLE: ${APPLE_TARGET_TRIPLE}")
-message("DEPLOYMENT_TARGET: ${DEPLOYMENT_TARGET}")
+#
+#
+# C++
+#
+set(CMAKE_CXX_STANDARD 17)
+
+
+if(UNIX AND NOT APPLE)
+    set(LINUX TRUE)
+endif()
 
 #
 # Options
@@ -22,32 +26,42 @@ option (BUILD_TESTING "Enable creation of  tests." OFF)
 option (DEHANCER_GPU_METAL "Dehancer GPU Layer is Metal" ON)
 option (DEHANCER_GPU_OPENCL "Dehancer GPU Layer is OpenCL" ON)
 option (DEHANCER_GPU_CUDA "Dehancer GPU Layer is CUDA" ON)
-option (DEHANCER_TARGET_ARCH "Dehancer platform arch" "")
-option (VCPKG_TARGET_TRIPLET "")
-option (DEHANCER_COMMON_DIR "")
-option (PRINT_KERNELS_DEBUG OFF)
-option (PRINT_DEBUG ON)
-option (DEHANCER_DEBUG OFF)
-option (USE_OPENCOLORIO OFF)
-option (DEHANCER_USE_NATIVE_APPLE_API ON)
-option (BUILD_UTILS OFF)
-option (DEHANCER_OPENCL_CONTEXT_NOT_RELEASE OFF)
-option (DEHANCER_CONTROLLED_SINGLETON OFF)
+option (VCPKG_TARGET_TRIPLET "VCPKG_TARGET_TRIPLET" "")
+option (PRINT_KERNELS_DEBUG "PRINT_KERNELS_DEBUG" OFF)
+option (PRINT_DEBUG "PRINT_DEBUG" ON)
+option (DEHANCER_DEBUG "DEHANCER_DEBUG" OFF)
+option (USE_OPENCOLORIO "USE_OPENCOLORIO" OFF)
+option (DEHANCER_USE_NATIVE_APPLE_API "DEHANCER_USE_NATIVE_APPLE_API" ON)
+option (BUILD_UTILS "BUILD_UTILS" OFF)
+option (DEHANCER_OPENCL_CONTEXT_NOT_RELEASE "DEHANCER_OPENCL_CONTEXT_NOT_RELEASE" OFF)
+option (DEHANCER_CONTROLLED_SINGLETON "DEHANCER_CONTROLLED_SINGLETON" OFF)
+option (OpenCV_DIR "OpenCV Root" "/usr/local/universal")
 
-if (NOT DEHANCER_COMMON_DIR)
-    set(DEHANCER_COMMON_DIR "${CMAKE_BINARY_DIR}/tmp")
+if (NOT OpenCV_DIR)
+    if (APPLE)
+        set (OpenCV_DIR "/usr/local/universal" CACHE INTERNAL "OpenCV Root" )
+    elseif (LINUX)
+        set (OpenCV_DIR "/usr/local" CACHE INTERNAL "OpenCV Root" )
+    else ()
+        set (OpenCV_DIR "" CACHE INTERNAL "OpenCV Root" )
+    endif ()
 endif ()
-message("DEHANCER_COMMON_DIR: ${DEHANCER_COMMON_DIR}")
 
-if (DEHANCER_TARGET_ARCH)
-    #
-    # x86_64-apple-macos10.13
-    # or
-    # arm64-apple-macos11
-    #
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -target ${DEHANCER_TARGET_ARCH}")
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -target ${DEHANCER_TARGET_ARCH}")
-endif ()
+
+message(STATUS "OpenCV_DIR: ${OpenCV_DIR}")
+message(STATUS "VCPKG_TARGET_TRIPLET: ${VCPKG_TARGET_TRIPLET}")
+message(STATUS "DEHANCER_DEBUG: ${DEHANCER_DEBUG}")
+message(STATUS "PRINT_DEBUG: ${PRINT_DEBUG}")
+message(STATUS "DEBUG: ${DEBUG}")
+message(STATUS "PLATFORM: ${CMAKE_GENERATOR_PLATFORM}")
+message(STATUS "APPLE: ${APPLE}")
+message(STATUS "LINUX: ${LINUX}")
+message(STATUS "XCODE_VERSION: ${XCODE_VERSION}")
+message(STATUS "SDK_NAME: ${SDK_NAME}")
+message(STATUS "CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
+message(STATUS "APPLE_TARGET_TRIPLE: ${APPLE_TARGET_TRIPLE}")
+message(STATUS "DEPLOYMENT_TARGET: ${DEPLOYMENT_TARGET}")
+
 
 if(DEHANCER_OPENCL_CONTEXT_NOT_RELEASE)
     add_definitions(-DDEHANCER_OPENCL_CONTEXT_NOT_RELEASE=1)
@@ -56,11 +70,6 @@ endif ()
 if(DEHANCER_CONTROLLED_SINGLETON)
     add_definitions(-DDEHANCER_CONTROLLED_SINGLETON=1)
 endif()
-#
-#
-# C++
-#
-set(CMAKE_CXX_STANDARD 17)
 
 # googletest, etc
 set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
@@ -88,9 +97,6 @@ if(CCACHE_FOUND)
 endif(CCACHE_FOUND)
 
 
-if(UNIX AND NOT APPLE)
-    set(LINUX TRUE)
-endif()
 
 if(LINUX)
     set(STATIC_LINKING OFF)
@@ -206,12 +212,12 @@ find_package (ZLIB REQUIRED)
 find_package (EXPAT REQUIRED)
 find_package (Iconv REQUIRED)
 if(USE_OPENCOLORIO)
-    message("USE OPENCOLORIO")
+    message(STATUS "USE OPENCOLORIO")
     #pkg_check_modules(OpenColorIO OpenColorIO)
     #pkg_check_modules(yaml_cpp yaml-cpp REQUIRED)
     #find_package (yaml_cpp REQUIRED)
 else()
-    message("Skip OPENCOLORIO")
+    message(STATUS "Skip OPENCOLORIO")
 endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
@@ -221,18 +227,16 @@ if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -F${OPENCV_FRAMEWORK_PATH} -framework opencv2")
     include_directories(${OPENCV_INCLUDES_PATH})
 else()
-    if (${DEHANCER_TARGET_ARCH} MATCHES "arm64.*")
-        find_package (OpenCV REQUIRED PATHS /usr/local/arm64)
-    elseif (${DEHANCER_TARGET_ARCH} MATCHES "x86_64.*")
-        find_package (OpenCV REQUIRED PATHS /usr/local/x86_64)
-    else()
+    if (APPLE)
+        find_package (OpenCV REQUIRED PATHS ${OpenCV_DIR})
+    else ()
         if(WIN32)
             find_package(OpenCV REQUIRED)
             add_definitions(/DCV_IGNORE_DEBUG_BUILD_GUARD=1)
         else()
             find_package (OpenCV REQUIRED)
         endif()
-    endif()
+    endif ()
 endif()
 
 if(LINUX)
@@ -475,6 +479,7 @@ endif ()
 # External projects
 #
 include(ExternalProject)
+include(FetchContent)
 
 #
 # Global setttings
@@ -522,47 +527,38 @@ configure_file(include/dehancer/gpulib_version.h.in ${CMAKE_BINARY_DIR}/generate
 string(STRIP "${CMAKE_CXX_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" CXX_FLAGS)
 string(STRIP "${CMAKE_C_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" C_FLAGS)
 
+#
+# Google Test
+#
 if (BUILD_TESTING)
 
-    #
-    # Google TEST
-    #
     find_package(GTest)
-    if (NOT GTEST_FOUND)
 
-        ExternalProject_Add(googletest
-                GIT_REPOSITORY https://github.com/google/googletest
-                GIT_PROGRESS YES
-                GIT_SHALLOW YES
-                GIT_TAG release-1.11.0
-                CMAKE_ARGS
-                -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
-                -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
-                -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-                -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-                -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-                -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
-                -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-                -DCMAKE_C_FLAGS=${C_FLAGS}
-                -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
-                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-                -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
-                -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-                )
-        set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};googletest)
+    if (NOT GTest_FOUND)
 
-        include_directories(
-                ./
-                ../include
-                ${CMAKE_BINARY_DIR}/external/include
+        string(STRIP "${CMAKE_C_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" C_FLAGS)
+        string(STRIP "${CMAKE_CXX_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" CXX_FLAGS)
+
+        set(CMAKE_OSX_ARCHITECTURES "${CMAKE_OSX_ARCHITECTURES}" CACHE STRING "" FORCE)
+
+        include(FetchContent)
+
+        FetchContent_Declare(
+                googletest
+                GIT_REPOSITORY https://github.com/google/googletest.git
+                GIT_TAG      v1.14.0
+                SOURCE_DIR "${CMAKE_BINARY_DIR}/googletest-src"
         )
 
-        link_directories(
-                ${CMAKE_BINARY_DIR}/external/lib
-        )
+        FetchContent_GetProperties(googletest)
 
-    endif()
+        if(NOT googletest_POPULATED)
+            FetchContent_Populate(googletest)
+            add_subdirectory(${googletest_SOURCE_DIR} ${googletest_BINARY_DIR} EXCLUDE_FROM_ALL)
+        endif()
+
+    endif ()
+
 endif ()
 
 if (DEHANCER_GPU_OPENCL)
@@ -570,82 +566,91 @@ if (DEHANCER_GPU_OPENCL)
     #
     # OpenCL
     #
-    ExternalProject_Add(dhoph
-            GIT_REPOSITORY https://github.com/dehancer/dehancer-opencl-helper
-            GIT_PROGRESS YES
-            GIT_SHALLOW YES
-            GIT_TAG develop
-#            GIT_TAG 0.4.1
-            CMAKE_ARGS
-            -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
-            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-            -DCMAKE_C_FLAGS=${C_FLAGS}
-            -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
-            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-            -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-            -DBUILD_TESTING=OFF
-            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
-            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-            -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}
-            PREFIX ${DEHANCER_COMMON_DIR}
-            )
-    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dhoph;)
+
+    FetchContent_Declare(
+            dehancer_opencl_helper
+            GIT_REPOSITORY  https://github.com/dehancer/dehancer-opencl-helper
+            GIT_TAG     develop
+            SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_opencl_helper-src"
+            BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_opencl_helper-build"
+    )
+
+    FetchContent_GetProperties(dehancer_opencl_helper)
+    if(NOT dehancer_opencl_helper_POPULATED)
+        FetchContent_Populate(dehancer_opencl_helper)
+        add_subdirectory(${dehancer_opencl_helper_SOURCE_DIR} ${dehancer_opencl_helper_BINARY_DIR})
+    endif()
+
+    set(clHelper_DIR ${dehancer_opencl_helper_SOURCE_DIR}/clHelper)
+
     set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};clHelperLib;${OpenCL_LIBRARIES};)
+
 endif ()
 
+
+
 pkg_check_modules(dehancer_common_cpp dehancer-common-cpp)
-if (dehancer_common_cpp_FOUND)
+pkg_check_modules(dehancer_xmp_cpp dehancer-xmp-cpp)
+
+#
+# Common
+#
+if (dehancer_common_cpp_FOUND AND dehancer_xmp_cpp_FOUND)
 
     message(STATUS "dehancer_common_cpp: ${dehancer_common_cpp_LIBRARIES}, ${dehancer_common_cpp_LIBRARY_DIRS} ${dehancer_common_cpp_INCLUDE_DIRS}")
+    message(STATUS "dehancer_xmp_cpp: ${dehancer_xmp_cpp_LIBRARIES}, ${dehancer_xmp_cpp_LIBRARY_DIRS} ${dehancer_xmp_cpp_INCLUDE_DIRS}")
     include_directories(
             ${dehancer_common_cpp_INCLUDE_DIRS}
+            ${dehancer_xmp_cpp_INCLUDE_DIRS}
     )
     link_directories(
+            ${dehancer_xmp_cpp_LIBRARY_DIRS}
             ${dehancer_common_cpp_LIBRARY_DIRS}
     )
-    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${dehancer_common_cpp_LIBRARIES})
 
-else()
-    ExternalProject_Add(dcmcpp
-            GIT_REPOSITORY https://github.com/dehancer/dehancer-common-cpp
-            GIT_PROGRESS YES
-            GIT_SHALLOW YES
-#            GIT_TAG 0.13.0
-            GIT_TAG develop
-            CMAKE_ARGS
-            -DDEHANCER_CONTROLLED_SINGLETON=${DEHANCER_CONTROLLED_SINGLETON}
-            -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
-            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-            -DCMAKE_C_FLAGS=${C_FLAGS}
-            -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
-            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DPRINT_DEBUG=${PRINT_DEBUG}
-            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-            -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-            -DBUILD_TESTING=OFF
-            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
-            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-            -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}
-            PREFIX ${DEHANCER_COMMON_DIR}
-            )
-    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dcmcpp;)
-    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};dehancer_common_cpp;ed25519cpp;base64cpp)
-endif()
+    set(COMMON_LIBRARIES ${dehancer_xmp_cpp_LIBRARIES};${dehancer_common_cpp_LIBRARIES};${COMMON_LIBRARIES})
+
+else ()
+
+    FetchContent_Declare(
+            dehancer_xmp_cpp
+            GIT_REPOSITORY  git@github.com:dehancer/dehancer-xmp-cpp.git
+            GIT_TAG     feature/build-fetcher-deps
+            SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_xmp_cpp-src"
+            BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_xmp_cpp-build"
+    )
+
+    FetchContent_GetProperties(dehancer_xmp_cpp)
+    if(NOT dehancer_xmp_cpp_POPULATED)
+        FetchContent_Populate(dehancer_xmp_cpp)
+        add_subdirectory(${dehancer_xmp_cpp_SOURCE_DIR} ${dehancer_xmp_cpp_BINARY_DIR})
+    endif()
+
+    FetchContent_GetProperties(exiv2)
+
+    if(NOT exiv2_POPULATED)
+        FetchContent_Populate(exiv2)
+        add_subdirectory(${exiv2_SOURCE_DIR} ${exiv2_BINARY_DIR})
+    endif()
+
+    include_directories(
+            ${base64cpp_SOURCE_DIR}/include
+            ${ed25519cpp_SOURCE_DIR}/include
+            ${exiv2_SOURCE_DIR}/include
+            ${dehancer_common_cpp_SOURCE_DIR}/include
+            ${dehancer_common_cpp_SOURCE_DIR}/external
+            ${dehancer_xmp_cpp_SOURCE_DIR}/include
+            ${CMAKE_CURRENT_BINARY_DIR}
+    )
+
+    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};dehancer_xmp_cpp;dehancer_common_cpp;exiv2lib;ed25519cpp;base64cpp)
+
+endif ()
 
 #
-# Maths
-#
+##
+## Maths
+##
 pkg_check_modules(dehancer_maths_cpp dehancer-maths-cpp)
 if (dehancer_maths_cpp_FOUND)
 
@@ -688,52 +693,6 @@ else()
     set(COMMON_LIBRARIES  ${COMMON_LIBRARIES};dehancer_maths_cpp;armadillo)
 endif()
 
-#
-# XMP
-#
-pkg_check_modules(dehancer_xmp_cpp dehancer-xmp-cpp)
-if (dehancer_xmp_cpp_FOUND)
-
-    message(STATUS "xmp: ${dehancer_xmp_cpp_LIBRARIES}, ${dehancer_xmp_cpp_LIBRARY_DIRS} ${dehancer_xmp_cpp_INCLUDE_DIRS}")
-    include_directories(
-            ${dehancer_xmp_cpp_INCLUDE_DIRS}
-    )
-    link_directories(
-            ${dehancer_xmp_cpp_LIBRARY_DIRS}
-    )
-
-    set(COMMON_LIBRARIES dehancer_xmp_cpp; exiv2; exiv2-xmp; ${COMMON_LIBRARIES})
-
-else()
-    ExternalProject_Add(dxmpcpp
-            GIT_REPOSITORY https://github.com/dehancer/dehancer-xmp-cpp
-            GIT_PROGRESS YES
-            GIT_SHALLOW YES
-#            GIT_TAG 0.9.2
-            GIT_TAG develop
-            CMAKE_ARGS
-            -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-            -DCMAKE_C_FLAGS=${C_FLAGS}
-            -DCMAKE_CXX_FLAGS=${CXX_FLAGS}
-            -DPRINT_DEBUG=${PRINT_DEBUG}
-            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
-            -DCMAKE_OSX_SYSROOT=${CMAKE_OSX_SYSROOT}
-            -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
-            -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
-            -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
-            -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
-            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-            -DVCPKG_TARGET_TRIPLET=${VCPKG_TARGET_TRIPLET}
-            -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}/x
-            PREFIX ${DEHANCER_COMMON_DIR}/x
-            )
-    set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};dxmpcpp)
-    set(COMMON_LIBRARIES  dehancer_xmp_cpp;exiv2;exiv2-xmp;${COMMON_LIBRARIES})
-endif()
-
 if(USE_OPENCOLORIO)
     #
     # AcademySoftwareFoundation OpenColorIO. ACES and etc...
@@ -750,6 +709,8 @@ if(USE_OPENCOLORIO)
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
             -DCMAKE_OSX_DEPLOYMENT_TARGET=${CMAKE_OSX_DEPLOYMENT_TARGET}
+            -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
+            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
             -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
             -DCMAKE_BINARY_DIR=${CMAKE_BINARY_DIR}
             -DCMAKE_BUILD_TYPE=Release #${CMAKE_BUILD_TYPE}
@@ -763,8 +724,6 @@ if(USE_OPENCOLORIO)
             -DPYSTRING_STATIC_LIBRARY=ON
             -DYAMLCPP_STATIC_LIBRARY=ON
             -DOCIO_INSTALL_EXT_PACKAGES=ALL
-            -DDEHANCER_TARGET_ARCH=${DEHANCER_TARGET_ARCH}
-            -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES}
             -DEXTERNAL_INSTALL_LOCATION=${EXTERNAL_INSTALL_LOCATION}
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
             -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
@@ -779,8 +738,6 @@ if(USE_OPENCOLORIO)
     )
 
 endif()
-
-set(clHelper_DIR ${CMAKE_SOURCE_DIR}/lib/cmake)
 
 link_directories(
         ${CMAKE_BINARY_DIR}/external/lib
