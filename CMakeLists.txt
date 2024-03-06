@@ -35,7 +35,9 @@ option (DEHANCER_USE_NATIVE_APPLE_API "DEHANCER_USE_NATIVE_APPLE_API" ON)
 option (BUILD_UTILS "BUILD_UTILS" OFF)
 option (DEHANCER_OPENCL_CONTEXT_NOT_RELEASE "DEHANCER_OPENCL_CONTEXT_NOT_RELEASE" OFF)
 option (DEHANCER_CONTROLLED_SINGLETON "DEHANCER_CONTROLLED_SINGLETON" OFF)
+option (DEHANCER_INSTALL_COMMON_DEPS "DEHANCER_INSTALL_COMMON_DEPS" ON)
 option (OpenCV_DIR "OpenCV Root" "/usr/local/universal")
+option (GTest_ROOT "GTest_ROOT" "")
 
 if (NOT OpenCV_DIR)
     if (APPLE)
@@ -49,6 +51,8 @@ endif ()
 
 
 message(STATUS "OpenCV_DIR: ${OpenCV_DIR}")
+message(STATUS "GTest_ROOT: ${GTest_ROOT}")
+
 message(STATUS "VCPKG_TARGET_TRIPLET: ${VCPKG_TARGET_TRIPLET}")
 message(STATUS "DEHANCER_DEBUG: ${DEHANCER_DEBUG}")
 message(STATUS "PRINT_DEBUG: ${PRINT_DEBUG}")
@@ -61,6 +65,7 @@ message(STATUS "SDK_NAME: ${SDK_NAME}")
 message(STATUS "CMAKE_SYSTEM_NAME: ${CMAKE_SYSTEM_NAME}")
 message(STATUS "APPLE_TARGET_TRIPLE: ${APPLE_TARGET_TRIPLE}")
 message(STATUS "DEPLOYMENT_TARGET: ${DEPLOYMENT_TARGET}")
+message(STATUS "DEHANCER_INSTALL_COMMON_DEPS: ${DEHANCER_INSTALL_COMMON_DEPS}")
 
 
 if(DEHANCER_OPENCL_CONTEXT_NOT_RELEASE)
@@ -625,14 +630,22 @@ else ()
     FetchContent_GetProperties(dehancer_xmp_cpp)
     if(NOT dehancer_xmp_cpp_POPULATED)
         FetchContent_Populate(dehancer_xmp_cpp)
-        add_subdirectory(${dehancer_xmp_cpp_SOURCE_DIR} ${dehancer_xmp_cpp_BINARY_DIR} EXCLUDE_FROM_ALL)
+        if (DEHANCER_INSTALL_COMMON_DEPS)
+            add_subdirectory(${dehancer_xmp_cpp_SOURCE_DIR} ${dehancer_xmp_cpp_BINARY_DIR})
+        else()
+            add_subdirectory(${dehancer_xmp_cpp_SOURCE_DIR} ${dehancer_xmp_cpp_BINARY_DIR} EXCLUDE_FROM_ALL)
+        endif ()
     endif()
 
     FetchContent_GetProperties(exiv2)
 
     if(NOT exiv2_POPULATED)
         FetchContent_Populate(exiv2)
-        add_subdirectory(${exiv2_SOURCE_DIR} ${exiv2_BINARY_DIR} EXCLUDE_FROM_ALL)
+        if (DEHANCER_INSTALL_COMMON_DEPS)
+            add_subdirectory(${exiv2_SOURCE_DIR} ${exiv2_BINARY_DIR})
+        else ()
+            add_subdirectory(${exiv2_SOURCE_DIR} ${exiv2_BINARY_DIR} EXCLUDE_FROM_ALL)
+        endif ()
     endif()
 
     include_directories(
