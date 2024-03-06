@@ -1,8 +1,8 @@
 set (CURRENT_KERNEL_TARGET_NAME TestKernels)
 
-set(IMAGES_DIR ${CMAKE_SOURCE_DIR}/tests/images)
-set(DATA_DIR ${CMAKE_SOURCE_DIR}/tests/data)
-configure_file(${CMAKE_SOURCE_DIR}/tests/include/test_config.h.in ${CMAKE_BINARY_DIR}/generated/tests/test_config.h)
+set(IMAGES_DIR ${DEHANCER_GPULIB_CPP_SOURCE}/tests/images)
+set(DATA_DIR ${DEHANCER_GPULIB_CPP_SOURCE}/tests/data)
+configure_file(${DEHANCER_GPULIB_CPP_SOURCE}/tests/include/test_config.h.in ${CMAKE_CURRENT_BINARY_DIR}/generated/tests/test_config.h)
 
 if (DEHANCER_GPU_CUDA)
     add_definitions("-DDEHANCER_GPU_CUDA=1")
