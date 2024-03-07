@@ -41,6 +41,7 @@ option (OpenCV_DIR "OpenCV Root" "/usr/local/universal")
 option (GTest_ROOT "GTest_ROOT" "")
 
 set(DEHANCER_GPULIB_CPP_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
+set(DEHANCER_GPULIB_BINARY ${CMAKE_CURRENT_BINARY_DIR})
 
 if (NOT OpenCV_DIR)
     if (APPLE)

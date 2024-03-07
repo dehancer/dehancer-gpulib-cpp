@@ -32,7 +32,7 @@ if (DEHANCER_CURRENT_PLATFORM_METAL)
 elseif (DEHANCER_CURRENT_PLATFORM_CUDA)
 
     set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_cuda)
-    set (EMBEDDED_KERNELS_FATBIN ${CMAKE_CURRENT_BINARY_DIR}/tests/shaders/cuda/TestKernels_cuda.c)
+    set (EMBEDDED_KERNELS_FATBIN ${DEHANCER_GPULIB_BINARY}/tests/shaders/cuda/TestKernels_cuda.c)
     set_source_files_properties(${EMBEDDED_KERNELS_FATBIN} PROPERTIES GENERATED TRUE)
     add_executable(${TEST}
             ${EMBEDDED_KERNELS_FATBIN}

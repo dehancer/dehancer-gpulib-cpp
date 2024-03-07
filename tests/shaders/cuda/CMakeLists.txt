@@ -48,5 +48,5 @@ add_custom_command(
         -i ${CURRENT_TARGET_LIB}
         ${CURRENT_TARGET_EMBEDDED}
         DEPENDS ${DEPENDS_SOURCES} ${CURRENT_TARGET_NAME}
-        COMMENT "embedding opencl code from ${CURRENT_TARGET_LIB} ->  ${CURRENT_TARGET_EMBEDDED}"
+        COMMENT "embedding cuda code from ${CURRENT_TARGET_LIB} ->  ${CMAKE_CURRENT_BINARY_DIR}/${CURRENT_TARGET_EMBEDDED}"
 )
