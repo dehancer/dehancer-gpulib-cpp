@@ -111,14 +111,21 @@ BLAS/Lapack Library
 
 OpenCV from sources
 ===================
+ 
+    #
+    # MacOS Universal binary 
+    #
+    scripts/build_opencv_macos.sh [--prefix <installation path>]
+    ... progress ...
+    Password: <type admin password>
+
+    use -DOpenCV_DIR=/usr/local/universal by default or  -DOpenCV_DIR=<installation path>
+
+    or
 
     git clone -b 4.x https://github.com/opencv/opencv.git    
     cd opencv
 
-
-    #
-    # Universal binary 
-    #
     cmake -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0  -DCMAKE_INSTALL_PREFIX:PATH=/usr/local/universal \
     -DBUILD_SHARED_LIBS=OFF -DWITH_FFMPEG=OFF -DWITH_V4L=OFF -DWITH_EIGEN=OFF\
     -DWITH_JPEG=ON -DBUILD_JPEG=ON \
