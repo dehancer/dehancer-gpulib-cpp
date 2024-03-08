@@ -48,8 +48,6 @@ namespace dehancer::opencl {
                                                     (const unsigned char **) &data_ptr, &bin_status, &err);
             }
         } else {
-
-            //else create from source
             const char *source_str = library_source.c_str();
             size_t source_size = library_source.size();
 
@@ -167,37 +165,32 @@ namespace dehancer::opencl {
         err = clGetProgramInfo(program, CL_PROGRAM_NUM_DEVICES, sizeof(cl_uint), &n, nullptr);
 
         if (n == 0 || err != CL_SUCCESS) {
-            return false;
+            throw std::runtime_error("Unable to get CL_PROGRAM_NUM_DEVICES");;
         }
 
-        size_t sizes[n];
-        err = clGetProgramInfo(program, CL_PROGRAM_BINARY_SIZES, n * sizeof(size_t), &sizes[0], nullptr);
+        size_t bin_size;
+        err = clGetProgramInfo(program, CL_PROGRAM_BINARY_SIZES, n * sizeof(size_t), &bin_size, nullptr);
 
         if (err != CL_SUCCESS) {
-            return false;
+            throw std::runtime_error("Unable to get CL_PROGRAM_BINARY_SIZES");;
         }
 
-        unsigned char *binaries[n];
-        for (int i = 0; i < (int) n; ++i) {
-            binaries[i] = new unsigned char[sizes[i]];
-        }
+        std::vector<char> binaries;
+        binaries.resize(bin_size);
 
-        err = clGetProgramInfo(program, CL_PROGRAM_BINARIES, n * sizeof(unsigned char *), &binaries[0], nullptr);
+        err = clGetProgramInfo(program, CL_PROGRAM_BINARIES, n * sizeof(char *), &binaries, nullptr);
 
         if (err != CL_SUCCESS) {
-            return false;
+            throw std::runtime_error("Unable to get CL_PROGRAM_BINARIES");;
         }
 
         auto cache_path = dehancer::device::get_opencl_cache_path();
         auto cache_file_name = get_cache_file_name(library_source);
         {
             std::ofstream ostrm(cache_path + "/" + cache_file_name, std::ios::binary);
-            ostrm.write(reinterpret_cast<char *>(binaries[0]), sizes[0]);
+            ostrm.write(binaries.data(), static_cast<std::streamsize >(bin_size));
         }
 
-        for (int i = 0; i < (int) n; ++i) {
-            delete binaries[i];
-        }
         return true;
     }
 
