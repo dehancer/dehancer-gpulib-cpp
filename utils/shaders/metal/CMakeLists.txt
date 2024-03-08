@@ -2,7 +2,7 @@
  set(CURRENT_TARGET_LIB ${CURRENT_TARGET_NAME}.metallib)
 
  include_directories(
-         ${CMAKE_SOURCE_DIR}/utils/shaders
+         ${DEHANCER_GPULIB_CPP_SOURCE}/utils/shaders
          .
  )
 
@@ -12,9 +12,9 @@
 
  file (GLOB DEPENDS_SOURCES ${DEPENDS_PLUGIN_SOURCES}
          ${CMAKE_CURRENT_SOURCE_DIR}/*.h
-         ${CMAKE_SOURCE_DIR}/utils/shaders/*.h
-         ${CMAKE_SOURCE_DIR}/include/dehancer/gpu/kernels/metal/*.h
-         ${CMAKE_SOURCE_DIR}/include/dehancer/gpu/kernels/*.h
+         ${DEHANCER_GPULIB_CPP_SOURCE}/utils/shaders/*.h
+         ${DEHANCER_GPULIB_CPP_SOURCE}/include/dehancer/gpu/kernels/metal/*.h
+         ${DEHANCER_GPULIB_CPP_SOURCE}/include/dehancer/gpu/kernels/*.h
          )
 
  set(METAL_TARGET_FLAGS)
@@ -38,8 +38,8 @@
          ${METAL_FLAGS}
          -I .
          -I ${CMAKE_CURRENT_SOURCE_DIR}
-         -I ${CMAKE_SOURCE_DIR}/include
-         -I ${CMAKE_SOURCE_DIR}/utils/shaders
+         -I ${DEHANCER_GPULIB_CPP_SOURCE}/include
+         -I ${DEHANCER_GPULIB_CPP_SOURCE}/utils/shaders
          -O3 -ffast-math
          -c
          -target ${METAL_TARGET_FLAGS}

@@ -12,8 +12,8 @@ if(IOS)
 endif()
 
 file (GLOB COMMON_IMPL_SRC ${COMMON_IMPL_SRC}
-        ${CMAKE_SOURCE_DIR}/src/platforms/metal/*.cpp
-        ${CMAKE_SOURCE_DIR}/src/platforms/metal/*.mm
+        ${DEHANCER_GPULIB_CPP_SOURCE}/src/platforms/metal/*.cpp
+        ${DEHANCER_GPULIB_CPP_SOURCE}/src/platforms/metal/*.mm
         )
 
-include(${CMAKE_SOURCE_DIR}/lib/CMake.in)
+include(${DEHANCER_GPULIB_CPP_SOURCE}/lib/CMake.in)

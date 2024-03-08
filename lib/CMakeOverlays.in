@@ -10,8 +10,8 @@ set (EMBEDDED_CURRENT_C_TARGET ${EMBEDDED_OVERLAYS_C_TARGET})
 set(_WATER_MARK_EXTENSION "png")
 
 file (GLOB EMBEDDED_IMAGE_FILES ${EMBEDDED_IMAGE_FILES}
-        ${CMAKE_SOURCE_DIR}/src/rc/watermarks/*.${_WATER_MARK_EXTENSION}
-        ${CMAKE_SOURCE_DIR}/src/rc/false_color/*.${_WATER_MARK_EXTENSION}
+        ${DEHANCER_GPULIB_CPP_SOURCE}/src/rc/watermarks/*.${_WATER_MARK_EXTENSION}
+        ${DEHANCER_GPULIB_CPP_SOURCE}/src/rc/false_color/*.${_WATER_MARK_EXTENSION}
         )
 
-include(${CMAKE_SOURCE_DIR}/lib/CMakeEmbedded.in)
+include(${DEHANCER_GPULIB_CPP_SOURCE}/lib/CMakeEmbedded.in)
