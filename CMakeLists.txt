@@ -99,7 +99,9 @@ endif ()
 # Programs
 #
 find_program(CCACHE_FOUND ccache)
-find_program(MAKE_EXE NAMES  nmake make)
+
+find_package (Threads REQUIRED)
+find_package (PkgConfig REQUIRED)
 find_package (EXPAT REQUIRED)
 find_package (Iconv REQUIRED)
 find_package (ZLIB REQUIRED)
@@ -221,11 +223,7 @@ else()
     set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:$ENV{SYSROOT}:/usr/local/dehancer/lib/pkgconfig)
 endif ()
 
-find_package (Threads REQUIRED)
-find_package (PkgConfig REQUIRED)
-find_package (ZLIB REQUIRED)
-find_package (EXPAT REQUIRED)
-find_package (Iconv REQUIRED)
+
 if(USE_OPENCOLORIO)
     message(STATUS "USE OPENCOLORIO")
     #pkg_check_modules(OpenColorIO OpenColorIO)
@@ -733,8 +731,8 @@ if(USE_OPENCOLORIO)
             PREFIX OpenColorIO #${DEHANCER_COMMON_DIR}
             )
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES}; OpenColorIO)
-    set(COMMON_LIBRARIES   libOpenColorIO.a; ${COMMON_LIBRARIES}) #libOpenColorIOapphelpers.a;
-    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES}; libpystring.a; libyaml-cpp.a; libImath-3_1.a;${EXPAT_LIBRARIES};${Iconv_LIBRARIES};${ZLIB_LIBRARIES};) # libHalf-2_3_s.a)
+    set(COMMON_LIBRARIES   libOpenColorIO.a; ${COMMON_LIBRARIES})
+    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES}; libpystring.a; libyaml-cpp.a; libImath-3_1.a;)
 
     link_directories(
             ${CMAKE_BINARY_DIR}/OpenColorIO/src/OpenColorIO-build/ext/dist/lib
@@ -786,8 +784,6 @@ if (BUILD_UTILS)
 endif ()
 
 if(BUILD_TESTING)
-
-    set(COMMON_LIBRARIES ${COMMON_LIBRARIES};${EXPAT_LIBRARIES};${Iconv_LIBRARIES};${ZLIB_LIBRARIES};)
 
     if (WIN32)
         set(COMMON_LIBRARIES ${COMMON_LIBRARIES};Secur32.lib;Shell32.lib;Iphlpapi.lib;ws2_32;kernel32;psapi)
