@@ -13,10 +13,12 @@ cmake_minimum_required(VERSION 3.22)
 
 set(GIT_TAG_dehancer_xmp_cpp "develop")
 set(GIT_TAG_dehancer_maths_cpp "develop")
+set(GIT_TAG_dehancer_opencl_helper "develop")
 
 if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(GIT_TAG_dehancer_xmp_cpp "0.10.0")
     set(GIT_TAG_dehancer_maths_cpp "0.8.0")
+    set(GIT_TAG_dehancer_opencl_helper "0.1.0")
 endif ()
 
 #
@@ -602,7 +604,7 @@ if (DEHANCER_GPU_OPENCL)
     FetchContent_Declare(
             dehancer_opencl_helper
             GIT_REPOSITORY  https://github.com/dehancer/dehancer-opencl-helper
-            GIT_TAG     feature/build-fetcher-deps
+            GIT_TAG     ${GIT_TAG_dehancer_opencl_helper}
             SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_opencl_helper-src"
             BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_opencl_helper-build"
     )
