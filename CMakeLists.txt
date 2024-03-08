@@ -25,7 +25,7 @@ endif ()
 
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 1.6.0)
+project(${PROJECT_LIB} VERSION 1.7.0)
 
 #
 #
