@@ -1,5 +1,24 @@
 cmake_minimum_required(VERSION 3.22)
 
+
+#
+#  Current master version release dependencies:
+#  dehancer-common-cpp:0.14.0
+#     base64cpp:1.2.0
+#     ed25519cpp:1.4.0
+#  dehancer-xmp-cpp:0.10.0
+#  dehancer-maths-cpp:0.8.0
+#  dehancer-opencl-helper:0.1.0
+#
+
+set(GIT_TAG_dehancer_xmp_cpp "develop")
+set(GIT_TAG_dehancer_maths_cpp "develop")
+
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(GIT_TAG_dehancer_xmp_cpp "0.10.0")
+    set(GIT_TAG_dehancer_maths_cpp "0.8.0")
+endif ()
+
 #
 # Project
 #
@@ -602,13 +621,13 @@ if (DEHANCER_GPU_OPENCL)
 endif ()
 
 
-
 pkg_check_modules(dehancer_common_cpp dehancer-common-cpp)
 pkg_check_modules(dehancer_xmp_cpp dehancer-xmp-cpp)
 
 #
 # Common
 #
+
 if (dehancer_common_cpp_FOUND AND dehancer_xmp_cpp_FOUND)
 
     message(STATUS "dehancer_common_cpp: ${dehancer_common_cpp_LIBRARIES}, ${dehancer_common_cpp_LIBRARY_DIRS} ${dehancer_common_cpp_INCLUDE_DIRS}")
@@ -629,7 +648,7 @@ else ()
     FetchContent_Declare(
             dehancer_xmp_cpp
             GIT_REPOSITORY  git@github.com:dehancer/dehancer-xmp-cpp.git
-            GIT_TAG     feature/build-fetcher-deps
+            GIT_TAG     ${GIT_TAG_dehancer_xmp_cpp}
             SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_xmp_cpp-src"
             BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_xmp_cpp-build"
     )
@@ -676,7 +695,7 @@ endif ()
 FetchContent_Declare(
         dehancer_maths_cpp
         GIT_REPOSITORY  https://github.com/dehancer/dehancer-maths-cpp
-        GIT_TAG     feature/build-fetcher-deps
+        GIT_TAG     ${GIT_TAG_dehancer_maths_cpp}
         SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-src"
         BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-build"
 )
