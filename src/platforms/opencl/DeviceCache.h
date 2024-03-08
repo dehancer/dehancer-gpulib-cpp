@@ -4,16 +4,14 @@
 
 #pragma once
 
-#include "dehancer/Common.h"
-#include "dehancer/opencl/common.h"
 #include "dehancer/opencl/device.h"
 #include "dehancer/gpu/DeviceCache.h"
 
+#include <cstddef>
 #include <mutex>
 #include <memory>
-#include <map>
 
-const size_t  kMaxCommandQueues  = 16;
+const size_t kMaxCommandQueues  = 16;
 
 namespace dehancer::opencl {
 

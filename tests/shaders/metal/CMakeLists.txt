@@ -2,7 +2,7 @@
  set(CURRENT_TARGET_LIB ${CURRENT_TARGET_NAME}.metallib)
 
  include_directories(
-         ${CMAKE_SOURCE_DIR}/tests/shaders
+         ${DEHANCER_GPULIB_CPP_SOURCE}/tests/shaders
          .
  )
 
@@ -13,9 +13,9 @@
 
  file (GLOB DEPENDS_SOURCES ${DEPENDS_PLUGIN_SOURCES}
          ${CMAKE_CURRENT_SOURCE_DIR}/*.h
-         ${CMAKE_SOURCE_DIR}/tests/shaders/*.h
-         ${CMAKE_SOURCE_DIR}/include/dehancer/gpu/kernels/metal/*.h
-         ${CMAKE_SOURCE_DIR}/include/dehancer/gpu/kernels/*.h
+         ${DEHANCER_GPULIB_CPP_SOURCE}/tests/shaders/*.h
+         ${DEHANCER_GPULIB_CPP_SOURCE}/include/dehancer/gpu/kernels/metal/*.h
+         ${DEHANCER_GPULIB_CPP_SOURCE}/include/dehancer/gpu/kernels/*.h
          )
 
  set(METAL_TARGET_FLAGS)
@@ -44,7 +44,9 @@
          -O3 -ffast-math
          -c
          -Wno-unused-variable
-         -target ${METAL_TARGET_FLAGS}
+         -target air64-apple-macos11.0
+         -target air64-apple-macos10.14
+         #${METAL_TARGET_FLAGS}
          ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.metal
          -o ${CMAKE_CURRENT_BINARY_DIR}/${CURRENT_KERNEL_TARGET_NAME}.air
          VERBATIM

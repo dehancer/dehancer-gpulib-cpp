@@ -8,7 +8,7 @@ set (PROJECT_LIB_PLATFORM_SUFFIX _opencl)
 set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}${PROJECT_LIB_PLATFORM_SUFFIX})
 
 file (GLOB COMMON_IMPL_SRC ${COMMON_IMPL_SRC}
-        ${CMAKE_SOURCE_DIR}/src/platforms/opencl/*.cpp
+        ${DEHANCER_GPULIB_CPP_SOURCE}/src/platforms/opencl/*.cpp
         )
 
-include(${CMAKE_SOURCE_DIR}/lib/CMake.in)
+include(${DEHANCER_GPULIB_CPP_SOURCE}/lib/CMake.in)

@@ -5,18 +5,18 @@ set(CURRENT_TARGET_LIB ${CURRENT_TARGET_NAME}.fatbin)
 
 set(CUDA_KERNELS_LIBRARY ${CMAKE_BINARY_DIR}/tests/shaders/cuda/${CURRENT_TARGET_LIB})
 
-set(CUDA_IMAGE_DIR ${CMAKE_SOURCE_DIR}/tests/images)
+set(CUDA_IMAGE_DIR ${DEHANCER_GPULIB_CPP_SOURCE}/tests/images)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/paths_config.h.in ${CMAKE_BINARY_DIR}/generated/tests/cuda/paths_config.h)
 
 include_directories(
-        ${CMAKE_SOURCE_DIR}/tests/shaders
-        ${CMAKE_SOURCE_DIR}/include
+        ${DEHANCER_GPULIB_CPP_SOURCE}/tests/shaders
+        ${DEHANCER_GPULIB_CPP_SOURCE}/include
         .
 )
 
 file (GLOB DEPENDS_SOURCES ${DEPENDS_PLUGIN_SOURCES}
         ${CMAKE_CURRENT_SOURCE_DIR}/*.h
-        ${CMAKE_SOURCE_DIR}/tests/shaders/*.h
+        ${DEHANCER_GPULIB_CPP_SOURCE}/tests/shaders/*.h
         )
 
 add_custom_target(
@@ -36,9 +36,9 @@ add_custom_target(
         -Wno-deprecated-gpu-targets
         -o ${CURRENT_TARGET_LIB}
         -fatbin ${KERNEL_SOURCE}
-        -I${CMAKE_BINARY_DIR}/external/include
-        -I${CMAKE_SOURCE_DIR}/framework/include/dehancer/framework
-        -I${CMAKE_SOURCE_DIR}/framework
+        -I${CMAKE_CURRENT_BINARY_DIR}/external/include
+        -I${DEHANCER_GPULIB_CPP_SOURCE}/framework/include/dehancer/framework
+        -I${DEHANCER_GPULIB_CPP_SOURCE}/framework
         -I${CMAKE_CURRENT_SOURCE_DIR}
         ${GPU_INCLUDE_DIRS}
         -DCUDA_KERNEL=1

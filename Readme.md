@@ -111,9 +111,31 @@ BLAS/Lapack Library
 
 OpenCV from sources
 ===================
+ 
+    #
+    # MacOS Universal binary 
+    #
+    scripts/build_opencv_macos.sh [--prefix <installation path>]
+    ... progress ...
+    Password: <type admin password>
 
-    git clone -b 4.5.0 https://github.com/opencv/opencv.git    
+    use -DOpenCV_DIR=/usr/local/universal by default or  -DOpenCV_DIR=<installation path>
+
+    or
+
+    git clone -b 4.x https://github.com/opencv/opencv.git    
     cd opencv
+
+    cmake -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0  -DCMAKE_INSTALL_PREFIX:PATH=/usr/local/universal \
+    -DBUILD_SHARED_LIBS=OFF -DWITH_FFMPEG=OFF -DWITH_V4L=OFF -DWITH_EIGEN=OFF\
+    -DWITH_JPEG=ON -DBUILD_JPEG=ON \
+    -DVIDEOIO_ENABLE_PLUGINS=ON -DOPENCV_GENERATE_PKGCONFIG=ON \
+    -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF -DCMAKE_FIND_LIBRARY_SUFFIXES=".a"\
+    -DOPENCV_DNN_OPENCL=OFF -DCAROTENE_NEON_ARCH=OFF -DBUILD_opencv_dnn=OFF  \
+    -DWITH_PROTOBUF=OFF -DBUILD_PROTOBUF=OFF  ..
+    
+    cmake --build . -j12  --config Release 
+    sudo cmake --build . -j12  --target install
 
     # To make opencv on M1 for x86 copy Terminal.app to Intel Terminal.app
     # open "Get Info", choose "Open using Rosetta"

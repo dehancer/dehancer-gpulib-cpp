@@ -9,15 +9,20 @@ if (NOT CMAKE_INSTALL_INCLUDEDIR)
     set(CMAKE_INSTALL_INCLUDEDIR include)
 endif ()
 
-include(${CMAKE_SOURCE_DIR}/lib/CMakeOverlays.in)
+include(${DEHANCER_GPULIB_CPP_SOURCE}/lib/CMakeOverlays.in)
 
 add_library(${PROJECT_LIB_PLATFORM}
         ${COMMON_SRC} ${COMMON_IMPL_SRC} ${EMBEDDED_EMBEDDED_IMAGE_C_FILES})
 
 if (COMMON_DEPENDENCIES)
     add_dependencies(${PROJECT_LIB_PLATFORM}
-            ${COMMON_DEPENDENCIES} ${EMBEDDED_OVERLAYS_C_TARGET})
+            ${COMMON_DEPENDENCIES})
 endif()
+
+add_dependencies(
+        ${PROJECT_LIB_PLATFORM}
+        ${EMBEDDED_OVERLAYS_C_TARGET}
+)
 
 set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 set(generated_dir "${CMAKE_CURRENT_BINARY_DIR}/generated")
@@ -33,7 +38,7 @@ write_basic_package_version_file(
 )
 
 configure_package_config_file(
-        "${CMAKE_SOURCE_DIR}/lib/cmake/Config.cmake.in"
+        "${DEHANCER_GPULIB_CPP_SOURCE}/lib/cmake/Config.cmake.in"
         "${project_config}"
         INSTALL_DESTINATION "${config_install_dir}"
 )
@@ -78,17 +83,11 @@ set(libdir "\${exec_prefix}/${CMAKE_INSTALL_LIBDIR}")
 set(includedir "\${prefix}/${CMAKE_INSTALL_INCLUDEDIR}")
 set(dehancer_gpu_cpp_lib ${PROJECT_LIB_PLATFORM})
 
-if (NOT dehancer_maths_cpp_FOUND)
-    configure_file(${CMAKE_SOURCE_DIR}/dehancer-maths-cpp.pc.in ${CMAKE_CURRENT_BINARY_DIR}/dehancer-maths-cpp.pc @ONLY)
-    configure_file(${CMAKE_SOURCE_DIR}/armadillo.pc.in ${CMAKE_CURRENT_BINARY_DIR}/armadillo.pc @ONLY)
-    install(FILES
-            ${CMAKE_CURRENT_BINARY_DIR}/armadillo.pc
-            ${CMAKE_CURRENT_BINARY_DIR}/dehancer-maths-cpp.pc
-            DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
-            )
+if (DEHANCER_GPU_OPENCL)
+    set(dehancer_clHelperLib "-lclHelperLib")
 endif ()
 
-configure_file(${CMAKE_SOURCE_DIR}/dehancer-gpulib-cpp.pc.in ${CMAKE_CURRENT_BINARY_DIR}/dehancer-gpulib-cpp.pc @ONLY)
+configure_file(${DEHANCER_GPULIB_CPP_SOURCE}/dehancer-gpulib-cpp.pc.in ${CMAKE_CURRENT_BINARY_DIR}/dehancer-gpulib-cpp.pc @ONLY)
 
 install(FILES
         ${CMAKE_CURRENT_BINARY_DIR}/dehancer-gpulib-cpp.pc

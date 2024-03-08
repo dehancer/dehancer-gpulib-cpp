@@ -6,7 +6,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/paths_config.h.in ${CMAKE_BINARY_DIR}
 
 set (TEST metal-aobench-test)
 set (DEHANCER_CURRENT_PLATFORM_METAL ON)
-include(${CMAKE_SOURCE_DIR}/tests/CMakeCommon.in)
+include(${DEHANCER_GPULIB_CPP_SOURCE}/tests/CMakeCommon.in)
 
 add_custom_command(
         TARGET ${TEST} POST_BUILD
