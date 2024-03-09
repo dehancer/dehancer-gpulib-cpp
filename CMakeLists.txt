@@ -581,6 +581,8 @@ if (BUILD_TESTING)
                 googletest
                 GIT_REPOSITORY https://github.com/google/googletest.git
                 GIT_TAG      v1.14.0
+                GIT_PROGRESS TRUE
+                GIT_SHALLOW TRUE
                 SOURCE_DIR "${CMAKE_BINARY_DIR}/googletest-src"
         )
 
@@ -605,6 +607,8 @@ if (DEHANCER_GPU_OPENCL)
             dehancer_opencl_helper
             GIT_REPOSITORY  https://github.com/dehancer/dehancer-opencl-helper
             GIT_TAG     ${GIT_TAG_dehancer_opencl_helper}
+            GIT_PROGRESS TRUE
+            GIT_SHALLOW TRUE
             SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_opencl_helper-src"
             BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_opencl_helper-build"
     )
@@ -651,6 +655,8 @@ else ()
             dehancer_xmp_cpp
             GIT_REPOSITORY  git@github.com:dehancer/dehancer-xmp-cpp.git
             GIT_TAG     ${GIT_TAG_dehancer_xmp_cpp}
+            GIT_PROGRESS TRUE
+            GIT_SHALLOW TRUE
             SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_xmp_cpp-src"
             BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_xmp_cpp-build"
     )
