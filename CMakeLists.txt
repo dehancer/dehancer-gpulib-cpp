@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.22)
 #     ed25519cpp:1.4.0
 #  dehancer-xmp-cpp:0.10.0
 #  dehancer-maths-cpp:0.8.0
-#  dehancer-opencl-helper:0.1.0
+#  dehancer-opencl-helper:0.5.0
 #
 
 set(GIT_TAG_dehancer_xmp_cpp "develop")
@@ -18,7 +18,7 @@ set(GIT_TAG_dehancer_opencl_helper "develop")
 if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(GIT_TAG_dehancer_xmp_cpp "0.10.0")
     set(GIT_TAG_dehancer_maths_cpp "0.8.0")
-    set(GIT_TAG_dehancer_opencl_helper "0.1.0")
+    set(GIT_TAG_dehancer_opencl_helper "0.5.0")
 endif ()
 
 #
