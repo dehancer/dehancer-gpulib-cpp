@@ -18,7 +18,7 @@ set(GIT_TAG_dehancer_opencl_helper "develop")
 if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(GIT_TAG_dehancer_xmp_cpp "0.10.0")
     set(GIT_TAG_dehancer_maths_cpp "0.8.0")
-    set(GIT_TAG_dehancer_opencl_helper "0.1.0")
+    set(GIT_TAG_dehancer_opencl_helper "0.5.0")
 endif ()
 
 #
