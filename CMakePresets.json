@@ -1,0 +1,175 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 22,
+    "patch": 0
+  },
+
+  "configurePresets": [
+    {
+
+      "name": "dependencies",
+      "hidden": true,
+
+      "cacheVariables": {
+        "OpenCV_DIR": {
+          "type": "STRING",
+          "value": "/usr/local/universal"
+        },
+        "GTest_ROOT": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/universal"
+        },
+        "DEHANCER_INSTALL_COMMON_DEPS": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+        "USE_OPENCOLORIO": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+        "BUILD_UTILS": {
+          "type": "STRING",
+          "value": "OFF"
+        }
+      }
+
+    },
+
+    {
+
+      "name": "macos",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_OSX_ARCHITECTURES": {
+          "type": "STRING",
+          "value": "arm64;x86_64"
+        },
+        "CMAKE_OSX_DEPLOYMENT_TARGET": {
+          "type": "STRING",
+          "value": "11.0"
+        },
+        "CMAKE_OSX_SYSROOT": {
+          "type": "STRING",
+          "value": "macosx"
+        },
+        "BUILD_SHARED_LIBS": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+        "DEHANCER_GPU_METAL": {
+          "type": "STRING",
+          "value": "ON"
+        },
+        "DEHANCER_GPU_OPENCL": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+        "DEHANCER_GPU_CUDA": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+        "DEHANCER_USE_NATIVE_APPLE_API": {
+          "type": "STRING",
+          "value": "ON"
+        },
+        "DEHANCER_CONTROLLED_SINGLETON": {
+          "type": "STRING",
+          "value": "OFF"
+        }
+
+      }
+
+    },
+
+
+    {
+      "name": "debug",
+      "hidden": true,
+
+      "environment": {
+        "PKG_CONFIG_PATH": "$env{HOME}/Develop/local/${hostSystemName}/debug/dehancer/lib/pkgconfig"
+      },
+
+      "cacheVariables": {
+
+        "CMAKE_INSTALL_PREFIX": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/${hostSystemName}/debug/metal/dehancer"
+        },
+
+        "DEHANCER_DEBUG": {
+          "type": "STRING",
+          "value": "ON"
+        },
+
+        "PRINT_DEBUG": {
+          "type": "STRING",
+          "value": "ON"
+        },
+
+        "BUILD_TESTING": {
+          "type": "STRING",
+          "value": "ON"
+        },
+
+        "PRINT_KERNELS_DEBUG": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "CMAKE_BUILD_TYPE": "Debug"
+
+      }
+    },
+
+    {
+
+      "name": "release",
+      "hidden": true,
+
+      "cacheVariables": {
+
+        "DEHANCER_DEBUG": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "PRINT_DEBUG": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "BUILD_TESTING": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "CMAKE_INSTALL_PREFIX": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/${hostSystemName}/release/metal/dehancer"
+        },
+
+        "CMAKE_BUILD_TYPE": "Release"
+
+      }
+    },
+
+
+    {
+      "name": "macos_debug",
+      "displayName": "Dehancer userlib build, arm64; x86_64",
+      "binaryDir": "${sourceDir}/build-debug-macos",
+      "inherits": [ "macos", "dependencies", "debug" ]
+    },
+
+    {
+      "name": "macos_release",
+      "displayName": "Dehancer userlib build, arm64; x86_64",
+      "binaryDir": "${sourceDir}/build-release-macos",
+      "inherits": [ "macos", "dependencies", "release" ]
+    }
+
+  ]
+}

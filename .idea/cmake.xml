@@ -30,13 +30,6 @@
           </envs>
         </ADDITIONAL_GENERATION_ENVIRONMENT>
       </configuration>
-      <configuration PROFILE_NAME="Release-Cuda-centos7" ENABLED="false" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Clang" GENERATION_OPTIONS="-DBUILD_TESTING=ON -DPRINT_DEBUG=OFF -DPRINT_KERNELS_DEBUG=OFF -DDEHANCER_GPU_CUDA=ON -DDEHANCER_GPU_OPENCL=OFF -DDEHANCER_GPU_METAL=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=~/Develop/local/release/centos7/x86_64/cuda/dehancer -DCMAKE_FIND_LIBRARY_SUFFIXES=.a" BUILD_OPTIONS="-j12 --verbose">
-        <ADDITIONAL_GENERATION_ENVIRONMENT>
-          <envs>
-            <env name="PKG_CONFIG_PATH" value="~/Develop/local/release/centos7/x86_64/dehancer/lib/pkgconfig" />
-          </envs>
-        </ADDITIONAL_GENERATION_ENVIRONMENT>
-      </configuration>
       <configuration PROFILE_NAME="Release-Cuda-centos8" ENABLED="false" CONFIG_NAME="Release" GENERATION_OPTIONS="-DBUILD_TESTING=OFF -DPRINT_DEBUG=OFF -DPRINT_KERNELS_DEBUG=OFF -DDEHANCER_GPU_CUDA=ON -DDEHANCER_GPU_OPENCL=OFF -DDEHANCER_GPU_METAL=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=~/Develop/local/release/centos8/x86_64/cuda/dehancer" BUILD_OPTIONS="-j12 --verbose">
         <ADDITIONAL_GENERATION_ENVIRONMENT>
           <envs>
@@ -48,13 +41,6 @@
         <ADDITIONAL_GENERATION_ENVIRONMENT>
           <envs>
             <env name="PKG_CONFIG_PATH" value="~/Develop/local/release/ubuntu/x86_64/dehancer/lib/pkgconfig" />
-          </envs>
-        </ADDITIONAL_GENERATION_ENVIRONMENT>
-      </configuration>
-      <configuration PROFILE_NAME="Debug-Cuda-centos7" ENABLED="false" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Clang" GENERATION_OPTIONS="-DBUILD_TESTING=ON -DPRINT_DEBUG=ON -DPRINT_KERNELS_DEBUG=OFF -DDEHANCER_GPU_CUDA=ON -DDEHANCER_GPU_OPENCL=OFF -DDEHANCER_GPU_METAL=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=~/Develop/local/centos7/x86_64/cuda/dehancer -DCMAKE_FIND_LIBRARY_SUFFIXES=.a" BUILD_OPTIONS="-j12 --verbose">
-        <ADDITIONAL_GENERATION_ENVIRONMENT>
-          <envs>
-            <env name="PKG_CONFIG_PATH" value="~/Develop/local/centos7/x86_64/dehancer/lib/pkgconfig" />
           </envs>
         </ADDITIONAL_GENERATION_ENVIRONMENT>
       </configuration>
@@ -83,13 +69,6 @@
         <ADDITIONAL_GENERATION_ENVIRONMENT>
           <envs>
             <env name="PKG_CONFIG_PATH" value="~/Develop/local/ios-release/dehancer/lib/pkgconfig" />
-          </envs>
-        </ADDITIONAL_GENERATION_ENVIRONMENT>
-      </configuration>
-      <configuration PROFILE_NAME="Debug-universal-metal-macos-shared" ENABLED="false" CONFIG_NAME="Debug" TOOLCHAIN_NAME="Default" GENERATION_OPTIONS="-G &quot;Unix Makefiles&quot; -DCMAKE_OSX_ARCHITECTURES=arm64;x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 -DDEHANCER_INSTALL_COMMON_DEPS=OFF -DUSE_OPENCOLORIO=OFF -DBUILD_UTILS=OFF -DPRINT_DEBUG=ON -DBUILD_TESTING=ON -DBUILD_TESTING_GPULIB=ON -DPRINT_KERNELS_DEBUG=ON -DDEHANCER_GPU_METAL=ON -DDEHANCER_GPU_OPENCL=OFF -DDEHANCER_GPU_CUDA=OFF -DBUILD_UTILS=ON -DDEHANCER_USE_NATIVE_APPLE_API=ON -DDEHANCER_CONTROLLED_SINGLETON=OFF -DGTest_ROOT=~/Develop/local/universal -DOpenCV_DIR=/usr/local/universal -DCMAKE_INSTALL_PREFIX=~/Develop/local/universal/metal/dehancer" BUILD_OPTIONS="--verbose -j12">
-        <ADDITIONAL_GENERATION_ENVIRONMENT>
-          <envs>
-            <env name="PKG_CONFIG_PATH_" value="~/Develop/local/universal/dehancer/lib/pkgconfig" />
           </envs>
         </ADDITIONAL_GENERATION_ENVIRONMENT>
       </configuration>
