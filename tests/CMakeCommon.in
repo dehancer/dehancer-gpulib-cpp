@@ -5,14 +5,8 @@ if (GTEST_FOUND)
     include_directories(${GTEST_INCLUDE_DIRS})
     set(TEST_LIBRARIES ${GTEST_BOTH_LIBRARIES})
 else()
-    string(TOLOWER  ${CMAKE_BUILD_TYPE} BUILD_TYPE)
-    if (${BUILD_TYPE} STREQUAL "debug")
-        message("Googletest ${TEST} DEBUG MODE: ${CMAKE_BUILD_TYPE}")
-        set(TEST_LIBRARIES gtestd;gtest_maind)
-    else()
-        message("Googletest ${TEST} RELEASE MODE: ${CMAKE_BUILD_TYPE}")
-        set(TEST_LIBRARIES gtest;gtest_main)
-    endif()
+    message("Googletest ${TEST} RELEASE MODE: ${CMAKE_BUILD_TYPE}")
+    set(TEST_LIBRARIES gtest;gtest_main)
 endif()
 
 file(GLOB TESTS_SOURCES ${TESTS_SOURCES}
@@ -23,7 +17,7 @@ file(GLOB TESTS_SOURCES ${TESTS_SOURCES}
 
 include_directories(
         ./
-        ${CMAKE_BINARY_DIR}/external/include
+        ${CMAKE_CURRENT_BINARY_DIR}/external/include
 )
 
 set(EXTERNAL_LIBS "")
@@ -38,7 +32,7 @@ if (DEHANCER_CURRENT_PLATFORM_METAL)
 elseif (DEHANCER_CURRENT_PLATFORM_CUDA)
 
     set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_cuda)
-    set (EMBEDDED_KERNELS_FATBIN ${CMAKE_BINARY_DIR}/tests/shaders/cuda/TestKernels_cuda.c)
+    set (EMBEDDED_KERNELS_FATBIN ${DEHANCER_GPULIB_BINARY}/tests/shaders/cuda/TestKernels_cuda.c)
     set_source_files_properties(${EMBEDDED_KERNELS_FATBIN} PROPERTIES GENERATED TRUE)
     add_executable(${TEST}
             ${EMBEDDED_KERNELS_FATBIN}
@@ -48,13 +42,13 @@ elseif (DEHANCER_CURRENT_PLATFORM_CUDA)
 elseif(DEHANCER_CURRENT_PLATFORM_OPENCL)
 
     file (GLOB DEPENDS_OPENCL_SOURCES ${DEPENDS_OPENCL_SOURCES}
-            ${CMAKE_SOURCE_DIR}/include/dehancer/gpu/kernels/opencl/*.h
+            ${DEHANCER_GPULIB_CPP_SOURCE}/include/dehancer/gpu/kernels/opencl/*.h
             )
 
     set (PROJECT_LIB_PLATFORM ${PROJECT_LIB}_opencl)
 
     file (GLOB REGISTRY_SOURCES ${REGISTRY_SOURCES}
-            ${CMAKE_SOURCE_DIR}/tests/shaders/opencl/Registry.cpp
+            ${DEHANCER_GPULIB_CPP_SOURCE}/tests/shaders/opencl/Registry.cpp
             )
     set(COMMON_LIBRARIES ${COMMON_LIBRARIES}; ${CURRENT_KERNEL_TARGET_NAME}_opencl)
 

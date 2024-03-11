@@ -6,7 +6,7 @@ set(CURRENT_TARGET_EMBEDDED ${CURRENT_TARGET_NAME}.c)
 
 set(CUDA_KERNELS_LIBRARY ${CMAKE_BINARY_DIR}/tests/shaders/cuda/${CURRENT_TARGET_LIB})
 
-set(CUDA_IMAGE_DIR ${CMAKE_SOURCE_DIR}/tests/images)
+set(CUDA_IMAGE_DIR ${DEHANCER_GPULIB_CPP_SOURCE}/tests/images)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/paths_config.h.in ${CMAKE_BINARY_DIR}/generated/tests/cuda/paths_config.h)
 
 include_directories(
@@ -48,5 +48,5 @@ add_custom_command(
         -i ${CURRENT_TARGET_LIB}
         ${CURRENT_TARGET_EMBEDDED}
         DEPENDS ${DEPENDS_SOURCES} ${CURRENT_TARGET_NAME}
-        COMMENT "embedding opencl code from ${CURRENT_TARGET_LIB} ->  ${CURRENT_TARGET_EMBEDDED}"
+        COMMENT "embedding cuda code from ${CURRENT_TARGET_LIB} ->  ${CMAKE_CURRENT_BINARY_DIR}/${CURRENT_TARGET_EMBEDDED}"
 )
