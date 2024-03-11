@@ -7,6 +7,7 @@
 #include <dehancer/gpu/Texture.h>
 #include <dehancer/gpu/Function.h>
 #include "Command.h"
+#include "LibraryCache.h"
 
 namespace dehancer::opencl {
 
@@ -34,7 +35,7 @@ namespace dehancer::opencl {
         ~Function();
 
     private:
-
+        GPULibraryCache cache_;
         dehancer::opencl::Command* command_;
         std::string kernel_name_;
         std::string library_path_;

@@ -22,4 +22,8 @@ namespace dehancer::device {
       return std::hash<std::string>{}(source);
     }
 
+    extern std::string get_opencl_cache_path() {
+        return "";
+    }
+
 }

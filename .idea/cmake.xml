@@ -2,17 +2,17 @@
 <project version="4">
   <component name="CMakeSharedSettings">
     <configurations>
-      <configuration PROFILE_NAME="Release-Debug-CUDA-win" ENABLED="false" GENERATION_DIR="build-debug-cuda" CONFIG_NAME="Release" GENERATION_OPTIONS="-G &quot;Ninja&quot; -DCMAKE_VERBOSE_MAKEFILE=ON -DDEHANCER_GPU_CUDA=ON -DDEHANCER_GPU_OPENCL=OFF -DPRINT_KERNELS_DEBUG=OFF -DBUILD_TESTING=ON -DPRINT_DEBUG=ON -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DUSE_OPENCOLORIO=OFF -DCMAKE_INSTALL_PREFIX=C:/Users/dennn/Dehancer/local/dehancer/cuda" BUILD_OPTIONS="-j12 --verbose">
+      <configuration PROFILE_NAME="Release-Debug-CUDA-win" ENABLED="false" GENERATION_DIR="build-debug-cuda" CONFIG_NAME="Debug" GENERATION_OPTIONS="-G &quot;Ninja&quot; -DCMAKE_VERBOSE_MAKEFILE=ON -DDEHANCER_GPU_CUDA=ON -DDEHANCER_GPU_OPENCL=OFF -DPRINT_KERNELS_DEBUG=OFF -DBUILD_TESTING=ON -DPRINT_DEBUG=ON -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DUSE_OPENCOLORIO=OFF -DCMAKE_INSTALL_PREFIX=C:/Users/dennn/Dehancer/local/dehancer/cuda" BUILD_OPTIONS="-j12 --verbose">
         <ADDITIONAL_GENERATION_ENVIRONMENT>
           <envs>
             <env name="PKG_CONFIG_PATH" value="C:\Users\dennn\Dehancer\local\dehancer\lib\pkgconfig" />
           </envs>
         </ADDITIONAL_GENERATION_ENVIRONMENT>
       </configuration>
-      <configuration PROFILE_NAME="Release-Debug-OpenCL-win" ENABLED="false" GENERATION_DIR="build-debug-opencl" CONFIG_NAME="Release" GENERATION_OPTIONS="-G &quot;Ninja&quot; -DCMAKE_VERBOSE_MAKEFILE=ON -DDEHANCER_GPU_CUDA=OFF -DDEHANCER_GPU_OPENCL=ON -DPRINT_KERNELS_DEBUG=OFF -DBUILD_TESTING=ON -DPRINT_DEBUG=OFF -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DUSE_OPENCOLORIO=OFF -DCMAKE_INSTALL_PREFIX=C:/Users/dennn/Dehancer/local/dehancer/opencl" BUILD_OPTIONS="-j12 --verbose">
+      <configuration PROFILE_NAME="Release-Debug-OpenCL-win" ENABLED="true" GENERATION_DIR="build-debug-opencl" CONFIG_NAME="RelWithDebInfo" GENERATION_OPTIONS="-G &quot;Ninja&quot; -DCMAKE_VERBOSE_MAKEFILE=ON -DDEHANCER_GPU_CUDA=OFF -DDEHANCER_GPU_OPENCL=ON -DPRINT_KERNELS_DEBUG=OFF -DBUILD_TESTING=ON -DPRINT_DEBUG=OFF -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows-static -DUSE_OPENCOLORIO=OFF -DCMAKE_INSTALL_PREFIX=C:/Users/dimic/Develop/local/dehancer/opencl" BUILD_OPTIONS="-j12 --verbose">
         <ADDITIONAL_GENERATION_ENVIRONMENT>
           <envs>
-            <env name="PKG_CONFIG_PATH" value="C:\Users\dennn\Dehancer\local\dehancer\lib\pkgconfig;C" />
+            <env name="PKG_CONFIG_PATH" value="C:\pkgconfig;C" />
           </envs>
         </ADDITIONAL_GENERATION_ENVIRONMENT>
       </configuration>

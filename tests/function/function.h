@@ -16,6 +16,7 @@ auto function_test =  [] (int dev_num,
                           int image_index) {
 
     try {
+
       std::cout << "Load file: " << input_image << std::endl;
 
       /***
