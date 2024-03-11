@@ -19,7 +19,7 @@
         },
         "GTest_ROOT": {
           "type": "STRING",
-          "value": "$env{HOME}/Develop/local/universal"
+          "value": "$env{HOME}/Develop/local/${hostSystemName}"
         },
         "DEHANCER_INSTALL_COMMON_DEPS": {
           "type": "STRING",
@@ -33,6 +33,84 @@
           "type": "STRING",
           "value": "OFF"
         }
+      }
+
+    },
+
+    {
+
+      "name": "metal",
+      "hidden": true,
+
+      "cacheVariables": {
+
+        "DEHANCER_GPU_METAL": {
+          "type": "STRING",
+          "value": "ON"
+        },
+
+        "DEHANCER_GPU_OPENCL": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "DEHANCER_GPU_CUDA": {
+          "type": "STRING",
+          "value": "OFF"
+        }
+
+      }
+
+    },
+
+    {
+
+      "name": "opencl",
+      "hidden": true,
+
+      "cacheVariables": {
+
+        "DEHANCER_GPU_METAL": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "DEHANCER_GPU_OPENCL": {
+          "type": "STRING",
+          "value": "ON"
+        },
+
+        "DEHANCER_GPU_CUDA": {
+          "type": "STRING",
+          "value": "OFF"
+        }
+
+      }
+
+    },
+
+    {
+
+      "name": "cuda",
+      "hidden": true,
+
+      "cacheVariables": {
+
+        "DEHANCER_GPU_METAL": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "DEHANCER_GPU_OPENCL": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "DEHANCER_GPU_CUDA": {
+          "type": "STRING",
+          "value": "ON"
+        }
+
       }
 
     },
@@ -58,22 +136,12 @@
           "type": "STRING",
           "value": "OFF"
         },
-        "DEHANCER_GPU_METAL": {
-          "type": "STRING",
-          "value": "ON"
-        },
-        "DEHANCER_GPU_OPENCL": {
-          "type": "STRING",
-          "value": "OFF"
-        },
-        "DEHANCER_GPU_CUDA": {
-          "type": "STRING",
-          "value": "OFF"
-        },
+
         "DEHANCER_USE_NATIVE_APPLE_API": {
           "type": "STRING",
           "value": "ON"
         },
+
         "DEHANCER_CONTROLLED_SINGLETON": {
           "type": "STRING",
           "value": "OFF"
@@ -158,17 +226,24 @@
 
 
     {
-      "name": "macos_debug",
+      "name": "macos_metal_debug",
       "displayName": "Dehancer userlib build, arm64; x86_64",
-      "binaryDir": "${sourceDir}/build-debug-macos",
-      "inherits": [ "macos", "dependencies", "debug" ]
+      "binaryDir": "${sourceDir}/build-debug-macos-metal",
+      "inherits": [ "macos", "dependencies", "metal", "debug" ]
     },
 
     {
-      "name": "macos_release",
+      "name": "macos_metal_release",
       "displayName": "Dehancer userlib build, arm64; x86_64",
-      "binaryDir": "${sourceDir}/build-release-macos",
-      "inherits": [ "macos", "dependencies", "release" ]
+      "binaryDir": "${sourceDir}/build-release-macos-metal",
+      "inherits": [ "macos", "dependencies", "metal", "release" ]
+    },
+
+    {
+      "name": "macos_opencl_debug",
+      "displayName": "Dehancer userlib build, arm64; x86_64",
+      "binaryDir": "${sourceDir}/build-debug-macos-opencl",
+      "inherits": [ "macos", "dependencies", "opencl", "debug" ]
     }
 
   ]

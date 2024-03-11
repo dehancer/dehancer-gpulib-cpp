@@ -23,7 +23,7 @@ namespace dehancer::device {
     }
 
     extern std::string get_opencl_cache_path() {
-        return "c:/clcache";
+      return "./";
     }
 
 }

@@ -4,10 +4,10 @@
 
 #pragma once
 
-#include <CL/cl.h>
-#include <set>
-#include "dehancer/Common.h"
+#include "dehancer/opencl/common.h"
 #include "Command.h"
+#include <string>
+#include <mutex>
 
 namespace dehancer::opencl {
     class GPULibraryCache {
