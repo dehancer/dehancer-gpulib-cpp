@@ -12,27 +12,37 @@
       "name": "dependencies",
       "hidden": true,
 
+      "environment": {
+        "PKG_CONFIG_PATH": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_TYPE}/dehancer/lib/pkgconfig"
+      },
+
       "cacheVariables": {
+
         "OpenCV_DIR": {
           "type": "STRING",
           "value": "/usr/local/universal"
         },
+
         "GTest_ROOT": {
           "type": "STRING",
           "value": "$env{HOME}/Develop/local/${hostSystemName}"
         },
+
         "DEHANCER_INSTALL_COMMON_DEPS": {
           "type": "STRING",
           "value": "OFF"
         },
+
         "USE_OPENCOLORIO": {
           "type": "STRING",
           "value": "OFF"
         },
+
         "BUILD_UTILS": {
           "type": "STRING",
           "value": "OFF"
         }
+
       }
 
     },
@@ -57,8 +67,12 @@
         "DEHANCER_GPU_CUDA": {
           "type": "STRING",
           "value": "OFF"
-        }
+        },
 
+        "CMAKE_INSTALL_PREFIX": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_TYPE}/metal/dehancer"
+        }
       }
 
     },
@@ -83,8 +97,12 @@
         "DEHANCER_GPU_CUDA": {
           "type": "STRING",
           "value": "OFF"
-        }
+        },
 
+        "CMAKE_INSTALL_PREFIX": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_TYPE}/opencl/dehancer"
+        }
       }
 
     },
@@ -109,8 +127,12 @@
         "DEHANCER_GPU_CUDA": {
           "type": "STRING",
           "value": "ON"
-        }
+        },
 
+        "CMAKE_INSTALL_PREFIX": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_TYPE}/cuda/dehancer"
+        }
       }
 
     },
@@ -157,15 +179,10 @@
       "hidden": true,
 
       "environment": {
-        "PKG_CONFIG_PATH": "$env{HOME}/Develop/local/${hostSystemName}/debug/dehancer/lib/pkgconfig"
+        "BUILD_TYPE": "debug"
       },
 
       "cacheVariables": {
-
-        "CMAKE_INSTALL_PREFIX": {
-          "type": "STRING",
-          "value": "$env{HOME}/Develop/local/${hostSystemName}/debug/metal/dehancer"
-        },
 
         "DEHANCER_DEBUG": {
           "type": "STRING",
@@ -197,6 +214,10 @@
       "name": "release",
       "hidden": true,
 
+      "environment": {
+        "BUILD_TYPE": "release"
+      },
+
       "cacheVariables": {
 
         "DEHANCER_DEBUG": {
@@ -214,11 +235,6 @@
           "value": "OFF"
         },
 
-        "CMAKE_INSTALL_PREFIX": {
-          "type": "STRING",
-          "value": "$env{HOME}/Develop/local/${hostSystemName}/release/metal/dehancer"
-        },
-
         "CMAKE_BUILD_TYPE": "Release"
 
       }
@@ -229,21 +245,28 @@
       "name": "macos_metal_debug",
       "displayName": "Dehancer userlib build, arm64; x86_64",
       "binaryDir": "${sourceDir}/build-debug-macos-metal",
-      "inherits": [ "macos", "dependencies", "metal", "debug" ]
+      "inherits": [ "debug", "macos", "dependencies", "metal" ]
     },
 
     {
       "name": "macos_metal_release",
       "displayName": "Dehancer userlib build, arm64; x86_64",
       "binaryDir": "${sourceDir}/build-release-macos-metal",
-      "inherits": [ "macos", "dependencies", "metal", "release" ]
+      "inherits": [ "release", "macos", "dependencies", "metal" ]
     },
 
     {
       "name": "macos_opencl_debug",
       "displayName": "Dehancer userlib build, arm64; x86_64",
       "binaryDir": "${sourceDir}/build-debug-macos-opencl",
-      "inherits": [ "macos", "dependencies", "opencl", "debug" ]
+      "inherits": ["debug", "macos", "dependencies", "opencl"]
+    },
+
+    {
+      "name": "macos_opencl_release",
+      "displayName": "Dehancer userlib build, arm64; x86_64",
+      "binaryDir": "${sourceDir}/build-release-macos-opencl",
+      "inherits": ["release", "macos", "dependencies", "opencl"]
     }
 
   ]

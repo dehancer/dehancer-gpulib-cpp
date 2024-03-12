@@ -231,20 +231,6 @@ else()
     endif ()
 endif ()
 
-#
-# Packages
-#
-if(WIN32)
-    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};/usr/local/lib/pkgconfig")
-    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};/usr/local/lib64/pkgconfig")
-    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};$ENV{SYSROOT};/usr/local/dehancer/lib/pkgconfig")
-else()
-    set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
-    set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib64/pkgconfig)
-    set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:$ENV{SYSROOT}:/usr/local/dehancer/lib/pkgconfig)
-endif ()
-
-
 if(USE_OPENCOLORIO)
     message(STATUS "USE OPENCOLORIO")
     #pkg_check_modules(OpenColorIO OpenColorIO)
@@ -802,7 +788,8 @@ set(COMMON_LIBRARIES
         ${CMAKE_DL_LIBS};
         )
 
-message("COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
+message(STATUS "COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
+message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 
 if (BUILD_UTILS)
     if (NOT IOS)
