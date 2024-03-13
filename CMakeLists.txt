@@ -16,9 +16,9 @@ set(GIT_TAG_dehancer_maths_cpp "develop")
 set(GIT_TAG_dehancer_opencl_helper "develop")
 
 if(NOT DEHANCER_DEBUG)
-    set(GIT_TAG_dehancer_xmp_cpp "0.10.0")
-    set(GIT_TAG_dehancer_maths_cpp "0.8.0")
-    set(GIT_TAG_dehancer_opencl_helper "0.5.0")
+    set(GIT_TAG_dehancer_xmp_cpp "master")
+    set(GIT_TAG_dehancer_maths_cpp "master")
+    set(GIT_TAG_dehancer_opencl_helper "master")
 endif ()
 
 #
