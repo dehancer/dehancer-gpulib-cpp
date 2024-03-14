@@ -12,11 +12,20 @@
       "name": "dependencies",
       "hidden": true,
 
+      "warnings": {
+        "unusedCli": false
+      },
+
       "environment": {
         "PKG_CONFIG_PATH": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_TYPE}/dehancer/lib/pkgconfig"
       },
 
       "cacheVariables": {
+
+        "CMAKE_INSTALL_PREFIX": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_TYPE}/$env{GPU_TYPE}/dehancer"
+        },
 
         "OpenCV_DIR": {
           "type": "STRING",
@@ -52,6 +61,10 @@
       "name": "metal",
       "hidden": true,
 
+      "environment": {
+        "GPU_TYPE": "metal"
+      },
+
       "cacheVariables": {
 
         "DEHANCER_GPU_METAL": {
@@ -67,12 +80,8 @@
         "DEHANCER_GPU_CUDA": {
           "type": "STRING",
           "value": "OFF"
-        },
-
-        "CMAKE_INSTALL_PREFIX": {
-          "type": "STRING",
-          "value": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_TYPE}/metal/dehancer"
         }
+
       }
 
     },
@@ -82,6 +91,10 @@
       "name": "opencl",
       "hidden": true,
 
+      "environment": {
+        "GPU_TYPE": "opencl"
+      },
+
       "cacheVariables": {
 
         "DEHANCER_GPU_METAL": {
@@ -97,12 +110,8 @@
         "DEHANCER_GPU_CUDA": {
           "type": "STRING",
           "value": "OFF"
-        },
-
-        "CMAKE_INSTALL_PREFIX": {
-          "type": "STRING",
-          "value": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_TYPE}/opencl/dehancer"
         }
+
       }
 
     },
@@ -112,6 +121,10 @@
       "name": "cuda",
       "hidden": true,
 
+      "environment": {
+        "GPU_TYPE": "cuda"
+      },
+
       "cacheVariables": {
 
         "DEHANCER_GPU_METAL": {
@@ -127,12 +140,66 @@
         "DEHANCER_GPU_CUDA": {
           "type": "STRING",
           "value": "ON"
+        }
+      }
+
+    },
+
+    {
+      "name": "vs17",
+      "hidden": true,
+      "generator": "Visual Studio 17 2022",
+      "toolset": "ClangCL"
+    },
+
+    {
+      "name": "ninja",
+      "hidden": true,
+      "generator": "Ninja"
+    },
+
+    {
+      "name": "msvc2022",
+      "hidden": true,
+
+      "environment": {
+        "MSVC_BIN_DIR": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin",
+        "PATH": "$env{MSVC_BIN_DIR};$penv{PATH}"
+      }
+
+    },
+
+    {
+
+      "name": "windows",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build-${presetName}",
+      "toolchainFile": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
+      "environment": {
+        "HOME": "$env{USERPROFILE}"
+      },
+      "cacheVariables": {
+
+        "CMAKE_SHARED_LINKER_FLAGS": "/MANIFEST:NO",
+        "CMAKE_EXE_LINKER_FLAGS": "/MANIFEST:NO",
+        "CMAKE_C_COMPILER": "$env{MSVC_BIN_DIR}/clang-cl.exe",
+        "CMAKE_CXX_COMPILER": "$env{MSVC_BIN_DIR}/clang-cl.exe",
+
+        "CMAKE_SYSTEM_NAME": "Windows",
+        "CMAKE_SYSTEM_VERSION": "10.0",
+
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+
+        "BUILD_SHARED_LIBS": {
+          "type": "BOOL",
+          "value": "OFF"
         },
 
-        "CMAKE_INSTALL_PREFIX": {
-          "type": "STRING",
-          "value": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_TYPE}/cuda/dehancer"
+        "DEHANCER_CONTROLLED_SINGLETON": {
+          "type": "BOOL",
+          "value": "OFF"
         }
+
       }
 
     },
@@ -240,30 +307,62 @@
       }
     },
 
+    {
+      "name": "windows_debug",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+      "inherits": ["debug"]
+    },
 
     {
-      "name": "macos_metal_debug",
+      "name": "windows-debug-cuda",
+      "displayName": "Dehancer gpulib windows debug build, x86_64",
+      "inherits": [ "windows_debug", "msvc2022", "ninja", "windows", "dependencies", "cuda"]
+    },
+
+    {
+      "name": "windows-release-cuda",
+      "displayName": "Dehancer gpulib windows debug build, x86_64",
+      "inherits": [ "release", "msvc2022", "ninja", "windows", "dependencies", "cuda"]
+    },
+
+    {
+      "name": "windows-debug-opencl",
+      "displayName": "Dehancer gpulib windows debug build, x86_64",
+      "inherits": [ "windows_debug", "msvc2022", "ninja", "windows", "dependencies", "opencl"]
+    },
+
+    {
+      "name": "windows-release-opencl",
+      "displayName": "Dehancer gpulib windows debug build, x86_64",
+      "inherits": [ "release", "msvc2022", "ninja", "windows", "dependencies", "opencl"]
+    },
+
+    {
+      "name": "macos-debug-metal",
       "displayName": "Dehancer userlib build, arm64; x86_64",
       "binaryDir": "${sourceDir}/build-debug-macos-metal",
       "inherits": [ "debug", "macos", "dependencies", "metal" ]
     },
 
     {
-      "name": "macos_metal_release",
+      "name": "macos-release-metal",
       "displayName": "Dehancer userlib build, arm64; x86_64",
       "binaryDir": "${sourceDir}/build-release-macos-metal",
       "inherits": [ "release", "macos", "dependencies", "metal" ]
     },
 
     {
-      "name": "macos_opencl_debug",
+      "name": "macos-debug-opencl",
       "displayName": "Dehancer userlib build, arm64; x86_64",
       "binaryDir": "${sourceDir}/build-debug-macos-opencl",
       "inherits": ["debug", "macos", "dependencies", "opencl"]
     },
 
     {
-      "name": "macos_opencl_release",
+      "name": "macos-release-opencl",
       "displayName": "Dehancer userlib build, arm64; x86_64",
       "binaryDir": "${sourceDir}/build-release-macos-opencl",
       "inherits": ["release", "macos", "dependencies", "opencl"]
