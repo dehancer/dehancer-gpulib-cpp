@@ -406,10 +406,15 @@
     },
 
     {
+      "name": "linux-cuda-release",
+      "displayName": "Dehancer gpulib build, 86_64",
+      "inherits": ["release", "unix", "linux", "dependencies", "cuda"]
+    },
+
+    {
       "name": "linux-opencl-debug",
       "displayName": "Dehancer gpulib build, 86_64",
       "inherits": ["debug", "unix", "linux", "dependencies", "opencl"]
     }
-
   ]
 }
