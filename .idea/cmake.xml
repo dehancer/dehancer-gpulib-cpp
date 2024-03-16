@@ -2,34 +2,6 @@
 <project version="4">
   <component name="CMakeSharedSettings">
     <configurations>
-      <configuration PROFILE_NAME="Release-Cuda-centos8" ENABLED="false" CONFIG_NAME="Release" GENERATION_OPTIONS="-DBUILD_TESTING=OFF -DPRINT_DEBUG=OFF -DPRINT_KERNELS_DEBUG=OFF -DDEHANCER_GPU_CUDA=ON -DDEHANCER_GPU_OPENCL=OFF -DDEHANCER_GPU_METAL=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=~/Develop/local/release/centos8/x86_64/cuda/dehancer" BUILD_OPTIONS="-j12 --verbose">
-        <ADDITIONAL_GENERATION_ENVIRONMENT>
-          <envs>
-            <env name="PKG_CONFIG_PATH" value="~/Develop/local/release/centos8/x86_64/dehancer/lib/pkgconfig" />
-          </envs>
-        </ADDITIONAL_GENERATION_ENVIRONMENT>
-      </configuration>
-      <configuration PROFILE_NAME="Release-Cuda-ubuntu" ENABLED="false" CONFIG_NAME="Release" GENERATION_OPTIONS="-DBUILD_TESTING=ON -DPRINT_DEBUG=OFF -DPRINT_KERNELS_DEBUG=OFF -DDEHANCER_GPU_CUDA=ON -DDEHANCER_GPU_OPENCL=OFF -DDEHANCER_GPU_METAL=OFF -DCMAKE_FIND_LIBRARY_SUFFIXES=.a -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=~/Develop/local/release/ubuntu/x86_64/cuda/dehancer" BUILD_OPTIONS="-j12 --verbose">
-        <ADDITIONAL_GENERATION_ENVIRONMENT>
-          <envs>
-            <env name="PKG_CONFIG_PATH" value="~/Develop/local/release/ubuntu/x86_64/dehancer/lib/pkgconfig" />
-          </envs>
-        </ADDITIONAL_GENERATION_ENVIRONMENT>
-      </configuration>
-      <configuration PROFILE_NAME="Debug-Cuda-centos8" ENABLED="false" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DBUILD_TESTING=ON -DPRINT_DEBUG=ON -DPRINT_KERNELS_DEBUG=OFF -DDEHANCER_GPU_CUDA=ON -DDEHANCER_GPU_OPENCL=OFF -DDEHANCER_GPU_METAL=OFF -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=~/Develop/local/centos8/x86_64/cuda/dehancer" BUILD_OPTIONS="-j12 --verbose">
-        <ADDITIONAL_GENERATION_ENVIRONMENT>
-          <envs>
-            <env name="PKG_CONFIG_PATH" value="~/Develop/local/centos8/x86_64/dehancer/lib/pkgconfig" />
-          </envs>
-        </ADDITIONAL_GENERATION_ENVIRONMENT>
-      </configuration>
-      <configuration PROFILE_NAME="Debug-Cuda-ubuntu" ENABLED="false" CONFIG_NAME="Debug" GENERATION_OPTIONS="-DBUILD_TESTING=ON -DPRINT_DEBUG=ON -DPRINT_KERNELS_DEBUG=OFF -DDEHANCER_GPU_CUDA=ON -DDEHANCER_GPU_OPENCL=OFF -DDEHANCER_GPU_METAL=OFF -DCMAKE_FIND_LIBRARY_SUFFIXES=.a -DBUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX=~/Develop/local/ubuntu/x86_64/cuda/dehancer" BUILD_OPTIONS="-j12 --verbose">
-        <ADDITIONAL_GENERATION_ENVIRONMENT>
-          <envs>
-            <env name="PKG_CONFIG_PATH" value="~/Develop/local/ubuntu/x86_64/dehancer/lib/pkgconfig" />
-          </envs>
-        </ADDITIONAL_GENERATION_ENVIRONMENT>
-      </configuration>
       <configuration PROFILE_NAME="Debug-arm64-metal-ios" ENABLED="false" CONFIG_NAME="Debug" GENERATION_OPTIONS="-G Xcode -DCMAKE_TOOLCHAIN_FILE=~/Develop/Dehancer/Dehancer-Plugins/ios-cmake/ios.toolchain.cmake -DPLATFORM=OS64COMBINED -DDEPLOYMENT_TARGET=13.0 -DENABLE_BITCODE=ON -DBUILD_TESTING=OFF -DCMAKE_INSTALL_PREFIX=~/Develop/local/ios-debug/dehancer -DOPENCV_FRAMEWORK_PATH=~/Develop/local/ios/lib -DOPENCV_INCLUDES_PATH=~/Develop/local/ios/include -DENABLE_ARC=OFF -DDEHANCER_GPU_METAL=ON -DDEHANCER_GPU_OPENCL=OFF -DDEHANCER_GPU_CUDA=OFF -DUSE_OPENCOLORIO=OFF">
         <ADDITIONAL_GENERATION_ENVIRONMENT>
           <envs>

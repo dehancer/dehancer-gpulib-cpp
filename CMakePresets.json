@@ -159,6 +159,12 @@
     },
 
     {
+      "name": "unix",
+      "hidden": true,
+      "generator": "Unix Makefiles"
+    },
+
+    {
       "name": "msvc2022",
       "hidden": true,
 
@@ -240,6 +246,34 @@
 
     },
 
+    {
+      "name": "linux",
+
+      "hidden": true,
+
+      "binaryDir": "${sourceDir}/build-${presetName}",
+
+      "vendor": {
+        "jetbrains.com/clion": {
+          "toolchain": "Docker-rockylinux-qt5",
+          "toolset": "ClangCL"
+        }
+      },
+
+      "warnings": {
+        "unusedCli": false
+      },
+
+      "cacheVariables": {
+
+        "BUILD_SHARED_LIBS": {
+          "type": "STRING",
+          "value": "OFF"
+        }
+
+      }
+
+    },
 
     {
       "name": "debug",
@@ -317,55 +351,64 @@
     },
 
     {
-      "name": "windows-debug-cuda",
+      "name": "windows-cuda-debug",
       "displayName": "Dehancer gpulib windows debug build, x86_64",
       "inherits": [ "windows_debug", "msvc2022", "ninja", "windows", "dependencies", "cuda"]
     },
 
     {
-      "name": "windows-release-cuda",
+      "name": "windows-cuda-release",
       "displayName": "Dehancer gpulib windows debug build, x86_64",
       "inherits": [ "release", "msvc2022", "ninja", "windows", "dependencies", "cuda"]
     },
 
     {
-      "name": "windows-debug-opencl",
+      "name": "windows-opencl-debug",
       "displayName": "Dehancer gpulib windows debug build, x86_64",
       "inherits": [ "windows_debug", "msvc2022", "ninja", "windows", "dependencies", "opencl"]
     },
 
     {
-      "name": "windows-release-opencl",
+      "name": "windows-opencl-release",
       "displayName": "Dehancer gpulib windows debug build, x86_64",
       "inherits": [ "release", "msvc2022", "ninja", "windows", "dependencies", "opencl"]
     },
 
     {
-      "name": "macos-debug-metal",
-      "displayName": "Dehancer userlib build, arm64; x86_64",
+      "name": "macos-metal-debug",
+      "displayName": "Dehancer gpulib build, arm64; x86_64",
       "binaryDir": "${sourceDir}/build-debug-macos-metal",
       "inherits": [ "debug", "macos", "dependencies", "metal" ]
     },
 
     {
-      "name": "macos-release-metal",
-      "displayName": "Dehancer userlib build, arm64; x86_64",
-      "binaryDir": "${sourceDir}/build-release-macos-metal",
+      "name": "macos-metal-release",
+      "displayName": "Dehancer gpulib build, arm64; x86_64",
       "inherits": [ "release", "macos", "dependencies", "metal" ]
     },
 
     {
-      "name": "macos-debug-opencl",
-      "displayName": "Dehancer userlib build, arm64; x86_64",
-      "binaryDir": "${sourceDir}/build-debug-macos-opencl",
+      "name": "macos-opencl-debug",
+      "displayName": "Dehancer gpulib build, arm64; x86_64",
       "inherits": ["debug", "macos", "dependencies", "opencl"]
     },
 
     {
-      "name": "macos-release-opencl",
-      "displayName": "Dehancer userlib build, arm64; x86_64",
-      "binaryDir": "${sourceDir}/build-release-macos-opencl",
+      "name": "macos-opencl-release",
+      "displayName": "Dehancer gpulib build, arm64; x86_64",
       "inherits": ["release", "macos", "dependencies", "opencl"]
+    },
+
+    {
+      "name": "linux-cuda-debug",
+      "displayName": "Dehancer gpulib build, 86_64",
+      "inherits": ["debug", "unix", "linux", "dependencies", "cuda"]
+    },
+
+    {
+      "name": "linux-opencl-debug",
+      "displayName": "Dehancer gpulib build, 86_64",
+      "inherits": ["debug", "unix", "linux", "dependencies", "opencl"]
     }
 
   ]

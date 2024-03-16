@@ -112,6 +112,12 @@ if(DEHANCER_CONTROLLED_SINGLETON)
     add_definitions(-DDEHANCER_CONTROLLED_SINGLETON=1)
 endif()
 
+#
+# External projects
+#
+include(ExternalProject)
+include(FetchContent)
+
 # googletest, etc
 set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
 set (EXTERNAL_INSTALL_LOCATION ${CMAKE_BINARY_DIR}/external)
@@ -283,58 +289,48 @@ else()
 
 endif()
 
+
+#
+##
+## Maths
+##
+FetchContent_Declare(
+        dehancer_maths_cpp
+        GIT_REPOSITORY  https://github.com/dehancer/dehancer-maths-cpp
+        GIT_TAG     ${GIT_TAG_dehancer_maths_cpp}
+        SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-src"
+        BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-build"
+)
+
+FetchContent_GetProperties(dehancer_maths_cpp)
+FetchContent_MakeAvailable(dehancer_maths_cpp)
+if(NOT dehancer_maths_cpp_POPULATED)
+    FetchContent_Populate(dehancer_maths_cpp)
+    add_subdirectory(${dehancer_maths_cpp_SOURCE_DIR} ${dehancer_maths_cpp_BINARY_DIR})
+endif()
+
+include_directories(
+        ${dehancer_maths_cpp_SOURCE_DIR}/include
+        ${armadillo_SOURCE_DIR}/include
+)
+
+set(COMMON_LIBRARIES dehancer_maths_cpp;${COMMON_LIBRARIES})
+
+
 if (LINUX)
     set(CMAKE_INSTALL_LIBDIR  "lib")
     set(DEHANCER_EXT_MATH_LIB)
 
     add_definitions(-D_GLIBCXX_USE_CXX11_ABI=1)
-    set(FORTRAN_LIB_PATHS ${CMAKE_SYSTEM_LIBRARY_PATH};/usr/lib/gcc/x86_64-linux-gnu/9;/usr/lib/gcc/x86_64-linux-gnu/8;/usr/lib/gcc/x86_64-linux-gnu;/lib64;/lib;/usr/lib64;/usr/lib;/usr/local/lib64;/usr/local/lib;/opt/local/lib64;/opt/local/lib)
-
-    find_library(GFORTRAN_LIBRARY
-            NAMES gfortran
-            PATHS ${FORTRAN_LIB_PATHS}
-            )
-
-    find_library(GQUADMATH_LIBRARY
-            NAMES quadmath
-            PATHS ${FORTRAN_LIB_PATHS}
-            )
-
-    message("GFORTRAN_LIBRARY: ${GFORTRAN_LIBRARY}")
-
-    #    foreach(v ${BLAS_LIBRARIES})
-    #        string(REPLACE ".so" ".a" vv ${v})
-    #        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-    #    endforeach()
-    #
-    #    foreach(v ${LAPACK_LIBRARIES})
-    #        string(REPLACE ".so" ".a" vv ${v})
-    #        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-    #    endforeach()
-
-    #    foreach(v ${GFORTRAN_LIBRARY})
-    #        string(REPLACE ".so" ".a" vv ${v})
-    #        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-    #    endforeach()
-    #
-    #    foreach(v ${GQUADMATH_LIBRARY})
-    #        string(REPLACE ".so" ".a" vv ${v})
-    #        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-    #    endforeach()
 
     set(DEHANCER_EXT_MATH_LIB ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
-    find_library(GFORTRAN_LIB NAMES gfortran)
-    if (gfortran_FOUND)
-        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${GFORTRAN_LIB};m)
-    else()
-        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};m)
-    endif()
 
     find_library(DEHANCER_EXT_MATH_LIB REQUIRED ${DEHANCER_EXT_MATH})
 
 else()
     set(DEHANCER_EXT_MATH_LIB ${BLAS_LIBRARIES};${LAPACK_LIBRARIES})
 endif ()
+
 include_directories(${BLAS_INCLUDE_DIRS} ${LAPACK_INCLUDE_DIRS})
 message("BLASS/LAPACK: ${DEHANCER_EXT_MATH_LIB}")
 
@@ -503,13 +499,7 @@ if (DEHANCER_GPU_CUDA)
 endif ()
 
 #
-# External projects
-#
-include(ExternalProject)
-include(FetchContent)
-
-#
-# Global setttings
+# Global settings
 #
 set(VERSION_FILE "version.txt")
 
@@ -688,31 +678,6 @@ else ()
     set(COMMON_LIBRARIES dehancer_xmp_cpp;dehancer_common_cpp;exiv2lib;ed25519cpp;base64cpp;${COMMON_LIBRARIES})
 
 endif ()
-
-#
-##
-## Maths
-##
-FetchContent_Declare(
-        dehancer_maths_cpp
-        GIT_REPOSITORY  https://github.com/dehancer/dehancer-maths-cpp
-        GIT_TAG     ${GIT_TAG_dehancer_maths_cpp}
-        SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-src"
-        BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-build"
-)
-
-FetchContent_GetProperties(dehancer_maths_cpp)
-if(NOT dehancer_maths_cpp_POPULATED)
-    FetchContent_Populate(dehancer_maths_cpp)
-    add_subdirectory(${dehancer_maths_cpp_SOURCE_DIR} ${dehancer_maths_cpp_BINARY_DIR})
-endif()
-
-include_directories(
-        ${dehancer_maths_cpp_SOURCE_DIR}/include
-        ${armadillo_SOURCE_DIR}/include
-)
-
-set(COMMON_LIBRARIES dehancer_maths_cpp;${COMMON_LIBRARIES})
 
 if(USE_OPENCOLORIO)
     #
