@@ -179,7 +179,9 @@
 
       "name": "windows",
       "hidden": true,
+
       "binaryDir": "${sourceDir}/build-${presetName}",
+
       "toolchainFile": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
       "environment": {
         "HOME": "$env{USERPROFILE}"
@@ -214,19 +216,26 @@
 
       "name": "macos",
       "hidden": true,
+
+      "binaryDir": "${sourceDir}/build-${presetName}",
+
       "cacheVariables": {
+
         "CMAKE_OSX_ARCHITECTURES": {
           "type": "STRING",
           "value": "arm64;x86_64"
         },
+
         "CMAKE_OSX_DEPLOYMENT_TARGET": {
           "type": "STRING",
           "value": "11.0"
         },
+
         "CMAKE_OSX_SYSROOT": {
           "type": "STRING",
           "value": "macosx"
         },
+
         "BUILD_SHARED_LIBS": {
           "type": "STRING",
           "value": "OFF"
@@ -377,7 +386,6 @@
     {
       "name": "macos-metal-debug",
       "displayName": "Dehancer gpulib build, arm64; x86_64",
-      "binaryDir": "${sourceDir}/build-debug-macos-metal",
       "inherits": [ "debug", "macos", "dependencies", "metal" ]
     },
 
