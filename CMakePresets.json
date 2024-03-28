@@ -497,7 +497,14 @@
     {
       "name": "ios-metal-debug",
       "displayName": "Dehancer gpulib build, arm64; x86_64",
-      "inherits": [ "debug", "iOS", "iOS-Xcode", "dependencies", "metal" ]
+      "inherits": [ "debug", "iOS", "iOS-Xcode", "metal" ]
+    },
+
+    {
+      "name": "ios-metal-release",
+      "displayName": "Dehancer gpulib build, arm64; x86_64",
+      "inherits": [ "release", "iOS", "iOS-Xcode", "metal" ]
     }
+
   ]
 }
