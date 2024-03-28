@@ -165,6 +165,12 @@
     },
 
     {
+      "name": "iOS-Xcode",
+      "hidden": true,
+      "generator": "Xcode"
+    },
+
+    {
       "name": "msvc2022",
       "hidden": true,
 
@@ -282,6 +288,69 @@
 
       }
 
+    },
+
+    {
+      "name": "iOS",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build-${presetName}",
+      "warnings": {
+        "unusedCli": false
+      },
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/ios/$env{BUILD_TYPE}/dehancer"
+        },
+        "OPENCV_FRAMEWORK_PATH": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/ios/lib"
+        },
+        "OPENCV_INCLUDE_PATH": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/ios/include"
+        },
+        "PLATFORM": {
+          "type": "STRING",
+          "value": "OS64COMBINED"
+        },
+        "DEPLOYMENT_TARGET": {
+          "type": "STRING",
+          "value": "14.0"
+        },
+        "CMAKE_TOOLCHAIN_FILE": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/Dehancer/Dehancer-Plugins/ios-cmake/ios.toolchain.cmake"
+        },
+        "BUILD_SHARED_LIBS": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+        "EXIV2_BUILD_SAMPLE": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+        "EXIV2_BUILD_EXIV2_COMMAND": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+        "EXIV2_ENABLE_XMP": {
+          "type": "STRING",
+          "value": "ON"
+        },
+        "EXIV2_ENABLE_DYNAMIC_RUNTIME": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+        "CURL_ROOT_PATH": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/iOS"
+        },
+        "CODE_SIGNING_ALLOWED": {
+          "type": "STRING",
+          "value": "NO"
+        }
+      }
     },
 
     {
@@ -423,6 +492,12 @@
       "name": "linux-opencl-debug",
       "displayName": "Dehancer gpulib build, 86_64",
       "inherits": ["debug", "unix", "linux", "dependencies", "opencl"]
+    },
+
+    {
+      "name": "ios-metal-debug",
+      "displayName": "Dehancer gpulib build, arm64; x86_64",
+      "inherits": [ "debug", "iOS", "iOS-Xcode", "dependencies", "metal" ]
     }
   ]
 }
