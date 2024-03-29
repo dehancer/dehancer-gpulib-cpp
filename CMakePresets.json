@@ -206,6 +206,11 @@
         "DEHANCER_CONTROLLED_SINGLETON": {
           "type": "BOOL",
           "value": "OFF"
+        },
+
+        "USE_UNICODE" : {
+          "type": "BOOL",
+          "value": "ON"
         }
 
       }
