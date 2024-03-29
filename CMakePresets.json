@@ -165,7 +165,7 @@
     },
 
     {
-      "name": "iOS-Xcode",
+      "name": "ios-xcode",
       "hidden": true,
       "generator": "Xcode"
     },
@@ -291,7 +291,7 @@
     },
 
     {
-      "name": "iOS",
+      "name": "ios",
       "hidden": true,
       "binaryDir": "${sourceDir}/build-${presetName}",
       "warnings": {
@@ -344,11 +344,15 @@
         },
         "CURL_ROOT_PATH": {
           "type": "STRING",
-          "value": "$env{HOME}/Develop/local/iOS"
+          "value": "$env{HOME}/Develop/local/ios"
         },
         "CODE_SIGNING_ALLOWED": {
           "type": "STRING",
           "value": "NO"
+        },
+        "GTest_ROOT": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/${hostSystemName}"
         }
       }
     },
@@ -497,13 +501,13 @@
     {
       "name": "ios-metal-debug",
       "displayName": "Dehancer gpulib build, arm64; x86_64",
-      "inherits": [ "debug", "iOS", "iOS-Xcode", "metal" ]
+      "inherits": [ "debug", "ios", "ios-xcode", "metal" ]
     },
 
     {
       "name": "ios-metal-release",
       "displayName": "Dehancer gpulib build, arm64; x86_64",
-      "inherits": [ "release", "iOS", "iOS-Xcode", "metal" ]
+      "inherits": [ "release", "ios", "ios-xcode", "metal" ]
     }
 
   ]
