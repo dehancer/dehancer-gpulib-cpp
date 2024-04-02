@@ -300,7 +300,7 @@
       "cacheVariables": {
         "CMAKE_INSTALL_PREFIX": {
           "type": "STRING",
-          "value": "$env{HOME}/Develop/local/ios/$env{BUILD_TYPE}/dehancer"
+          "value": "$env{HOME}/Develop/local/ios-$env{BUILD_TYPE}/dehancer"
         },
         "OPENCV_FRAMEWORK_PATH": {
           "type": "STRING",
