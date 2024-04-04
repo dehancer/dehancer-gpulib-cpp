@@ -9,9 +9,7 @@
 #if defined(IOS_SYSTEM)
 
 #import <UIKit/UIKit.h>
-#import <Metal/Metal.h>
 #import <CoreImage/CoreImage.h>
-#import <opencv2/imgcodecs/ios.h>
 typedef UIImage DImage;
 
 #define SUPPORT_UIIMAGE 1
