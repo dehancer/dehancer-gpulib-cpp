@@ -70,7 +70,6 @@ namespace dehancer::impl {
                 break;
             }
             break;
-            break;
           default:
             return Error(CommonError::NOT_SUPPORTED, error_string("Image pixel depth is not supported"));
         }
