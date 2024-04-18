@@ -380,11 +380,6 @@ if (DEHANCER_GPU_CUDA)
         endif ()
         set(CMAKE_CUDA_COMPILER_FLAGS  "-DWIN32 -DWIN64 -D_CONSOLE -D_MBCS /EHsc")
 
-        #
-        # TODO: OpenCL on WIN!
-        #
-        # set(DEHANCER_GPU_OPENCL OFF)
-
     else()
 
         set(CMAKE_CUDA_COMPILER_FLAGS  "-D_CONSOLE")
@@ -447,9 +442,10 @@ if (DEHANCER_GPU_OPENCL)
         set(DEHANCER_GPU_OPENCL ON)
     else()
         set(DEHANCER_GPU_OPENCL OFF)
-        message("OpenCL is not found on this platform")
+        message(FATAL_ERROR "OpenCL is not found on this platform")
     endif ()
     add_definitions(-DDEHANCER_GPU_OPENCL=1)
+    message(STATUS "OpenCL: ${OpenCL_INCLUDE_DIRS}")
 endif ()
 
 
