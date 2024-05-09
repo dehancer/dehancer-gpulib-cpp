@@ -6,8 +6,8 @@ cmake_minimum_required(VERSION 3.22)
 #  dehancer-common-cpp:0.14.0
 #     base64cpp:1.2.0
 #     ed25519cpp:1.4.0
-#  dehancer-xmp-cpp:0.10.0
-#  dehancer-maths-cpp:0.8.0
+#  dehancer-xmp-cpp:0.11.0
+#  dehancer-maths-cpp:0.9.0
 #  dehancer-opencl-helper:0.5.0
 #
 
@@ -16,9 +16,9 @@ set(GIT_TAG_dehancer_maths_cpp "develop")
 set(GIT_TAG_dehancer_opencl_helper "develop")
 
 if(NOT DEHANCER_DEBUG)
-    set(GIT_TAG_dehancer_xmp_cpp "master")
-    set(GIT_TAG_dehancer_maths_cpp "master")
-    set(GIT_TAG_dehancer_opencl_helper "master")
+    set(GIT_TAG_dehancer_xmp_cpp "0.11.0")
+    set(GIT_TAG_dehancer_maths_cpp "0.9.0")
+    set(GIT_TAG_dehancer_opencl_helper "0.5.0")
 endif ()
 
 file(TO_CMAKE_PATH "${CMAKE_INSTALL_PREFIX}" CMAKE_INSTALL_PREFIX)
