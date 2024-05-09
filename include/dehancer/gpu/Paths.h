@@ -26,4 +26,10 @@ namespace dehancer::device {
      * @return string
      */
     extern std::string get_installation_path();
+
+    /**
+     * CAN Be defined in certain plugin
+     * @return string
+     */
+     extern std::string get_opencl_cache_path();
 }

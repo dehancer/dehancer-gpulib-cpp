@@ -1,0 +1,519 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 22,
+    "patch": 0
+  },
+
+  "configurePresets": [
+    {
+
+      "name": "dependencies",
+      "hidden": true,
+
+      "warnings": {
+        "unusedCli": false
+      },
+
+      "environment": {
+        "PKG_CONFIG_PATH": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_TYPE}/dehancer/lib/pkgconfig"
+      },
+
+      "cacheVariables": {
+
+        "CMAKE_INSTALL_PREFIX": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_TYPE}/$env{GPU_TYPE}/dehancer"
+        },
+
+        "OpenCV_DIR": {
+          "type": "STRING",
+          "value": "/usr/local/universal"
+        },
+
+        "GTest_ROOT": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/${hostSystemName}"
+        },
+
+        "DEHANCER_INSTALL_COMMON_DEPS": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "USE_OPENCOLORIO": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "BUILD_UTILS": {
+          "type": "STRING",
+          "value": "OFF"
+        }
+
+      }
+
+    },
+
+    {
+
+      "name": "metal",
+      "hidden": true,
+
+      "environment": {
+        "GPU_TYPE": "metal"
+      },
+
+      "cacheVariables": {
+
+        "DEHANCER_GPU_METAL": {
+          "type": "STRING",
+          "value": "ON"
+        },
+
+        "DEHANCER_GPU_OPENCL": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "DEHANCER_GPU_CUDA": {
+          "type": "STRING",
+          "value": "OFF"
+        }
+
+      }
+
+    },
+
+    {
+
+      "name": "opencl",
+      "hidden": true,
+
+      "environment": {
+        "GPU_TYPE": "opencl"
+      },
+
+      "cacheVariables": {
+
+        "DEHANCER_GPU_METAL": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "DEHANCER_GPU_OPENCL": {
+          "type": "STRING",
+          "value": "ON"
+        },
+
+        "DEHANCER_GPU_CUDA": {
+          "type": "STRING",
+          "value": "OFF"
+        }
+
+      }
+
+    },
+
+    {
+
+      "name": "cuda",
+      "hidden": true,
+
+      "environment": {
+        "GPU_TYPE": "cuda"
+      },
+
+      "cacheVariables": {
+
+        "DEHANCER_GPU_METAL": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "DEHANCER_GPU_OPENCL": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "DEHANCER_GPU_CUDA": {
+          "type": "STRING",
+          "value": "ON"
+        }
+      }
+
+    },
+
+    {
+      "name": "vs17",
+      "hidden": true,
+      "generator": "Visual Studio 17 2022",
+      "toolset": "ClangCL"
+    },
+
+    {
+      "name": "ninja",
+      "hidden": true,
+      "generator": "Ninja"
+    },
+
+    {
+      "name": "unix",
+      "hidden": true,
+      "generator": "Unix Makefiles"
+    },
+
+    {
+      "name": "ios-xcode",
+      "hidden": true,
+      "generator": "Xcode"
+    },
+
+    {
+      "name": "msvc2022",
+      "hidden": true,
+
+      "environment": {
+        "MSVC_BIN_DIR": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin",
+        "PATH": "$env{MSVC_BIN_DIR};$penv{PATH}"
+      }
+
+    },
+
+    {
+
+      "name": "windows",
+      "hidden": true,
+
+      "binaryDir": "${sourceDir}/build-${presetName}",
+
+      "toolchainFile": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
+      "environment": {
+        "HOME": "$env{USERPROFILE}"
+      },
+      "cacheVariables": {
+
+        "CMAKE_SHARED_LINKER_FLAGS": "/MANIFEST:NO",
+        "CMAKE_EXE_LINKER_FLAGS": "/MANIFEST:NO",
+        "CMAKE_C_COMPILER": "$env{MSVC_BIN_DIR}/clang-cl.exe",
+        "CMAKE_CXX_COMPILER": "$env{MSVC_BIN_DIR}/clang-cl.exe",
+
+        "CMAKE_SYSTEM_NAME": "Windows",
+        "CMAKE_SYSTEM_VERSION": "10.0",
+
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
+
+        "BUILD_SHARED_LIBS": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+
+        "DEHANCER_CONTROLLED_SINGLETON": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+
+        "USE_UNICODE" : {
+          "type": "BOOL",
+          "value": "ON"
+        }
+
+      }
+
+    },
+
+    {
+
+      "name": "macos",
+      "hidden": true,
+
+      "binaryDir": "${sourceDir}/build-${presetName}",
+
+      "cacheVariables": {
+
+        "CMAKE_OSX_ARCHITECTURES": {
+          "type": "STRING",
+          "value": "arm64;x86_64"
+        },
+
+        "CMAKE_OSX_DEPLOYMENT_TARGET": {
+          "type": "STRING",
+          "value": "11.0"
+        },
+
+        "CMAKE_OSX_SYSROOT": {
+          "type": "STRING",
+          "value": "macosx"
+        },
+
+        "BUILD_SHARED_LIBS": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "DEHANCER_USE_NATIVE_APPLE_API": {
+          "type": "STRING",
+          "value": "ON"
+        },
+
+        "DEHANCER_CONTROLLED_SINGLETON": {
+          "type": "STRING",
+          "value": "OFF"
+        }
+
+      }
+
+    },
+
+    {
+      "name": "linux",
+
+      "hidden": true,
+
+      "binaryDir": "${sourceDir}/build-${presetName}",
+
+      "vendor": {
+        "jetbrains.com/clion": {
+          "toolchain": "Docker-rockylinux-qt5",
+          "toolset": "ClangCL"
+        }
+      },
+
+      "warnings": {
+        "unusedCli": false
+      },
+
+      "cacheVariables": {
+
+        "BUILD_SHARED_LIBS": {
+          "type": "STRING",
+          "value": "OFF"
+        }
+
+      }
+
+    },
+
+    {
+      "name": "ios",
+      "hidden": true,
+      "binaryDir": "${sourceDir}/build-${presetName}",
+      "warnings": {
+        "unusedCli": false
+      },
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/ios-$env{BUILD_TYPE}/dehancer"
+        },
+        "OPENCV_FRAMEWORK_PATH": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/ios/lib"
+        },
+        "OPENCV_INCLUDE_PATH": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/ios/include"
+        },
+        "PLATFORM": {
+          "type": "STRING",
+          "value": "OS64COMBINED"
+        },
+        "DEPLOYMENT_TARGET": {
+          "type": "STRING",
+          "value": "14.0"
+        },
+        "CMAKE_TOOLCHAIN_FILE": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/Dehancer/Dehancer-Plugins/ios-cmake/ios.toolchain.cmake"
+        },
+        "BUILD_SHARED_LIBS": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+        "EXIV2_BUILD_SAMPLE": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+        "EXIV2_BUILD_EXIV2_COMMAND": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+        "EXIV2_ENABLE_XMP": {
+          "type": "STRING",
+          "value": "ON"
+        },
+        "EXIV2_ENABLE_DYNAMIC_RUNTIME": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+        "CURL_ROOT_PATH": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/ios"
+        },
+        "CODE_SIGNING_ALLOWED": {
+          "type": "STRING",
+          "value": "NO"
+        },
+        "GTest_ROOT": {
+          "type": "STRING",
+          "value": "$env{HOME}/Develop/local/${hostSystemName}"
+        }
+      }
+    },
+
+    {
+      "name": "debug",
+      "hidden": true,
+
+      "environment": {
+        "BUILD_TYPE": "debug"
+      },
+
+      "cacheVariables": {
+
+        "DEHANCER_DEBUG": {
+          "type": "STRING",
+          "value": "ON"
+        },
+
+        "PRINT_DEBUG": {
+          "type": "STRING",
+          "value": "ON"
+        },
+
+        "BUILD_TESTING": {
+          "type": "STRING",
+          "value": "ON"
+        },
+
+        "PRINT_KERNELS_DEBUG": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "CMAKE_BUILD_TYPE": "Debug"
+
+      }
+    },
+
+    {
+
+      "name": "release",
+      "hidden": true,
+
+      "environment": {
+        "BUILD_TYPE": "release"
+      },
+
+      "cacheVariables": {
+
+        "DEHANCER_DEBUG": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "PRINT_DEBUG": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "BUILD_TESTING": {
+          "type": "STRING",
+          "value": "OFF"
+        },
+
+        "CMAKE_BUILD_TYPE": "Release"
+
+      }
+    },
+
+    {
+      "name": "windows_debug",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+      "inherits": ["debug"]
+    },
+
+    {
+      "name": "windows-cuda-debug",
+      "displayName": "Dehancer gpulib windows debug build, x86_64",
+      "inherits": [ "windows_debug", "msvc2022", "ninja", "windows", "dependencies", "cuda"]
+    },
+
+    {
+      "name": "windows-cuda-release",
+      "displayName": "Dehancer gpulib windows debug build, x86_64",
+      "inherits": [ "release", "msvc2022", "ninja", "windows", "dependencies", "cuda"]
+    },
+
+    {
+      "name": "windows-opencl-debug",
+      "displayName": "Dehancer gpulib windows debug build, x86_64",
+      "inherits": [ "windows_debug", "msvc2022", "ninja", "windows", "dependencies", "opencl"]
+    },
+
+    {
+      "name": "windows-opencl-release",
+      "displayName": "Dehancer gpulib windows debug build, x86_64",
+      "inherits": [ "release", "msvc2022", "ninja", "windows", "dependencies", "opencl"]
+    },
+
+    {
+      "name": "macos-metal-debug",
+      "displayName": "Dehancer gpulib build, arm64; x86_64",
+      "inherits": [ "debug", "macos", "dependencies", "metal" ]
+    },
+
+    {
+      "name": "macos-metal-release",
+      "displayName": "Dehancer gpulib build, arm64; x86_64",
+      "inherits": [ "release", "macos", "dependencies", "metal" ]
+    },
+
+    {
+      "name": "macos-opencl-debug",
+      "displayName": "Dehancer gpulib build, arm64; x86_64",
+      "inherits": ["debug", "macos", "dependencies", "opencl"]
+    },
+
+    {
+      "name": "macos-opencl-release",
+      "displayName": "Dehancer gpulib build, arm64; x86_64",
+      "inherits": ["release", "macos", "dependencies", "opencl"]
+    },
+
+    {
+      "name": "linux-cuda-debug",
+      "displayName": "Dehancer gpulib build, 86_64",
+      "inherits": ["debug", "unix", "linux", "dependencies", "cuda"]
+    },
+
+    {
+      "name": "linux-cuda-release",
+      "displayName": "Dehancer gpulib build, 86_64",
+      "inherits": ["release", "unix", "linux", "dependencies", "cuda"]
+    },
+
+    {
+      "name": "linux-opencl-debug",
+      "displayName": "Dehancer gpulib build, 86_64",
+      "inherits": ["debug", "unix", "linux", "dependencies", "opencl"]
+    },
+
+    {
+      "name": "ios-metal-debug",
+      "displayName": "Dehancer gpulib build, arm64; x86_64",
+      "inherits": [ "debug", "ios", "ios-xcode", "metal" ]
+    },
+
+    {
+      "name": "ios-metal-release",
+      "displayName": "Dehancer gpulib build, arm64; x86_64",
+      "inherits": [ "release", "ios", "ios-xcode", "metal" ]
+    }
+
+  ]
+}

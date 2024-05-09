@@ -8,7 +8,6 @@
 
 #if defined(IOS_SYSTEM)
 #import <opencv2/imgcodecs/ios.h>
-#import <Metal/Metal.h>
 #import <CoreImage/CoreImage.h>
 typedef UIImage DImage;
 

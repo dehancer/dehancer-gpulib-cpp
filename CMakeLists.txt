@@ -6,8 +6,8 @@ cmake_minimum_required(VERSION 3.22)
 #  dehancer-common-cpp:0.14.0
 #     base64cpp:1.2.0
 #     ed25519cpp:1.4.0
-#  dehancer-xmp-cpp:0.10.0
-#  dehancer-maths-cpp:0.8.0
+#  dehancer-xmp-cpp:0.11.0
+#  dehancer-maths-cpp:0.9.0
 #  dehancer-opencl-helper:0.5.0
 #
 
@@ -15,11 +15,18 @@ set(GIT_TAG_dehancer_xmp_cpp "develop")
 set(GIT_TAG_dehancer_maths_cpp "develop")
 set(GIT_TAG_dehancer_opencl_helper "develop")
 
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(GIT_TAG_dehancer_xmp_cpp "0.10.0")
-    set(GIT_TAG_dehancer_maths_cpp "0.8.0")
+if(NOT DEHANCER_DEBUG)
+    set(GIT_TAG_dehancer_xmp_cpp "0.11.0")
+    set(GIT_TAG_dehancer_maths_cpp "0.9.0")
     set(GIT_TAG_dehancer_opencl_helper "0.5.0")
 endif ()
+
+file(TO_CMAKE_PATH "${CMAKE_INSTALL_PREFIX}" CMAKE_INSTALL_PREFIX)
+file(TO_CMAKE_PATH "$ENV{PKG_CONFIG_PATH}" PKG_CONFIG_PATH)
+set(ENV{PKG_CONFIG_PATH} ${PKG_CONFIG_PATH})
+
+message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "PKG_CONFIG_PATH: $ENV{PKG_CONFIG_PATH}")
 
 #
 # Project
@@ -104,6 +111,12 @@ endif ()
 if(DEHANCER_CONTROLLED_SINGLETON)
     add_definitions(-DDEHANCER_CONTROLLED_SINGLETON=1)
 endif()
+
+#
+# External projects
+#
+include(ExternalProject)
+include(FetchContent)
 
 # googletest, etc
 set (EXTERNAL_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/external)
@@ -190,7 +203,7 @@ set(BUILD_SHARED_LIBS OFF)
 if (WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -EHsc -Wno-deprecated-declarations -Wno-unused-function")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /MTd")
-    add_definitions(/MT /DWIN32=1 /D_ITERATOR_DEBUG_LEVEL=0 /D_USE_MATH_DEFINES)
+    add_definitions(/MT /DWIN32=1 /D_ITERATOR_DEBUG_LEVEL=0 /D_USE_MATH_DEFINES /GR /Ob0)
 
     string(TOLOWER  ${CMAKE_BUILD_TYPE} BUILD_TYPE)
 
@@ -230,20 +243,6 @@ else()
         add_compile_definitions(PRINT_KERNELS_DEBUG=1)
     endif ()
 endif ()
-
-#
-# Packages
-#
-if(WIN32)
-    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};/usr/local/lib/pkgconfig")
-    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};/usr/local/lib64/pkgconfig")
-    set(ENV{PKG_CONFIG_PATH} "$ENV{PKG_CONFIG_PATH};$ENV{SYSROOT};/usr/local/dehancer/lib/pkgconfig")
-else()
-    set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib/pkgconfig)
-    set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:/usr/local/lib64/pkgconfig)
-    set(ENV{PKG_CONFIG_PATH} $ENV{PKG_CONFIG_PATH}:$ENV{SYSROOT}:/usr/local/dehancer/lib/pkgconfig)
-endif ()
-
 
 if(USE_OPENCOLORIO)
     message(STATUS "USE OPENCOLORIO")
@@ -290,58 +289,48 @@ else()
 
 endif()
 
+
+#
+##
+## Maths
+##
+FetchContent_Declare(
+        dehancer_maths_cpp
+        GIT_REPOSITORY  https://github.com/dehancer/dehancer-maths-cpp
+        GIT_TAG     ${GIT_TAG_dehancer_maths_cpp}
+        SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-src"
+        BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-build"
+)
+
+FetchContent_GetProperties(dehancer_maths_cpp)
+FetchContent_MakeAvailable(dehancer_maths_cpp)
+if(NOT dehancer_maths_cpp_POPULATED)
+    FetchContent_Populate(dehancer_maths_cpp)
+    add_subdirectory(${dehancer_maths_cpp_SOURCE_DIR} ${dehancer_maths_cpp_BINARY_DIR})
+endif()
+
+include_directories(
+        ${dehancer_maths_cpp_SOURCE_DIR}/include
+        ${armadillo_SOURCE_DIR}/include
+)
+
+set(COMMON_LIBRARIES dehancer_maths_cpp;${COMMON_LIBRARIES})
+
+
 if (LINUX)
     set(CMAKE_INSTALL_LIBDIR  "lib")
     set(DEHANCER_EXT_MATH_LIB)
 
     add_definitions(-D_GLIBCXX_USE_CXX11_ABI=1)
-    set(FORTRAN_LIB_PATHS ${CMAKE_SYSTEM_LIBRARY_PATH};/usr/lib/gcc/x86_64-linux-gnu/9;/usr/lib/gcc/x86_64-linux-gnu/8;/usr/lib/gcc/x86_64-linux-gnu;/lib64;/lib;/usr/lib64;/usr/lib;/usr/local/lib64;/usr/local/lib;/opt/local/lib64;/opt/local/lib)
-
-    find_library(GFORTRAN_LIBRARY
-            NAMES gfortran
-            PATHS ${FORTRAN_LIB_PATHS}
-            )
-
-    find_library(GQUADMATH_LIBRARY
-            NAMES quadmath
-            PATHS ${FORTRAN_LIB_PATHS}
-            )
-
-    message("GFORTRAN_LIBRARY: ${GFORTRAN_LIBRARY}")
-
-    #    foreach(v ${BLAS_LIBRARIES})
-    #        string(REPLACE ".so" ".a" vv ${v})
-    #        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-    #    endforeach()
-    #
-    #    foreach(v ${LAPACK_LIBRARIES})
-    #        string(REPLACE ".so" ".a" vv ${v})
-    #        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-    #    endforeach()
-
-    #    foreach(v ${GFORTRAN_LIBRARY})
-    #        string(REPLACE ".so" ".a" vv ${v})
-    #        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-    #    endforeach()
-    #
-    #    foreach(v ${GQUADMATH_LIBRARY})
-    #        string(REPLACE ".so" ".a" vv ${v})
-    #        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${vv})
-    #    endforeach()
 
     set(DEHANCER_EXT_MATH_LIB ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
-    find_library(GFORTRAN_LIB NAMES gfortran)
-    if (gfortran_FOUND)
-        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};${GFORTRAN_LIB};m)
-    else()
-        set(DEHANCER_EXT_MATH_LIB ${DEHANCER_EXT_MATH_LIB};m)
-    endif()
 
     find_library(DEHANCER_EXT_MATH_LIB REQUIRED ${DEHANCER_EXT_MATH})
 
 else()
     set(DEHANCER_EXT_MATH_LIB ${BLAS_LIBRARIES};${LAPACK_LIBRARIES})
 endif ()
+
 include_directories(${BLAS_INCLUDE_DIRS} ${LAPACK_INCLUDE_DIRS})
 message("BLASS/LAPACK: ${DEHANCER_EXT_MATH_LIB}")
 
@@ -390,11 +379,6 @@ if (DEHANCER_GPU_CUDA)
             endif ()
         endif ()
         set(CMAKE_CUDA_COMPILER_FLAGS  "-DWIN32 -DWIN64 -D_CONSOLE -D_MBCS /EHsc")
-
-        #
-        # TODO: OpenCL on WIN!
-        #
-        # set(DEHANCER_GPU_OPENCL OFF)
 
     else()
 
@@ -458,9 +442,10 @@ if (DEHANCER_GPU_OPENCL)
         set(DEHANCER_GPU_OPENCL ON)
     else()
         set(DEHANCER_GPU_OPENCL OFF)
-        message("OpenCL is not found on this platform")
+        message(FATAL_ERROR "OpenCL is not found on this platform")
     endif ()
     add_definitions(-DDEHANCER_GPU_OPENCL=1)
+    message(STATUS "OpenCL: ${OpenCL_INCLUDE_DIRS}")
 endif ()
 
 
@@ -510,13 +495,7 @@ if (DEHANCER_GPU_CUDA)
 endif ()
 
 #
-# External projects
-#
-include(ExternalProject)
-include(FetchContent)
-
-#
-# Global setttings
+# Global settings
 #
 set(VERSION_FILE "version.txt")
 
@@ -696,31 +675,6 @@ else ()
 
 endif ()
 
-#
-##
-## Maths
-##
-FetchContent_Declare(
-        dehancer_maths_cpp
-        GIT_REPOSITORY  https://github.com/dehancer/dehancer-maths-cpp
-        GIT_TAG     ${GIT_TAG_dehancer_maths_cpp}
-        SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-src"
-        BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-build"
-)
-
-FetchContent_GetProperties(dehancer_maths_cpp)
-if(NOT dehancer_maths_cpp_POPULATED)
-    FetchContent_Populate(dehancer_maths_cpp)
-    add_subdirectory(${dehancer_maths_cpp_SOURCE_DIR} ${dehancer_maths_cpp_BINARY_DIR})
-endif()
-
-include_directories(
-        ${dehancer_maths_cpp_SOURCE_DIR}/include
-        ${armadillo_SOURCE_DIR}/include
-)
-
-set(COMMON_LIBRARIES dehancer_maths_cpp;${COMMON_LIBRARIES})
-
 if(USE_OPENCOLORIO)
     #
     # AcademySoftwareFoundation OpenColorIO. ACES and etc...
@@ -802,7 +756,8 @@ set(COMMON_LIBRARIES
         ${CMAKE_DL_LIBS};
         )
 
-message("COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
+message(STATUS "COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
+message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 
 if (BUILD_UTILS)
     if (NOT IOS)

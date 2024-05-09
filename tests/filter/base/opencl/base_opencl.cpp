@@ -10,7 +10,7 @@ TEST(TEST, FILTER_BASE_OpenCL) {
   
   std::cout << std::endl;
   std::cerr << std::endl;
-  
+
   run_images("opencl", filter_test);
   
 }
