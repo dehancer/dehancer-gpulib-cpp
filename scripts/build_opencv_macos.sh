@@ -6,6 +6,13 @@ NCPUS=$(sysctl -n hw.ncpu)
 
 CMAKE_INSTALL_PREFIX="/usr/local/universal"
 
+if command -v brew > /dev/null ; then
+    if brew ls libpng > /dev/null ; then
+        echo -e '\033[1;31mWarning: \033[0mlibpng installed via HomeBrew'
+        read -p "[Enter to continue] "
+    fi
+fi
+
 while [ $# -gt 0 ]; do
     case "$1" in
         "--prefix")
@@ -30,6 +37,7 @@ mkdir -p build-macos-universal && cd build-macos-universal || exit 1
 
 cmake -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
     -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+    -DBUILD_PNG=ON -DBUILD_OPENEXR=ON -DBUILD_TIFF=ON -DBUILD_WEBP=ON \
     -DCMAKE_INSTALL_PREFIX:PATH=${CMAKE_INSTALL_PREFIX} \
     -DWITH_JPEG=ON -DBUILD_JPEG=ON \
     -DWITH_PNG=ON -DBUILD_PNG=ON \
