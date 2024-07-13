@@ -151,13 +151,6 @@ static inline void __attribute__((overloadable)) write_image(__write_only image1
 
 // 2D
 static inline float4 __attribute__((overloadable)) read_image(__read_only image2d_t source, int2 gid) {
-  int2 coord = (int2)gid;
-  int x = get_texture_width(source);
-  int y = get_texture_height(source);
-  if (coord.x<0.0f)  coord.x = -coord.x;
-  if (coord.x>=x)     coord.x = 2.0f*x - coord.x - 1;
-  if (coord.y<0.0f)  coord.y = -coord.y;
-  if (coord.y>=y)     coord.y = 2.0f*y - coord.y - 1;
   return read_imagef(source, nearest_sampler, gid);
 }
 
