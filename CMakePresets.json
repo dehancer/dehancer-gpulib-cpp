@@ -504,6 +504,12 @@
     },
 
     {
+      "name": "linux-opencl-release",
+      "displayName": "Dehancer gpulib build, 86_64",
+      "inherits": ["release", "unix", "linux", "dependencies", "opencl"]
+    },
+
+    {
       "name": "ios-metal-debug",
       "displayName": "Dehancer gpulib build, arm64; x86_64",
       "inherits": [ "debug", "ios", "ios-xcode", "metal" ]
