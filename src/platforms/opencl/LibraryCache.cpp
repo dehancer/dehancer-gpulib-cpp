@@ -158,8 +158,28 @@ namespace dehancer::opencl {
                              nullptr, nullptr);
 
         if (err != CL_SUCCESS) {
-            throw std::runtime_error("Unable to build OpenCL program");
+
+            std::string log = "Unable to build OpenCL program";
+
+            // Determine the size of the log
+            size_t log_size;
+            clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG,
+                                  0, nullptr, &log_size);
+            log.resize(log_size);
+
+            // Get the log
+            clGetProgramBuildInfo(program, device, CL_PROGRAM_BUILD_LOG,
+                                  log_size, log.data(), nullptr);
+
+            log::error(true, "OpenCL Function build Error[%i]: %s", err, log.c_str());
+            throw std::runtime_error(
+              "Unable to build OpenCL program from: '" + p_path + ": \n[" +
+              std::to_string(log_size) + "] " + log);
         }
+
+//        if (err != CL_SUCCESS) {
+//            throw std::runtime_error("Unable to build OpenCL program");
+//        }
 
         cl_uint n;
         err = clGetProgramInfo(program, CL_PROGRAM_NUM_DEVICES, sizeof(cl_uint), &n, nullptr);
