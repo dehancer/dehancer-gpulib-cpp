@@ -90,10 +90,39 @@ namespace dehancer::cuda {
     ///
     /// \param m
     /// \param index
+    union encode_float2x2 {
+        struct {
+            float m11; float m12;
+            float m21; float m22;
+        };
+        float entries[4];
+        float entries2[2][2];
+    };
+
     void CommandEncoder::set(const float2x2& m, int index){
+      resize_at_index(index);
+      encode_float2x2 data{};
+      for (size_t i = 0; i < m.size(); ++i) data.entries[i]=m[i];
+      auto a = std::make_shared<encode_float2x2>(data); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
     }
-    
+
+    union encode_float3x3 {
+        struct {
+            float m11; float m12; float m13;
+            float m21; float m22; float m23;
+            float m31; float m32; float m33;
+        };
+        float entries[9];
+        float entries2[3][3];
+    };
+
     void CommandEncoder::set(const float3x3& m, int index){
+      resize_at_index(index);
+      encode_float3x3 data{};
+      for (size_t i = 0; i < m.size(); ++i) data.entries[i]=m[i];
+      auto a = std::make_shared<encode_float3x3>(data); args_container_.emplace_back(a);
+      args_.at(index) = a.get();
     };
     
     union encode_float4x4 {
