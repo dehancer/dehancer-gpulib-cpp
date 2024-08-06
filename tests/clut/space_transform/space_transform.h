@@ -81,7 +81,7 @@ void load_from_cache(const std::string& platform) {
             .type = dehancer::DHCR_ColorSpace,
             .expandable = false,
             .transform_func = transform_function_2,
-            //.transform_lut = dehancer::stream_space_transform_lut_identity(),
+            .transform_lut = dehancer::stream_space_transform_lut_identity(),
             .id = "apple_gamma",
             .name="Apple Gamma 2.0",
     };
