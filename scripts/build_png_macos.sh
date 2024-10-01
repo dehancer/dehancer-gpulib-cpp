@@ -4,7 +4,7 @@ HOME_PWD="$(pwd)"
 
 NCPUS=$(sysctl -n hw.ncpu)
 
-CMAKE_INSTALL_PREFIX="/usr/local/libpng"
+CMAKE_INSTALL_PREFIX="/usr/local"
 
 while [ $# -gt 0 ]; do
     case "$1" in

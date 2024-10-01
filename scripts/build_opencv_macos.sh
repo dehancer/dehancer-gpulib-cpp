@@ -47,7 +47,6 @@ mkdir -p build-macos-arm64 && cd build-macos-arm64 || exit 1
 
 cmake \
     -DCMAKE_OSX_ARCHITECTURES="arm64" \
-    -DCMAKE_PREFIX_PATH="/usr/local/libjpeg-turbo;/usr/local/libpng;" \
     -DOPENCV_EXTRA_MODULES_PATH="/tmp/opencv/opencv_contrib/modules" \
     -DBUILD_opencv_legacy=OFF \
     -DBUILD_opencv_mcc=ON \
@@ -79,7 +78,6 @@ mkdir -p build-macos-x86_64 && cd build-macos-x86_64 || exit 1
 
 cmake \
     -DCMAKE_OSX_ARCHITECTURES="x86_64" \
-    -DCMAKE_PREFIX_PATH="/usr/local/libjpeg-turbo;/usr/local/libpng;" \
     -DOPENCV_EXTRA_MODULES_PATH="/tmp/opencv/opencv_contrib/modules" \
     -DBUILD_opencv_legacy=OFF \
     -DBUILD_opencv_mcc=ON \
@@ -102,13 +100,6 @@ cmake \
     -DWITH_PROTOBUF=OFF -DBUILD_PROTOBUF=OFF \
     -DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=OFF ..
 
-##    -DWITH_OBSENSOR=OFF \
-##    -DWITH_IPP=OFF -DBUILD_opencv_calib3d=ON \
-##    -DOPENCV_DNN_OPENCL=OFF -DBUILD_opencv_dnn=ON  \
-#
-##-DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" \
-##-DCAROTENE_NEON_ARCH=OFF
-#
 cmake --build . -j"${NCPUS}"  --config Release
 sudo cmake --build . -j"${NCPUS}"  --target install
 
