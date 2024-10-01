@@ -40,8 +40,8 @@ float3x3 float3x3_multiply_float3x3( float3x3 M,  float3x3 N)
 #elif defined(CL_VERSION_1_2)
   #if DEHANCER_GPU_CODE
   return (float3x3){
-          M.m11*N.m11+M.m12*N.m21+M.m13*N.m31, M.m11*N.m12+M.m12*N.m22+M.m13*N.m32, M.m11*N.m13+M.m12*N.m23+M.m13*N.m33 ,
-          M.m21*N.m11+M.m22*N.m21+M.m23*N.m31, M.m21*N.m12+M.m22*N.m22+M.m23*N.m32, M.m21*N.m13+M.m22*N.m23+M.m23*N.m33 ,
+          M.m11*N.m11+M.m12*N.m21+M.m13*N.m31, M.m11*N.m12+M.m12*N.m22+M.m13*N.m32, M.m11*N.m13+M.m12*N.m23+M.m13*N.m33,
+          M.m21*N.m11+M.m22*N.m21+M.m23*N.m31, M.m21*N.m12+M.m22*N.m22+M.m23*N.m32, M.m21*N.m13+M.m22*N.m23+M.m23*N.m33,
           M.m31*N.m11+M.m32*N.m21+M.m33*N.m31, M.m31*N.m12+M.m32*N.m22+M.m33*N.m32, M.m31*N.m13+M.m32*N.m23+M.m33*N.m33
           };
   #else
