@@ -31,18 +31,27 @@ namespace dehancer {
         
         ViewPortHolder() = delete;
         
-        explicit ViewPortHolder(const viewport::Origin &origin, const viewport::Size &size, const viewport::Size &source_size);
+        explicit ViewPortHolder(const viewport::Origin &origin
+                                , const viewport::Size &size
+                                , const viewport::Size &source_size
+                                , const viewport::Size &original_size);
         
-        static ViewPort Make(const viewport::Origin &origin, const viewport::Size &size, const viewport::Size &source_size);
+        static ViewPort Make(const viewport::Origin &origin
+                             , const viewport::Size &size
+                             , const viewport::Size &source_size
+                             , const viewport::Size &original_size);
         
         [[nodiscard]] const viewport::Origin& get_origin() const;
         
         [[nodiscard]] const viewport::Size& get_size() const;
         
         [[nodiscard]] const viewport::Size& get_source_size() const;
+
+        [[nodiscard]] const viewport::Size& get_original_size() const;
     private:
         viewport::Origin _origin;
         viewport::Size _size;
         viewport::Size _source_size;
+        viewport::Size _original_size;
     };
 }
