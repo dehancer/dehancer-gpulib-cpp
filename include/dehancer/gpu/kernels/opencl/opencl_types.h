@@ -98,9 +98,9 @@ typedef union {
         float m31; float m32; float m33;
     };
     struct {
+        float3 s0;
         float3 s1;
         float3 s2;
-        float3 s3;
     };
     float3 v[3];
     float entries[9];

@@ -61,9 +61,10 @@
 #  undef make_uchar4
 #endif
 
-#define make_float2(x, y)        ((float2){x, y})
-#define make_float3(x, y, z)     ((float3){x, y, z})
-#define make_float4(x, y, z, w)  ((float4){x, y, z, w})
+#define __make_float2(x, y)        ((float2){x, y})
+#define __make_float3(x, y, z)     ((float3){x, y, z})
+#define __make_float4(x, y, z, w)  ((float4){x, y, z, w})
+
 #define make_int2(x, y)          ((int2){x, y})
 #define make_int3(x, y, z)       ((int3){x, y, z})
 #define make_int4(x, y, z, w)    ((int4){x, y, z, w})
@@ -71,6 +72,20 @@
 #define make_uint3(x, y, z)      ((uint3){x, y, z})
 #define make_uint4(x, y, z, w)   ((uint4){x, y, z, w})
 #define make_uchar4(x, y, z, w)  ((uchar4){x, y, z, w})
+
+static inline float2 __attribute__((overloadable)) make_float2(float x, float y) {
+  return __make_float2(x, y);
+}
+
+static inline float3 __attribute__((overloadable)) make_float3(float x, float y, float z) {
+  return __make_float3(x, y, z);
+}
+
+#if DEHANCER_GPU_CODE
+static inline float4 __attribute__((overloadable)) make_float4(float x, float y, float z, float w) {
+  return __make_float4(x, y, z, w);
+}
+#endif
 
 /***
  * TODO: float2x2,float3x3,float4x4 constructors

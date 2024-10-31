@@ -17,7 +17,7 @@ set(GIT_TAG_dehancer_opencl_helper "develop")
 
 if(NOT DEHANCER_DEBUG)
     set(GIT_TAG_dehancer_xmp_cpp "0.12.0")
-    set(GIT_TAG_dehancer_maths_cpp "0.9.0")
+    set(GIT_TAG_dehancer_maths_cpp "develop")
     set(GIT_TAG_dehancer_opencl_helper "0.5.0")
 endif ()
 
@@ -34,7 +34,7 @@ message(STATUS "PKG_CONFIG_PATH: $ENV{PKG_CONFIG_PATH}")
 
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 1.8.1)
+project(${PROJECT_LIB} VERSION 1.8.2)
 
 #
 #

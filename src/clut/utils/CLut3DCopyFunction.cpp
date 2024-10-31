@@ -5,7 +5,25 @@
 #include "dehancer/gpu/clut/utils/CLut3DCopyFunction.h"
 
 namespace dehancer {
-    
+
+    unsigned int as_uint(const float x) {
+      return *(uint*)&x;
+    }
+    float as_float(const unsigned int x) {
+      return *(float*)&x;
+    }
+
+    // IEEE-754 16-bit floating-point format (without infinity): 1-5-10, exp-15, +-131008.0, +-6.1035156E-5, +-5.9604645E-8, 3.311 digits
+    float half_to_float(const unsigned short h) {
+      return ((h&0x8000)<<16) | (((h&0x7c00)+0x1C000)<<13) | ((h&0x03FF)<<13);
+    }
+
+    // IEEE-754 16-bit floating-point format (without infinity): 1-5-10, exp-15, +-131008.0, +-6.1035156E-5, +-5.9604645E-8, 3.311 digits
+    unsigned short float_to_half(const float f) {
+      uint32_t x = *((uint32_t*)&f);
+      return ((x>>16)&0x8000)|((((x&0x7f800000)-0x38000000)>>13)&0x7c00)|((x>>13)&0x03ff);
+    }
+
     CLut3DCopyFunction::CLut3DCopyFunction (const void *command_queue,
                                             const Texture &input,
                                             size_t lut_size,
