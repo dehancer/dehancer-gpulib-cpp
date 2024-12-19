@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 3.22)
 #
 
 set(GIT_TAG_dehancer_xmp_cpp "develop")
-set(GIT_TAG_dehancer_maths_cpp "feature/cmake-3.30")
+set(GIT_TAG_dehancer_maths_cpp "develop")
 set(GIT_TAG_dehancer_opencl_helper "develop")
 
 if(NOT DEHANCER_DEBUG)
