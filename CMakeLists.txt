@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 3.22)
 #
 
 set(GIT_TAG_dehancer_xmp_cpp "develop")
-set(GIT_TAG_dehancer_maths_cpp "develop")
+set(GIT_TAG_dehancer_maths_cpp "feature/cmake-3.30")
 set(GIT_TAG_dehancer_opencl_helper "develop")
 
 if(NOT DEHANCER_DEBUG)
@@ -67,6 +67,7 @@ option (DEHANCER_CONTROLLED_SINGLETON "DEHANCER_CONTROLLED_SINGLETON" OFF)
 option (DEHANCER_INSTALL_COMMON_DEPS "DEHANCER_INSTALL_COMMON_DEPS" ON)
 option (OpenCV_DIR "OpenCV Root" "/usr/local/universal")
 option (GTest_ROOT "GTest_ROOT" "")
+option (CUDA_PATH "CUDA_PATH" "")
 
 set(DEHANCER_GPULIB_CPP_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
 set(DEHANCER_GPULIB_BINARY ${CMAKE_CURRENT_BINARY_DIR})
@@ -339,33 +340,15 @@ if (DEHANCER_GPU_CUDA)
     if(WIN32)
 
         if (NOT CUDAToolkit_ROOT)
-            set(CUDA_INSTALLATION_DIR "C:/Program Files/NVIDIA GPU Computing Toolkit/CUDA")
-
-            set(CUDA_INSTALLATION_DIR_V115 "${CUDA_INSTALLATION_DIR}/v11.5")
-            set(CUDA_INSTALLATION_DIR_V116 "${CUDA_INSTALLATION_DIR}/v11.6")
-            set(CUDA_INSTALLATION_DIR_V118 "${CUDA_INSTALLATION_DIR}/v11.8")
-            set(CUDA_INSTALLATION_DIR_V121 "${CUDA_INSTALLATION_DIR}/v12.1")
-            set(CUDA_INSTALLATION_DIR_V123 "${CUDA_INSTALLATION_DIR}/v12.3")
-            set(CUDA_INSTALLATION_DIR_V10 "${CUDA_INSTALLATION_DIR}/v10.2")
-
-            if(EXISTS ${CUDA_INSTALLATION_DIR_V123})
-                set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V123})
-            elseif(EXISTS ${CUDA_INSTALLATION_DIR_V121})
-                set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V121})
-            elseif(EXISTS ${CUDA_INSTALLATION_DIR_V118})
-                    set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V118})
-            elseif(EXISTS ${CUDA_INSTALLATION_DIR_V116})
-                    set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V116})
-            elseif(EXISTS ${CUDA_INSTALLATION_DIR_V115})
-                set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V115})
-            elseif(EXISTS ${CUDA_INSTALLATION_DIR_V10})
-                set(CUDAToolkit_ROOT ${CUDA_INSTALLATION_DIR_V10})
+            if (CUDA_PATH)
+                set(CUDAToolkit_ROOT ${CUDA_PATH})
             else()
                 message(FATAL_ERROR "NO CUDAToolkit is found...")
             endif()
 
         endif ()
 
+        message(STATUS "CUDAToolkit_ROOT: ${CUDAToolkit_ROOT}")
         set(MSVC_2019 "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Tools\\Llvm\\x64\\bin")
         set(MSVC_2022 "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\Llvm\\x64\\bin")
 
