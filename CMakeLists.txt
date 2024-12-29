@@ -34,7 +34,7 @@ message(STATUS "PKG_CONFIG_PATH: $ENV{PKG_CONFIG_PATH}")
 
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 1.8.2)
+project(${PROJECT_LIB} VERSION 1.8.4)
 
 #
 #
@@ -623,15 +623,16 @@ else ()
             BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_xmp_cpp-build"
     )
 
-    FetchContent_GetProperties(dehancer_xmp_cpp)
-    if(NOT dehancer_xmp_cpp_POPULATED)
-        FetchContent_Populate(dehancer_xmp_cpp)
-        if (DEHANCER_INSTALL_COMMON_DEPS)
-            add_subdirectory(${dehancer_xmp_cpp_SOURCE_DIR} ${dehancer_xmp_cpp_BINARY_DIR})
-        else()
-            add_subdirectory(${dehancer_xmp_cpp_SOURCE_DIR} ${dehancer_xmp_cpp_BINARY_DIR} EXCLUDE_FROM_ALL)
-        endif ()
-    endif()
+    FetchContent_MakeAvailable(dehancer_xmp_cpp)
+#    FetchContent_GetProperties(dehancer_xmp_cpp)
+#    if(NOT dehancer_xmp_cpp_POPULATED)
+#        FetchContent_Populate(dehancer_xmp_cpp)
+#        if (DEHANCER_INSTALL_COMMON_DEPS)
+#            add_subdirectory(${dehancer_xmp_cpp_SOURCE_DIR} ${dehancer_xmp_cpp_BINARY_DIR})
+#        else()
+#            add_subdirectory(${dehancer_xmp_cpp_SOURCE_DIR} ${dehancer_xmp_cpp_BINARY_DIR} EXCLUDE_FROM_ALL)
+#        endif ()
+#    endif()
 
     FetchContent_GetProperties(exiv2)
 
