@@ -188,7 +188,7 @@
 
       "binaryDir": "${sourceDir}/build-${presetName}",
 
-      "toolchainFile": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
+      "toolchainFile": "C:/vcpkg-qt6/scripts/buildsystems/vcpkg.cmake",
       "environment": {
         "HOME": "$env{USERPROFILE}"
       },
@@ -198,6 +198,8 @@
         "CMAKE_EXE_LINKER_FLAGS": "/MANIFEST:NO",
         "CMAKE_C_COMPILER": "$env{MSVC_BIN_DIR}/clang-cl.exe",
         "CMAKE_CXX_COMPILER": "$env{MSVC_BIN_DIR}/clang-cl.exe",
+
+        "CUDA_PATH": "$penv{CUDA_PATH}",
 
         "CMAKE_SYSTEM_NAME": "Windows",
         "CMAKE_SYSTEM_VERSION": "10.0",
