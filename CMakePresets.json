@@ -17,14 +17,14 @@
       },
 
       "environment": {
-        "PKG_CONFIG_PATH": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_TYPE}/dehancer/lib/pkgconfig"
+        "PKG_CONFIG_PATH": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_SUBDIR}/dehancer/lib/pkgconfig"
       },
 
       "cacheVariables": {
 
         "CMAKE_INSTALL_PREFIX": {
           "type": "STRING",
-          "value": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_TYPE}/$env{GPU_TYPE}/dehancer"
+          "value": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_SUBDIR}/$env{GPU_TYPE}/dehancer"
         },
 
         "OpenCV_DIR": {
@@ -307,7 +307,7 @@
       "cacheVariables": {
         "CMAKE_INSTALL_PREFIX": {
           "type": "STRING",
-          "value": "$env{HOME}/Develop/local/ios-$env{BUILD_TYPE}/dehancer"
+          "value": "$env{HOME}/Develop/local/ios-$env{BUILD_SUBDIR}/dehancer"
         },
         "OPENCV_FRAMEWORK_PATH": {
           "type": "STRING",
@@ -369,7 +369,7 @@
       "hidden": true,
 
       "environment": {
-        "BUILD_TYPE": "debug"
+        "BUILD_SUBDIR": "debug$env{DEHANCER_INSTALL_SINGLETON_DIR}"
       },
 
       "cacheVariables": {
@@ -405,7 +405,7 @@
       "hidden": true,
 
       "environment": {
-        "BUILD_TYPE": "release"
+        "BUILD_SUBDIR": "release$env{DEHANCER_INSTALL_SINGLETON_DIR}"
       },
 
       "cacheVariables": {
