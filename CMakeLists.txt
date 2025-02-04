@@ -12,7 +12,7 @@ cmake_minimum_required(VERSION 3.22)
 #
 
 set(GIT_TAG_dehancer_xmp_cpp "develop")
-set(GIT_TAG_dehancer_maths_cpp "develop")
+set(GIT_TAG_dehancer_maths_cpp "develop-ci")
 set(GIT_TAG_dehancer_opencl_helper "develop")
 
 if(NOT DEHANCER_DEBUG)
@@ -311,12 +311,10 @@ if(NOT dehancer_maths_cpp_POPULATED)
 endif()
 
 include_directories(
-        ${dehancer_maths_cpp_SOURCE_DIR}/include
-        ${armadillo_SOURCE_DIR}/include
+    ${dehancer_maths_cpp_SOURCE_DIR}/include
 )
 
 set(COMMON_LIBRARIES dehancer_maths_cpp;${COMMON_LIBRARIES})
-
 
 if (LINUX)
     set(CMAKE_INSTALL_LIBDIR  "lib")
