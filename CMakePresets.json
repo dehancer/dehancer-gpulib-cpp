@@ -355,6 +355,11 @@
         "GTest_ROOT": {
           "type": "STRING",
           "value": "$env{HOME}/Develop/local/${hostSystemName}"
+        },
+
+        "ENABLE_ARC": {
+          "type": "BOOL",
+          "value": "OFF"
         }
       }
     },
