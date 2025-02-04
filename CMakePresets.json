@@ -333,7 +333,7 @@
           "type": "STRING",
           "value": "OFF"
         },
-        "EXIV2_BUILD_SAMPLE": {
+        "EXIV2_BUILD_SAMPLES": {
           "type": "STRING",
           "value": "OFF"
         },
