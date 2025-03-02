@@ -62,6 +62,7 @@
 
 #include "dehancer/gpu/spaces/StreamSpaceCache.h"
 #include "dehancer/gpu/spaces/StreamTransform.h"
+#include "dehancer/gpu/ocio/cs/ACES2065.h"
 #include "dehancer/gpu/ocio/cs/Aces.h"
 #include "dehancer/gpu/ocio/cs/Deh2020.h"
 #include "dehancer/gpu/ocio/cs/CineonLog.h"
