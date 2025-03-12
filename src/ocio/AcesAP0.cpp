@@ -26,7 +26,7 @@ namespace dehancer::ocio::AcesAP0{
     extern size_t  __lut__channels__;
 
     DHCR_LutParameters lut::params = {
-      .enabled = false,
+      .enabled = true,
       .size = static_cast<uint>(__lut__size__),
       .channels = static_cast<uint>(__lut__channels__),
       .data = __lut__data__

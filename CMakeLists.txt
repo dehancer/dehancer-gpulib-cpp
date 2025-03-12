@@ -659,12 +659,8 @@ if(USE_OPENCOLORIO)
         ExternalProject_Add(OpenColorIO
             SOURCE_DIR ${DEHANCER_GPULIB_CPP_SOURCE}/external/OpenColorIO
             INSTALL_DIR ${EXTERNAL_INSTALL_LOCATION}
-<<<<<<< HEAD
-            #PREFIX OpenColorIO
             CMAKE_CACHE_ARGS
             "-DCMAKE_OSX_ARCHITECTURES:STRING=x86_64;arm64"
-=======
->>>>>>> develop
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -Wno-error=dev -Wno-dev
