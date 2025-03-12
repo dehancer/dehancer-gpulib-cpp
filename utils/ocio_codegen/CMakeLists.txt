@@ -1,5 +1,10 @@
 set (DEHANCER_CURRENT_PLATFORM_METAL ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDEHANCER_GPU_METAL=1")
 
+set(COMMON_LIBRARIES   libOpenColorIO.a; ${COMMON_LIBRARIES})
+set(COMMON_LIBRARIES  ${COMMON_LIBRARIES}; libpystring.a; libyaml-cpp.a; libImath-3_1.a;)
+
+set(CMAKE_OSX_ARCHITECTURES arm64)
+
 set (UTIL_NAME dh-ocio-codegen)
 include(${CMAKE_SOURCE_DIR}/utils/CMakeCommon.in)

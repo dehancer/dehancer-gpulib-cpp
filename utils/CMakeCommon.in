@@ -10,6 +10,10 @@ include_directories(
         ${CMAKE_BINARY_DIR}/external/include
 )
 
+link_directories(
+        ${CMAKE_BINARY_DIR}/external/lib
+)
+
 set(EXTERNAL_LIBS "")
 
 if (DEHANCER_CURRENT_PLATFORM_METAL)

@@ -624,15 +624,6 @@ else ()
     )
 
     FetchContent_MakeAvailable(dehancer_xmp_cpp)
-#    FetchContent_GetProperties(dehancer_xmp_cpp)
-#    if(NOT dehancer_xmp_cpp_POPULATED)
-#        FetchContent_Populate(dehancer_xmp_cpp)
-#        if (DEHANCER_INSTALL_COMMON_DEPS)
-#            add_subdirectory(${dehancer_xmp_cpp_SOURCE_DIR} ${dehancer_xmp_cpp_BINARY_DIR})
-#        else()
-#            add_subdirectory(${dehancer_xmp_cpp_SOURCE_DIR} ${dehancer_xmp_cpp_BINARY_DIR} EXCLUDE_FROM_ALL)
-#        endif ()
-#    endif()
 
     FetchContent_GetProperties(exiv2)
 
@@ -664,11 +655,10 @@ if(USE_OPENCOLORIO)
     # AcademySoftwareFoundation OpenColorIO. ACES and etc...
     # https://github.com/AcademySoftwareFoundation/OpenColorIO
     #
-    ExternalProject_Add(OpenColorIO
-            #GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/OpenColorIO
+
+        ExternalProject_Add(OpenColorIO
             SOURCE_DIR ${DEHANCER_GPULIB_CPP_SOURCE}/external/OpenColorIO
             INSTALL_DIR ${EXTERNAL_INSTALL_LOCATION}
-            #PREFIX OpenColorIO
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -Wno-error=dev -Wno-dev
@@ -696,8 +686,8 @@ if(USE_OPENCOLORIO)
             PREFIX OpenColorIO #${DEHANCER_COMMON_DIR}
             )
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES}; OpenColorIO)
-    set(COMMON_LIBRARIES   libOpenColorIO.a; ${COMMON_LIBRARIES})
-    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES}; libpystring.a; libyaml-cpp.a; libImath-3_1.a;)
+#    set(COMMON_LIBRARIES   libOpenColorIO.a; ${COMMON_LIBRARIES})
+#    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES}; libpystring.a; libyaml-cpp.a; libImath-3_1.a;)
 
     link_directories(
             ${CMAKE_BINARY_DIR}/OpenColorIO/src/OpenColorIO-build/ext/dist/lib
