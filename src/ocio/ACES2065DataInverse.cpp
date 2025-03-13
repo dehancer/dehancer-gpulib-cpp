@@ -3,7 +3,7 @@
 //
 #include <stdlib.h>
 
-namespace dehancer::ocio::TEST::forward {
+namespace dehancer::ocio::ACES2065::forward {
 	size_t __lut__size__ = 65;
 	size_t __lut__channels__ = 4;
 	float __lut__data__[1098500] = {
