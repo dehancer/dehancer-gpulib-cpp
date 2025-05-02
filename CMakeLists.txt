@@ -133,7 +133,6 @@ endif ()
 #
 # Programs
 #
-find_program(CCACHE_FOUND ccache)
 
 find_package (Threads REQUIRED)
 find_package (PkgConfig REQUIRED)
@@ -144,10 +143,14 @@ find_package (ZLIB REQUIRED)
 #
 # CCache settings
 #
-if(CCACHE_FOUND)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-endif(CCACHE_FOUND)
+find_program(CCACHE_FOUND ccache)
+if (CCACHE_FOUND)
+    message("Ccache found: ${CCACHE_FOUND}")
+    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+else()
+    message("Ccache NOT found")
+endif (CCACHE_FOUND)
 
 if(LINUX)
     set(STATIC_LINKING OFF)
