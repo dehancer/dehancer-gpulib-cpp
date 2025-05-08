@@ -534,6 +534,11 @@ if (BUILD_TESTING)
     find_package(GTest)
 
     if (NOT GTest_FOUND)
+        set(GTest_ROOT ${GTest_ROOT}/$ENV{BUILD_SUBDIR}/dehancer)
+        find_package(GTest)
+    endif ()
+
+    if (NOT GTest_FOUND)
 
         string(STRIP "${CMAKE_C_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" C_FLAGS)
         string(STRIP "${CMAKE_CXX_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" CXX_FLAGS)

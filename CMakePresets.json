@@ -28,7 +28,7 @@
 
         "OpenCV_DIR": {
           "type": "STRING",
-          "value": "/usr/local/universal"
+          "value": "/opt/dehancer-dependencies"
         },
 
         "GTest_ROOT": {
