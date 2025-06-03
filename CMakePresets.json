@@ -172,7 +172,7 @@
 
       "binaryDir": "${sourceDir}/build-${presetName}",
 
-      "toolchainFile": "C:/vcpkg-qt6/scripts/buildsystems/vcpkg.cmake",
+      "toolchainFile": "C:/vcpkg/scripts/buildsystems/vcpkg.cmake",
 
       "environment": {
         "HOME": "$env{USERPROFILE}"
