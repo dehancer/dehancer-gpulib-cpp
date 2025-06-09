@@ -115,10 +115,11 @@ namespace dehancer {
         friend class SimpleSingleton<gpu_device_cache>;
 #endif
 
-        gpu_device_cache();
-
     private:
+        gpu_device_cache();
         std::shared_ptr<impl::gpu_device_cache> impl_;
+
+        friend class Singleton<gpu_device_cache>;
     };
 
     /***
