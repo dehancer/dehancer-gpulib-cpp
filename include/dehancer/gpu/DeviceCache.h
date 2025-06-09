@@ -13,16 +13,14 @@
 #include <memory>
 
 namespace dehancer {
-
     namespace device {
-
         /***
          * Type of cached acceleration device
          */
         enum Type:int {
-            gpu = 1<<1,
-            cpu = 1<<2,
-            unknown = 1<<3
+            gpu = 1 << 1,
+            cpu = 1 << 2,
+            unknown = 1 << 3
         };
 
         typedef int TypeFilter;
@@ -32,21 +30,21 @@ namespace dehancer {
          * @param device - platform based device handler
          * @return - device name
          */
-        [[nodiscard]] std::string get_name(const void* device);
+        [[nodiscard]] std::string get_name(const void *device);
 
         /***
          * Get a device id from handler
          * @param device - platform based device handler
          * @return - device identifier
          */
-        [[nodiscard]] uint64_t    get_id(const void* device);
+        [[nodiscard]] uint64_t get_id(const void *device);
 
         /***
          * Get a device acceleration type
          * @param device - platform based device handler
          * @return - device type
          */
-        [[nodiscard]] Type        get_type(const void* device);
+        [[nodiscard]] Type get_type(const void *device);
     }
 
     namespace impl {
@@ -59,12 +57,13 @@ namespace dehancer {
      */
     struct gpu_device_cache {
     public:
-
         /***
          * Get platform specific list of device handlers
          * @return device list
          */
-        virtual std::vector<void *> get_device_list() { return get_device_list(device::Type::gpu | device::Type::cpu);};
+        virtual std::vector<void *> get_device_list() {
+            return get_device_list(device::Type::gpu | device::Type::cpu);
+        };
 
         /***
          * Get platform specific list of device handlers
@@ -78,13 +77,13 @@ namespace dehancer {
          * @param device_id - device id
          * @return platform based handler
          */
-        virtual void* get_device(uint64_t device_id) ;
+        virtual void *get_device(uint64_t device_id);
 
         /***
          * Get a default device
          * @return platform based handler
          */
-        virtual void* get_default_device() ;
+        virtual void *get_default_device();
 
         /***
          * Get command queue binds certain device.
@@ -94,37 +93,39 @@ namespace dehancer {
          * @param device_id - device id
          * @return platform based command queue
          */
-        virtual void* get_command_queue(uint64_t device_id) ;
+        virtual void *get_command_queue(uint64_t device_id);
 
         /***
          * Get command queue binds with default device.
          * @return platform based command queue
          */
-        virtual void* get_default_command_queue() ;
+        virtual void *get_default_command_queue();
 
         /***
          * After use command queue must be returnet to cache
          * @param platform based command queue
          */
-        virtual void return_command_queue(const void *queue)  ;
+        virtual void return_command_queue(const void *queue);
 
         virtual ~gpu_device_cache() = default;
-    
-        #if defined(DEHANCER_CONTROLLED_SINGLETON)
+
+#if defined(DEHANCER_CONTROLLED_SINGLETON)
         friend class ControlledSingleton<gpu_device_cache>;
-        #else
+#else
         friend class SimpleSingleton<gpu_device_cache>;
-        #endif
-    private:
+#endif
+
         gpu_device_cache();
+
+    private:
         std::shared_ptr<impl::gpu_device_cache> impl_;
     };
 
     /***
      * Global Device cache object. This one is created once per process.
      */
-    class DeviceCache: public Singleton<gpu_device_cache>{
-       public:
-           DeviceCache() = default;
-       };
+    class DeviceCache : public Singleton<gpu_device_cache> {
+    public:
+        DeviceCache() = default;
+    };
 }
