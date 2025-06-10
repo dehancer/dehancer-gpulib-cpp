@@ -583,11 +583,12 @@ if (DEHANCER_GPU_OPENCL)
             BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_opencl_helper-build"
     )
 
-    FetchContent_GetProperties(dehancer_opencl_helper)
-    if(NOT dehancer_opencl_helper_POPULATED)
-        FetchContent_Populate(dehancer_opencl_helper)
-        add_subdirectory(${dehancer_opencl_helper_SOURCE_DIR} ${dehancer_opencl_helper_BINARY_DIR})
-    endif()
+    FetchContent_MakeAvailable(dehancer_opencl_helper)
+#    FetchContent_GetProperties(dehancer_opencl_helper)
+#    if(NOT dehancer_opencl_helper_POPULATED)
+#        FetchContent_Populate(dehancer_opencl_helper)
+#        add_subdirectory(${dehancer_opencl_helper_SOURCE_DIR} ${dehancer_opencl_helper_BINARY_DIR})
+#    endif()
 
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};clHelperLib)
     set(clHelper_DIR ${dehancer_opencl_helper_SOURCE_DIR}/clHelper)
