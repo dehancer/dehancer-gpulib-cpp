@@ -108,14 +108,14 @@ namespace dehancer {
                          get_wait_completed()).process();
           
           if (dest->get_width() != overlay_base_->get_width()) {
-            overlay_offset_.x() =
+            overlay_offset_.x =
                     static_cast<float>(dest->get_width()) - static_cast<float>(overlay_base_->get_width());
           } else {
-            overlay_offset_.y() =
+            overlay_offset_.y =
                     static_cast<float>(dest->get_height()) - static_cast<float>(overlay_base_->get_height());
           }
           
-          overlay_offset_ *= 0.5f;
+          overlay_offset_ = overlay_offset_ * 0.5f;
           
         }
       }
