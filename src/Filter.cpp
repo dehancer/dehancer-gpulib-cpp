@@ -79,7 +79,7 @@ namespace dehancer {
     }
     
     
-    Filter& Filter::process (bool emplace) {
+    Filter& Filter::process (const bool emplace) {
       
       if (!impl_->source) return *this;
       
@@ -118,21 +118,21 @@ namespace dehancer {
           impl_->ping_pong.at(0) = ping;
         }
       }
-      
-      int next_index = 0;
-      
-      int index = 0;
-      
-      bool make_last_copy = true;
 
-#pragma unroll
+      auto next_index = 0;
+
+      auto index = 0;
+
+      auto make_last_copy = true;
+
+#pragma unroll 4
       for (const auto& f: impl_->list) {
         
         if (!f->enabled) continue;
         
         auto current_destination = impl_->ping_pong[next_index%2]; next_index++;
         
-        if (index==(int)impl_->list.size()-1 && impl_->source->get_desc()==impl_->destination->get_desc()) {
+        if (index==static_cast<int>(impl_->list.size())-1 && impl_->source->get_desc()==impl_->destination->get_desc()) {
           current_destination = impl_->destination;
           make_last_copy = false;
         } else {
@@ -243,15 +243,14 @@ namespace dehancer {
     }
     
     bool Filter::set_enable (const Filter::KernelItem &item, bool enabled) {
-      int const index = get_index_of(item);
-      if(index>=0)
+      if(int const index = get_index_of(item); index>=0)
         return set_enable(index, enabled);
       return false;
     }
     
     int Filter::get_index_of (const Filter::FilterItem &item) const {
-#pragma unroll
-      for (int i = 0; i < (int)impl_->list.size(); ++i) {
+#pragma unroll 4
+      for (auto i = 0; i < impl_->list.size(); ++i) {
         if(auto f = impl_->list.at(i)->filter) {
           if (f.get() == item.get())
             return i;
@@ -261,8 +260,8 @@ namespace dehancer {
     }
     
     int Filter::get_index_of (const Filter::KernelItem &item) const {
-#pragma unroll
-      for (int i = 0; i < (int)impl_->list.size(); ++i) {
+#pragma unroll 4
+      for (auto i = 0; i < impl_->list.size(); ++i) {
         if(auto k = impl_->list.at(i)->kernel) {
           if (k.get() == item.get())
             return i;
