@@ -43,33 +43,40 @@ configure_package_config_file(
         INSTALL_DESTINATION "${config_install_dir}"
 )
 
-install(TARGETS ${PROJECT_LIB_PLATFORM}   DESTINATION lib)
+install(TARGETS ${PROJECT_LIB_PLATFORM}
+        DESTINATION lib
+)
+
 install(FILES   ${project_config} ${version_config} DESTINATION lib/cmake/${PROJECT_LIB_PLATFORM})
 if(NOT IOS)
-install(FILES cmake/${PROJECT_LIB_PLATFORM}.cmake DESTINATION lib/cmake/${PROJECT_LIB_PLATFORM})
+    install(FILES cmake/${PROJECT_LIB_PLATFORM}.cmake
+            DESTINATION lib/cmake/${PROJECT_LIB_PLATFORM})
 endif ()
 
+message(STATUS "CMAKE_INSTALL_INCLUDEDIR_EXTERNAL: ${CMAKE_INSTALL_PREFIX}/include")
+message(STATUS "CMAKE_INSTALL_LIBDIR: ${CMAKE_INSTALL_LIBDIR}")
+
 install(DIRECTORY
-        ${EXTERNAL_INSTALL_LOCATION}/include
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/..
+        ${EXTERNAL_INSTALL_LOCATION}
+        DESTINATION "${CMAKE_INSTALL_PREFIX}/include"
         FILES_MATCHING
-        PATTERN armadillo
+        PATTERN include/armadillo
         PATTERN *.h
         PATTERN *.hpp
-        PATTERN gtest* EXCLUDE
-        PATTERN gmock* EXCLUDE
+        PATTERN include/*gtest* EXCLUDE
+        PATTERN *gmock* EXCLUDE
         )
 
 install(DIRECTORY
-        ${EXTERNAL_INSTALL_LOCATION}/lib
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/..
+        ${EXTERNAL_INSTALL_LOCATION}
+        DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
         FILES_MATCHING
-        PATTERN *dehancer_math*.*
-        PATTERN *armadillo*.*
-        PATTERN armadillo.pc
-        PATTERN *gtest* EXCLUDE
-        PATTERN *gmock* EXCLUDE
-        PATTERN *GTest* EXCLUDE
+        PATTERN lib/*dehancer_math*.*
+        PATTERN lib/*armadillo*.*
+        PATTERN lib/armadillo.pc
+        PATTERN lib/*gtest*.* EXCLUDE
+        PATTERN lib/*gmock*.* EXCLUDE
+        PATTERN lib/*GTest*.* EXCLUDE
         )
 
 install(DIRECTORY ${PUBLIC_INCLUDE_FILES}

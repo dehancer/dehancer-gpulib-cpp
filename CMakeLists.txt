@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 3.22)
 
 #
 #  Current master version release dependencies:
-#  dehancer-common-cpp:0.16.0
+#  dehancer-common-cpp:0.18.0
 #     base64cpp:1.2.0
 #     ed25519cpp:1.4.0
-#  dehancer-xmp-cpp:0.14.0
-#  dehancer-maths-cpp:0.12.0
+#  dehancer-xmp-cpp:0.15.0
+#  dehancer-maths-cpp:0.13.0
 #  dehancer-opencl-helper:0.5.0
 #
 
@@ -16,8 +16,8 @@ set(GIT_TAG_dehancer_maths_cpp "develop")
 set(GIT_TAG_dehancer_opencl_helper "develop")
 
 if(NOT DEHANCER_DEBUG)
-    set(GIT_TAG_dehancer_xmp_cpp "0.14.0")
-    set(GIT_TAG_dehancer_maths_cpp "0.12.0")
+    set(GIT_TAG_dehancer_xmp_cpp "0.15.0")
+    set(GIT_TAG_dehancer_maths_cpp "0.13.0")
     set(GIT_TAG_dehancer_opencl_helper "0.5.0")
 endif ()
 
@@ -34,7 +34,7 @@ message(STATUS "PKG_CONFIG_PATH: $ENV{PKG_CONFIG_PATH}")
 
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 1.9.0)
+project(${PROJECT_LIB} VERSION 1.10.0)
 
 #
 #
@@ -133,7 +133,6 @@ endif ()
 #
 # Programs
 #
-find_program(CCACHE_FOUND ccache)
 
 find_package (Threads REQUIRED)
 find_package (PkgConfig REQUIRED)
@@ -144,10 +143,14 @@ find_package (ZLIB REQUIRED)
 #
 # CCache settings
 #
-if(CCACHE_FOUND)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
-endif(CCACHE_FOUND)
+find_program(CCACHE_FOUND ccache)
+if (CCACHE_FOUND)
+    message("Ccache found: ${CCACHE_FOUND}")
+    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+else()
+    message("Ccache NOT found")
+endif (CCACHE_FOUND)
 
 if(LINUX)
     set(STATIC_LINKING OFF)
@@ -531,6 +534,11 @@ if (BUILD_TESTING)
     find_package(GTest)
 
     if (NOT GTest_FOUND)
+        set(GTest_ROOT ${GTest_ROOT}/$ENV{BUILD_SUBDIR}/dehancer)
+        find_package(GTest)
+    endif ()
+
+    if (NOT GTest_FOUND)
 
         string(STRIP "${CMAKE_C_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" C_FLAGS)
         string(STRIP "${CMAKE_CXX_FLAGS} -D_ITERATOR_DEBUG_LEVEL=0" CXX_FLAGS)
@@ -624,15 +632,6 @@ else ()
     )
 
     FetchContent_MakeAvailable(dehancer_xmp_cpp)
-#    FetchContent_GetProperties(dehancer_xmp_cpp)
-#    if(NOT dehancer_xmp_cpp_POPULATED)
-#        FetchContent_Populate(dehancer_xmp_cpp)
-#        if (DEHANCER_INSTALL_COMMON_DEPS)
-#            add_subdirectory(${dehancer_xmp_cpp_SOURCE_DIR} ${dehancer_xmp_cpp_BINARY_DIR})
-#        else()
-#            add_subdirectory(${dehancer_xmp_cpp_SOURCE_DIR} ${dehancer_xmp_cpp_BINARY_DIR} EXCLUDE_FROM_ALL)
-#        endif ()
-#    endif()
 
     FetchContent_GetProperties(exiv2)
 
@@ -664,11 +663,10 @@ if(USE_OPENCOLORIO)
     # AcademySoftwareFoundation OpenColorIO. ACES and etc...
     # https://github.com/AcademySoftwareFoundation/OpenColorIO
     #
-    ExternalProject_Add(OpenColorIO
-            #GIT_REPOSITORY https://github.com/AcademySoftwareFoundation/OpenColorIO
+
+        ExternalProject_Add(OpenColorIO
             SOURCE_DIR ${DEHANCER_GPULIB_CPP_SOURCE}/external/OpenColorIO
             INSTALL_DIR ${EXTERNAL_INSTALL_LOCATION}
-            #PREFIX OpenColorIO
             CMAKE_ARGS
             -DCMAKE_INSTALL_LIBDIR=${CMAKE_INSTALL_LIBDIR}
             -Wno-error=dev -Wno-dev
@@ -696,8 +694,8 @@ if(USE_OPENCOLORIO)
             PREFIX OpenColorIO #${DEHANCER_COMMON_DIR}
             )
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES}; OpenColorIO)
-    set(COMMON_LIBRARIES   libOpenColorIO.a; ${COMMON_LIBRARIES})
-    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES}; libpystring.a; libyaml-cpp.a; libImath-3_1.a;)
+#    set(COMMON_LIBRARIES   libOpenColorIO.a; ${COMMON_LIBRARIES})
+#    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES}; libpystring.a; libyaml-cpp.a; libImath-3_1.a;)
 
     link_directories(
             ${CMAKE_BINARY_DIR}/OpenColorIO/src/OpenColorIO-build/ext/dist/lib

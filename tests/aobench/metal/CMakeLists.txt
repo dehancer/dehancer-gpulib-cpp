@@ -10,7 +10,7 @@ include(${DEHANCER_GPULIB_CPP_SOURCE}/tests/CMakeCommon.in)
 
 add_custom_command(
         TARGET ${TEST} POST_BUILD
-        DEPENDS TestKernels
+#        DEPENDS TestKernels
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_BINARY_DIR}/tests/shaders/metal/${CURRENT_KERNEL_TARGET_NAME}_metal.metallib
         "$<TARGET_FILE_DIR:${TEST}>/"
