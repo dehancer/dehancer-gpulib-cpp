@@ -6,32 +6,14 @@
 
 #if WIN32
 #define __attribute__(x)
-//#else
 #endif
-
-// typedef  unsigned int uint;
-
-// #define __constant const
-// #define __read_only const
-// #define __write_only
-// #define __read_write
 
 #define DHCR_BIND_TEXTURE(N)
 #define DHCR_BIND_BUFFER(N)
 
-// #define DHCR_KERNEL         extern "C" __global__
-// #define DHCR_DEVICE_FUNC   __device__
-// #define DHCR_HOST_DEVICE_FUNC  __host__ __device__
-// #define DHCR_DEVICE_ARG
-// #define DHCR_THREAD_ARG
-// #define DHCR_CONST_ARG
-// #define DHCR_CONST_ARG_REF(T) DHCR_CONST_ARG T
-
 #define DHCR_KERNEL_GID_1D
 #define DHCR_KERNEL_GID_2D
 #define DHCR_KERNEL_GID_3D
-
-// #define DHCR_BLOCK_MEMORY __shared__
 
 using atomic_int_t = int;
 using atomic_bool_t = uint;
