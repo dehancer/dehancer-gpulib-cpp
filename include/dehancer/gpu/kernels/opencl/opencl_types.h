@@ -8,14 +8,14 @@
 #define DHCR_BIND_TEXTURE(N)
 #define DHCR_BIND_BUFFER(N)
 
-#define DHCR_KERNEL __kernel
-#define DHCR_DEVICE_FUNC
-#define DHCR_HOST_DEVICE_FUNC
-#define DHCR_DEVICE_ARG __global
-#define DHCR_THREAD_ARG
-#define DHCR_CONST_ARG
-#define DHCR_CONST_ARG_REF(T) DHCR_CONST_ARG T
-#define DHCR_BLOCK_MEMORY  local
+// #define DHCR_KERNEL __kernel
+// #define DHCR_DEVICE_FUNC
+// #define DHCR_HOST_DEVICE_FUNC
+// #define DHCR_DEVICE_ARG __global
+// #define DHCR_THREAD_ARG
+// #define DHCR_CONST_ARG
+// #define DHCR_CONST_ARG_REF(T) DHCR_CONST_ARG T
+// #define DHCR_BLOCK_MEMORY  local
 
 #define DHCR_KERNEL_GID_1D
 #define DHCR_KERNEL_GID_2D

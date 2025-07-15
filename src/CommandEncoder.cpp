@@ -55,52 +55,52 @@ namespace dehancer {
     }
 
     void dehancer::CommandEncoder::set(const float2x2 &p, int index) {
-      set(p.mem, p.size()*sizeof(float), index);
+      set(p.m, sizeof(p), index);
     }
     
     void dehancer::CommandEncoder::set(const float3x3 &p, int index) {
-      set(p.mem, p.size()*sizeof(float), index);
+      set(p.m, sizeof(p), index);
     }
     
     void CommandEncoder::set(const float4x4 &p, int index) {
-      set(p.mem, p.size()*sizeof(float), index);
+      set(p.m, sizeof(p), index);
     }
     
     void dehancer::CommandEncoder::set(const math::uint2 &p, int index) {
-      set(p.mem, p.size()*sizeof(uint), index);
+      set(p.v, sizeof(p), index);
     }
     
     void CommandEncoder::set(const math::uint3 &p, int index) {
-      set(p.mem, p.size()*sizeof(uint), index);
+      set(p.v, sizeof(p), index);
     }
     
     void CommandEncoder::set(const math::uint4 &p, int index) {
-      set(p.mem, p.size()*sizeof(uint), index);
+      set(p.v, sizeof(p), index);
     }
     
     void dehancer::CommandEncoder::set(const math::int2 &p, int index) {
-      set(p.mem, p.size()*sizeof(int), index);
+      set(p.v, sizeof(p), index);
     }
     
     void CommandEncoder::set(const math::int3 &p, int index) {
-      set(p.mem, p.size()*sizeof(int), index);
+      set(p.v, sizeof(p), index);
     }
     
     void CommandEncoder::set(const math::int4 &p, int index) {
-      set(p.mem, p.size()*sizeof(int), index);
+      set(p.v, sizeof(p), index);
     }
     
     void dehancer::CommandEncoder::set(const math::bool2 &p, int index) {
-      set(p.mem, p.size()*sizeof(bool), index);
+      set(p.v, sizeof(p), index);
     }
     
     void CommandEncoder::set(const math::bool3 &p, int index) {
-      set(p.mem, p.size()*sizeof(bool), index);
+      set(p.v, sizeof(p), index);
 
     }
     
     void CommandEncoder::set(const math::bool4 &p, int index) {
-      set(p.mem, p.size()*sizeof(bool), index);
+      set(p.v, sizeof(p), index);
     }
     
     
@@ -174,8 +174,8 @@ namespace dehancer {
         }
       };
   
-      memcpy(space.transform_func.cs_forward_matrix, p.transform_func.cs_forward_matrix.mem, sizeof(space.transform_func.cs_forward_matrix));
-      memcpy(space.transform_func.cs_inverse_matrix, p.transform_func.cs_inverse_matrix.mem, sizeof(space.transform_func.cs_inverse_matrix));
+      memcpy(space.transform_func.cs_forward_matrix, p.transform_func.cs_forward_matrix.m, sizeof(space.transform_func.cs_forward_matrix));
+      memcpy(space.transform_func.cs_inverse_matrix, p.transform_func.cs_inverse_matrix.m, sizeof(space.transform_func.cs_inverse_matrix));
       memcpy(&space.transform_lut.forward, &p.transform_lut.forward, sizeof(space.transform_lut.forward));
       memcpy(&space.transform_lut.inverse, &p.transform_lut.inverse, sizeof(space.transform_lut.inverse));
       

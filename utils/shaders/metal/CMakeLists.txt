@@ -40,6 +40,7 @@
          -I ${CMAKE_CURRENT_SOURCE_DIR}
          -I ${DEHANCER_GPULIB_CPP_SOURCE}/include
          -I ${DEHANCER_GPULIB_CPP_SOURCE}/utils/shaders
+         -I ${dehancer_maths_cpp_INCLUDE_DIRS}
          -O3 -ffast-math
          -c
          -target ${METAL_TARGET_FLAGS}
