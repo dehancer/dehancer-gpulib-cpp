@@ -35,8 +35,8 @@ namespace test {
     std::vector<float> get_as_mem(std::vector<float3> map) {
       std::vector<float> list;
       for(auto v: map) {
-        for (auto p: v) {
-          list.push_back(p);
+        for (auto i=0; i<3; i++) {
+          list.push_back(v.v[i]);
         }
       }
       return list;
