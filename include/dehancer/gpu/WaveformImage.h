@@ -18,13 +18,7 @@ namespace dehancer {
     
     public:
         using Function::Function;
-        
-        struct Edges {
-            bool  ignore = false;
-            float left_trim = 1.0f;
-            float right_trim = 1.0f;
-        };
-    
+
         struct Transform {
             bool  enabled = false;
             StreamSpace space;
@@ -38,7 +32,6 @@ namespace dehancer {
         };
         
         struct Options {
-            Edges     edges;
             Transform transform;
             LumaType  luma_type = LumaType::YCbCr;
         };
@@ -46,11 +39,6 @@ namespace dehancer {
         explicit WaveformImage(const void *command_queue,
                                 const Texture &source = nullptr,
                                 const Options& options = {
-                                        .edges = Edges {
-                                                .ignore = false,
-                                                .left_trim = 1.0f,
-                                                .right_trim = 1.0f
-                                        },
                                         .transform = {
                                                 .enabled = false
                                         },

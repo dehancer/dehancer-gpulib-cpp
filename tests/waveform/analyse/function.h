@@ -50,11 +50,6 @@ auto function_test =  [] (int dev_num,
       auto kernel = dehancer::WaveformImage(command_queue);
       
       kernel.set_options({
-        .edges = {
-                .ignore = false,
-                .left_trim = 1.0f,
-                .right_trim = 1.0f
-        },
         .transform = {
           .enabled = true,
           .space = space,
@@ -77,13 +72,14 @@ auto function_test =  [] (int dev_num,
       auto l = waveform.get_channel(ch::luma);
   
       for(int i = 0; i < (int)waveform.get_size().size; i++){
-        if (r[i] == 0 && g[i] == 0 && b[i] == 0 && l[i] == 0) continue;
-        std::cout << "["<<i<<"] = "
-                  << "  "   << (unsigned long)r[i]
-                  << ", "   << (unsigned long)g[i]
-                  << ", "   << (unsigned long)b[i]
-                  << " :: " << (unsigned long)l[i]
-                  << std::endl;
+        //if (r[i] > 0 || g[i] > 0 || b[i] > 0 || l[i] > 0) {
+            std::cout << "["<<i<<"] = "
+                      << "  "   << r[i]
+                      << ", "   << g[i]
+                      << ", "   << b[i]
+                      << " :: " << l[i]
+                      << std::endl;
+        //}
       }
   
       std::cout << "  clipped lower luma: "<< (int)waveform.get_channel(ch::luma).lower(clipping_low)  << std::endl;
