@@ -72,14 +72,14 @@ auto function_test =  [] (int dev_num,
       auto l = waveform.get_channel(ch::luma);
   
       for(int i = 0; i < (int)waveform.get_size().size; i++){
-        //if (r[i] > 0 || g[i] > 0 || b[i] > 0 || l[i] > 0) {
+        if (r[i] > 0 || g[i] > 0 || b[i] > 0 || l[i] > 0) {
             std::cout << "["<<i<<"] = "
                       << "  "   << r[i]
                       << ", "   << g[i]
                       << ", "   << b[i]
                       << " :: " << l[i]
                       << std::endl;
-        //}
+        }
       }
   
       std::cout << "  clipped lower luma: "<< (int)waveform.get_channel(ch::luma).lower(clipping_low)  << std::endl;
