@@ -81,13 +81,6 @@ auto function_test =  [] (int dev_num,
                       << std::endl;
         }
       }
-  
-      std::cout << "  clipped lower luma: "<< (int)waveform.get_channel(ch::luma).lower(clipping_low)  << std::endl;
-      std::cout << " clipped higher luma: "<< (int)(waveform.get_channel(ch::luma).higher(clipping_high) * (float )waveform.get_size().size) << std::endl;
-  
-      std::cout << "   clipped lower red: "<< (int)waveform.get_channel(ch::red).lower(clipping_low)  << std::endl;
-      std::cout << "  clipped higher red: "<< (int)(waveform.get_channel(ch::red).higher(clipping_high) * (float )waveform.get_size().size) << std::endl;
-      
     }
     catch (const std::runtime_error &e) {
       std::cerr << "Kernel error: " << e.what() << std::endl;
