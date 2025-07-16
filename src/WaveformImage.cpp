@@ -67,7 +67,7 @@ namespace dehancer {
             const WaveformImage::Options& options,
             bool wait_until_completed,
             const std::string &library_path):
-            Function(command_queue, "kernel_histogram_image", wait_until_completed, library_path),
+            Function(command_queue, "kernel_waveform_image", wait_until_completed, library_path),
             impl_(std::make_shared<impl::WaveformImpl>(this, options))
     {
       set_source(source);
@@ -80,9 +80,7 @@ namespace dehancer {
     void WaveformImage::set_source (const Texture &source) {
       impl_->source = source;
       if (impl_->source) {
-        size_t length = (impl_->waveform.get_size().size+1) * impl_->waveform.get_size().num_channels * sizeof (uint);
-        auto command_size = ask_compute_size(impl_->source);
-        length *= command_size.threads_in_grid;
+        size_t length = impl_->waveform.get_size().size * impl_->waveform.get_size().num_channels * sizeof (float);
         MemoryDesc desc = {
                 .length = length,
                 .mem_flags = static_cast<MemoryDesc::MemFlags>(MemoryDesc::MemFlags::less_memory |
@@ -137,23 +135,13 @@ namespace dehancer {
           encoder.set(impl_->partial_waveform_buffer,2);
           encoder.set((int)compute_size.threads_in_grid,3);
       });
-      
-      auto grid_size = impl_->waveform.get_size().size * impl_->waveform.get_size().num_channels;
-      auto block_size = (workgroup_size >  impl_->waveform.get_size().size) ?  impl_->waveform.get_size().size : workgroup_size;
-  
-      auto acc = impl::WaveformAcc(get_command_queue(),
-                         impl_->partial_waveform_buffer,
-                         impl_->waveform.get_size().size,
-                         impl_->waveform.get_size().num_channels,
-                         impl_->options,
-                         true,
-                         get_library_path());
 
-      acc.process(grid_size,block_size,compute_size.threads_in_grid);
+      std::vector<float4> buffer;
+      impl_->partial_waveform_buffer->get_contents(buffer);
 
-      auto& buffer = acc.get_waveform();
-
-      impl_->waveform.update(buffer);
+      for (size_t i = 0; i < buffer.size(); ++i) {
+        std::cout << buffer[i].w << std::endl;
+      }
     }
     
     void WaveformImage::set_options (const WaveformImage::Options &options) {
@@ -168,7 +156,7 @@ namespace dehancer {
                                     const WaveformImage::Options& options,
                                     bool wait_until_completed,
                                     const std::string &library_path ):
-                Function(command_queue, "kernel_sum_partial_histogram_image", wait_until_completed, library_path),
+                Function(command_queue, "kernel_sum_partial_waveform_image", wait_until_completed, library_path),
                 size_(size),
                 channels_(channels),
                 options_(options),

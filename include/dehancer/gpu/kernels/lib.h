@@ -22,6 +22,7 @@
 #include "dehancer/gpu/kernels/clut_kernels.h"
 #include "dehancer/gpu/kernels/stream_kernels.h"
 #include "dehancer/gpu/kernels/histogram_kernel.h"
+#include "dehancer/gpu/kernels/waveform_kernel.h"
 
 
 #endif // DEHANCER_GPULIB_LIB_H
