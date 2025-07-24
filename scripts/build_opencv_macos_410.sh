@@ -1,14 +1,10 @@
 #!/usr/bin/env bash
 
-#
-# https://docs.opencv.org/4.x/db/d05/tutorial_config_reference.html
-#
-
 HOME_PWD="$(pwd)"
 
 NCPUS=$(sysctl -n hw.ncpu)
 
-OPENCV_VERSION="4.11.0"
+OPENCV_VERSION="4.12.0"
 CMAKE_INSTALL_PREFIX="/opt/dehancer-dependencies"
 
 if command -v brew > /dev/null ; then
@@ -49,44 +45,31 @@ fi
 
 mkdir -p build-macos-arm64 && cd build-macos-arm64 || exit 1
 
-OCV_OPTIONS="\
-                -DOPENCV_EXTRA_MODULES_PATH=/tmp/opencv/opencv_contrib/modules \
-                -DBUILD_opencv_legacy=OFF \
-                -DBUILD_opencv_mcc=ON \
-                -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
-                -DWITH_JPEG=ON \
-                -DWITH_PNG=ON \
-                -DBUILD_JPEG=OFF \
-                -DBUILD_PNG=OFF \
-                -DBUILD_OPENEXR=ON \
-                -DBUILD_TIFF=ON \
-                -DBUILD_WEBP=ON \
-                -DWITH_EIGEN=ON \
-                -DEIGEN_INCLUDE_PATH="${CMAKE_INSTALL_PREFIX}" \
-                -DVIDEOIO_ENABLE_PLUGINS=ON -DOPENCV_GENERATE_PKGCONFIG=ON \
-                \
-                -DBUILD_OpenCV_HAL=OFF \
-                -DBUILD_OPENVX=OFF \
-                -DOBSENSOR_USE_ORBBEC_SDK=OFF \
-                -DWITH_OBSENSOR=OFF \
-                -DBUILD_SHARED_LIBS=OFF -DWITH_FFMPEG=OFF -DWITH_V4L=OFF \
-                -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF \
-                -DWITH_PROTOBUF=OFF -DBUILD_PROTOBUF=OFF \
-                -DBUILD_JAVA=OFF \
-                -DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=OFF \
-                -DBUILD_opencv_js=OFF \
-                -DBUILD_opencv_java=OFF \
-                -DBUILD_opencv_python=OFF \
-                -DBUILD_opencv_objc=OFF"
-
 cmake \
-    -DCMAKE_CXX_STANDARD=17 \
     -DCMAKE_OSX_ARCHITECTURES="arm64" \
+    -DOPENCV_EXTRA_MODULES_PATH="/tmp/opencv/opencv_contrib/modules" \
+    -DBUILD_opencv_legacy=OFF \
+    -DBUILD_opencv_mcc=ON \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+    -DWITH_JPEG=ON \
+    -DWITH_PNG=ON \
+    -DBUILD_JPEG=OFF \
+    -DBUILD_PNG=OFF \
+    -DBUILD_OPENEXR=ON \
+    -DBUILD_TIFF=ON \
+    -DBUILD_WEBP=ON \
+    -DBUILD_OpenCV_HAL=OFF \
+    -DBUILD_OPENVX=OFF \
+    -DOBSENSOR_USE_ORBBEC_SDK=OFF \
+    -DWITH_OBSENSOR=OFF \
     -DCMAKE_INSTALL_PREFIX:PATH="${CMAKE_INSTALL_PREFIX}" \
-    ${OCV_OPTIONS} \
-    ..
+    -DBUILD_SHARED_LIBS=OFF -DWITH_FFMPEG=OFF -DWITH_V4L=OFF -DWITH_EIGEN=OFF\
+    -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF \
+    -DVIDEOIO_ENABLE_PLUGINS=ON -DOPENCV_GENERATE_PKGCONFIG=ON \
+    -DWITH_PROTOBUF=OFF -DBUILD_PROTOBUF=OFF \
+    -DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=OFF ..
 
-cmake --build . -j"${NCPUS}"  --config Release --verbose
+cmake --build . -j"${NCPUS}"  --config Release
 sudo cmake --build . -j"${NCPUS}"  --target install
 
 cd ../
@@ -94,11 +77,28 @@ cd ../
 mkdir -p build-macos-x86_64 && cd build-macos-x86_64 || exit 1
 
 cmake \
-    -DCMAKE_CXX_STANDARD=17 \
     -DCMAKE_OSX_ARCHITECTURES="x86_64" \
+    -DOPENCV_EXTRA_MODULES_PATH="/tmp/opencv/opencv_contrib/modules" \
+    -DBUILD_opencv_legacy=OFF \
+    -DBUILD_opencv_mcc=ON \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0 \
+    -DWITH_JPEG=ON \
+    -DWITH_PNG=ON \
+    -DBUILD_JPEG=OFF \
+    -DBUILD_PNG=OFF \
+    -DBUILD_OPENEXR=ON \
+    -DBUILD_TIFF=ON \
+    -DBUILD_WEBP=ON \
+    -DBUILD_OpenCV_HAL=OFF \
+    -DBUILD_OPENVX=OFF \
+    -DOBSENSOR_USE_ORBBEC_SDK=OFF \
+    -DWITH_OBSENSOR=OFF \
     -DCMAKE_INSTALL_PREFIX:PATH="${CMAKE_INSTALL_PREFIX}/x86_64" \
-    ${OCV_OPTIONS} \
-    ..
+    -DBUILD_SHARED_LIBS=OFF -DWITH_FFMPEG=OFF -DWITH_V4L=OFF -DWITH_EIGEN=OFF\
+    -DBUILD_EXAMPLES=OFF -DBUILD_TESTS=OFF \
+    -DVIDEOIO_ENABLE_PLUGINS=ON -DOPENCV_GENERATE_PKGCONFIG=ON \
+    -DWITH_PROTOBUF=OFF -DBUILD_PROTOBUF=OFF \
+    -DBUILD_opencv_python2=OFF -DBUILD_opencv_python3=OFF ..
 
 cmake --build . -j"${NCPUS}"  --config Release
 sudo cmake --build . -j"${NCPUS}"  --target install
