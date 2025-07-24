@@ -109,8 +109,10 @@ namespace dehancer {
         virtual void return_command_queue(const void *queue)  ;
 
         virtual ~gpu_device_cache() = default;
-    
-        #if defined(DEHANCER_CONTROLLED_SINGLETON)
+
+        #if defined(SINGLETON_API)
+        friend class Singleton<gpu_device_cache>;
+        #elif defined(DEHANCER_CONTROLLED_SINGLETON)
         friend class ControlledSingleton<gpu_device_cache>;
         #else
         friend class SimpleSingleton<gpu_device_cache>;
