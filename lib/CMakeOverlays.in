@@ -1,17 +1,9 @@
 set (EMBEDDED_OVERLAYS_C_TARGET EmbeddedWatermarks${PROJECT_LIB_PLATFORM_SUFFIX})
 set (EMBEDDED_CURRENT_C_TARGET ${EMBEDDED_OVERLAYS_C_TARGET})
 
-#if (LINUX)
-#    set(_WATER_MARK_EXTENSION "tif")
-#else()
-#    set(_WATER_MARK_EXTENSION "png")
-#endif ()
-
-set(_WATER_MARK_EXTENSION "png")
-
 file (GLOB EMBEDDED_IMAGE_FILES ${EMBEDDED_IMAGE_FILES}
-        ${DEHANCER_GPULIB_CPP_SOURCE}/src/rc/watermarks/*.${_WATER_MARK_EXTENSION}
-        ${DEHANCER_GPULIB_CPP_SOURCE}/src/rc/false_color/*.${_WATER_MARK_EXTENSION}
-        )
+    ${DEHANCER_GPULIB_CPP_SOURCE}/src/rc/watermarks/*.png
+    ${DEHANCER_GPULIB_CPP_SOURCE}/src/rc/false_color/*.png
+)
 
 include(${DEHANCER_GPULIB_CPP_SOURCE}/lib/CMakeEmbedded.in)
