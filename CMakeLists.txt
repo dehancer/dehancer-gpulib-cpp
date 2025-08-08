@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
 
-
 #
 #  Current master version release dependencies:
 #  dehancer-common-cpp:0.18.0
@@ -11,11 +10,13 @@ cmake_minimum_required(VERSION 3.22)
 #  dehancer-opencl-helper:0.5.0
 #
 
+option(DEHANCER_PIN_DEPENDENCIES OFF)
+
 set(GIT_TAG_dehancer_xmp_cpp "develop")
 set(GIT_TAG_dehancer_maths_cpp "develop")
 set(GIT_TAG_dehancer_opencl_helper "develop")
 
-if(NOT DEHANCER_DEBUG)
+if (DEHANCER_PIN_DEPENDENCIES)
     set(GIT_TAG_dehancer_xmp_cpp "0.15.0")
     set(GIT_TAG_dehancer_maths_cpp "0.13.0")
     set(GIT_TAG_dehancer_opencl_helper "0.5.0")
