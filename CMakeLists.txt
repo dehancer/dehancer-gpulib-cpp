@@ -35,7 +35,7 @@ message(STATUS "PKG_CONFIG_PATH: $ENV{PKG_CONFIG_PATH}")
 
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 1.10.0)
+project(${PROJECT_LIB} VERSION 1.11.0)
 
 #
 #
