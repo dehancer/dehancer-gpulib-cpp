@@ -17,7 +17,7 @@ set(GIT_TAG_dehancer_maths_cpp "develop")
 set(GIT_TAG_dehancer_opencl_helper "develop")
 
 if (DEHANCER_PIN_DEPENDENCIES)
-    set(GIT_TAG_dehancer_xmp_cpp "0.15.0")
+    set(GIT_TAG_dehancer_xmp_cpp "0.15.1")
     set(GIT_TAG_dehancer_maths_cpp "0.13.0")
     set(GIT_TAG_dehancer_opencl_helper "0.5.0")
 endif ()
