@@ -33,14 +33,6 @@
  * Dummy auto indentation for CLion
  */
 
-// typedef  unsigned int uint;
-
-// #define __constant const
-// #define __constant const
-// #define __read_only const
-// #define __write_only
-// #define __read_write
-
 #define DHCR_BIND_TEXTURE(N)
 #define DHCR_BIND_BUFFER(N)
 
@@ -48,11 +40,6 @@
 #define DHCR_KERNEL_GID_2D
 #define DHCR_KERNEL_GID_3D
 
-// #define DHCR_KERNEL
-// #define DHCR_DEVICE_FUNC
-// #define DHCR_DEVICE_ARG
-// #define DHCR_THREAD_ARG
-// #define DHCR_CONST_ARG
 #define uint_ref_t unsigned int
 #define int_ref_t int
 #define float_ref_t  float

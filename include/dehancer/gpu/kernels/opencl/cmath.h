@@ -23,7 +23,6 @@
 
 #ifndef DEHANCER_GPULIB_CMATH_OPENCL_H
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // constructors
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,55 +85,6 @@ static inline float4 __attribute__((overloadable)) make_float4(float x, float y,
   return __make_float4(x, y, z, w);
 }
 #endif
-
-/***
- * TODO: float2x2,float3x3,float4x4 constructors
- *
- * @param r0
- * @param r1
- * @param r2
- * @return
- */
-static inline float3x3 __attribute__((overloadable)) make_float3x3(float3 r0, float3 r1, float3 r2) {
- 
-  float3x3 val;
-  
-#if defined(ARMA_INCLUDES)
-  val(0,0)=r0.x(); val(0,1)=r0.y(); val(0,2)=r0.z();
-  val(1,0)=r1.x(); val(1,1)=r1.y(); val(1,2)=r1.z();
-  val(2,0)=r2.x(); val(2,1)=r2.y(); val(2,2)=r2.z();
-#else
-  val.v[0].x=r0.x; val.v[0].y=r0.y; val.v[0].z=r0.z;
-  val.v[1].x=r1.x; val.v[1].y=r1.y; val.v[1].z=r1.z;
-  val.v[2].x=r2.x; val.v[2].y=r2.y; val.v[2].z=r2.z;
-#endif
-  return val;
-}
-
-static inline float3 __attribute__((overloadable)) matrix3x3_mul(float3x3 m, float3 v) {
-  #if defined(ARMA_INCLUDES)
-  return m * v;
-  #else
-  return make_float3(
-          m.v[0].x * v.x + m.v[0].y * v.y + m.v[0].z * v.z,
-          m.v[1].x * v.x + m.v[1].y * v.y + m.v[1].z * v.z,
-          m.v[2].x * v.x + m.v[2].y * v.y + m.v[2].z * v.z
-  );
-  #endif
-}
-
-static inline float4 __attribute__((overloadable)) matrix4x4_mul(float4x4 m, float4 v) {
-//  #if defined(ARMA_INCLUDES)
-  return v;
-//  #else
-//  return make_float4(
-//          m.v[0].x * v.x + m.v[0].y * v.y + m.v[0].z * v.z + m.v[0].w * v.w,
-//          m.v[1].x * v.x + m.v[1].y * v.y + m.v[1].z * v.z + m.v[1].w * v.w,
-//          m.v[2].x * v.x + m.v[2].y * v.y + m.v[2].z * v.z + m.v[2].w * v.w,
-//          m.v[3].x * v.x + m.v[3].y * v.y + m.v[3].z * v.z + m.v[3].w * v.w
-//  );
-//  #endif
-}
 
 //
 //////////////////////////////////////////////////////////////////////////////////

@@ -1,23 +1,24 @@
 cmake_minimum_required(VERSION 3.22)
 
-
 #
 #  Current master version release dependencies:
-#  dehancer-common-cpp:0.16.0
+#  dehancer-common-cpp:0.18.0
 #     base64cpp:1.2.0
 #     ed25519cpp:1.4.0
-#  dehancer-xmp-cpp:0.14.0
-#  dehancer-maths-cpp:0.12.0
+#  dehancer-xmp-cpp:0.15.0
+#  dehancer-maths-cpp:0.13.0
 #  dehancer-opencl-helper:0.5.0
 #
+
+option(DEHANCER_PIN_DEPENDENCIES OFF)
 
 set(GIT_TAG_dehancer_xmp_cpp "develop")
 set(GIT_TAG_dehancer_maths_cpp "develop")
 set(GIT_TAG_dehancer_opencl_helper "develop")
 
-if(NOT DEHANCER_DEBUG)
-    set(GIT_TAG_dehancer_xmp_cpp "0.14.0")
-    set(GIT_TAG_dehancer_maths_cpp "0.12.0")
+if (DEHANCER_PIN_DEPENDENCIES)
+    set(GIT_TAG_dehancer_xmp_cpp "0.15.1")
+    set(GIT_TAG_dehancer_maths_cpp "0.13.0")
     set(GIT_TAG_dehancer_opencl_helper "0.5.0")
 endif ()
 
@@ -34,7 +35,7 @@ message(STATUS "PKG_CONFIG_PATH: $ENV{PKG_CONFIG_PATH}")
 
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 1.9.0)
+project(${PROJECT_LIB} VERSION 1.11.0)
 
 #
 #
@@ -75,8 +76,6 @@ set(DEHANCER_GPULIB_BINARY ${CMAKE_CURRENT_BINARY_DIR})
 if (NOT OpenCV_DIR)
     if (APPLE)
         set (OpenCV_DIR "/usr/local/universal" CACHE INTERNAL "OpenCV Root" )
-    elseif (LINUX)
-        set (OpenCV_DIR "/usr/local" CACHE INTERNAL "OpenCV Root" )
     else ()
         set (OpenCV_DIR "" CACHE INTERNAL "OpenCV Root" )
     endif ()
@@ -267,15 +266,20 @@ else()
     find_package(Eigen3 REQUIRED)
     if (APPLE)
         find_package (OpenCV REQUIRED PATHS ${OpenCV_DIR})
-    else ()
-        if(WIN32)
-            find_package(OpenCV REQUIRED)
-            add_definitions(/DCV_IGNORE_DEBUG_BUILD_GUARD=1)
-        else()
-            find_package (OpenCV REQUIRED)
-        endif()
     endif ()
 endif()
+
+if(WIN32)
+    find_package(OpenCV REQUIRED)
+    add_definitions(/DCV_IGNORE_DEBUG_BUILD_GUARD=1)
+endif()
+
+if (LINUX)
+    find_package (OpenCV REQUIRED PATHS ${OpenCV_DIR})
+endif ()
+
+message(STATUS "OpenCV: ${OpenCV_INCLUDE_DIRS}")
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 if(LINUX)
 
@@ -323,10 +327,10 @@ else ()
 
     FetchContent_GetProperties(dehancer_maths_cpp)
     FetchContent_MakeAvailable(dehancer_maths_cpp)
-    if(NOT dehancer_maths_cpp_POPULATED)
-        FetchContent_Populate(dehancer_maths_cpp)
-        add_subdirectory(${dehancer_maths_cpp_SOURCE_DIR} ${dehancer_maths_cpp_BINARY_DIR})
-    endif()
+#    if(NOT dehancer_maths_cpp_POPULATED)
+#        FetchContent_Populate(dehancer_maths_cpp)
+#        add_subdirectory(${dehancer_maths_cpp_SOURCE_DIR} ${dehancer_maths_cpp_BINARY_DIR})
+#    endif()
 
     include_directories(
             ${dehancer_maths_cpp_SOURCE_DIR}/include
@@ -345,7 +349,7 @@ if (LINUX)
 
     set(DEHANCER_EXT_MATH_LIB ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
 
-    find_library(DEHANCER_EXT_MATH_LIB REQUIRED ${DEHANCER_EXT_MATH})
+#    find_library(DEHANCER_EXT_MATH_LIB REQUIRED ${DEHANCER_EXT_MATH})
 
 else()
     set(DEHANCER_EXT_MATH_LIB ${BLAS_LIBRARIES};${LAPACK_LIBRARIES})
@@ -600,10 +604,11 @@ if (DEHANCER_GPU_OPENCL)
     )
 
     FetchContent_GetProperties(dehancer_opencl_helper)
-    if(NOT dehancer_opencl_helper_POPULATED)
-        FetchContent_Populate(dehancer_opencl_helper)
-        add_subdirectory(${dehancer_opencl_helper_SOURCE_DIR} ${dehancer_opencl_helper_BINARY_DIR})
-    endif()
+    FetchContent_MakeAvailable(dehancer_opencl_helper)
+#    if(NOT dehancer_opencl_helper_POPULATED)
+#        FetchContent_Populate(dehancer_opencl_helper)
+#        add_subdirectory(${dehancer_opencl_helper_SOURCE_DIR} ${dehancer_opencl_helper_BINARY_DIR})
+#    endif()
 
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};clHelperLib)
     set(clHelper_DIR ${dehancer_opencl_helper_SOURCE_DIR}/clHelper)
