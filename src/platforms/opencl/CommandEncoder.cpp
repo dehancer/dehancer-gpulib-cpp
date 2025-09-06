@@ -135,9 +135,10 @@ namespace dehancer::opencl {
     }
     
     void CommandEncoder::set(const float2x2& m, int index){
-      cl_float4 mat;
-      for (auto i = 0; i < 4; ++i) mat.s[i]=m.m[i];
-      set(&mat, sizeof(mat), index);
+      // cl_float4 mat;
+      // for (auto i = 0; i < 4; ++i) mat.s[i]=m.m[i];
+      // set(&mat, sizeof(mat), index);
+      set(&m, sizeof(m), index);
     }
     
     size_t CommandEncoder::get_block_max_size () const {
@@ -150,15 +151,17 @@ namespace dehancer::opencl {
     }
     
     void CommandEncoder::set(const float3x3& m, int index){
-      cl_float mat[9];
-      for (auto i = 0; i < 9; ++i) mat[i]=m.m[i];
-      set(&mat, sizeof(mat), index);
+      // cl_float mat[9];
+      // for (auto i = 0; i < 9; ++i) mat[i]=m.m[i];
+      // set(&mat, sizeof(mat), index);
+      set(&m, sizeof(m), index);
     };
     
     void CommandEncoder::set(const float4x4& m, int index){
-      cl_float16 mat;
-      for (auto i = 0; i < 16; ++i) mat.s[i]=m.m[i];
-      set(&mat, sizeof(mat), index);
+      // cl_float16 mat;
+      // for (auto i = 0; i < 16; ++i) mat.s[i]=m.m[i];
+      // set(&mat, sizeof(mat), index);
+      set(&m, sizeof(m), index);
     }
     
    

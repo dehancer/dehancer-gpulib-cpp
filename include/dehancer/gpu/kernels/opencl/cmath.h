@@ -71,20 +71,19 @@
 #define make_uint3(x, y, z)      ((uint3){x, y, z})
 #define make_uint4(x, y, z, w)   ((uint4){x, y, z, w})
 #define make_uchar4(x, y, z, w)  ((uchar4){x, y, z, w})
+#include <dehancer/small_uint_vectors.h>
 
 static inline float2 __attribute__((overloadable)) make_float2(float x, float y) {
-  return __make_float2(x, y);
+  return (float2){x, y};
 }
 
 static inline float3 __attribute__((overloadable)) make_float3(float x, float y, float z) {
-  return __make_float3(x, y, z);
+  return (float3){x, y, z};
 }
 
-#if DEHANCER_GPU_CODE
 static inline float4 __attribute__((overloadable)) make_float4(float x, float y, float z, float w) {
-  return __make_float4(x, y, z, w);
+  return (float4){x, y, z, w};
 }
-#endif
 
 //
 //////////////////////////////////////////////////////////////////////////////////
@@ -269,15 +268,20 @@ static inline float4 __attribute__((overloadable)) fmodf(float4 a, float4 b) {
   #endif
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // reflect
 // - returns reflection of incident ray I around surface normal N
 // - N should be normalized, reflected vector's length is equal to length of I
 ////////////////////////////////////////////////////////////////////////////////
 
+
 static inline float3 __attribute__((overloadable)) reflect(float3 i, float3 n) {
+#if DEHANCER_GPU_CODE
   return i - 2.0f * n * dot(n, i);
+#else
+  return i - 2.0f * n * small_vector_dot(n, i);
+#endif
+
 }
 
 #define roundf round

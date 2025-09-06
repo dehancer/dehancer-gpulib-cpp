@@ -79,6 +79,13 @@ typedef struct {
 #define texture3d_read_t DHCR_READ_ONLY image3d_t
 #define texture3d_write_t DHCR_WRITE_ONLY image3d_t
 
+#include "dehancer/small_matrix.h"
+
+// #define float2x2 small_matrix_2x2
+// #define float3x3 small_matrix_3x3
+// #define float4x4 small_matrix_4x4
+
+/*
 #define float2x2 float4
 #define float4x4 float16
 
@@ -98,5 +105,5 @@ typedef union {
     float entries2[3][3];
 } float3x3;
 
-
+*/
 #endif //DEHANCER_GPULIB_OPENCL_TYPES_H
