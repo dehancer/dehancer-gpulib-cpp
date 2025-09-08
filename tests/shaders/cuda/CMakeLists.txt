@@ -37,6 +37,7 @@ add_custom_target(
         -fatbin ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.cu
         -I${CMAKE_SOURCE_DIR}/include
         -I${CMAKE_SOURCE_DIR}/tests/shaders
+        -I${dehancer_maths_cpp_INCLUDE_DIRS}
         -DCUDA_KERNEL=1
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )

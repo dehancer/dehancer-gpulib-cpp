@@ -60,10 +60,10 @@ float4x4 stream_matrix_transform_identity() {
 #endif
 
 
-#if defined(__CUDA_ARCH__)
-  float4x4 m; m.setIdentity();
-  return m;
-#else
+//#if defined(__CUDA_ARCH__)
+//  float4x4 m; m.setIdentity();
+//  return m;
+//#else
   return make_float4x4_diag(1.0f);
   // float4x4 m; matrix_diag(&m, 1.0f);
           // (float4x4){
@@ -81,7 +81,7 @@ float4x4 stream_matrix_transform_identity() {
                   // {0.000000f, 0.000000f, 1.000000f, 0.000000f},
                   // {0.000000f, 0.000000f, 0.000000f, 1.000000f}
           // });
-#endif
+//#endif
   // return m;
 }
 

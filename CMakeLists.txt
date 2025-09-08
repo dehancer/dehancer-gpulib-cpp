@@ -24,7 +24,7 @@ endif ()
 
 file(TO_CMAKE_PATH "${CMAKE_INSTALL_PREFIX}" CMAKE_INSTALL_PREFIX)
 file(TO_CMAKE_PATH "$ENV{PKG_CONFIG_PATH}" PKG_CONFIG_PATH)
-set(ENV{PKG_CONFIG_PATH} ${PKG_CONFIG_PATH})
+#set(ENV{PKG_CONFIG_PATH} ${PKG_CONFIG_PATH})
 
 message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "PKG_CONFIG_PATH: $ENV{PKG_CONFIG_PATH}")
@@ -332,6 +332,7 @@ else ()
 #        add_subdirectory(${dehancer_maths_cpp_SOURCE_DIR} ${dehancer_maths_cpp_BINARY_DIR})
 #    endif()
 
+    set(dehancer_maths_cpp_INCLUDE_DIRS ${dehancer_maths_cpp_SOURCE_DIR}/include)
     include_directories(
             ${dehancer_maths_cpp_SOURCE_DIR}/include
             ${armadillo_SOURCE_DIR}/include

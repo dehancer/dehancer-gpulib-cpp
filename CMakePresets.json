@@ -17,7 +17,8 @@
       },
 
       "environment": {
-        "PKG_CONFIG_PATH": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_SUBDIR}/dehancer/lib/pkgconfig"
+        "DEHANCER_PKG_CONFIG_PATH": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_SUBDIR}/dehancer/lib/pkgconfig",
+        "PKG_CONFIG_PATH": "$env{DEHANCER_PKG_CONFIG_PATH}"
       },
 
       "cacheVariables": {
@@ -270,7 +271,7 @@
 
       "environment": {
         "DELIMITER": ":",
-        "PKG_CONFIG_PATH": "$penv{PKG_CONFIG_PATH}:/opt/dehancer-dependencies/lib64/pkgconfig"
+        "PKG_CONFIG_PATH": "$env{DEHANCER_PKG_CONFIG_PATH}:/opt/dehancer-dependencies/lib64/pkgconfig"
       },
 
       "cacheVariables": {
