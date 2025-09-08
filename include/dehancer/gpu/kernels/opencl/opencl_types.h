@@ -81,29 +81,4 @@ typedef struct {
 
 #include "dehancer/small_matrix.h"
 
-// #define float2x2 small_matrix_2x2
-// #define float3x3 small_matrix_3x3
-// #define float4x4 small_matrix_4x4
-
-/*
-#define float2x2 float4
-#define float4x4 float16
-
-typedef union {
-    struct {
-        float m11; float m12; float m13;
-        float m21; float m22; float m23;
-        float m31; float m32; float m33;
-    };
-    struct {
-        float3 s0;
-        float3 s1;
-        float3 s2;
-    };
-    float3 v[3];
-    float entries[9];
-    float entries2[3][3];
-} float3x3;
-
-*/
 #endif //DEHANCER_GPULIB_OPENCL_TYPES_H

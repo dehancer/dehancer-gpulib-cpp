@@ -6,43 +6,43 @@
 
 namespace dehancer {
 
-    void dehancer::CommandEncoder::set(bool p, int index){
+    void CommandEncoder::set(bool p, int index){
       set(&p, sizeof(p), index);
     }
 
-    void dehancer::CommandEncoder::set(char p, int index){
+    void CommandEncoder::set(char p, int index){
       set(&p, sizeof(p), index);
     }
 
-    void dehancer::CommandEncoder::set(int8_t p, int index){
+    void CommandEncoder::set(int8_t p, int index){
       set(&p, sizeof(p), index);
     }
 
-    void dehancer::CommandEncoder::set(int16_t p, int index){
+    void CommandEncoder::set(int16_t p, int index){
       set(&p, sizeof(p), index);
     }
 
-    void dehancer::CommandEncoder::set(int32_t p, int index){
+    void CommandEncoder::set(int32_t p, int index){
       set(&p, sizeof(p), index);
     }
 
-    void dehancer::CommandEncoder::set(uint8_t p, int index){
+    void CommandEncoder::set(uint8_t p, int index){
       set(&p, sizeof(p), index);
     }
 
-    void dehancer::CommandEncoder::set(uint16_t p, int index){
+    void CommandEncoder::set(uint16_t p, int index){
       set(&p, sizeof(p), index);
     }
 
-    void dehancer::CommandEncoder::set(uint32_t p, int index){
+    void CommandEncoder::set(uint32_t p, int index){
       set(&p, sizeof(p), index);
     }
 
-    void dehancer::CommandEncoder::set(float p, int index) {
+    void CommandEncoder::set(float p, int index) {
       set(&p, sizeof(p), index);
     }
 
-    void dehancer::CommandEncoder::set(const float2 &p, int index) {
+    void CommandEncoder::set(const float2 &p, int index) {
       set(p.v, sizeof(p), index);
     }
 
@@ -54,19 +54,19 @@ namespace dehancer {
       set(p.v, sizeof(p), index);
     }
 
-    void dehancer::CommandEncoder::set(const float2x2 &p, int index) {
-      set(p.m, sizeof(p), index);
+    void CommandEncoder::set(const float2x2 &p, int index) {
+      set(p.v, sizeof(p.v), index);
     }
     
-    void dehancer::CommandEncoder::set(const float3x3 &p, int index) {
-      set(p.m, sizeof(p), index);
+    void CommandEncoder::set(const float3x3 &p, int index) {
+      set(p.v, sizeof(p.v), index);
     }
     
     void CommandEncoder::set(const float4x4 &p, int index) {
-      set(p.m, sizeof(p), index);
+      set(p.v, sizeof(p.v), index);
     }
     
-    void dehancer::CommandEncoder::set(const math::uint2 &p, int index) {
+    void CommandEncoder::set(const math::uint2 &p, int index) {
       set(p.v, sizeof(p), index);
     }
     
@@ -78,7 +78,7 @@ namespace dehancer {
       set(p.v, sizeof(p), index);
     }
     
-    void dehancer::CommandEncoder::set(const math::int2 &p, int index) {
+    void CommandEncoder::set(const math::int2 &p, int index) {
       set(p.v, sizeof(p), index);
     }
     
@@ -90,7 +90,7 @@ namespace dehancer {
       set(p.v, sizeof(p), index);
     }
     
-    void dehancer::CommandEncoder::set(const math::bool2 &p, int index) {
+    void CommandEncoder::set(const math::bool2 &p, int index) {
       set(p.v, sizeof(p), index);
     }
     
