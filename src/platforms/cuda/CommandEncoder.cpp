@@ -4,7 +4,6 @@
 
 #include "dehancer/gpu/CommandEncoder.h"
 #include "dehancer/gpu/Lib.h"
-//#include "dehancer/gpu/kernels/cuda/cmatrix.h"
 #include "CommandEncoder.h"
 
 namespace dehancer::cuda {
