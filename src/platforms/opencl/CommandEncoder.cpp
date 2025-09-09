@@ -65,22 +65,22 @@ namespace dehancer::opencl {
     }
 
     void CommandEncoder::set(const float4 &p, int index) {
-      cl_float4 buf = { p.x(), p.y(), p.z(), p.w()};
+      const cl_float4 buf = { p.x, p.y, p.z, p.w};
       set(&buf, sizeof(buf), index);
     }
 
     void CommandEncoder::set(const float3 &p, int index) {
-      cl_float3 buf = { p.x(), p.y(), p.z()};
+      const cl_float3 buf = { p.x, p.y, p.z};
       set(&buf, sizeof(buf), index);
     }
 
     void CommandEncoder::set(float p, int index) {
-      cl_float buf = p;
+      const cl_float buf = p;
       set(&buf, sizeof(buf), index);
     }
 
     void CommandEncoder::set(const float2 &p, int index) {
-      cl_float2 buf = { p.x(), p.y()};
+      cl_float2 buf = { p.x, p.y};
       set(&buf, sizeof(buf), index);
     }
 
@@ -90,54 +90,55 @@ namespace dehancer::opencl {
     }
     
     void CommandEncoder::set(const math::uint4 &p, int index) {
-      cl_uint4 buf = { p.x(), p.y(), p.z(), p.w()};
+      cl_uint4 buf = { p.x, p.y, p.z, p.w};
       set(&buf, sizeof(buf), index);
     }
     
     void CommandEncoder::set(const math::uint3 &p, int index) {
-      cl_uint3 buf = { p.x(), p.y(), p.z()};
+      cl_uint3 buf = { p.x, p.y, p.z};
       set(&buf, sizeof(buf), index);
     }
     
     void CommandEncoder::set(const math::uint2 &p, int index) {
-      cl_uint2 buf = { p.x(), p.y()};
+      cl_uint2 buf = { p.x, p.y};
       set(&buf, sizeof(buf), index);
     }
     
     void CommandEncoder::set(const math::int4 &p, int index) {
-      cl_int4 buf = { p.x(), p.y(), p.z(), p.w()};
+      cl_int4 buf = { p.x, p.y, p.z, p.w};
       set(&buf, sizeof(buf), index);
     }
     
     void CommandEncoder::set(const math::int3 &p, int index) {
-      cl_int3 buf = { p.x(), p.y(), p.z()};
+      cl_int3 buf = { p.x, p.y, p.z};
       set(&buf, sizeof(buf), index);
     }
     
     void CommandEncoder::set(const math::int2 &p, int index) {
-      cl_int2 buf = { p.x(), p.y()};
+      cl_int2 buf = { p.x, p.y};
       set(&buf, sizeof(buf), index);
     }
     
     void CommandEncoder::set(const math::bool4 &p, int index) {
-      cl_uint4 buf = { p.x(), p.y(), p.z(), p.w()};
+      cl_uint4 buf = { p.x, p.y, p.z, p.w};
       set(&buf, sizeof(buf), index);
     }
     
     void CommandEncoder::set(const math::bool3 &p, int index) {
-      cl_uint3 buf = { p.x(), p.y(), p.z()};
+      cl_uint3 buf = { p.x, p.y, p.z};
       set(&buf, sizeof(buf), index);
     }
     
     void CommandEncoder::set(const math::bool2 &p, int index) {
-      cl_uint2 buf = { p.x(), p.y()};
+      cl_uint2 buf = { p.x, p.y};
       set(&buf, sizeof(buf), index);
     }
     
     void CommandEncoder::set(const float2x2& m, int index){
-      cl_float4 mat;
-      for (int i = 0; i < (int)m.size(); ++i) mat.s[i]=m[i];
-      set(&mat, sizeof(mat), index);
+      // cl_float4 mat;
+      // for (auto i = 0; i < 4; ++i) mat.s[i]=m.m[i];
+      // set(&mat, sizeof(mat), index);
+      set(&m, sizeof(m), index);
     }
     
     size_t CommandEncoder::get_block_max_size () const {
@@ -150,15 +151,17 @@ namespace dehancer::opencl {
     }
     
     void CommandEncoder::set(const float3x3& m, int index){
-      cl_float mat[9];
-      for (int i = 0; i < (int)m.size(); ++i) mat[i]=m[i];
-      set(&mat, sizeof(mat), index);
+      // cl_float mat[9];
+      // for (auto i = 0; i < 9; ++i) mat[i]=m.m[i];
+      // set(&mat, sizeof(mat), index);
+      set(&m, sizeof(m), index);
     };
     
     void CommandEncoder::set(const float4x4& m, int index){
-      cl_float16 mat;
-      for (int i = 0; i < (int)m.size(); ++i) mat.s[i]=m[i];
-      set(&mat, sizeof(mat), index);
+      // cl_float16 mat;
+      // for (auto i = 0; i < 16; ++i) mat.s[i]=m.m[i];
+      // set(&mat, sizeof(mat), index);
+      set(&m, sizeof(m), index);
     }
     
    

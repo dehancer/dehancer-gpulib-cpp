@@ -41,6 +41,7 @@
          -I ${CMAKE_CURRENT_SOURCE_DIR}
          -I ${CMAKE_SOURCE_DIR}/include
          -I ${CMAKE_SOURCE_DIR}/tests/shaders
+         -I ${dehancer_maths_cpp_INCLUDE_DIRS}
          -O3 -ffast-math
          -c
          -Wno-unused-variable

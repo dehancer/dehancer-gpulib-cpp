@@ -60,7 +60,7 @@ namespace dehancer::opencl {
         }
 
         err = clBuildProgram(program, 1, &device_id,
-                             "-cl-std=CL2.0 -cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant",
+                             "-cl-std=CL2.1 -cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant",
                              nullptr, nullptr);
 
         if (err != CL_SUCCESS) {

@@ -8,11 +8,15 @@
 
 #include "dehancer/gpu/kernels/common.h"
 #include "dehancer/gpu/kernels/types.h"
+#include "dehancer/small_matrix.h"
+
+
+/**
 
 static inline DHCR_DEVICE_FUNC float3 float3_multiply_float3x3( float3 v, float3x3 M)
 {
 #if defined(__CUDA_ARCH__)
-  return M*v;
+  return v*M;
 #elif defined(__METAL_VERSION__)
   return v*M;
 #elif defined(CL_VERSION_1_2)
@@ -100,5 +104,7 @@ float4x4 float4x4_multiply_float4x4( float4x4 M,  float4x4 N)
   return M*N;
 #endif
 }
+
+*/
 
 #endif //DEHANCER_GPULIB_CMATRIX_OPS_H

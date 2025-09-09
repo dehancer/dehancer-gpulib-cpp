@@ -202,11 +202,11 @@ namespace dehancer {
             
             encoder.set((int)j, 4);
             
-            encoder.set(impl_->transform.slope[j],5);
-            encoder.set(impl_->transform.offset[j],6);
+            encoder.set(impl_->transform.slope.v[j],5);
+            encoder.set(impl_->transform.offset.v[j],6);
             
             if (impl_->transform.flags.in_enabled)
-              encoder.set(impl_->transform.enabled[j],7);
+              encoder.set(impl_->transform.enabled.v[j],7);
             else
               encoder.set(false,7);
             
@@ -371,11 +371,11 @@ namespace dehancer {
             
             encoder.set((int)j, 5);
             
-            encoder.set(impl_->transform.slope[j],6);
-            encoder.set(impl_->transform.offset[j],7);
+            encoder.set(impl_->transform.slope.v[j],6);
+            encoder.set(impl_->transform.offset.v[j],7);
             
             if (impl_->transform.flags.out_enabled)
-              encoder.set(impl_->transform.enabled[j],8);
+              encoder.set(impl_->transform.enabled.v[j],8);
             else
               encoder.set(false,8);
             

@@ -17,10 +17,19 @@
       },
 
       "environment": {
-        "PKG_CONFIG_PATH": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_SUBDIR}/dehancer/lib/pkgconfig"
+        "DEHANCER_DEPENDENCY_PATH": "/opt/dehancer-dependencies",
+        "DEHANCER_PKG_CONFIG_PATH": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_SUBDIR}/dehancer/lib/pkgconfig",
+        "PKG_CONFIG_PATH": "$env{DEHANCER_PKG_CONFIG_PATH}"
       },
 
       "cacheVariables": {
+
+        "Eigen3_DIR": "$env{DEHANCER_DEPENDENCY_PATH}/share/eigen3/cmake",
+        "CMAKE_PREFIX_PATH": {
+          "type": "STRING",
+          "value": "$env{DEHANCER_DEPENDENCY_PATH}"
+        },
+
         "CMAKE_INSTALL_PREFIX": {
           "type": "STRING",
           "value": "$env{HOME}/Develop/local/${hostSystemName}/$env{BUILD_SUBDIR}/$env{GPU_TYPE}/dehancer"
@@ -270,7 +279,7 @@
 
       "environment": {
         "DELIMITER": ":",
-        "PKG_CONFIG_PATH": "$penv{PKG_CONFIG_PATH}:/opt/dehancer-dependencies/lib64/pkgconfig"
+        "PKG_CONFIG_PATH": "$env{DEHANCER_PKG_CONFIG_PATH}:/opt/dehancer-dependencies/lib64/pkgconfig"
       },
 
       "cacheVariables": {

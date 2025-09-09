@@ -6,23 +6,8 @@
 
 #include <metal_stdlib>
 
-#define __constant constant
-#define __read_only
-#define __write_only
-#define __read_write
-
 #define DHCR_BIND_TEXTURE(N) [[texture(N)]]
 #define DHCR_BIND_BUFFER(N)  [[buffer (N)]]
-
-#define DHCR_KERNEL        kernel
-#define DHCR_DEVICE_FUNC
-#define DHCR_HOST_DEVICE_FUNC
-#define DHCR_DEVICE_ARG    device
-#define DHCR_THREAD_ARG    thread
-#define DHCR_CONST_ARG     constant
-#define DHCR_CONST_ARG_REF(T) DHCR_CONST_ARG T&
-#define DHCR_BLOCK_MEMORY  threadgroup
-
 
 #define DHCR_KERNEL_GID_1D  ,uint __dehancer_kernel_gid_1d__ [[thread_position_in_grid]] \
                             ,uint __dehancer_compute_size_1d__ [[threads_per_grid]]      \

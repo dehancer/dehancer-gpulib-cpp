@@ -24,7 +24,7 @@ endif ()
 
 file(TO_CMAKE_PATH "${CMAKE_INSTALL_PREFIX}" CMAKE_INSTALL_PREFIX)
 file(TO_CMAKE_PATH "$ENV{PKG_CONFIG_PATH}" PKG_CONFIG_PATH)
-set(ENV{PKG_CONFIG_PATH} ${PKG_CONFIG_PATH})
+#set(ENV{PKG_CONFIG_PATH} ${PKG_CONFIG_PATH})
 
 message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "PKG_CONFIG_PATH: $ENV{PKG_CONFIG_PATH}")
@@ -240,7 +240,7 @@ else()
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -rdynamic")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fvisibility=default -Wno-unused-command-line-argument -Wno-missing-braces -Wno-unused-parameter")
-#    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-command-line-argument -Wno-missing-braces -Wno-unused-parameter")
+    #    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-command-line-argument -Wno-missing-braces -Wno-unused-parameter")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
     if (PRINT_KERNELS_DEBUG)
         add_compile_definitions(PRINT_KERNELS_DEBUG=1)
@@ -263,6 +263,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "iOS")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -F${OPENCV_FRAMEWORK_PATH} -framework opencv2")
     include_directories(${OPENCV_INCLUDES_PATH})
 else()
+    find_package(Eigen3 REQUIRED)
     if (APPLE)
         find_package (OpenCV REQUIRED PATHS ${OpenCV_DIR})
     endif ()
@@ -297,33 +298,49 @@ else()
 
 endif()
 
+pkg_check_modules(dehancer_maths_cpp dehancer-maths-cpp)
 
 #
 ##
 ## Maths
 ##
-FetchContent_Declare(
-        dehancer_maths_cpp
-        GIT_REPOSITORY  https://github.com/dehancer/dehancer-maths-cpp
-        GIT_TAG     ${GIT_TAG_dehancer_maths_cpp}
-        SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-src"
-        BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-build"
-)
+if (dehancer_maths_cpp_FOUND)
 
-FetchContent_GetProperties(dehancer_maths_cpp)
-FetchContent_MakeAvailable(dehancer_maths_cpp)
-if(NOT dehancer_maths_cpp_POPULATED)
-    FetchContent_Populate(dehancer_maths_cpp)
-    add_subdirectory(${dehancer_maths_cpp_SOURCE_DIR} ${dehancer_maths_cpp_BINARY_DIR})
-endif()
+    message(STATUS "dehancer_maths_cpp: ${dehancer_maths_cpp_LIBRARIES}, ${dehancer_maths_cpp_LIBRARY_DIRS} ${dehancer_maths_cpp_INCLUDE_DIRS}")
+    include_directories(
+            ${dehancer_maths_cpp_INCLUDE_DIRS}
+    )
+    link_directories(
+            ${dehancer_maths_cpp_LIBRARY_DIRS}
+    )
 
-include_directories(
-        ${dehancer_maths_cpp_SOURCE_DIR}/include
-        ${armadillo_SOURCE_DIR}/include
-)
+    set(COMMON_LIBRARIES ${dehancer_maths_cpp_LIBRARIES};${COMMON_LIBRARIES})
 
-set(COMMON_LIBRARIES dehancer_maths_cpp;${COMMON_LIBRARIES})
+else ()
+    FetchContent_Declare(
+            dehancer_maths_cpp
+            GIT_REPOSITORY  https://github.com/dehancer/dehancer-maths-cpp
+            GIT_TAG     ${GIT_TAG_dehancer_maths_cpp}
+            SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-src"
+            BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-build"
+    )
 
+    FetchContent_GetProperties(dehancer_maths_cpp)
+    FetchContent_MakeAvailable(dehancer_maths_cpp)
+#    if(NOT dehancer_maths_cpp_POPULATED)
+#        FetchContent_Populate(dehancer_maths_cpp)
+#        add_subdirectory(${dehancer_maths_cpp_SOURCE_DIR} ${dehancer_maths_cpp_BINARY_DIR})
+#    endif()
+
+    set(dehancer_maths_cpp_INCLUDE_DIRS ${dehancer_maths_cpp_SOURCE_DIR}/include)
+    include_directories(
+            ${dehancer_maths_cpp_SOURCE_DIR}/include
+            ${armadillo_SOURCE_DIR}/include
+    )
+
+    set(COMMON_LIBRARIES dehancer_maths_cpp;${COMMON_LIBRARIES})
+
+endif ()
 
 if (LINUX)
     set(CMAKE_INSTALL_LIBDIR  "lib")
@@ -588,10 +605,11 @@ if (DEHANCER_GPU_OPENCL)
     )
 
     FetchContent_GetProperties(dehancer_opencl_helper)
-    if(NOT dehancer_opencl_helper_POPULATED)
-        FetchContent_Populate(dehancer_opencl_helper)
-        add_subdirectory(${dehancer_opencl_helper_SOURCE_DIR} ${dehancer_opencl_helper_BINARY_DIR})
-    endif()
+    FetchContent_MakeAvailable(dehancer_opencl_helper)
+#    if(NOT dehancer_opencl_helper_POPULATED)
+#        FetchContent_Populate(dehancer_opencl_helper)
+#        add_subdirectory(${dehancer_opencl_helper_SOURCE_DIR} ${dehancer_opencl_helper_BINARY_DIR})
+#    endif()
 
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES};clHelperLib)
     set(clHelper_DIR ${dehancer_opencl_helper_SOURCE_DIR}/clHelper)
@@ -668,7 +686,7 @@ if(USE_OPENCOLORIO)
     # https://github.com/AcademySoftwareFoundation/OpenColorIO
     #
 
-        ExternalProject_Add(OpenColorIO
+    ExternalProject_Add(OpenColorIO
             SOURCE_DIR ${DEHANCER_GPULIB_CPP_SOURCE}/external/OpenColorIO
             INSTALL_DIR ${EXTERNAL_INSTALL_LOCATION}
             CMAKE_ARGS
@@ -696,10 +714,10 @@ if(USE_OPENCOLORIO)
             -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
             -DDEHANCER_COMMON_DIR=${DEHANCER_COMMON_DIR}
             PREFIX OpenColorIO #${DEHANCER_COMMON_DIR}
-            )
+    )
     set(COMMON_DEPENDENCIES ${COMMON_DEPENDENCIES}; OpenColorIO)
-#    set(COMMON_LIBRARIES   libOpenColorIO.a; ${COMMON_LIBRARIES})
-#    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES}; libpystring.a; libyaml-cpp.a; libImath-3_1.a;)
+    #    set(COMMON_LIBRARIES   libOpenColorIO.a; ${COMMON_LIBRARIES})
+    #    set(COMMON_LIBRARIES  ${COMMON_LIBRARIES}; libpystring.a; libyaml-cpp.a; libImath-3_1.a;)
 
     link_directories(
             ${CMAKE_BINARY_DIR}/OpenColorIO/src/OpenColorIO-build/ext/dist/lib
@@ -740,7 +758,7 @@ set(COMMON_LIBRARIES
         ${Iconv_LIBRARIES};
         ${ZLIB_LIBRARIES};
         ${CMAKE_DL_LIBS};
-        )
+)
 
 message(STATUS "COMMON_LIBRARIES: ${COMMON_LIBRARIES}")
 message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")

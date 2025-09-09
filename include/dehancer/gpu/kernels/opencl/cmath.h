@@ -23,7 +23,6 @@
 
 #ifndef DEHANCER_GPULIB_CMATH_OPENCL_H
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // constructors
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,68 +71,18 @@
 #define make_uint3(x, y, z)      ((uint3){x, y, z})
 #define make_uint4(x, y, z, w)   ((uint4){x, y, z, w})
 #define make_uchar4(x, y, z, w)  ((uchar4){x, y, z, w})
+#include <dehancer/small_uint_vectors.h>
 
 static inline float2 __attribute__((overloadable)) make_float2(float x, float y) {
-  return __make_float2(x, y);
+  return (float2){x, y};
 }
 
 static inline float3 __attribute__((overloadable)) make_float3(float x, float y, float z) {
-  return __make_float3(x, y, z);
+  return (float3){x, y, z};
 }
 
-#if DEHANCER_GPU_CODE
 static inline float4 __attribute__((overloadable)) make_float4(float x, float y, float z, float w) {
-  return __make_float4(x, y, z, w);
-}
-#endif
-
-/***
- * TODO: float2x2,float3x3,float4x4 constructors
- *
- * @param r0
- * @param r1
- * @param r2
- * @return
- */
-static inline float3x3 __attribute__((overloadable)) make_float3x3(float3 r0, float3 r1, float3 r2) {
- 
-  float3x3 val;
-  
-#if defined(ARMA_INCLUDES)
-  val(0,0)=r0.x(); val(0,1)=r0.y(); val(0,2)=r0.z();
-  val(1,0)=r1.x(); val(1,1)=r1.y(); val(1,2)=r1.z();
-  val(2,0)=r2.x(); val(2,1)=r2.y(); val(2,2)=r2.z();
-#else
-  val.v[0].x=r0.x; val.v[0].y=r0.y; val.v[0].z=r0.z;
-  val.v[1].x=r1.x; val.v[1].y=r1.y; val.v[1].z=r1.z;
-  val.v[2].x=r2.x; val.v[2].y=r2.y; val.v[2].z=r2.z;
-#endif
-  return val;
-}
-
-static inline float3 __attribute__((overloadable)) matrix3x3_mul(float3x3 m, float3 v) {
-  #if defined(ARMA_INCLUDES)
-  return m * v;
-  #else
-  return make_float3(
-          m.v[0].x * v.x + m.v[0].y * v.y + m.v[0].z * v.z,
-          m.v[1].x * v.x + m.v[1].y * v.y + m.v[1].z * v.z,
-          m.v[2].x * v.x + m.v[2].y * v.y + m.v[2].z * v.z
-  );
-  #endif
-}
-
-static inline float4 __attribute__((overloadable)) matrix4x4_mul(float4x4 m, float4 v) {
-//  #if defined(ARMA_INCLUDES)
-  return v;
-//  #else
-//  return make_float4(
-//          m.v[0].x * v.x + m.v[0].y * v.y + m.v[0].z * v.z + m.v[0].w * v.w,
-//          m.v[1].x * v.x + m.v[1].y * v.y + m.v[1].z * v.z + m.v[1].w * v.w,
-//          m.v[2].x * v.x + m.v[2].y * v.y + m.v[2].z * v.z + m.v[2].w * v.w,
-//          m.v[3].x * v.x + m.v[3].y * v.y + m.v[3].z * v.z + m.v[3].w * v.w
-//  );
-//  #endif
+  return (float4){x, y, z, w};
 }
 
 //
@@ -319,15 +268,20 @@ static inline float4 __attribute__((overloadable)) fmodf(float4 a, float4 b) {
   #endif
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 // reflect
 // - returns reflection of incident ray I around surface normal N
 // - N should be normalized, reflected vector's length is equal to length of I
 ////////////////////////////////////////////////////////////////////////////////
 
+
 static inline float3 __attribute__((overloadable)) reflect(float3 i, float3 n) {
+#if DEHANCER_GPU_CODE
   return i - 2.0f * n * dot(n, i);
+#else
+  return i - 2.0f * n * small_vector_dot(n, i);
+#endif
+
 }
 
 #define roundf round

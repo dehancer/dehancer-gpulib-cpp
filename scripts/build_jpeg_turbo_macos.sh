@@ -4,7 +4,7 @@ HOME_PWD="$(pwd)"
 
 NCPUS=$(sysctl -n hw.ncpu)
 
-CMAKE_INSTALL_PREFIX="/usr/local"
+CMAKE_INSTALL_PREFIX="/opt/dehancer-dependencies"
 
 while [ $# -gt 0 ]; do
     case "$1" in

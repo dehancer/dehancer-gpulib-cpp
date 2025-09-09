@@ -56,7 +56,7 @@ namespace dehancer::cuda {
 
     void CommandEncoder::set(const float2 &p, int index) {
       resize_at_index(index);
-      auto a = std::make_shared<::float2>((::float2){p.x(),p.y()}); args_container_.emplace_back(a);
+      auto a = std::make_shared<::float2>((::float2){p.x,p.y}); args_container_.emplace_back(a);
       args_.at(index) = a.get();
     }
 
@@ -74,13 +74,13 @@ namespace dehancer::cuda {
 
     void CommandEncoder::set(const float3 &p, int index) {
       resize_at_index(index);
-      auto a = std::make_shared<::float3>((::float3){p.x(),p.y(),p.z()}); args_container_.emplace_back(a);
+      auto a = std::make_shared<::float3>((::float3){p.x,p.y,p.z}); args_container_.emplace_back(a);
       args_.at(index) = a.get();
     }
 
     void CommandEncoder::set(const float4 &p, int index) {
       resize_at_index(index);
-      auto a = std::make_shared<::float4>((::float4){p.x(),p.y(),p.z(),p.w()}); args_container_.emplace_back(a);
+      auto a = std::make_shared<::float4>((::float4){p.x,p.y,p.z,p.w}); args_container_.emplace_back(a);
       args_.at(index) = a.get();
     }
 
@@ -90,57 +90,57 @@ namespace dehancer::cuda {
     ///
     /// \param m
     /// \param index
-    union encode_float2x2 {
-        struct {
-            float m11; float m12;
-            float m21; float m22;
-        };
-        float entries[4];
-        float entries2[2][2];
-    };
+//    union encode_float2x2 {
+//        struct {
+//            float m11; float m12;
+//            float m21; float m22;
+//        };
+//        float entries[4];
+//        float entries2[2][2];
+//    };
 
     void CommandEncoder::set(const float2x2& m, int index){
       resize_at_index(index);
-      encode_float2x2 data{};
-      for (size_t i = 0; i < m.size(); ++i) data.entries[i]=m[i];
-      auto a = std::make_shared<encode_float2x2>(data); args_container_.emplace_back(a);
+//      encode_float2x2 data{};
+//      for (size_t i = 0; i < m.size(); ++i) data.entries[i]=m[i];
+      auto a = std::make_shared<float2x2>(m); args_container_.emplace_back(a);
       args_.at(index) = a.get();
     }
 
-    union encode_float3x3 {
-        struct {
-            float m11; float m12; float m13;
-            float m21; float m22; float m23;
-            float m31; float m32; float m33;
-        };
-        float entries[9];
-        float entries2[3][3];
-    };
+//    union encode_float3x3 {
+//        struct {
+//            float m11; float m12; float m13;
+//            float m21; float m22; float m23;
+//            float m31; float m32; float m33;
+//        };
+//        float entries[9];
+//        float entries2[3][3];
+//    };
 
     void CommandEncoder::set(const float3x3& m, int index){
       resize_at_index(index);
-      encode_float3x3 data{};
-      for (size_t i = 0; i < m.size(); ++i) data.entries[i]=m[i];
-      auto a = std::make_shared<encode_float3x3>(data); args_container_.emplace_back(a);
+//      encode_float3x3 data{};
+//      for (size_t i = 0; i < m.size(); ++i) data.entries[i]=m[i];
+      auto a = std::make_shared<float3x3>(m); args_container_.emplace_back(a);
       args_.at(index) = a.get();
     };
     
-    union encode_float4x4 {
-        struct {
-            float m11; float m12; float m13; float m14;
-            float m21; float m22; float m23; float m24;
-            float m31; float m32; float m33; float m34;
-            float m41; float m42; float m43; float m44;
-        };
-        float entries[16];
-        float entries2[4][4];
-    };
+//    union encode_float4x4 {
+//        struct {
+//            float m11; float m12; float m13; float m14;
+//            float m21; float m22; float m23; float m24;
+//            float m31; float m32; float m33; float m34;
+//            float m41; float m42; float m43; float m44;
+//        };
+//        float entries[16];
+//        float entries2[4][4];
+//    };
     
     void CommandEncoder::set(const float4x4& m, int index){
       resize_at_index(index);
-      encode_float4x4 data{};
-      for (size_t i = 0; i < m.size(); ++i) data.entries[i]=m[i];
-      auto a = std::make_shared<encode_float4x4>(data); args_container_.emplace_back(a);
+//      encode_float4x4 data{};
+//      for (size_t i = 0; i < m.size(); ++i) data.entries[i]=m[i];
+      auto a = std::make_shared<float4x4>(m); args_container_.emplace_back(a);
       args_.at(index) = a.get();
     };
     
@@ -148,56 +148,56 @@ namespace dehancer::cuda {
     
     void CommandEncoder::set(const math::uint2 &p, int index) {
       resize_at_index(index);
-      auto a = std::make_shared<::uint2>((::uint2){p.x(),p.y()}); args_container_.emplace_back(a);
+      auto a = std::make_shared<::uint2>((::uint2){p.x,p.y}); args_container_.emplace_back(a);
       args_.at(index) = a.get();
     }
     
     void CommandEncoder::set(const math::uint3 &p, int index) {
       resize_at_index(index);
-      auto a = std::make_shared<::uint3>((::uint3){p.x(),p.y(),p.z()}); args_container_.emplace_back(a);
+      auto a = std::make_shared<::uint3>((::uint3){p.x,p.y,p.z}); args_container_.emplace_back(a);
       args_.at(index) = a.get();
     }
     
     void CommandEncoder::set(const math::uint4 &p, int index) {
       resize_at_index(index);
-      auto a = std::make_shared<::uint4>((::uint4){p.x(),p.y(),p.z(),p.w()}); args_container_.emplace_back(a);
+      auto a = std::make_shared<::uint4>((::uint4){p.x,p.y,p.z,p.w}); args_container_.emplace_back(a);
       args_.at(index) = a.get();
     }
     
     void CommandEncoder::set(const math::int2 &p, int index) {
       resize_at_index(index);
-      auto a = std::make_shared<::int2>((::int2){p.x(),p.y()}); args_container_.emplace_back(a);
+      auto a = std::make_shared<::int2>((::int2){p.x,p.y}); args_container_.emplace_back(a);
       args_.at(index) = a.get();
     }
     
     void CommandEncoder::set(const math::int3 &p, int index) {
       resize_at_index(index);
-      auto a = std::make_shared<::int3>((::int3){p.x(),p.y(),p.z()}); args_container_.emplace_back(a);
+      auto a = std::make_shared<::int3>((::int3){p.x,p.y,p.z}); args_container_.emplace_back(a);
       args_.at(index) = a.get();
     }
     
     void CommandEncoder::set(const math::int4 &p, int index) {
       resize_at_index(index);
-      auto a = std::make_shared<::int4>((::int4){p.x(),p.y(),p.z(),p.w()}); args_container_.emplace_back(a);
+      auto a = std::make_shared<::int4>((::int4){p.x,p.y,p.z,p.w}); args_container_.emplace_back(a);
       args_.at(index) = a.get();
     }
     
     
     void CommandEncoder::set(const math::bool2 &p, int index) {
       resize_at_index(index);
-      auto a = std::make_shared<uint2>((::uint2){p.x(),p.y()}); args_container_.emplace_back(a);
+      auto a = std::make_shared<uint2>((::uint2){p.x,p.y}); args_container_.emplace_back(a);
       args_.at(index) = a.get();
     }
     
     void CommandEncoder::set(const math::bool3 &p, int index) {
       resize_at_index(index);
-      auto a = std::make_shared<::uint3>((::uint3){p.x(),p.y(),p.z()}); args_container_.emplace_back(a);
+      auto a = std::make_shared<::uint3>((::uint3){p.x,p.y,p.z}); args_container_.emplace_back(a);
       args_.at(index) = a.get();
     }
     
     void CommandEncoder::set(const math::bool4 &p, int index) {
       resize_at_index(index);
-      auto a = std::make_shared<::uint4>((::uint4){p.x(),p.y(),p.z(),p.w()}); args_container_.emplace_back(a);
+      auto a = std::make_shared<::uint4>((::uint4){p.x,p.y,p.z,p.w}); args_container_.emplace_back(a);
       args_.at(index) = a.get();
     }
     

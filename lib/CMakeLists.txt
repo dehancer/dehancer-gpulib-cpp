@@ -1,10 +1,5 @@
 include(CMakePackageConfigHelpers)
 
-#set(lock "${CMAKE_BINARY_DIR}/lib-lock.lock")
-#string(TOLOWER ${lock} lock)
-
-#file(LOCK ${lock} TIMEOUT 10 RESULT_VARIABLE lock_result)
-
 if (NOT ${lock_result} EQUAL 0)
     message(FATAL_ERROR "DEADLOCKED: ${lock_result}")
 endif()

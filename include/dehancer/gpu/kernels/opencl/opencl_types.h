@@ -8,15 +8,6 @@
 #define DHCR_BIND_TEXTURE(N)
 #define DHCR_BIND_BUFFER(N)
 
-#define DHCR_KERNEL __kernel
-#define DHCR_DEVICE_FUNC
-#define DHCR_HOST_DEVICE_FUNC
-#define DHCR_DEVICE_ARG __global
-#define DHCR_THREAD_ARG
-#define DHCR_CONST_ARG
-#define DHCR_CONST_ARG_REF(T) DHCR_CONST_ARG T
-#define DHCR_BLOCK_MEMORY  local
-
 #define DHCR_KERNEL_GID_1D
 #define DHCR_KERNEL_GID_2D
 #define DHCR_KERNEL_GID_3D
@@ -88,24 +79,6 @@ typedef struct {
 #define texture3d_read_t DHCR_READ_ONLY image3d_t
 #define texture3d_write_t DHCR_WRITE_ONLY image3d_t
 
-#define float2x2 float4
-#define float4x4 float16
-
-typedef union {
-    struct {
-        float m11; float m12; float m13;
-        float m21; float m22; float m23;
-        float m31; float m32; float m33;
-    };
-    struct {
-        float3 s0;
-        float3 s1;
-        float3 s2;
-    };
-    float3 v[3];
-    float entries[9];
-    float entries2[3][3];
-} float3x3;
-
+#include "dehancer/small_matrix.h"
 
 #endif //DEHANCER_GPULIB_OPENCL_TYPES_H

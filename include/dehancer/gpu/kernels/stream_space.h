@@ -54,28 +54,35 @@ typedef struct {
 
 static inline DHCR_DEVICE_FUNC
 float4x4 stream_matrix_transform_identity() {
-#if DEHANCER_GPU_CODE
-  #if defined(__CUDA_ARCH__)
-  float4x4 m; m.setIdentity();
-#else
-  float4x4 m =
-          (float4x4){
-                  (float4){1.000000f, 0.000000f, 0.000000f, 0.000000f},
-                  (float4){0.000000f, 1.000000f, 0.000000f, 0.000000f},
-                  (float4){0.000000f, 0.000000f, 1.000000f, 0.000000f},
-                  (float4){0.000000f, 0.000000f, 0.000000f, 1.000000f}
-          };
+
+#if !DEHANCER_GPU_CODE
+  using namespace dehancer::math;
 #endif
-#else
-  float4x4 m =  float4x4(
-          {
-                  {1.000000f, 0.000000f, 0.000000f, 0.000000f},
-                  {0.000000f, 1.000000f, 0.000000f, 0.000000f},
-                  {0.000000f, 0.000000f, 1.000000f, 0.000000f},
-                  {0.000000f, 0.000000f, 0.000000f, 1.000000f}
-          });
-#endif
-  return m;
+
+
+//#if defined(__CUDA_ARCH__)
+//  float4x4 m; m.setIdentity();
+//  return m;
+//#else
+  return make_float4x4_diag(1.0f);
+  // float4x4 m; matrix_diag(&m, 1.0f);
+          // (float4x4){
+          // (float4){1.000000f, 0.000000f, 0.000000f, 0.000000f},
+          // (float4){0.000000f, 1.000000f, 0.000000f, 0.000000f},
+          // (float4){0.000000f, 0.000000f, 1.000000f, 0.000000f},
+          // (float4){0.000000f, 0.000000f, 0.000000f, 1.000000f}
+          // };
+// #endif
+// #else
+  // float4x4 m =  float4x4(
+          // {
+                  // {1.000000f, 0.000000f, 0.000000f, 0.000000f},
+                  // {0.000000f, 1.000000f, 0.000000f, 0.000000f},
+                  // {0.000000f, 0.000000f, 1.000000f, 0.000000f},
+                  // {0.000000f, 0.000000f, 0.000000f, 1.000000f}
+          // });
+//#endif
+  // return m;
 }
 
 static inline DHCR_DEVICE_FUNC

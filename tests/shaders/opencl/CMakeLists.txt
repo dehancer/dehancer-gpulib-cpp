@@ -1,6 +1,8 @@
 set(CURRENT_TARGET_NAME TestKernels_opencl)
 set(CURRENT_TARGET_SYNTAX_CHECKER ${CURRENT_TARGET_NAME}_checker)
 
+set(CLHELPER_INCLUDE_DIRS ${CLHELPER_INCLUDE_DIRS} -I${dehancer_maths_cpp_INCLUDE_DIRS})
+
 INCLUDE(${clHelper_DIR}/clHelper.cmake)
 
 file (GLOB SOURCES ${SOURCES}
