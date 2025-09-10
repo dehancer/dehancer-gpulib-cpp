@@ -39,69 +39,69 @@ static inline DHCR_DEVICE_FUNC float __attribute__((overloadable)) log10f(float 
 
 #if DEHANCER_GPU_CODE
 
-static inline DHCR_HOST_DEVICE_FUNC float2 __attribute__((overloadable)) to_float2(float C) { return make_float2(C,C); }
-static inline DHCR_HOST_DEVICE_FUNC float3 __attribute__((overloadable)) to_float3(float C) { return make_float3(C,C,C); }
-static inline DHCR_HOST_DEVICE_FUNC float4 __attribute__((overloadable)) to_float4(float C) { return make_float4(C,C,C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC float2 __attribute__((overloadable)) to_float2(float C) { return make_float2(C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC float3 __attribute__((overloadable)) to_float3(float C) { return make_float3(C,C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC float4 __attribute__((overloadable)) to_float4(float C) { return make_float4(C,C,C,C); }
 
-static inline DHCR_HOST_DEVICE_FUNC float2 __attribute__((overloadable)) to_float2(int C) { return make_float2(C,C); }
-static inline DHCR_HOST_DEVICE_FUNC float3 __attribute__((overloadable)) to_float3(int C) { return make_float3(C,C,C); }
-static inline DHCR_HOST_DEVICE_FUNC float4 __attribute__((overloadable)) to_float4(int C) { return make_float4(C,C,C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC float2 __attribute__((overloadable)) to_float2(int C) { return make_float2(C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC float3 __attribute__((overloadable)) to_float3(int C) { return make_float3(C,C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC float4 __attribute__((overloadable)) to_float4(int C) { return make_float4(C,C,C,C); }
 
-static inline DHCR_HOST_DEVICE_FUNC float2 __attribute__((overloadable)) to_float2(int2 C) { return make_float2(C.x,C.y); }
-static inline DHCR_HOST_DEVICE_FUNC float3 __attribute__((overloadable)) to_float3(int3 C) { return make_float3(C.x,C.y,C.z); }
-static inline DHCR_HOST_DEVICE_FUNC float4 __attribute__((overloadable)) to_float4(int4 C) { return make_float4(C.x,C.y,C.z,C.w); }
+// static inline DHCR_HOST_DEVICE_FUNC float2 __attribute__((overloadable)) to_float2(int2 C) { return make_float2(C.x,C.y); }
+// static inline DHCR_HOST_DEVICE_FUNC float3 __attribute__((overloadable)) to_float3(int3 C) { return make_float3(C.x,C.y,C.z); }
+// static inline DHCR_HOST_DEVICE_FUNC float4 __attribute__((overloadable)) to_float4(int4 C) { return make_float4(C.x,C.y,C.z,C.w); }
 
-static inline DHCR_HOST_DEVICE_FUNC float2 __attribute__((overloadable)) to_float2(uint C) { return make_float2(C,C); }
-static inline DHCR_HOST_DEVICE_FUNC float3 __attribute__((overloadable)) to_float3(uint C) { return make_float3(C,C,C); }
-static inline DHCR_HOST_DEVICE_FUNC float4 __attribute__((overloadable)) to_float4(uint C) { return make_float4(C,C,C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC float2 __attribute__((overloadable)) to_float2(uint C) { return make_float2(C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC float3 __attribute__((overloadable)) to_float3(uint C) { return make_float3(C,C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC float4 __attribute__((overloadable)) to_float4(uint C) { return make_float4(C,C,C,C); }
 
-static inline DHCR_HOST_DEVICE_FUNC float2 __attribute__((overloadable)) to_float2(uint2 C) { return make_float2(C.x,C.y); }
-static inline DHCR_HOST_DEVICE_FUNC float3 __attribute__((overloadable)) to_float3(uint3 C) { return make_float3(C.x,C.y,C.z); }
-static inline DHCR_HOST_DEVICE_FUNC float4 __attribute__((overloadable)) to_float4(uint4 C) { return make_float4(C.x,C.y,C.z,C.w); }
+// static inline DHCR_HOST_DEVICE_FUNC float2 __attribute__((overloadable)) to_float2(uint2 C) { return make_float2(C.x,C.y); }
+// static inline DHCR_HOST_DEVICE_FUNC float3 __attribute__((overloadable)) to_float3(uint3 C) { return make_float3(C.x,C.y,C.z); }
+// static inline DHCR_HOST_DEVICE_FUNC float4 __attribute__((overloadable)) to_float4(uint4 C) { return make_float4(C.x,C.y,C.z,C.w); }
 
-static inline DHCR_HOST_DEVICE_FUNC int2 __attribute__((overloadable)) to_int2(int C) { return make_int2(C,C); }
-static inline DHCR_HOST_DEVICE_FUNC int3 __attribute__((overloadable)) to_int3(int C) { return make_int3(C,C,C); }
-static inline DHCR_HOST_DEVICE_FUNC int4 __attribute__((overloadable)) to_int4(int C) { return make_int4(C,C,C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC int2 __attribute__((overloadable)) to_int2(int C) { return make_int2(C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC int3 __attribute__((overloadable)) to_int3(int C) { return make_int3(C,C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC int4 __attribute__((overloadable)) to_int4(int C) { return make_int4(C,C,C,C); }
 
-static inline DHCR_HOST_DEVICE_FUNC int2 __attribute__((overloadable)) to_int2(uint C) { return make_int2(C,C); }
-static inline DHCR_HOST_DEVICE_FUNC int3 __attribute__((overloadable)) to_int3(uint C) { return make_int3(C,C,C); }
-static inline DHCR_HOST_DEVICE_FUNC int4 __attribute__((overloadable)) to_int4(uint C) { return make_int4(C,C,C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC int2 __attribute__((overloadable)) to_int2(uint C) { return make_int2(C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC int3 __attribute__((overloadable)) to_int3(uint C) { return make_int3(C,C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC int4 __attribute__((overloadable)) to_int4(uint C) { return make_int4(C,C,C,C); }
 
-static inline DHCR_HOST_DEVICE_FUNC int2 __attribute__((overloadable)) to_int2(float C) { return make_int2(C,C); }
-static inline DHCR_HOST_DEVICE_FUNC int3 __attribute__((overloadable)) to_int3(float C) { return make_int3(C,C,C); }
-static inline DHCR_HOST_DEVICE_FUNC int4 __attribute__((overloadable)) to_int4(float C) { return make_int4(C,C,C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC int2 __attribute__((overloadable)) to_int2(float C) { return make_int2(C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC int3 __attribute__((overloadable)) to_int3(float C) { return make_int3(C,C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC int4 __attribute__((overloadable)) to_int4(float C) { return make_int4(C,C,C,C); }
 
-static inline DHCR_HOST_DEVICE_FUNC int2 __attribute__((overloadable)) to_int2(float2 C) { return make_int2(C.x,C.y); }
-static inline DHCR_HOST_DEVICE_FUNC int3 __attribute__((overloadable)) to_int3(float3 C) { return make_int3(C.x,C.y,C.z); }
-static inline DHCR_HOST_DEVICE_FUNC int4 __attribute__((overloadable)) to_int4(float4 C) { return make_int4(C.x,C.y,C.z,C.w); }
+// static inline DHCR_HOST_DEVICE_FUNC int2 __attribute__((overloadable)) to_int2(float2 C) { return make_int2(C.x,C.y); }
+// static inline DHCR_HOST_DEVICE_FUNC int3 __attribute__((overloadable)) to_int3(float3 C) { return make_int3(C.x,C.y,C.z); }
+// static inline DHCR_HOST_DEVICE_FUNC int4 __attribute__((overloadable)) to_int4(float4 C) { return make_int4(C.x,C.y,C.z,C.w); }
 
-static inline DHCR_HOST_DEVICE_FUNC int2 __attribute__((overloadable)) to_int2(uint2 C) { return make_int2(C.x,C.y); }
-static inline DHCR_HOST_DEVICE_FUNC int3 __attribute__((overloadable)) to_int3(uint3 C) { return make_int3(C.x,C.y,C.z); }
-static inline DHCR_HOST_DEVICE_FUNC int4 __attribute__((overloadable)) to_int4(uint4 C) { return make_int4(C.x,C.y,C.z,C.w); }
+// static inline DHCR_HOST_DEVICE_FUNC int2 __attribute__((overloadable)) to_int2(uint2 C) { return make_int2(C.x,C.y); }
+// static inline DHCR_HOST_DEVICE_FUNC int3 __attribute__((overloadable)) to_int3(uint3 C) { return make_int3(C.x,C.y,C.z); }
+// static inline DHCR_HOST_DEVICE_FUNC int4 __attribute__((overloadable)) to_int4(uint4 C) { return make_int4(C.x,C.y,C.z,C.w); }
 
-static inline DHCR_HOST_DEVICE_FUNC uint2 __attribute__((overloadable)) to_uint2(uint C) { return make_uint2(C,C); }
-static inline DHCR_HOST_DEVICE_FUNC uint3 __attribute__((overloadable)) to_uint3(uint C) { return make_uint3(C,C,C); }
-static inline DHCR_HOST_DEVICE_FUNC uint4 __attribute__((overloadable)) to_uint4(uint C) { return make_uint4(C,C,C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC uint2 __attribute__((overloadable)) to_uint2(uint C) { return make_uint2(C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC uint3 __attribute__((overloadable)) to_uint3(uint C) { return make_uint3(C,C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC uint4 __attribute__((overloadable)) to_uint4(uint C) { return make_uint4(C,C,C,C); }
 
-static inline DHCR_HOST_DEVICE_FUNC uint2 __attribute__((overloadable)) to_uint2(int C) { return make_uint2(C,C); }
-static inline DHCR_HOST_DEVICE_FUNC uint3 __attribute__((overloadable)) to_uint3(int C) { return make_uint3(C,C,C); }
-static inline DHCR_HOST_DEVICE_FUNC uint4 __attribute__((overloadable)) to_uint4(int C) { return make_uint4(C,C,C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC uint2 __attribute__((overloadable)) to_uint2(int C) { return make_uint2(C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC uint3 __attribute__((overloadable)) to_uint3(int C) { return make_uint3(C,C,C); }
+// static inline DHCR_HOST_DEVICE_FUNC uint4 __attribute__((overloadable)) to_uint4(int C) { return make_uint4(C,C,C,C); }
 
-static inline DHCR_HOST_DEVICE_FUNC uint2 __attribute__((overloadable)) to_uint2(float2 C) { return make_uint2(C.x,C.y); }
-static inline DHCR_HOST_DEVICE_FUNC uint3 __attribute__((overloadable)) to_uint3(float3 C) { return make_uint3(C.x,C.y,C.z); }
-static inline DHCR_HOST_DEVICE_FUNC uint4 __attribute__((overloadable)) to_uint4(float4 C) { return make_uint4(C.x,C.y,C.z,C.w); }
+// static inline DHCR_HOST_DEVICE_FUNC uint2 __attribute__((overloadable)) to_uint2(float2 C) { return make_uint2(C.x,C.y); }
+// static inline DHCR_HOST_DEVICE_FUNC uint3 __attribute__((overloadable)) to_uint3(float3 C) { return make_uint3(C.x,C.y,C.z); }
+// static inline DHCR_HOST_DEVICE_FUNC uint4 __attribute__((overloadable)) to_uint4(float4 C) { return make_uint4(C.x,C.y,C.z,C.w); }
 
-static inline DHCR_HOST_DEVICE_FUNC uint2 __attribute__((overloadable)) to_uint2(int2 C) { return make_uint2(C.x,C.y); }
-static inline DHCR_HOST_DEVICE_FUNC uint3 __attribute__((overloadable)) to_uint3(int3 C) { return make_uint3(C.x,C.y,C.z); }
-static inline DHCR_HOST_DEVICE_FUNC uint4 __attribute__((overloadable)) to_uint4(int4 C) { return make_uint4(C.x,C.y,C.z,C.w); }
+// static inline DHCR_HOST_DEVICE_FUNC uint2 __attribute__((overloadable)) to_uint2(int2 C) { return make_uint2(C.x,C.y); }
+// static inline DHCR_HOST_DEVICE_FUNC uint3 __attribute__((overloadable)) to_uint3(int3 C) { return make_uint3(C.x,C.y,C.z); }
+// static inline DHCR_HOST_DEVICE_FUNC uint4 __attribute__((overloadable)) to_uint4(int4 C) { return make_uint4(C.x,C.y,C.z,C.w); }
 
-static inline DHCR_HOST_DEVICE_FUNC float4 __attribute__((overloadable)) to_float4(float3 a, float w) {
-  return make_float4(a.x, a.y, a.z, w);
-}
+// static inline DHCR_HOST_DEVICE_FUNC float4 __attribute__((overloadable)) to_float4(float3 a, float w) {
+  // return make_float4(a.x, a.y, a.z, w);
+// }
 
-static inline DHCR_HOST_DEVICE_FUNC float3 __attribute__((overloadable)) to_float3(float4 a) {
-  return make_float3(a.x, a.y, a.z);
-}
+// static inline DHCR_HOST_DEVICE_FUNC float3 __attribute__((overloadable)) to_float3(float4 a) {
+  // return make_float3(a.x, a.y, a.z);
+// }
 
 static inline DHCR_HOST_DEVICE_FUNC float  __attribute__((overloadable)) permute(float x)
 {

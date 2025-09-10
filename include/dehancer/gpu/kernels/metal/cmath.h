@@ -3,120 +3,122 @@
 #include <metal_stdlib>
 
 using namespace metal;
+#include <dehancer/small_vectors.h>
 
 ////////////////////////////////////////////////////////////////////////////////
 // constructors
 ////////////////////////////////////////////////////////////////////////////////
 
-inline static  float2 __attribute__((overloadable)) make_float2(float x, float y) {
-  return float2(x, y);
-}
+//inline static  float2 __attribute__((overloadable)) make_float2(float x, float y) {
+//  return float2(x, y);
+//}
 
-inline static  float3 __attribute__((overloadable)) make_float3(float x, float y, float z) {
-  return float3(x, y, z);
-}
+//inline static  float3 __attribute__((overloadable)) make_float3(float x, float y, float z) {
+//  return float3(x, y, z);
+//}
 
-inline static  float4 __attribute__((overloadable)) make_float4(float x, float y, float z, float w) {
-  return float4(x, y, z, w);
-}
+////inline static  float4 __attribute__((overloadable)) make_float4(float x, float y, float z, float w) {
+//  return float4(x, y, z, w);
+//}
 
-inline static  int2 __attribute__((overloadable)) make_int2(int x, int y) {
-  return int2(x, y);
-}
+//inline static  int2 __attribute__((overloadable)) make_int2(int x, int y) {
+//  return int2(x, y);
+//}
 
-inline static  int3 __attribute__((overloadable)) make_int3(int x, int y, int z) {
-  return int3(x, y, z);
-}
+//inline static  int3 __attribute__((overloadable)) make_int3(int x, int y, int z) {
+//  return int3(x, y, z);
+//}
 
-inline static  int4 __attribute__((overloadable)) make_int4(int x, int y, int z, int w) {
-  return int4(x, y, z, w);
-}
+//inline static  int4 __attribute__((overloadable)) make_int4(int x, int y, int z, int w) {
+//  return int4(x, y, z, w);
+//}
 
-inline static  uint2 __attribute__((overloadable)) make_uint2(uint x, uint y) {
-  return uint2(x, y);
-}
+//inline static  uint2 __attribute__((overloadable)) make_uint2(uint x, uint y) {
+//  return uint2(x, y);
+//}
 
-inline static  uint3 __attribute__((overloadable)) make_uint3(uint x, uint y, uint z) {
-  return uint3(x, y, z);
-}
+//inline static  uint3 __attribute__((overloadable)) make_uint3(uint x, uint y, uint z) {
+//  return uint3(x, y, z);
+//}
 
-inline static  uint4 __attribute__((overloadable)) make_uint4(uint x, uint y, uint z, uint w) {
-  return uint4(x, y, z, w);
-}
+//inline static  uint4 __attribute__((overloadable)) make_uint4(uint x, uint y, uint z, uint w) {
+//  return uint4(x, y, z, w);
+//}
 
 
-inline static  float2 __attribute__((overloadable)) make_float2(float s) {
-  return float2(s, s);
-}
+//inline static  float2 __attribute__((overloadable)) make_float2(float s) {
+//  return float2(s, s);
+//}
 
-inline static  float2 __attribute__((overloadable)) make_float2(float3 a) {
-  return float2(a.x, a.y);
-}
+//inline static  float2 __attribute__((overloadable)) make_float2(float3 a) {
+//  return float2(a.x, a.y);
+//}
 
-inline static  float2 __attribute__((overloadable)) make_float2(float4 a) {
-  return float2(a.x, a.y);
-}
+//inline static  float2 __attribute__((overloadable)) make_float2(float4 a) {
+  //return float2(a.x, a.y);
+//}
 
-inline static  float2 __attribute__((overloadable)) make_float2(int2 a) {
-  return float2(float(a.x), float(a.y));
-}
+//inline static  float2 __attribute__((overloadable)) make_float2(int2 a) {
+//  return float2(float(a.x), float(a.y));
+//}
 
-inline static  float2 __attribute__((overloadable)) make_float2(uint2 a) {
-  return float2(float(a.x), float(a.y));
-}
+//inline static  float2 __attribute__((overloadable)) make_float2(uint2 a) {
+//  return float2(float(a.x), float(a.y));
+//}
 
-inline static  int2 __attribute__((overloadable)) make_int2(int s) {
-  return int2(s, s);
-}
+//inline static  int2 __attribute__((overloadable)) make_int2(int s) {
+//  return int2(s, s);
+//}
 
-inline static  int2 __attribute__((overloadable)) make_int2(int3 a) {
-  return int2(a.x, a.y);
-}
+//inline static  int2 __attribute__((overloadable)) make_int2(int3 a) {
+//  return int2(a.x, a.y);
+//}
 
-inline static  int2 __attribute__((overloadable)) make_int2(uint2 a) {
-  return int2(int(a.x), int(a.y));
-}
+//inline static  int2 __attribute__((overloadable)) make_int2(uint2 a) {
+//  return int2(int(a.x), int(a.y));
+//}
 
-inline static  int2 __attribute__((overloadable)) make_int2(float2 a) {
-  return int2(int(a.x), int(a.y));
-}
+//inline static  int2 __attribute__((overloadable)) make_int2(float2 a) {
+//  return int2(int(a.x), int(a.y));
+//}
 
-inline static  uint2 __attribute__((overloadable)) make_uint2(uint s) {
-  return uint2(s, s);
-}
+//inline static  uint2 __attribute__((overloadable)) make_uint2(uint s) {
+//  return uint2(s, s);
+//}
 
-inline static  uint2 __attribute__((overloadable)) make_uint2(uint3 a) {
-  return uint2(a.x, a.y);
-}
+//inline static  uint2 __attribute__((overloadable)) make_uint2(uint3 a) {
+//  return uint2(a.x, a.y);
+//}
 
-inline static  uint2 __attribute__((overloadable)) make_uint2(int2 a) {
-  return uint2(uint(a.x), uint(a.y));
-}
+//inline static  uint2 __attribute__((overloadable)) make_uint2(int2 a) {
+//  return uint2(uint(a.x), uint(a.y));
+//}
 
-inline static  float3 __attribute__((overloadable)) make_float3(float s) {
-  return float3(s, s, s);
-}
+//inline static  float3 __attribute__((overloadable)) make_float3(float s) {
+//  return float3(s, s, s);
+//}
 
-inline static  float3 __attribute__((overloadable)) make_float3(float2 a) {
-  return float3(a.x, a.y, 0.0f);
-}
+//inline static  float3 __attribute__((overloadable)) make_float3(float2 a) {
+//  return float3(a.x, a.y, 0.0f);
+//}
 
-inline static  float3 __attribute__((overloadable)) make_float3(float2 a, float s) {
-  return float3(a.x, a.y, s);
-}
+//inline static  float3 __attribute__((overloadable)) make_float3(float2 a, float s) {
+//  return float3(a.x, a.y, s);
+//}
 
-inline static  float3 __attribute__((overloadable)) make_float3(float4 a) {
-  return float3(a.x, a.y, a.z);
-}
+//inline static  float3 __attribute__((overloadable)) make_float3(float4 a) {
+//  return float3(a.x, a.y, a.z);
+//}
 
-inline static  float3 __attribute__((overloadable)) make_float3(int3 a) {
-  return float3(float(a.x), float(a.y), float(a.z));
-}
+//inline static  float3 __attribute__((overloadable)) make_float3(int3 a) {
+//  return float3(float(a.x), float(a.y), float(a.z));
+//}
 
-inline static  float3 __attribute__((overloadable)) make_float3(uint3 a) {
-  return float3((float)(a.x), (float)(a.y), (float)(a.z));
-}
+//inline static  float3 __attribute__((overloadable)) make_float3(uint3 a) {
+//  return float3((float)(a.x), (float)(a.y), (float)(a.z));
+//}
 
+/*
 inline static  int3 __attribute__((overloadable)) make_int3(int s) {
   return int3(s, s, s);
 }
@@ -213,8 +215,8 @@ inline static  uint4 __attribute__((overloadable)) make_uint4(uint3 a, uint w) {
 inline static  uint4 __attribute__((overloadable)) make_uint4(int4 a) {
   return uint4((uint)(a.x), (uint)(a.y), (uint)(a.z), (uint)(a.w));
 }
+*/
 
-//
 //////////////////////////////////////////////////////////////////////////////////
 //// min
 //////////////////////////////////////////////////////////////////////////////////
