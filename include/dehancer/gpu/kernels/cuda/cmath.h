@@ -29,6 +29,8 @@
 typedef unsigned int uint;
 typedef unsigned short ushort;
 
+#include <dehancer/small_vectors.h>
+
 #ifndef __CUDACC__
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +63,7 @@ inline float rsqrtf(float x) {
 // constructors
 ////////////////////////////////////////////////////////////////////////////////
 
-
+/*
 inline __host__ __device__ float2 make_float2(float4 a) {
   return make_float2(a.x, a.y);
 }
@@ -230,6 +232,7 @@ inline __host__ __device__ uint4 make_uint4(uint3 a, uint w) {
 inline __host__ __device__ uint4 make_uint4(int4 a) {
   return make_uint4(uint(a.x), uint(a.y), uint(a.z), uint(a.w));
 }
+*/
 
 ////////////////////////////////////////////////////////////////////////////////
 // negate
