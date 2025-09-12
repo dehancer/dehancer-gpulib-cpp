@@ -210,6 +210,8 @@ if (WIN32)
 
     string(TOLOWER  ${CMAKE_BUILD_TYPE} BUILD_TYPE)
 
+    add_definitions(-DDEHANCER_SINGLETON_EXPORTS)
+
     if (${BUILD_TYPE} STREQUAL "debug")
         add_definitions(/MTd /D_ALLOW_ITERATOR_DEBUG_LEVEL_MISMATCH=1 /D_HAS_ITERATOR_DEBUGGING=0)
     endif()
