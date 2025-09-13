@@ -6,6 +6,7 @@
 
 #include "dehancer/gpu/Lib.h"
 #include "tests/test_config.h"
+#include <fstream>
 
 auto io_texture_test = [] (int dev_num,
                            const void* command_queue,

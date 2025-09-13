@@ -6,6 +6,7 @@
 
 #include "dehancer/gpu/Lib.h"
 #include <regex>
+#include <fstream>
 
 void make_identity(const std::string& platform) {
   

@@ -25,6 +25,7 @@
       "cacheVariables": {
 
         "Eigen3_DIR": "$env{DEHANCER_DEPENDENCY_PATH}/share/eigen3/cmake",
+        "EIGEN3_INCLUDE_CUSTOM_DIR": "$env{DEHANCER_DEPENDENCY_PATH}/include/eigen3",
         "CMAKE_PREFIX_PATH": {
           "type": "STRING",
           "value": "$env{DEHANCER_DEPENDENCY_PATH}"

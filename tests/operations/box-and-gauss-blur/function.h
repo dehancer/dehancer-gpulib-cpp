@@ -4,6 +4,7 @@
 
 #pragma once
 #include <string>
+#include <fstream>
 
 #include "dehancer/gpu/Lib.h"
 #include "tests/test_config.h"

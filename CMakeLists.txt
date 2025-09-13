@@ -69,6 +69,7 @@ option (DEHANCER_INSTALL_COMMON_DEPS "DEHANCER_INSTALL_COMMON_DEPS" ON)
 option (OpenCV_DIR "OpenCV Root" "/usr/local/universal")
 option (GTest_ROOT "GTest_ROOT" "")
 option (CUDA_PATH "CUDA_PATH" "")
+option(EIGEN3_INCLUDE_CUSTOM_DIR "Eigen3 dependencies include dir" "")
 
 set(DEHANCER_GPULIB_CPP_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
 set(DEHANCER_GPULIB_BINARY ${CMAKE_CURRENT_BINARY_DIR})
@@ -270,6 +271,11 @@ else()
         find_package (OpenCV REQUIRED PATHS ${OpenCV_DIR})
     endif ()
 endif()
+
+include_directories(${EIGEN3_INCLUDE_CUSTOM_DIR})
+message(STATUS "Eigen3 : ${EIGEN3_VERSION_STRING}, ${EIGEN3_INCLUDE_CUSTOM_DIR}")
+
+set(COMMON_LIBRARIES ${COMMON_LIBRARIES};Eigen3::Eigen)
 
 if(WIN32)
     find_package(OpenCV REQUIRED)

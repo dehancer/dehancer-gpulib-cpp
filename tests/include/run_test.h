@@ -14,6 +14,8 @@
 
 #include "gtest/gtest.h"
 
+#include <fstream>
+
 using dh_test_function = std::function<int (int num,
                                             const void* command_queue,
                                             const std::string& platform,
