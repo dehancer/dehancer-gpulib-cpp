@@ -5,6 +5,8 @@
 #pragma once
 
 #include "dehancer/gpu/Lib.h"
+#include <regex>
+#include <fstream>
 
 
 void clut_transform(const std::string& platform) {
