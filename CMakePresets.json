@@ -23,9 +23,6 @@
       },
 
       "cacheVariables": {
-
-        "Eigen3_DIR": "$env{DEHANCER_DEPENDENCY_PATH}/share/eigen3/cmake",
-        "EIGEN3_INCLUDE_CUSTOM_DIR": "$env{DEHANCER_DEPENDENCY_PATH}/include/eigen3",
         "CMAKE_PREFIX_PATH": {
           "type": "STRING",
           "value": "$env{DEHANCER_DEPENDENCY_PATH}"
@@ -189,6 +186,9 @@
       },
 
       "cacheVariables": {
+        "Eigen3_DIR": "C:/vcpkg/installed/x64-windows-static/share/eigen3",
+        "EIGEN3_INCLUDE_CUSTOM_DIR": "C:/vcpkg/installed/x64-windows-static/include/eigen3",
+
         "CMAKE_SHARED_LINKER_FLAGS": "/MANIFEST:NO",
 
         "CMAKE_EXE_LINKER_FLAGS": "/MANIFEST:NO",
@@ -229,6 +229,9 @@
       "binaryDir": "${sourceDir}/build-${presetName}",
 
       "cacheVariables": {
+        "Eigen3_DIR": "$env{DEHANCER_DEPENDENCY_PATH}/share/eigen3/cmake",
+        "EIGEN3_INCLUDE_CUSTOM_DIR": "$env{DEHANCER_DEPENDENCY_PATH}/include/eigen3",
+
         "CMAKE_OSX_ARCHITECTURES": {
           "type": "STRING",
           "value": "arm64;x86_64"
@@ -291,7 +294,9 @@
         "CMAKE_PREFIX_PATH": {
           "type": "STRING",
           "value": "/opt/dehancer-dependencies"
-        }
+        },
+        "Eigen3_DIR": "$env{DEHANCER_DEPENDENCY_PATH}/share/eigen3/cmake",
+        "EIGEN3_INCLUDE_CUSTOM_DIR": "$env{DEHANCER_DEPENDENCY_PATH}/include/eigen3"
       }
     },
 
