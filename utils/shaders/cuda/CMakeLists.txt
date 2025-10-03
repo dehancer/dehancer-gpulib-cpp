@@ -25,7 +25,10 @@ add_custom_target(
         COMMAND ${CMAKE_CUDA_COMPILER}
         -Xcompiler ${CMAKE_CUDA_COMPILER_FLAGS}
         -ccbin ${CUDA_BIN_COMPILER} -m64
-        --gpu-architecture=all
+        --generate-code arch=compute_60,code=sm_60
+        --generate-code arch=compute_70,code=sm_70
+        --generate-code arch=compute_80,code=sm_80
+        --generate-code arch=compute_80,code=compute_80
         ${CUDA_EXTRA_ARCH}
         --use_fast_math
         -ftz=true -prec-div=false -prec-sqrt=false
