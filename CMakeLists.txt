@@ -343,7 +343,6 @@ else ()
     set(dehancer_maths_cpp_INCLUDE_DIRS ${dehancer_maths_cpp_SOURCE_DIR}/include)
     include_directories(
             ${dehancer_maths_cpp_SOURCE_DIR}/include
-            ${armadillo_SOURCE_DIR}/include
     )
 
     set(COMMON_LIBRARIES dehancer_maths_cpp;${COMMON_LIBRARIES})

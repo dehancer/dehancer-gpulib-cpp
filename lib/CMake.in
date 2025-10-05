@@ -60,7 +60,6 @@ install(DIRECTORY
         ${EXTERNAL_INSTALL_LOCATION}
         DESTINATION "${CMAKE_INSTALL_PREFIX}/include"
         FILES_MATCHING
-        PATTERN include/armadillo
         PATTERN *.h
         PATTERN *.hpp
         PATTERN include/*gtest* EXCLUDE
@@ -72,8 +71,6 @@ install(DIRECTORY
         DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
         FILES_MATCHING
         PATTERN lib/*dehancer_math*.*
-        PATTERN lib/*armadillo*.*
-        PATTERN lib/armadillo.pc
         PATTERN lib/*gtest*.* EXCLUDE
         PATTERN lib/*gmock*.* EXCLUDE
         PATTERN lib/*GTest*.* EXCLUDE
