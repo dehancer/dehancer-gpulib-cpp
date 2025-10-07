@@ -9,6 +9,7 @@
 #include "dehancer/gpu/kernels/common.h"
 #include "dehancer/gpu/kernels/types.h"
 #include "dehancer/small_matrix.h"
+#include "dehancer/devices/ccm_model.h"
 
 
 /**
