@@ -7,7 +7,7 @@
 
 #include "dehancer/gpu/kernels/common.h"
 #include "dehancer/gpu/kernels/types.h"
-#include "dehancer/devices/transform_lut1d.h"
+#include "dehancer/devices/lut1d_sampler.h"
 
 //
 // MARK - Identity
