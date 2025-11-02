@@ -295,7 +295,7 @@ endif()
 ##
 FetchContent_Declare(
         dehancer_maths_cpp
-        GIT_REPOSITORY  https://github.com/dehancer/dehancer-maths-cpp
+        GIT_REPOSITORY  git@github.com:dehancer/dehancer-maths-cpp
         GIT_TAG     ${GIT_TAG_dehancer_maths_cpp}
         SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-src"
         BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-build"
