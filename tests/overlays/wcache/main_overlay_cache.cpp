@@ -44,11 +44,6 @@ auto io_texture_test = [] (int num,
       }
       
     }
-    
-    #if defined(DEHANCER_CONTROLLED_SINGLETON)
-    WCache::DestroyInstance();
-    #endif
-    
     return 0;
 };
 
