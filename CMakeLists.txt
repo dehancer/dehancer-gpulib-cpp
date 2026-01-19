@@ -623,28 +623,47 @@ else ()
 
     FetchContent_MakeAvailable(dehancer_xmp_cpp)
 
-    FetchContent_GetProperties(exiv2)
+    # FIXME remove below after exiv2 is settled outside of this cmake.
+    # FetchContent_GetProperties(exiv2)
+    # if(NOT exiv2_POPULATED)
+    #     FetchContent_Populate(exiv2)
+    #     if (DEHANCER_INSTALL_COMMON_DEPS)
+    #         add_subdirectory(${exiv2_SOURCE_DIR} ${exiv2_BINARY_DIR})
+    #     else ()
+    #         add_subdirectory(${exiv2_SOURCE_DIR} ${exiv2_BINARY_DIR} EXCLUDE_FROM_ALL)
+    #     endif ()
+    # endif()
 
-    if(NOT exiv2_POPULATED)
-        FetchContent_Populate(exiv2)
-        if (DEHANCER_INSTALL_COMMON_DEPS)
-            add_subdirectory(${exiv2_SOURCE_DIR} ${exiv2_BINARY_DIR})
-        else ()
-            add_subdirectory(${exiv2_SOURCE_DIR} ${exiv2_BINARY_DIR} EXCLUDE_FROM_ALL)
-        endif ()
+    find_package(exiv2 REQUIRED CONFIG NAMES exiv2)
+
+    # This is a bit brain damaged. Why would exiv2 not provide its include path via the config file?
+    if(exiv2_FOUND)
+        message(STATUS "exiv2 found at: ${exiv2_DIR}")
+
+        # Try to get include path from the config directory itself
+        if(EXISTS "${exiv2_DIR}/../../../include")
+            set(EXIV2_INCLUDE_DIR "${exiv2_DIR}/../../../include")
+            message(STATUS "Found include at: ${EXIV2_INCLUDE_DIR}")
+        else()
+            message(FATAL_ERROR "Could not find exiv2 include directory!")
+        endif()
+    else()
+        message(FATAL_ERROR "exiv2 not found!")
     endif()
 
     include_directories(
             ${base64cpp_SOURCE_DIR}/include
             ${ed25519cpp_SOURCE_DIR}/include
-            ${exiv2_SOURCE_DIR}/include
+            # FIXME remove line below after exiv2 is settled outside of this cmake.
+            # ${exiv2_SOURCE_DIR}/include
+            ${EXIV2_INCLUDE_DIR}
             ${dehancer_common_cpp_SOURCE_DIR}/include
             ${dehancer_common_cpp_SOURCE_DIR}/external
             ${dehancer_xmp_cpp_SOURCE_DIR}/include
             ${CMAKE_CURRENT_BINARY_DIR}
     )
 
-    set(COMMON_LIBRARIES dehancer_xmp_cpp;dehancer_common_cpp;exiv2lib;ed25519cpp;base64cpp;${COMMON_LIBRARIES})
+    set(COMMON_LIBRARIES dehancer_xmp_cpp;dehancer_common_cpp;ed25519cpp;base64cpp;${COMMON_LIBRARIES})
 
 endif ()
 
