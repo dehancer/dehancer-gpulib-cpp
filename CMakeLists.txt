@@ -60,7 +60,9 @@ option (OpenCV_DIR "OpenCV Root" "/usr/local/universal")
 option (GTest_ROOT "GTest_ROOT" "")
 option (CUDA_PATH "CUDA_PATH" "")
 
-set(CL_BUILD_PROGRAM_ARGS "-cl-std=CL2.0 -cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant" CACHE STRING "Arguments passed to clBuildProgram when compiling OpenCL kernels")
+set(CL_STD_VERSION "2.0" CACHE STRING "OpenCL standard version to use when compiling kernels")
+
+set(CL_BUILD_PROGRAM_ARGS "-cl-std=CL${CL_STD_VERSION} -cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant" CACHE STRING "Arguments passed to clBuildProgram when compiling OpenCL kernels")
 
 set(DEHANCER_GPULIB_CPP_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
 set(DEHANCER_GPULIB_BINARY ${CMAKE_CURRENT_BINARY_DIR})
