@@ -12,6 +12,10 @@
 #include "dehancer/gpu/Paths.h"
 #include "dehancer/opencl/embeddedProgram.h"
 
+#ifndef CL_BUILD_PROGRAM_ARGS
+#error "CL_BUILD_PROGRAM_ARGS must be defined (set via CMake CL_BUILD_PROGRAM_ARGS cache variable)."
+#endif
+
 namespace dehancer::opencl {
     std::mutex GPULibraryCache::mutex_;
 
@@ -60,7 +64,7 @@ namespace dehancer::opencl {
         }
 
         err = clBuildProgram(program, 1, &device_id,
-                             "-cl-std=CL2.0 -cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant",
+                             CL_BUILD_PROGRAM_ARGS,
                              nullptr, nullptr);
 
         if (err != CL_SUCCESS) {
@@ -154,7 +158,7 @@ namespace dehancer::opencl {
         }
 
         err = clBuildProgram(program, 1, &device,
-                             "-cl-std=CL2.0 -cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant",
+                             CL_BUILD_PROGRAM_ARGS,
                              nullptr, nullptr);
 
         if (err != CL_SUCCESS) {

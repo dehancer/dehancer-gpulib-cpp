@@ -60,6 +60,8 @@ option (OpenCV_DIR "OpenCV Root" "/usr/local/universal")
 option (GTest_ROOT "GTest_ROOT" "")
 option (CUDA_PATH "CUDA_PATH" "")
 
+set(CL_BUILD_PROGRAM_ARGS "-cl-std=CL2.0 -cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant" CACHE STRING "Arguments passed to clBuildProgram when compiling OpenCL kernels")
+
 set(DEHANCER_GPULIB_CPP_SOURCE ${CMAKE_CURRENT_SOURCE_DIR})
 set(DEHANCER_GPULIB_BINARY ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -421,6 +423,7 @@ if (DEHANCER_GPU_OPENCL)
         message(FATAL_ERROR "OpenCL is not found on this platform")
     endif ()
     add_definitions(-DDEHANCER_GPU_OPENCL=1)
+    add_compile_definitions("CL_BUILD_PROGRAM_ARGS=\"${CL_BUILD_PROGRAM_ARGS}\"")
     message(STATUS "OpenCL: ${OpenCL_INCLUDE_DIRS}")
 endif ()
 
