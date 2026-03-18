@@ -41,7 +41,7 @@ namespace dehancer {
                   space_,
                   direction_
           );
-          dehancer::log::print("FilmProfile::load lut size = %zu, length = %zuMb.", cluts_[i]->get_lut_size(), cluts_[i]->get_texture()->get_length()/1024/1024);
+          // dehancer::log::print("FilmProfile::load lut size = %zu, length = %zuMb.", cluts_[i]->get_lut_size(), cluts_[i]->get_texture()->get_length()/1024/1024);
         }
       }
       
