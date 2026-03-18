@@ -8,7 +8,7 @@ set(GIT_TAG_dehancer_opencl_helper "develop")
 
 # v7 always tracks the `v7` branch disregarding DEHANCER_PIN_DEPENDENCIES
 # if (DEHANCER_PIN_DEPENDENCIES)
-#     set(GIT_TAG_dehancer_xmp_cpp "0.15.1")
+#     set(GIT_TAG_dehancer_xmp_cpp "0.15.2")
 #     set(GIT_TAG_dehancer_maths_cpp "0.13.0")
 #     set(GIT_TAG_dehancer_opencl_helper "0.5.0")
 # endif ()
@@ -26,7 +26,7 @@ message(STATUS "PKG_CONFIG_PATH: $ENV{PKG_CONFIG_PATH}")
 
 set(PROJECT_LIB dehancer_gpulib)
 set(DEHANCER_GPULIB_VERSION 1)
-project(${PROJECT_LIB} VERSION 1.12.0)
+project(${PROJECT_LIB} VERSION 1.12.1)
 
 #
 #
