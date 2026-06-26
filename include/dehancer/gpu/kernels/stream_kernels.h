@@ -7,6 +7,10 @@
 
 #include "dehancer/gpu/kernels/stream_space.h"
 
+static __constant DHCR_DEVICE_FUNC float ACES_CCT_MIN_OUR = 0.093874f;       // our lut starting point
+static __constant DHCR_DEVICE_FUNC float ACES_CCT_MIN = 0.0729055341958355f; // real starting point must be
+static __constant DHCR_DEVICE_FUNC float ACES_C3 = 0.155251141552511f;       // linear encoding in acescct below this
+
 DHCR_KERNEL void  kernel_stream_transform_ext(
         texture2d_read_t         source DHCR_BIND_TEXTURE(0),
         texture2d_write_t   destination DHCR_BIND_TEXTURE(1),
@@ -18,7 +22,8 @@ DHCR_KERNEL void  kernel_stream_transform_ext(
         DHCR_CONST_ARG_REF (DHCR_TransformDirection)             direction DHCR_BIND_BUFFER(7),
         DHCR_CONST_ARG  bool_ref_t                   transform_lut_enabled DHCR_BIND_BUFFER(8),
         DHCR_CONST_ARG  bool_ref_t              transform_function_enabled DHCR_BIND_BUFFER(9),
-        DHCR_CONST_ARG  float_ref_t                                 impact DHCR_BIND_BUFFER(10)
+        DHCR_CONST_ARG  bool_ref_t              acescct_shadows_compression DHCR_BIND_BUFFER(10),
+        DHCR_CONST_ARG  float_ref_t                                 impact DHCR_BIND_BUFFER(11)
         DHCR_KERNEL_GID_2D
 ) {
   
@@ -41,8 +46,20 @@ DHCR_KERNEL void  kernel_stream_transform_ext(
       float4 a_high = to_float4(1.009f);
       color = (color - a_low) / (a_high - a_low);
     }
+    if (acescct_shadows_compression) {
+      if (direction == DHCR_Inverse) {
+        if (color.x < ACES_C3) color.x = (color.x - ACES_CCT_MIN)*(ACES_C3 - ACES_CCT_MIN_OUR)/(ACES_C3 - ACES_CCT_MIN) + ACES_CCT_MIN_OUR;
+        if (color.y < ACES_C3) color.y = (color.y - ACES_CCT_MIN)*(ACES_C3 - ACES_CCT_MIN_OUR)/(ACES_C3 - ACES_CCT_MIN) + ACES_CCT_MIN_OUR;
+        if (color.z < ACES_C3) color.z = (color.z - ACES_CCT_MIN)*(ACES_C3 - ACES_CCT_MIN_OUR)/(ACES_C3 - ACES_CCT_MIN) + ACES_CCT_MIN_OUR;
+      }
+    }
     color = read_image(transform_lut, clamp(to_float3(color), 0.0f, 1.0f));
-  }
+    if (acescct_shadows_compression) {
+      if (direction == DHCR_Forward) {
+        if (color.x < ACES_C3) color.x = (color.x - ACES_CCT_MIN_OUR)*(ACES_C3 - ACES_CCT_MIN)/(ACES_C3 - ACES_CCT_MIN_OUR) + ACES_CCT_MIN;
+        if (color.y < ACES_C3) color.y = (color.y - ACES_CCT_MIN_OUR)*(ACES_C3 - ACES_CCT_MIN)/(ACES_C3 - ACES_CCT_MIN_OUR) + ACES_CCT_MIN;
+        if (color.z < ACES_C3) color.z = (color.z - ACES_CCT_MIN_OUR)*(ACES_C3 - ACES_CCT_MIN)/(ACES_C3 - ACES_CCT_MIN_OUR) + ACES_CCT_MIN;
+      }
   
   color = mix(clamp(inColor, 0.0f, 1.0f), color, impact);
   
