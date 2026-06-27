@@ -60,7 +60,8 @@ DHCR_KERNEL void  kernel_stream_transform_ext(
         if (color.y < ACES_C3) color.y = (color.y - ACES_CCT_MIN_OUR)*(ACES_C3 - ACES_CCT_MIN)/(ACES_C3 - ACES_CCT_MIN_OUR) + ACES_CCT_MIN;
         if (color.z < ACES_C3) color.z = (color.z - ACES_CCT_MIN_OUR)*(ACES_C3 - ACES_CCT_MIN)/(ACES_C3 - ACES_CCT_MIN_OUR) + ACES_CCT_MIN;
       }
-  
+    }
+  }
   color = mix(clamp(inColor, 0.0f, 1.0f), color, impact);
   
   write_image(destination, to_float4(to_float3(color),inColor.w), tex.gid);
