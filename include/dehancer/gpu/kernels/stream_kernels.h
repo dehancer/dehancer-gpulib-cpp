@@ -7,9 +7,7 @@
 
 #include "dehancer/gpu/kernels/stream_space.h"
 
-static __constant DHCR_DEVICE_FUNC float ACES_CCT_MIN_OUR = 0.093874f;       // our lut starting point
-static __constant DHCR_DEVICE_FUNC float ACES_CCT_MIN = 0.0729055341958355f; // real starting point must be
-static __constant DHCR_DEVICE_FUNC float ACES_C3 = 0.155251141552511f;       // linear encoding in acescct below this
+static __constant DHCR_DEVICE_FUNC float ACES_CCT_MIN_OUR = 0.093874f;       // our lut starting point, should be ACES_CCT_MIN = 0.0729
 
 DHCR_KERNEL void  kernel_stream_transform_ext(
         texture2d_read_t         source DHCR_BIND_TEXTURE(0),
