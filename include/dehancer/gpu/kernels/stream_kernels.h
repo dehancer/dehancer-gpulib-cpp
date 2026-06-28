@@ -7,8 +7,6 @@
 
 #include "dehancer/gpu/kernels/stream_space.h"
 
-static __constant DHCR_DEVICE_FUNC float ACES_CCT_MIN_OUR = 0.093874f;       // our lut starting point, should be ACES_CCT_MIN = 0.0729
-
 DHCR_KERNEL void  kernel_stream_transform_ext(
         texture2d_read_t         source DHCR_BIND_TEXTURE(0),
         texture2d_write_t   destination DHCR_BIND_TEXTURE(1),
@@ -28,7 +26,11 @@ DHCR_KERNEL void  kernel_stream_transform_ext(
   Texel2d tex;
   get_kernel_texel2d(destination, tex);
   if (!get_texel_boundary(tex)) return;
-  
+
+  float acescct_min_our = 0.093874f;        // our min value
+  float acescct_min = 0.0729055341958355f;  // must be min value by acescct standard
+  float acescct_c3 = 0.155251141552511f;    // linear encoding range
+
   float4 inColor = sampled_color(source, tex.size, tex.gid);
   
   float4 color  = inColor;
@@ -46,17 +48,17 @@ DHCR_KERNEL void  kernel_stream_transform_ext(
     }
     if (acescct_shadows_compression) {
       if (direction == DHCR_Inverse) {
-        if (color.x < ACES_C3) color.x = (color.x - ACES_CCT_MIN)*(ACES_C3 - ACES_CCT_MIN_OUR)/(ACES_C3 - ACES_CCT_MIN) + ACES_CCT_MIN_OUR;
-        if (color.y < ACES_C3) color.y = (color.y - ACES_CCT_MIN)*(ACES_C3 - ACES_CCT_MIN_OUR)/(ACES_C3 - ACES_CCT_MIN) + ACES_CCT_MIN_OUR;
-        if (color.z < ACES_C3) color.z = (color.z - ACES_CCT_MIN)*(ACES_C3 - ACES_CCT_MIN_OUR)/(ACES_C3 - ACES_CCT_MIN) + ACES_CCT_MIN_OUR;
+        if (color.x < acescct_c3) color.x = (color.x - acescct_min)*(acescct_c3 - acescct_min_our)/(acescct_c3 - acescct_min) + acescct_min_our;
+        if (color.y < acescct_c3) color.y = (color.y - acescct_min)*(acescct_c3 - acescct_min_our)/(acescct_c3 - acescct_min) + acescct_min_our;
+        if (color.z < acescct_c3) color.z = (color.z - acescct_min)*(acescct_c3 - acescct_min_our)/(acescct_c3 - acescct_min) + acescct_min_our;
       }
     }
     color = read_image(transform_lut, clamp(to_float3(color), 0.0f, 1.0f));
     if (acescct_shadows_compression) {
       if (direction == DHCR_Forward) {
-        if (color.x < ACES_C3) color.x = (color.x - ACES_CCT_MIN_OUR)*(ACES_C3 - ACES_CCT_MIN)/(ACES_C3 - ACES_CCT_MIN_OUR) + ACES_CCT_MIN;
-        if (color.y < ACES_C3) color.y = (color.y - ACES_CCT_MIN_OUR)*(ACES_C3 - ACES_CCT_MIN)/(ACES_C3 - ACES_CCT_MIN_OUR) + ACES_CCT_MIN;
-        if (color.z < ACES_C3) color.z = (color.z - ACES_CCT_MIN_OUR)*(ACES_C3 - ACES_CCT_MIN)/(ACES_C3 - ACES_CCT_MIN_OUR) + ACES_CCT_MIN;
+        if (color.x < acescct_c3) color.x = (color.x - acescct_min_our)*(acescct_c3 - acescct_min)/(acescct_c3 - acescct_min_our) + acescct_min;
+        if (color.y < acescct_c3) color.y = (color.y - acescct_min_our)*(acescct_c3 - acescct_min)/(acescct_c3 - acescct_min_our) + acescct_min;
+        if (color.z < acescct_c3) color.z = (color.z - acescct_min_our)*(acescct_c3 - acescct_min)/(acescct_c3 - acescct_min_our) + acescct_min;
       }
     }
   }
