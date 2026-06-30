@@ -54,7 +54,8 @@ namespace dehancer {
       encoder.set(&direction_, sizeof(direction_),7);
       encoder.set(transform_lut_enabled,8);
       encoder.set(transform_function_enabled,9);
-      encoder.set(impact_,10);
+      encoder.set(space_.id == "aces_cct_ap1", 10); // fixing the shadows for our acescct lut, not nice but...
+      encoder.set(impact_,11);
     }
     
     void StreamTransform::set_space (const StreamSpace& space) {
