@@ -628,34 +628,9 @@ else ()
 
     FetchContent_MakeAvailable(dehancer_xmp_cpp)
 
-    # FIXME remove below after exiv2 is settled outside of this cmake.
-    # FetchContent_GetProperties(exiv2)
-    # if(NOT exiv2_POPULATED)
-    #     FetchContent_Populate(exiv2)
-    #     if (DEHANCER_INSTALL_COMMON_DEPS)
-    #         add_subdirectory(${exiv2_SOURCE_DIR} ${exiv2_BINARY_DIR})
-    #     else ()
-    #         add_subdirectory(${exiv2_SOURCE_DIR} ${exiv2_BINARY_DIR} EXCLUDE_FROM_ALL)
-    #     endif ()
-    # endif()
-
-    pkg_check_modules(exiv2 exiv2)
-
-    if(exiv2_FOUND)
-        message(STATUS "exiv2 found")
-        message(STATUS "-- includes:  ${exiv2_INCLUDE_DIRS}")
-        message(STATUS "-- libraries: ${exiv2_LIBRARY_DIRS}")
-        include_directories(${exiv2_INCLUDE_DIRS})
-        link_directories(${exiv2_LIBRARY_DIRS})
-    else()
-        message(FATAL_ERROR "exiv2 not found!")
-    endif()
-
     include_directories(
             ${base64cpp_SOURCE_DIR}/include
             ${ed25519cpp_SOURCE_DIR}/include
-            # FIXME remove line below after exiv2 is settled outside of this cmake.
-            # ${exiv2_SOURCE_DIR}/include
             ${dehancer_common_cpp_SOURCE_DIR}/include
             ${dehancer_common_cpp_SOURCE_DIR}/external
             ${dehancer_xmp_cpp_SOURCE_DIR}/include
@@ -664,6 +639,13 @@ else ()
 
     set(COMMON_LIBRARIES dehancer_xmp_cpp;dehancer_common_cpp;ed25519cpp;base64cpp;${COMMON_LIBRARIES})
 endif ()
+
+pkg_check_modules(exiv2 REQUIRED exiv2)
+message(STATUS "exiv2 found")
+message(STATUS "-- includes:  ${exiv2_INCLUDE_DIRS}")
+message(STATUS "-- libraries: ${exiv2_LIBRARY_DIRS}")
+include_directories(${exiv2_INCLUDE_DIRS})
+link_directories(${exiv2_LIBRARY_DIRS})
 
 if(USE_OPENCOLORIO)
     #
