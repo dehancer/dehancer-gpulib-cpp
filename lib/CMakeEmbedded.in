@@ -1,13 +1,3 @@
-
-add_custom_target(${EMBEDDED_CURRENT_C_TARGET} ALL DEPENDS ${EMBEDDED_EMBEDDED_IMAGE_C_FILES} WORKING_DIRECTORY  ${EMBEDDED_IMAGES_DIR} )
-
-add_custom_command(
-        TARGET ${EMBEDDED_CURRENT_C_TARGET} PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E make_directory ${EMBEDDED_IMAGES_DIR}
-#        DEPENDS ${EMBEDDED_IMAGES_DIR}
-        COMMENT "Created output directory"
-)
-
 find_program(
         EMBEDDING_EXEC
         NAMES xxd
@@ -19,6 +9,14 @@ else()
     message("EMBEDDING_EXEC ${EMBEDDING_EXEC}")
 endif ()
 
+set(
+        EMBEDDED_CURRENT_IMAGES_DIR
+        "${EMBEDDED_IMAGES_DIR}/${EMBEDDED_CURRENT_C_TARGET}"
+)
+set(EMBEDDED_OUTPUT_KEYS)
+set(EMBEDDED_SYMBOL_KEYS)
+set(EMBEDDED_IMAGE_SOURCES)
+
 foreach(image ${EMBEDDED_IMAGE_FILES})
 
     get_filename_component(fname ${image} NAME_WE)
@@ -27,8 +25,39 @@ foreach(image ${EMBEDDED_IMAGE_FILES})
     get_filename_component(abs_path ${CMAKE_CURRENT_SOURCE_DIR}/${src} PATH)
     get_filename_component(rel_path ${image} PATH)
 
+    string(TOLOWER "${fname}" output_key)
+    string(MAKE_C_IDENTIFIER "dehancer_${fname}" symbol_key)
+
+    list(FIND EMBEDDED_OUTPUT_KEYS "${output_key}" duplicate_index)
+    if(NOT duplicate_index EQUAL -1)
+        list(GET EMBEDDED_IMAGE_SOURCES ${duplicate_index} duplicate_source)
+        message(
+                FATAL_ERROR
+                "Embedded resources '${duplicate_source}' and '${image}' "
+                "have colliding output names '${fname}' in target "
+                "'${EMBEDDED_CURRENT_C_TARGET}'"
+        )
+    endif()
+
+    list(FIND EMBEDDED_SYMBOL_KEYS "${symbol_key}" duplicate_index)
+    if(NOT duplicate_index EQUAL -1)
+        list(GET EMBEDDED_IMAGE_SOURCES ${duplicate_index} duplicate_source)
+        message(
+                FATAL_ERROR
+                "Embedded resources '${duplicate_source}' and '${image}' "
+                "produce the same C identifier '${symbol_key}' in target "
+                "'${EMBEDDED_CURRENT_C_TARGET}'"
+        )
+    endif()
+
+    list(APPEND EMBEDDED_OUTPUT_KEYS "${output_key}")
+    list(APPEND EMBEDDED_SYMBOL_KEYS "${symbol_key}")
+    list(APPEND EMBEDDED_IMAGE_SOURCES "${image}")
+
     set(src_file dehancer_${fname})
     set(embedded_file dehancer_${fname}.c)
+    set(copied_image ${EMBEDDED_CURRENT_IMAGES_DIR}/${src_file})
+    set(embedded_output ${EMBEDDED_CURRENT_IMAGES_DIR}/${embedded_file})
 
     if(CMAKE_DEBUG_MESSAGE)
         message("IMAGE:  ${embedded_file}   ${fname} ${abs_path} ${rel_path}")
@@ -37,25 +66,30 @@ foreach(image ${EMBEDDED_IMAGE_FILES})
     set(embedded_files "")
 
     add_custom_command(
-            TARGET ${EMBEDDED_CURRENT_C_TARGET} PRE_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${image} ${EMBEDDED_IMAGES_DIR}/${src_file}
-#            DEPENDS ${image}
-            COMMENT "Copy ${image} -> ${EMBEDDED_IMAGES_DIR}/${src_file}"
+            OUTPUT "${embedded_output}"
+            BYPRODUCTS "${copied_image}"
+            COMMAND "${CMAKE_COMMAND}" -E make_directory
+                    "${EMBEDDED_CURRENT_IMAGES_DIR}"
+            COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+                    "${image}"
+                    "${copied_image}"
+            COMMAND "${CMAKE_COMMAND}" -E chdir
+                    "${EMBEDDED_CURRENT_IMAGES_DIR}"
+                    "${EMBEDDING_EXEC}" -i "${src_file}" "${embedded_file}"
+            DEPENDS "${image}" "${EMBEDDING_EXEC}"
+            VERBATIM
+            COMMENT "Embed ${name} -> ${embedded_file}"
     )
 
-    add_custom_command(
-            TARGET ${EMBEDDED_CURRENT_C_TARGET} PRE_BUILD
-            WORKING_DIRECTORY  ${EMBEDDED_IMAGES_DIR}
-            COMMAND ${EMBEDDING_EXEC}
-            -i ${src_file}
-            ${embedded_file}
-#            DEPENDS ${image}
-            COMMENT "compile watermarks opencl code from ${name} -> ${embedded_file}"
-    )
-
-    set(EMBEDDED_EMBEDDED_IMAGE_C_FILES "${EMBEDDED_IMAGES_DIR}/${embedded_file};${EMBEDDED_EMBEDDED_IMAGE_C_FILES}")
+    list(PREPEND EMBEDDED_EMBEDDED_IMAGE_C_FILES "${embedded_output}")
 
 endforeach()
+
+add_custom_target(
+        ${EMBEDDED_CURRENT_C_TARGET}
+        ALL
+        DEPENDS ${EMBEDDED_EMBEDDED_IMAGE_C_FILES}
+)
 
 if(CMAKE_DEBUG_MESSAGE)
     message("EMBEDDED_EMBEDDED_IMAGE_C_FILES ${EMBEDDED_EMBEDDED_IMAGE_C_FILES}")
