@@ -288,29 +288,28 @@ else()
 endif()
 
 
-#
-##
-## Maths
-##
-FetchContent_Declare(
-        dehancer_maths_cpp
-        GIT_REPOSITORY  git@github.com:dehancer/dehancer-maths-cpp
-        GIT_TAG     ${GIT_TAG_dehancer_maths_cpp}
-        SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-src"
-        BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-build"
-)
+# Prefer the installed maths package. Its current config uses PROJECT_LIB to
+# name the imported target, so preserve this project's target name around it.
+set(DEHANCER_GPULIB_PROJECT_LIB ${PROJECT_LIB})
+set(PROJECT_LIB dehancer_maths_cpp)
+find_package(dehancer_maths_cpp CONFIG QUIET)
+set(PROJECT_LIB ${DEHANCER_GPULIB_PROJECT_LIB})
 
-FetchContent_GetProperties(dehancer_maths_cpp)
-FetchContent_MakeAvailable(dehancer_maths_cpp)
-if(NOT dehancer_maths_cpp_POPULATED)
-    FetchContent_Populate(dehancer_maths_cpp)
-    add_subdirectory(${dehancer_maths_cpp_SOURCE_DIR} ${dehancer_maths_cpp_BINARY_DIR})
+if(NOT dehancer_maths_cpp_FOUND)
+    FetchContent_Declare(
+            dehancer_maths_cpp
+            GIT_REPOSITORY git@github.com:dehancer/dehancer-maths-cpp
+            GIT_TAG ${GIT_TAG_dehancer_maths_cpp}
+            SOURCE_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-src"
+            BINARY_DIR "${CMAKE_BINARY_DIR}/dehancer_maths_cpp-build"
+    )
+
+    FetchContent_MakeAvailable(dehancer_maths_cpp)
+
+    include_directories(${dehancer_maths_cpp_SOURCE_DIR}/include)
 endif()
 
-include_directories(
-        ${dehancer_maths_cpp_SOURCE_DIR}/include
-        ${armadillo_SOURCE_DIR}/include
-)
+include_directories(${armadillo_SOURCE_DIR}/include)
 
 set(COMMON_LIBRARIES dehancer_maths_cpp;${COMMON_LIBRARIES})
 
