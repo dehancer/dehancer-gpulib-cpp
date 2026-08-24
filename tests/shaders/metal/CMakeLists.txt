@@ -44,14 +44,16 @@
          -O3 -ffast-math
          -c
          -Wno-unused-variable
-         -target air64-apple-macos11.0
-         -target air64-apple-macos10.14
          #${METAL_TARGET_FLAGS}
          ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.metal
          -o ${CMAKE_CURRENT_BINARY_DIR}/${CURRENT_KERNEL_TARGET_NAME}.air
          VERBATIM
          WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
          )
+
+        #  -target air64-apple-macos11.0
+        #  -target air64-apple-macos10.14
+        # Those are not needed anymore and have been removed -- Egor Egorov
 
  add_custom_target(
          ${CURRENT_TARGET_NAME}

@@ -42,12 +42,14 @@
          -I ${DEHANCER_GPULIB_CPP_SOURCE}/utils/shaders
          -O3 -ffast-math
          -c
-         -target ${METAL_TARGET_FLAGS}
          ${CMAKE_CURRENT_SOURCE_DIR}/${CURRENT_KERNEL_TARGET_NAME}.metal
          -o ${CMAKE_CURRENT_BINARY_DIR}/${CURRENT_KERNEL_TARGET_NAME}.air
          VERBATIM
          WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
          )
+
+        # -target ${METAL_TARGET_FLAGS}
+        # This has been removed because it is not needed anymore -- Egor Egorov
 
  add_custom_target(
          ${CURRENT_TARGET_NAME}
