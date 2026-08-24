@@ -221,7 +221,7 @@
 
         "CMAKE_OSX_DEPLOYMENT_TARGET": {
           "type": "STRING",
-          "value": "13.0"
+          "value": "15.0"
         },
 
         "CMAKE_OSX_SYSROOT": {
