@@ -4,6 +4,14 @@
 
 #pragma once
 
+#if defined(__aarch64__) || defined(__arm64__)
+#define DEHANCER_ARCH "arm64"
+#define DEHANCER_ARCH_IS_ARM64 1
+#else
+#define DEHANCER_ARCH "x86_64"
+#define DEHANCER_ARCH_IS_X86_64 1
+#endif
+
 #include <cstdlib>
 #include <dehancer/gpu/Texture.h>
 

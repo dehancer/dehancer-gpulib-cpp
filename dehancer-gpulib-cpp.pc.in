@@ -1,13 +1,13 @@
 prefix=@prefix@
-exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
 
 Name: dehancer-gpulib-cpp
-Description: Dehancer GPU layer SDK
+Description: Dehancer GPU layer SDK (@backend@)
 Version: @PROJECT_VERSION@
 URL: https://github.com/dehancer/dehancer-gpulib-cpp
+Requires: @requires@
 Requires.private: @requires_private@
-Libs: -L${libdir} -l@dehancer_gpu_cpp_lib@ @dehancer_clHelperLib@ -ldehancer_maths_cpp -larmadillo
+Libs: -L"${libdir}" -l@dehancer_gpu_cpp_lib@
 Libs.private: @libs_private@
-CFlags: -I${includedir}
+Cflags: -I"${includedir}"@cflags@

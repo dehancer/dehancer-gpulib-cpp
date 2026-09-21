@@ -1,17 +1,11 @@
-#
-# Generators
-#
-set(METAL_KERNELS_LIBRARY ${CMAKE_BINARY_DIR}/tests/shaders/metal/${CURRENT_KERNEL_TARGET_NAME}_metal.metallib)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/paths_config.h.in ${CMAKE_BINARY_DIR}/generated/tests/paths_config.h)
+set(METAL_KERNELS_LIBRARY "${PROJECT_BINARY_DIR}/tests/shaders/metal/TestKernels_metal.metallib")
+configure_file(paths_config.h.in "${PROJECT_BINARY_DIR}/generated/tests/paths_config.h" @ONLY)
 
-set (TEST metal-aobench-test)
-set (DEHANCER_CURRENT_PLATFORM_METAL ON)
-include(${DEHANCER_GPULIB_CPP_SOURCE}/tests/CMakeCommon.in)
+dehancer_add_test(metal-aobench-test)
 
-add_custom_command(
-        TARGET ${TEST} POST_BUILD
-#        DEPENDS TestKernels
-        COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_BINARY_DIR}/tests/shaders/metal/${CURRENT_KERNEL_TARGET_NAME}_metal.metallib
-        "$<TARGET_FILE_DIR:${TEST}>/"
+add_custom_command(TARGET metal-aobench-test POST_BUILD
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+        "${METAL_KERNELS_LIBRARY}"
+        "$<TARGET_FILE_DIR:metal-aobench-test>/"
+    VERBATIM
 )

@@ -6,7 +6,4 @@ if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/.env)
     configure_file(${CMAKE_CURRENT_SOURCE_DIR}/.env ${CMAKE_CURRENT_BINARY_DIR}/.env COPYONLY)
 endif()
 
-set (DEHANCER_CURRENT_PLATFORM_CUDA ON)
-
-set (TEST cuda-load-profiles-test)
-include(${DEHANCER_GPULIB_CPP_SOURCE}/tests/CMakeCommon.in)
+dehancer_add_test(cuda-load-profiles-test)
