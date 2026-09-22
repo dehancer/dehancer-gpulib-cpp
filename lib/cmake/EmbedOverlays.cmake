@@ -1,11 +1,14 @@
 function(dehancer_embed_overlays output_variable)
     find_program(DEHANCER_XXD NAMES xxd REQUIRED)
+
     file(GLOB images CONFIGURE_DEPENDS
         "${PROJECT_SOURCE_DIR}/src/rc/watermarks/*.png"
         "${PROJECT_SOURCE_DIR}/src/rc/false_color/*.png"
     )
+
     set(output_dir "${CMAKE_CURRENT_BINARY_DIR}/generated/embedded")
     set(sources)
+
     foreach(image IN LISTS images)
         get_filename_component(name "${image}" NAME_WE)
         set(symbol "dehancer_${name}")
@@ -18,5 +21,6 @@ function(dehancer_embed_overlays output_variable)
         )
         list(APPEND sources "${output}")
     endforeach()
+
     set(${output_variable} "${sources}" PARENT_SCOPE)
 endfunction()

@@ -5,6 +5,7 @@ endif()
 include(AddUtility.cmake)
 add_subdirectory(shaders)
 add_subdirectory(lut_codegen)
+
 if(USE_OPENCOLORIO)
     add_subdirectory(ocio_codegen)
 endif()

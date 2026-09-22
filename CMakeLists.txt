@@ -11,36 +11,47 @@ option(DEHANCER_GPU_METAL "Build Metal backend" OFF)
 option(DEHANCER_GPU_OPENCL "Build OpenCL backend" OFF)
 option(DEHANCER_GPU_CUDA "Build CUDA backend" OFF)
 
-option(DEHANCER_USE_NATIVE_APPLE_API "Use native Apple image APIs" ON)
-option(DEHANCER_OPENCL_CONTEXT_NOT_RELEASE "Keep OpenCL contexts alive" OFF)
+option(DEHANCER_USE_NATIVE_APPLE_API "Use native Apple image APIs" ON) # FIXME probably needs to be removed
+option(DEHANCER_OPENCL_CONTEXT_NOT_RELEASE "Don't call clReleaseContext() (dev mode)" OFF)
+
 option(PRINT_DEBUG "Enable debug logging" ON)
 option(PRINT_KERNELS_DEBUG "Enable kernel logging" OFF)
 option(DEHANCER_DEBUG "Enable additional debug information" OFF)
+
 option(USE_OPENCOLORIO "Build OpenColorIO utilities" OFF)
-option(BUILD_UTILS "Build utilities" OFF)
+
 set(CL_STD_VERSION "2.0" CACHE STRING "OpenCL kernel standard") # FIXME maybe 3.0?
 set(CL_BUILD_PROGRAM_ARGS "-cl-std=CL${CL_STD_VERSION} -cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant" CACHE STRING "OpenCL kernel compiler arguments")
 
-set(DEHANCER_GPULIB_VERSION 1) # FIXME what for?
+# Written into the LUT file as
+# `Dehancer Core Generator v.` + DEHANCER_GPULIB_VERSION
+# See generation of .h file below.
+set(DEHANCER_GPULIB_VERSION 1)
 
-foreach(dependency IN ITEMS dehancer_common_cpp dehancer_xmp_cpp dehancer_maths_cpp)
-    if(NOT TARGET ${dependency}::${dependency})
-        find_package(${dependency} CONFIG REQUIRED)
-    endif()
-endforeach()
+if(NOT TARGET dehancer_common_cpp::dehancer_common_cpp)
+    find_package(dehancer_common_cpp CONFIG REQUIRED)
+endif()
+
+if(NOT TARGET dehancer_xmp_cpp::dehancer_xmp_cpp)
+    find_package(dehancer_xmp_cpp CONFIG REQUIRED)
+endif()
+
+if(NOT TARGET dehancer_maths_cpp::dehancer_maths_cpp)
+    find_package(dehancer_maths_cpp CONFIG REQUIRED)
+endif()
 
 find_package(Threads REQUIRED)
 find_package(OpenCV CONFIG REQUIRED)
 
 if(DEHANCER_GPU_METAL)
+    # We don't check the OS here because it's the responsibility
+    # of the user to ensure they are sane.
     set(DEHANCER_BACKEND metal)
-    if(NOT APPLE)
-        message(FATAL_ERROR "Metal requires an Apple platform")
-    endif()
     enable_language(OBJCXX)
 
 elseif(DEHANCER_GPU_OPENCL)
     set(DEHANCER_BACKEND opencl)
+
     if(NOT TARGET dehancer_opencl_helper::dehancer_opencl_helper)
         find_package(dehancer_opencl_helper CONFIG REQUIRED)
     endif()
@@ -57,6 +68,7 @@ if(USE_OPENCOLORIO)
     find_package(OpenColorIO CONFIG REQUIRED)
 endif()
 
+# Written to the LUT, see above
 configure_file(include/dehancer/gpulib_version.h.in generated/gpulib_version.h @ONLY) # FIXME what for?
 
 add_subdirectory(lib)

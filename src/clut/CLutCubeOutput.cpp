@@ -11,11 +11,11 @@
 #include <iomanip>
 
 namespace dehancer {
-    
+
     /// Lut export generator version
-    
+
     static std::string generator_comment =  "# Dehancer Core Generator v.";
-    
+
     CLutCubeOutput::CLutCubeOutput(const void *command_queue,
                                    const CLut &clut,
                                    const Options &options,
@@ -34,26 +34,26 @@ namespace dehancer {
                                              dehancer::stream_space_identity(),
                                              DHCR_None);
     }
-    
+
     std::ostream &operator<<(std::ostream &os, const CLutCubeOutput &dt) {
-      
+
       auto texture_ = dt.lut_->get_texture();
-      
+
       auto _3dcopy = CLut3DCopyFunction(dt.command_queue_, texture_, dt.lut_->get_lut_size(), true);
-      
+
       os << generator_comment << dehancer::gpulib::version();
       os << std::endl;
       os << std::endl;
       os << "TITLE \""<<dt.title_<<"\"";
       os << std::endl;
-      
+
       if (!dt.comments_.empty()) {
         os << std::endl;
         os << dt.comments_;
         os << std::endl;
         os << std::endl;
       }
-      
+
       os << "# LUT SIZE " << _3dcopy.get_lut_size() << "x" << _3dcopy.get_lut_size() << "x" << _3dcopy.get_lut_size();
       os << ", " << _3dcopy.get_bytes_per_image() << ", " << _3dcopy.get_image_bytes();
       os << std::endl;
@@ -69,7 +69,7 @@ namespace dehancer {
       os << std::endl;
       os << "# LUT data points begin";
       os << std::endl;
-      
+
       float gamma_weight = 1.0f;
       _3dcopy.foreach([&os, gamma_weight](uint index, float r, float g, float b){
           os << std::fixed << std::setw( 1 ) << std::setprecision( 6 )
@@ -77,12 +77,12 @@ namespace dehancer {
              << powf(g,gamma_weight) << " "
              << powf(b,gamma_weight) << std::endl;
       });
-      
+
       os << "#LUT data points end" << std::endl;
-      
+
       return os;
     }
-    
+
     CLutCubeOutput::CLutCubeOutput(
             const void *command_queue,
             const CLut &clut,
