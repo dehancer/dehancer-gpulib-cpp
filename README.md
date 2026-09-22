@@ -2,24 +2,25 @@
 
 ## Build
 
-Requires CMake 4.3+, C++17, Ninja Multi-Config or Xcode/Visual Studio.
+Requires CMake 4.3+.
 
 Depends on OpenCV, and installed `dehancer_common_cpp`, `dehancer_xmp_cpp`,
 `dehancer_maths_cpp`. OpenCL additionally requires `dehancer_opencl_helper`;
 CUDA and Metal require their universes as well.
 
 ```sh
-export PKG_CONFIG_PATH=/opt/dehancer-dependencies/lib/pkgconfig:/opt/dehancer-dependencies/lib64/pkgconfig
+# export PKG_CONFIG_PATH=/opt/dehancer-dependencies/lib/pkgconfig:/opt/dehancer-dependencies/lib64/pkgconfig
 cmake -S . -B build \
-  -G "Ninja Multi-Config" \
   -DCMAKE_PREFIX_PATH="$HOME/local-dehancer;/opt/dehancer-dependencies" \
+  -DCMAKE_INSTALL_PREFIX="$HOME/local-dehancer" \
+  -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_TESTING=OFF \
   -DCREATE_PKG_CONFIG=OFF \
   -DDEHANCER_GPU_METAL=ON \
   -DDEHANCER_GPU_OPENCL=OFF \
   -DDEHANCER_GPU_CUDA=OFF
 cmake --build build --config Release --parallel $(nproc)
-cmake --install build --config Release --prefix $HOME/local-dehancer
+cmake --install build --config Release
 ```
 
 Select the appropriate `DEHANCER_GPU` backend on other platforms.
