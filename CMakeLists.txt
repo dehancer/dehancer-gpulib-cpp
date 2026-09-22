@@ -18,7 +18,7 @@ option(PRINT_DEBUG "Enable debug logging" ON)
 option(PRINT_KERNELS_DEBUG "Enable kernel logging" OFF)
 option(DEHANCER_DEBUG "Enable additional debug information" OFF)
 
-option(USE_OPENCOLORIO "Build OpenColorIO utilities" OFF)
+option(USE_OPENCOLORIO "Build OpenColorIO utilities" OFF) # FIXME is this needed?
 
 set(CL_STD_VERSION "2.0" CACHE STRING "OpenCL kernel standard") # FIXME maybe 3.0?
 set(CL_BUILD_PROGRAM_ARGS "-cl-std=CL${CL_STD_VERSION} -cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant" CACHE STRING "OpenCL kernel compiler arguments")
@@ -69,7 +69,7 @@ if(USE_OPENCOLORIO)
 endif()
 
 # Written to the LUT, see above
-configure_file(include/dehancer/gpulib_version.h.in generated/gpulib_version.h @ONLY) # FIXME what for?
+configure_file(include/dehancer/gpulib_version.h.in generated/gpulib_version.h @ONLY)
 
 add_subdirectory(lib)
 
