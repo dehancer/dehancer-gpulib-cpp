@@ -61,7 +61,7 @@ elseif(DEHANCER_GPU_CUDA)
     find_package(CUDAToolkit REQUIRED)
 
 else()
-    message(FATAL_ERROR "Enable a DEHANCER_GPU backend: METAL, OPENCL, or CUDA")
+    message(FATAL_ERROR "Enable a GPU backend: Metal, OpenCL, or CUDA")
 endif()
 
 if(USE_OPENCOLORIO)
