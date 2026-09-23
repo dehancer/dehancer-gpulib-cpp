@@ -53,7 +53,9 @@ function(dehancer_install_pkg_config target backend)
             string(APPEND libs_private " -framework OpenCL -Wl,-export_dynamic")
         else()
             string(APPEND libs_private " -lOpenCL")
-            if(LINUX OR CMAKE_SYSTEM_NAME STREQUAL "FreeBSD")
+            # Bear in mind that CMake's `BSD` excludes Darwin, so this will not match macOS.
+            # Happy building on 386BSD!
+            if(LINUX OR BSD)
                 string(APPEND libs_private " -Wl,--export-dynamic")
             endif()
         endif()
