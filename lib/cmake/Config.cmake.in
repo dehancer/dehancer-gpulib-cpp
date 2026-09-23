@@ -2,6 +2,10 @@
 
 include(CMakeFindDependencyMacro)
 
+set(DEHANCER_GPU_METAL @DEHANCER_GPU_METAL@)
+set(DEHANCER_GPU_OPENCL @DEHANCER_GPU_OPENCL@)
+set(DEHANCER_GPU_CUDA @DEHANCER_GPU_CUDA@)
+
 foreach(dependency IN ITEMS dehancer_common_cpp dehancer_xmp_cpp dehancer_maths_cpp)
     if(NOT TARGET ${dependency}::${dependency})
         find_dependency(${dependency} CONFIG)
