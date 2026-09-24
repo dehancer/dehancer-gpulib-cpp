@@ -11,7 +11,7 @@ function(dehancer_add_test name)
         "${PROJECT_BINARY_DIR}/tests/generated"
     )
     target_link_libraries(${name} PRIVATE
-        dehancer_gpulib::dehancer_gpulib_${DEHANCER_BACKEND}
+        dehancer_gpulib::dehancer_gpulib_${DEHANCER_BACKEND_GPU_NAME}
         GTest::gtest_main
         ${OpenCV_LIBS}
     )
@@ -22,7 +22,7 @@ function(dehancer_add_test name)
     if(DEHANCER_GPU_METAL)
         add_dependencies(${name} TestKernels_metal)
     else()
-        target_link_libraries(${name} PRIVATE TestKernels_${DEHANCER_BACKEND})
+        target_link_libraries(${name} PRIVATE TestKernels_${DEHANCER_BACKEND_GPU_NAME})
     endif()
     add_test(NAME ${name} COMMAND ${name})
 endfunction()

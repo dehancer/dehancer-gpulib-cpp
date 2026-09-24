@@ -6,6 +6,7 @@ include(CMakePackageConfigHelpers)
 
 option(CREATE_PKG_CONFIG "Generate and install pkg-config metadata" OFF)
 option(BUILD_TESTING "Build tests" OFF)
+option(BUILD_UTILS "Build utility applications" OFF)
 
 option(DEHANCER_GPU_METAL "Build Metal backend" OFF)
 option(DEHANCER_GPU_OPENCL "Build OpenCL backend" OFF)
@@ -43,25 +44,40 @@ endif()
 find_package(Threads REQUIRED)
 find_package(OpenCV CONFIG REQUIRED)
 
+# We export the following GPU related variables:
+#   - `DEHANCER_BACKEND_GPU_NAME`
+#   - `DEHANCER_GPU_*`
+#
+# Consumer projects should use these to determine which GPU
+# backend is in use instead of defining their own CMake vars.
+#
+# This is not always possible yet because `gpulib` itself
+# installs as `dehancer_gpulib::dehancer_gpulib_*` with GPU
+# name in the target. Chicken & egg problem of sorts.
+#
+# We deliberately chose the slightly confusing name
+# `DEHANCER_BACKEND_GPU_NAME` so that it does not appear
+# in codebase searches for `DEHANCER_GPU_`.
+
 if(DEHANCER_GPU_METAL)
     # We don't check the OS here because it's the responsibility
     # of the user to ensure they are sane.
-    set(DEHANCER_BACKEND metal)
+    set(DEHANCER_BACKEND_GPU_NAME metal)
     enable_language(OBJCXX)
 
 elseif(DEHANCER_GPU_OPENCL)
-    set(DEHANCER_BACKEND opencl)
+    set(DEHANCER_BACKEND_GPU_NAME opencl)
 
     if(NOT TARGET dehancer_opencl_helper::dehancer_opencl_helper)
         find_package(dehancer_opencl_helper CONFIG REQUIRED)
     endif()
 
 elseif(DEHANCER_GPU_CUDA)
-    set(DEHANCER_BACKEND cuda)
+    set(DEHANCER_BACKEND_GPU_NAME cuda)
     find_package(CUDAToolkit REQUIRED)
 
 else()
-    message(FATAL_ERROR "Enable a GPU backend: Metal, OpenCL, or CUDA")
+    message(FATAL_ERROR "Define DEHANCER_GPU_METAL or DEHANCER_GPU_OPENCL or DEHANCER_GPU_CUDA")
 endif()
 
 if(USE_OPENCOLORIO)
