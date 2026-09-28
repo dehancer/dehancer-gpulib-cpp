@@ -9,11 +9,17 @@ function(dehancer_add_backend backend)
         "${PROJECT_SOURCE_DIR}/src/clut/utils/*.cpp"
         "${PROJECT_SOURCE_DIR}/src/profile/*.cpp"
         "${PROJECT_SOURCE_DIR}/src/math/*.cpp"
-        "${PROJECT_SOURCE_DIR}/src/ocio/*.cpp"
         "${PROJECT_SOURCE_DIR}/src/operations/*.cpp"
         "${PROJECT_SOURCE_DIR}/src/overlays/*.cpp"
         "${PROJECT_SOURCE_DIR}/src/platforms/*.cpp"
     )
+
+    if(USE_OPENCOLORIO)
+        file(GLOB OCIO_SRC CONFIGURE_DEPENDS
+            "${PROJECT_SOURCE_DIR}/src/ocio/*.cpp"
+        )
+        list(APPEND COMMON_SRC ${OCIO_SRC})
+    endif()
 
     set(target "${PROJECT_NAME}_${backend}")
 
