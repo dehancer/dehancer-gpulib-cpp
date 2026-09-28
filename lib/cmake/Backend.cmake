@@ -116,7 +116,10 @@ function(dehancer_add_backend backend)
         target_compile_definitions(${target} PRIVATE "CL_BUILD_PROGRAM_ARGS=\"${CL_BUILD_PROGRAM_ARGS}\"")
 
     elseif(backend STREQUAL "cuda")
-        target_link_libraries(${target} PUBLIC CUDA::cudart CUDA::cuda_driver)
+        # Export the static CUDA runtime to consumers. This target is linked by
+        # C++ compilers (not nvcc), so CUDA::cudart_static is the CMake target
+        # equivalent of nvcc's --cudart=static option.
+        target_link_libraries(${target} PUBLIC CUDA::cudart_static CUDA::cuda_driver)
     endif()
 
     install(TARGETS ${target} EXPORT dehancer_gpulibTargets
