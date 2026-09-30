@@ -1,1 +1,1 @@
-dehancer_add_opencl_shaders(TestKernels_opencl)
+dehancer_add_opencl_shaders(TestKernels)

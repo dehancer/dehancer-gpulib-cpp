@@ -88,11 +88,11 @@ function(dehancer_add_opencl_shaders target)
     add_library(${target} OBJECT ${EMBEDDED_OPENCL_KERNELS} Registry.cpp)
 
     target_link_libraries(${target} PUBLIC
-        dehancer_gpulib::dehancer_gpulib_opencl
+        dehancer_gpulib::dehancer_gpulib
         dehancer_opencl_helper::dehancer_opencl_helper
     )
 
-    add_executable(${target}_checker main.cpp)
+    add_executable(TestKernels_checker main.cpp)
 
-    target_link_libraries(${target}_checker PRIVATE ${target})
+    target_link_libraries(TestKernels_checker PRIVATE ${target})
 endfunction()

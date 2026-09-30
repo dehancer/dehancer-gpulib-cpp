@@ -51,13 +51,7 @@ find_package(OpenCV CONFIG REQUIRED)
 # Consumer projects should use these to determine which GPU
 # backend is in use instead of defining their own CMake vars.
 #
-# This is not always possible yet because `gpulib` itself
-# installs as `dehancer_gpulib::dehancer_gpulib_*` with GPU
-# name in the target. Chicken & egg problem of sorts.
-#
-# We deliberately chose the slightly confusing name
-# `DEHANCER_BACKEND_GPU_NAME` so that it does not appear
-# in codebase searches for `DEHANCER_GPU_`.
+# Keep the internal selector distinct from the exported option variables.
 
 if(DEHANCER_GPU_METAL)
     # We don't check the OS here because it's the responsibility
@@ -111,6 +105,12 @@ install(DIRECTORY include/dehancer DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 )
 install(FILES "${CMAKE_CURRENT_BINARY_DIR}/generated/gpulib_version.h"
     DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}/dehancer"
+)
+
+# Write the GPU backend name to a shell script for external use
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/gpulib.sh" "DEHANCER_BACKEND_GPU_NAME=${DEHANCER_BACKEND_GPU_NAME}\n")
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/gpulib.sh"
+    DESTINATION "${CMAKE_INSTALL_DATADIR}/dehancer_gpulib"
 )
 
 if(BUILD_UTILS OR BUILD_TESTING)

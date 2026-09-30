@@ -8,6 +8,9 @@ Depends on OpenCV, and installed `dehancer_common_cpp`, `dehancer_xmp_cpp`,
 `dehancer_maths_cpp`. OpenCL additionally requires `dehancer_opencl_helper`;
 CUDA and Metal require their universes as well.
 
+gpulib is the source of truth regarding the GPU used. All consumers are expected
+to follow the GPU as defined by gpulib.
+
 ```sh
 # export PKG_CONFIG_PATH=/opt/dehancer-dependencies/lib/pkgconfig:/opt/dehancer-dependencies/lib64/pkgconfig
 cmake -S . -B build \
@@ -39,10 +42,25 @@ directories. Relative directories support relocation.
 
 ```cmake
 find_package(dehancer_gpulib CONFIG REQUIRED)
-target_link_libraries(app PRIVATE dehancer_gpulib::dehancer_gpulib_metal)
+target_link_libraries(app PRIVATE dehancer_gpulib::dehancer_gpulib)
 ```
 
-Use `dehancer_gpulib_opencl` or `dehancer_gpulib_cuda` for those backends.
+`DEHANCER_BACKEND_GPU_NAME` identifies the selected backend in the package config,
+and it's one of:
+
+* `metal`
+* `cuda`
+* `opencl`
+
+It's also #defined in `include/dehancer/gpulib_version.h` and set as a env variable in
+`share/dehancer_gpulib/gpulib.sh`.
+
+Cmake files also export boolean definitions:
+
+* `DEHANCER_GPU_CUDA`
+* `DEHANCER_GPU_OPENCL`
+* `DEHANCER_GPU_METAL`
+
 Use `find_package(dehancer_gpulib CONFIG REQUIRED)` for every backend.
 The same targets work with `add_subdirectory()` or:
 
@@ -52,5 +70,5 @@ FetchContent_Declare(dehancer_gpulib
     GIT_REPOSITORY https://github.com/dehancer/dehancer-gpulib-cpp.git
 )
 FetchContent_MakeAvailable(dehancer_gpulib)
-target_link_libraries(app PRIVATE dehancer_gpulib::dehancer_gpulib_metal)
+target_link_libraries(app PRIVATE dehancer_gpulib::dehancer_gpulib)
 ```

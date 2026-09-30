@@ -5,6 +5,8 @@
 #ifndef DEHANCER_GPU_LIB_VERSION_CONFIG_H
 #define DEHANCER_GPU_LIB_VERSION_CONFIG_H
 
+#define DEHANCER_BACKEND_GPU_NAME "@DEHANCER_BACKEND_GPU_NAME@"
+
 namespace dehancer::gpulib {
     inline static unsigned int version()
     {

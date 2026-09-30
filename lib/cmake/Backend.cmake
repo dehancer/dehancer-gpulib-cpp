@@ -15,7 +15,7 @@ function(dehancer_add_backend backend)
         "${PROJECT_SOURCE_DIR}/src/platforms/*.cpp"
     )
 
-    set(target "${PROJECT_NAME}_${backend}")
+    set(target "${PROJECT_NAME}")
 
     string(TOUPPER "${backend}" backend_upper)
 
@@ -30,7 +30,7 @@ function(dehancer_add_backend backend)
         ${COMMON_SRC} ${COMMON_IMPL_SRC} ${embedded_sources}
     )
 
-    add_library(dehancer_gpulib::${target} ALIAS ${target})
+    add_library(dehancer_gpulib::dehancer_gpulib ALIAS ${target})
 
     target_compile_features(${target} PUBLIC cxx_std_17)
 

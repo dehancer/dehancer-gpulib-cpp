@@ -1,1 +1,1 @@
-dehancer_add_opencl_shaders(UtilsKernels_opencl)
+dehancer_add_opencl_shaders(UtilsKernels)

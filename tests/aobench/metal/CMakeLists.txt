@@ -1,4 +1,4 @@
-set(METAL_KERNELS_LIBRARY "${PROJECT_BINARY_DIR}/tests/shaders/metal/TestKernels_metal.metallib")
+set(METAL_KERNELS_LIBRARY "${PROJECT_BINARY_DIR}/tests/shaders/metal/TestKernels.metallib")
 configure_file(paths_config.h.in "${PROJECT_BINARY_DIR}/generated/tests/paths_config.h" @ONLY)
 
 dehancer_add_test(metal-aobench-test)
