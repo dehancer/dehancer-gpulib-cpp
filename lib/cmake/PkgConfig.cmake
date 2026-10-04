@@ -47,7 +47,7 @@ function(dehancer_install_pkg_config target backend)
     elseif(backend STREQUAL "opencl")
         # The helper installs a library and headers, but no pkg-config file.
         string(APPEND libs_private " -lclHelperLib")
-        string(APPEND cflags " -DCL_TARGET_OPENCL_VERSION=120")
+        string(APPEND cflags " -DCL_TARGET_OPENCL_VERSION=300")
 
         if(APPLE)
             string(APPEND libs_private " -framework OpenCL -Wl,-export_dynamic")
