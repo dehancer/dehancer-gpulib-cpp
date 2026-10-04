@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.3)
-project(dehancer_gpulib VERSION 1.13.0 LANGUAGES C CXX)
+project(dehancer_gpulib VERSION 1.20.0 LANGUAGES C CXX)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
@@ -23,6 +23,8 @@ option(USE_OPENCOLORIO "Build OpenColorIO utilities" OFF)
 
 set(CL_STD_VERSION "3.0" CACHE STRING "OpenCL kernel standard")
 set(CL_BUILD_PROGRAM_ARGS "-cl-std=CL${CL_STD_VERSION} -cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant" CACHE STRING "OpenCL kernel compiler arguments")
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Written into the LUT file as
 # `Dehancer Core Generator v.` + DEHANCER_GPULIB_VERSION
