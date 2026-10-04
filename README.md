@@ -11,16 +11,16 @@ projects are expected to use the GPU specified by gpulib.**
 
 ```sh
 cmake -B build -DCMAKE_BUILD_TYPE=Release \
-  -DDEHANCER_GPU_METAL=ON \
-  -DDEHANCER_GPU_OPENCL=OFF \
-  -DDEHANCER_GPU_CUDA=OFF
+  -DDEHANCER_GPU_METAL=ON
 cmake --build build --parallel $(nproc)
 cmake --install build --parallel $(nproc)
 ```
 
-Select the appropriate `DEHANCER_GPU_*` backend on other platforms.
+Select the appropriate GPU backend: `DEHANCER_GPU_CUDA`,
+`DEHANCER_GPU_OPENCL` or `DEHANCER_GPU_METAL`.
 
-Make sure to set proper `CMAKE_PREFIX_PATH` and `CMAKE_INSTALL_PREFIX` to discover dependencies and install.
+Make sure to set proper `CMAKE_PREFIX_PATH` and `CMAKE_INSTALL_PREFIX` to
+discover dependencies and install.
 
 `CMAKE_POSITION_INDEPENDENT_CODE` is set to `ON`.
 
@@ -35,15 +35,16 @@ target_link_libraries(app PRIVATE dehancer_gpulib::dehancer_gpulib)
 
 ### Exported variables
 
-`DEHANCER_BACKEND_GPU_NAME` identifies the selected backend in the package config,
-and it's one of:
+`DEHANCER_BACKEND_GPU_NAME` identifies the selected backend in the package
+config, and it's one of:
 
 * `metal`
 * `cuda`
 * `opencl`
 
-It's also `#define`d in `include/dehancer/gpulib_version.h` for usage in source codes
-and set as a env variable in `share/dehancer_gpulib/gpulib.sh` for usage in build scripts.
+It's also `#define`d in `include/dehancer/gpulib_version.h` for usage in source
+codes and set as a env variable in `share/dehancer_gpulib/gpulib.sh` for usage
+in build scripts.
 
 CMake files also export boolean definitions:
 
