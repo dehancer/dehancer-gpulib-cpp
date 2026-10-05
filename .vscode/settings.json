@@ -1,0 +1,6 @@
+{
+  "files.exclude": {
+    "ci-build": true,
+    "build": true
+  }
+}
