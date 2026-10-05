@@ -26,6 +26,36 @@ discover dependencies and install.
 
 The library is always built static.
 
+## Windows build
+
+We build in [Git Bash](https://gitforwindows.org) with `clang-cl`
+and we add a magic string to CMake to select runtime.
+
+Use Ninja as a make file generator.
+
+You will need certain dependencies from vcpkg installed.
+
+You might need to force OpenCV to build statically.
+
+Set `PATH` to include `clang-cl.exe` from VS.
+
+```sh
+export PATH="$PATH:/c/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/Llvm/x64/bin"
+```
+
+Add something like this to cmake configuration:
+
+```
+-G Ninja \
+-DCMAKE_C_COMPILER=clang-cl \
+-DCMAKE_CXX_COMPILER=clang-cl \
+-DCMAKE_MSVC_RUNTIME_LIBRARY='MultiThreaded$<$<CONFIG:Debug>:Debug>' \
+-DCMAKE_TOOLCHAIN_FILE="$HOME/vcpkg/scripts/buildsystems/vcpkg.cmake" \
+-DVCPKG_TARGET_TRIPLET=x64-windows-static \
+-DVCPKG_APPLOCAL_DEPS=OFF \
+-DOpenCV_STATIC=ON
+```
+
 ## Usage in CMake
 
 ```cmake
