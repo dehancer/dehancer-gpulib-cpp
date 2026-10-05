@@ -3,7 +3,7 @@
 //
 
 #pragma once
-#if WIN32
+#if defined(_WIN32)
 //#define _USE_MATH_DEFINES // for C++
 #endif
 #include <vector>

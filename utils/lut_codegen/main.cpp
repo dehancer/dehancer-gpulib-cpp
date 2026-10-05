@@ -12,7 +12,7 @@
 static inline std::string dirname_of(const std::string& fname)
 {
   static std::string  pathSeparator =
-          #if WIN32
+          #if defined(_WIN32)
           "\\";
           #else
           "/";
@@ -61,8 +61,7 @@ int main(int argc, char** argv) {
     try{
       /***
        * Load forward cube file
-       */
-      std::ifstream cube_is(file_forward_path, std::ostream::binary);
+       */      std::ifstream cube_is(file_forward_path, std::ostream::binary);
       cube_is >> forward_cube;
     }
     catch (const dehancer::Error &e) {

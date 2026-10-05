@@ -4,7 +4,7 @@
 
 #pragma once
 
-#if WIN32
+#if defined(_WIN32)
 #define __attribute__(x)
 //#else
 #endif

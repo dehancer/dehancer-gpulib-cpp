@@ -144,7 +144,7 @@ namespace dehancer::opencl {
 
 #ifdef __APPLE__
         auto q = clCreateCommandQueue(context, device_id, 0, &ret);
-#elif WIN32
+#elif defined(_WIN32)
         auto q = clCreateCommandQueue(context, device_id, 0, &ret);
 #else
         //cl_queue_properties devQueueProps[] = { 0 };
