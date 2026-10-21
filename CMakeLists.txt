@@ -12,7 +12,7 @@ option(DEHANCER_GPU_METAL "Build Metal backend" OFF)
 option(DEHANCER_GPU_OPENCL "Build OpenCL backend" OFF)
 option(DEHANCER_GPU_CUDA "Build CUDA backend" OFF)
 
-option(DEHANCER_USE_NATIVE_APPLE_API "Use native Apple image APIs" ON) # FIXME probably needs to be removed
+option(DEHANCER_USE_NATIVE_APPLE_API "Use native Apple image APIs" ON)
 option(DEHANCER_OPENCL_CONTEXT_NOT_RELEASE "Don't call clReleaseContext() (dev mode)" OFF)
 
 option(PRINT_DEBUG "Enable debug logging" ON)
