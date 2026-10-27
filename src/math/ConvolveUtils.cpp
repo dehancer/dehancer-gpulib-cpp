@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 03/12/2020.
-//
-
 #include "dehancer/gpu/math/ConvolveUtils.h"
 
 #define DHCR_MAGIC_RESAMPLER_SHARPY 1

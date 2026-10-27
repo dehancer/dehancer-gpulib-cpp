@@ -1,7 +1,3 @@
-//
-// Created by denn on 10.05.2021.
-//
-
 #ifndef DEHANCER_GPULIB_STREAM_KERNELS_H
 #define DEHANCER_GPULIB_STREAM_KERNELS_H
 

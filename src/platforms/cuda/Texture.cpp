@@ -1,7 +1,3 @@
-//
-// Created by denn on 30.12.2020.
-//
-
 #include "Texture.h"
 
 #include <cuda_fp16.h>

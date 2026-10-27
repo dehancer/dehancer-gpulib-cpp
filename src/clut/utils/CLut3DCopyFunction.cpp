@@ -1,7 +1,3 @@
-//
-// Created by denn on 26.05.2021.
-//
-
 #include "dehancer/gpu/clut/utils/CLut3DCopyFunction.h"
 
 namespace dehancer {

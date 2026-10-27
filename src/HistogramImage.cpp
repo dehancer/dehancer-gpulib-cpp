@@ -1,7 +1,3 @@
-//
-// Created by denn on 23.06.2022.
-//
-
 #include "dehancer/gpu/HistogramImage.h"
 
 #include <utility>

@@ -1,7 +1,3 @@
-//
-// Created by denn on 18.01.2021.
-//
-
 #include "dehancer/gpu/operations/BlendKernel.h"
 
 namespace dehancer {

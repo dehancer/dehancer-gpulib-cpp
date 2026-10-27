@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 19/11/2020.
-//
-
 void dehancer_opencl_kernel_checker() {};
 
 #include <string>

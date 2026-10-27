@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 09/06/2020.
-//
-
 #include "dehancer/gpu/ocio/cs/Deh2020.h"
 
 namespace dehancer::ocio::DEH2020 {

@@ -1,7 +1,3 @@
-//
-// Created by denn on 15.03.2021.
-//
-
 #include "dehancer/gpu/overlays/FalsecolorGradientImageCache.h"
 
 extern "C" unsigned char dehancer_falsecolor_gradient_1K[];

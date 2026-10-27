@@ -1,7 +1,3 @@
-//
-// Created by denn on 10.02.2021.
-//
-
 #pragma once
 
 #include <metal_stdlib>

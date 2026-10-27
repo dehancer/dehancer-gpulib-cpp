@@ -1,7 +1,3 @@
-//
-// Created by denn on 18.01.2021.
-//
-
 #pragma once
 
 #include "dehancer/gpu/kernels/types.h"

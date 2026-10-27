@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 04/06/2020.
-//
-
 #include "dehancer/gpu/ocio/LogParams.h"
 
 #include <cfloat>

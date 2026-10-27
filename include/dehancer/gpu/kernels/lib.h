@@ -1,7 +1,3 @@
-//
-// Created by denn on 05.01.2021.
-//
-
 #ifndef DEHANCER_GPULIB_LIB_H
 #define DEHANCER_GPULIB_LIB_H
 

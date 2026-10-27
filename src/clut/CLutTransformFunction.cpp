@@ -1,7 +1,3 @@
-//
-// Created by denn on 25.04.2021.
-//
-
 #include "dehancer/gpu/clut/CLutTransformFunction.h"
 
 namespace dehancer {

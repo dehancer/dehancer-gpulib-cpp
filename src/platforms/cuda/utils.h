@@ -1,7 +1,3 @@
-//
-// Created by denn on 28.12.2020.
-//
-
 #pragma once
 
 #ifndef CUDA_KERNEL

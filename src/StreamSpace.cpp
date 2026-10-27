@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 03/06/2020.
-//
-
 #include "dehancer/gpu/StreamSpace.h"
 
 namespace dehancer {

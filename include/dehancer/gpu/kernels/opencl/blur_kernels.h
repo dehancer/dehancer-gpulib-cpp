@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 30/11/2020.
-//
-
 #ifndef DEHANCER_GPULIB_BLUR_KERNELS_H
 #define DEHANCER_GPULIB_BLUR_KERNELS_H
 

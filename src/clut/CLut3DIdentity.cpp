@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 2019-07-23.
-//
-
 #include "dehancer/gpu/clut/CLut3DIdentity.h"
 
 namespace dehancer {

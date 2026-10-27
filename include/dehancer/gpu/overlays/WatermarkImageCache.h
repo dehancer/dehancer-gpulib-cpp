@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 2019-08-03.
-//
-
 #pragma once
 
 #include "dehancer/gpu/overlays/OverlayImageCache.h"

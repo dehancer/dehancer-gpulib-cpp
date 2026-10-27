@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 06/11/2020.
-//
-
 #include "Image.h"
 
 void Image::savePPM(const char* fname) const {

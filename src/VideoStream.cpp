@@ -1,7 +1,3 @@
-//
-// Created by denn on 15.11.2021.
-//
-
 #include <dehancer/gpu/VideoStream.h>
 
 #include <opencv2/opencv.hpp>

@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 22/10/2020.
-//
-
 #ifndef CLHELPER_TOOLS_AOBENCH_H
 #define CLHELPER_TOOLS_AOBENCH_H
 

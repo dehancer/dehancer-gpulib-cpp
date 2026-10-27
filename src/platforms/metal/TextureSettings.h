@@ -1,7 +1,3 @@
-//
-// Created by denn on 30.03.2022.
-//
-
 #ifndef DEHANCER_GPULIB_TEXTURESETTINGS_H
 #define DEHANCER_GPULIB_TEXTURESETTINGS_H
 

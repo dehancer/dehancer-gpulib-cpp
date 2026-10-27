@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 23/05/2020.
-//
-
 #pragma once
 
 #include <cinttypes>

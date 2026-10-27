@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 15/11/2020.
-//
-
 #include <chrono>
 
 #include "dehancer/gpu/Lib.h"

@@ -1,7 +1,3 @@
-//
-// Created by denn on 09.05.2021.
-//
-
 #ifndef DEHANCER_GPULIB_STREAM_GAMMA_H
 #define DEHANCER_GPULIB_STREAM_GAMMA_H
 

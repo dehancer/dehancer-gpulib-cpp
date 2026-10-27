@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 2019-12-24.
-//
-
 #include "dehancer/gpu/overlays/OverlayImageCache.h"
 
 #include <iostream>

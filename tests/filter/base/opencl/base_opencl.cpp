@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 29/11/2020.
-//
-
 #include "gtest/gtest.h"
 #include "tests/filter/filter_test.h"
 

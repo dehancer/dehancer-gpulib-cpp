@@ -1,7 +1,3 @@
-//
-// Created by denn on 23.01.2021.
-//
-
 #ifndef DEHANCER_GPULIB_TEST_STRUCT_H
 #define DEHANCER_GPULIB_TEST_STRUCT_H
 

@@ -1,7 +1,3 @@
-//
-// Created by denn on 23.01.2021.
-//
-
 #include "dehancer/gpu/operations/GammaKernel.h"
 
 namespace dehancer {

@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 15/11/2020.
-//
-
 #include "../../include/run_test.h"
 #if DEHANCER_GPU_METAL
 #include "tests/metal/paths_config.h"

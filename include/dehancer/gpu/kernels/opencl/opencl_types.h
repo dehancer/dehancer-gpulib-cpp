@@ -1,7 +1,3 @@
-//
-// Created by denn on 10.02.2021.
-//
-
 #ifndef DEHANCER_GPULIB_OPENCL_TYPES_H
 #define DEHANCER_GPULIB_OPENCL_TYPES_H
 

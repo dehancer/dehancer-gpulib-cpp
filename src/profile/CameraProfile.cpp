@@ -1,7 +1,3 @@
-//
-// Created by denn on 26.04.2021.
-//
-
 #include "dehancer/gpu/profile/CameraProfile.h"
 
 #include "dehancer/gpu/clut/CLutSquareInput.h"

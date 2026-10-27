@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 10/11/2020.
-//
-
 #pragma once
 
 #if defined(__aarch64__) || defined(__arm64__)

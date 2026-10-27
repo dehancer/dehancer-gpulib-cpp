@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 30/11/2020.
-//
-
 #ifndef DEHANCER_GPULIB_CHANNEL_UTILS_LIB_H
 #define DEHANCER_GPULIB_CHANNEL_UTILS_LIB_H
 

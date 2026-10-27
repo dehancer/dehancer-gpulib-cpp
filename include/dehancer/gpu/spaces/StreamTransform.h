@@ -1,7 +1,3 @@
-//
-// Created by denn on 08.05.2021.
-//
-
 #pragma once
 
 #include "dehancer/gpu/Kernel.h"

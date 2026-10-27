@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 2019-10-18.
-//
-
 #pragma once
 
 #include "dehancer/gpu/DeviceConfig.h"

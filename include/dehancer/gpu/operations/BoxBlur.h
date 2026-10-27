@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 01/12/2020.
-//
-
 #pragma once
 
 #include "dehancer/gpu/operations/UnaryKernel.h"

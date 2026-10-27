@@ -1,7 +1,3 @@
-//
-// Created by denn on 11.01.2021.
-//
-
 #include "dehancer/gpu/Filter.h"
 
 #include "dehancer/gpu/Log.h"

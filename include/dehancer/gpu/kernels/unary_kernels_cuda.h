@@ -1,7 +1,3 @@
-//
-// Created by denn on 09.01.2021.
-//
-
 #ifndef DEHANCER_GPULIB_UNARY_KERNELS_H
 #define DEHANCER_GPULIB_UNARY_KERNELS_H
 

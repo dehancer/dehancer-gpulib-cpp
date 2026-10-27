@@ -1,7 +1,3 @@
-//
-// Created by denn on 03.01.2021.
-//
-
 #ifndef DEHANCER_GPULIB_TEST_KERNELS_CPP
 #define DEHANCER_GPULIB_TEST_KERNELS_CPP
 

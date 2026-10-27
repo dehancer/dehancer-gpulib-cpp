@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 14/11/2020.
-//
-
 #pragma once
 
 #include "dehancer/Common.h"

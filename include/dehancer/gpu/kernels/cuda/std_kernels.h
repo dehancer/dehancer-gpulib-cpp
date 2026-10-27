@@ -1,7 +1,3 @@
-//
-// Created by denn on 03.01.2021.
-//
-
 #pragma once
 
 #include "dehancer/gpu/kernels/resample.h"

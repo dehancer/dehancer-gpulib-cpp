@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 10/11/2020.
-//
-
 #include "Texture.h"
 #include "dehancer/gpu/Log.h"
 #import <Metal/Metal.h>

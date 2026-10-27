@@ -1,7 +1,3 @@
-//
-// Created by denn on 28.03.2022.
-//
-
 #include "dehancer/Log.h"
 #include "platforms/TextureInput.h"
 #include <opencv2/opencv.hpp>

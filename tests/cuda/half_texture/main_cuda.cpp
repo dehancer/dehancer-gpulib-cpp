@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 15/11/2020.
-//
-
 #include "gtest/gtest.h"
 // #include "dehancer/gpu/kernels/cuda/texture2d.h"
 #include <cuda.h>

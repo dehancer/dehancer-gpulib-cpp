@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 2019-08-02.
-//
-
 #include "dehancer/gpu/operations/PassKernel.h"
 
 namespace dehancer {

@@ -1,7 +1,3 @@
-//
-// Created by denn on 08.05.2021.
-//
-
 #ifndef DEHANCER_GPULIB_STREAM_SPACE_H
 #define DEHANCER_GPULIB_STREAM_SPACE_H
 

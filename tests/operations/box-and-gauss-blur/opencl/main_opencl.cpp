@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 15/11/2020.
-//
-
 #include "../function.h"
 #include "gtest/gtest.h"
 #include "tests/include/run_test.h"

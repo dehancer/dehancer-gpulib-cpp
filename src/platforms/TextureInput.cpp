@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 12/11/2020.
-//
-
 #include "TextureInput.h"
 
 #include <opencv2/opencv.hpp>

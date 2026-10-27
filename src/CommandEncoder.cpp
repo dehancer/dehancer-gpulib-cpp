@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 20/11/2020.
-//
-
 #include "dehancer/gpu/CommandEncoder.h"
 
 namespace dehancer {

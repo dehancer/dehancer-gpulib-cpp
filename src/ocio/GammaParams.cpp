@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 04/06/2020.
-//
-
 #include "dehancer/gpu/ocio/GammaParams.h"
 
 #include <cmath>

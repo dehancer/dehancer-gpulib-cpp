@@ -1,7 +1,3 @@
-//
-// Created by denn on 08.05.2021.
-//
-
 #include "dehancer/gpu/spaces/StreamTransform.h"
 
 #include <iomanip>

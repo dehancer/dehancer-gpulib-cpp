@@ -1,7 +1,3 @@
-//
-// Created by denn on 02.02.2021.
-//
-
 #ifndef DEHANCER_VIDEO_MORPH_KERNELS_H
 #define DEHANCER_VIDEO_MORPH_KERNELS_H
 

@@ -1,7 +1,3 @@
-//
-// Created by denn on 31.12.2020.
-//
-
 #pragma once
 
 #include "dehancer/gpu/Lib.h"

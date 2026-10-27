@@ -1,7 +1,3 @@
-//
-// Created by denn on 15.01.2021.
-//
-
 #ifndef DEHANCER_GPULIB_CMATH_H
 #define DEHANCER_GPULIB_CMATH_H
 

@@ -1,7 +1,3 @@
-//
-// Created by denn on 15.03.2021.
-//
-
 #include "dehancer/gpu/overlays/FalsecolorScaleImageCache.h"
 
 extern "C" unsigned char dehancer_falsecolor_scale_1K[];

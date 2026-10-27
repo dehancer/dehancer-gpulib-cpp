@@ -1,7 +1,3 @@
-//
-// Created by denn on 07.08.2022.
-//
-
 #include "dehancer/Log.h"
 #include "platforms/TextureInput.h"
 

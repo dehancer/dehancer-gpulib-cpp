@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 27/11/2020.
-//
-
 #include <string>
 
 #include "dehancer/gpu/Paths.h"

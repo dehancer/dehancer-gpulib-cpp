@@ -1,7 +1,3 @@
-//
-// Created by denn on 14.01.2021.
-//
-
 #ifndef DEHANCER_VIDEO_HASH_UTILS_H
 #define DEHANCER_VIDEO_HASH_UTILS_H
 

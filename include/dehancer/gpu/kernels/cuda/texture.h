@@ -1,7 +1,3 @@
-//
-// Created by denn on 30.12.2020.
-//
-
 #pragma once
 
 #ifndef DEHANCER_CUDA_TEXTURE_KERNELS_H

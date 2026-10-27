@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 14/11/2020.
-//
-
 #include "TextureOutput.h"
 
 #include <opencv2/opencv.hpp>

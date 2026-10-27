@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 17/11/2020.
-//
-
 #include "dehancer/gpu/Kernel.h"
 
 namespace dehancer {

@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 30/11/2020.
-//
-
 #include "dehancer/gpu/Channels.h"
 
 #include <cmath>

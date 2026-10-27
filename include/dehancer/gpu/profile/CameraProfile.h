@@ -1,7 +1,3 @@
-//
-// Created by denn on 26.04.2021.
-//
-
 #pragma once
 
 #include "dehancer/CameraLutXmp.h"

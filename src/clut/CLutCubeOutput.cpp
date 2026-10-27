@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 21/05/2020.
-//
-
 #include "dehancer/gpu/clut/CLutCubeOutput.h"
 
 #include <iomanip>

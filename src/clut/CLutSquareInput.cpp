@@ -1,7 +1,3 @@
-//
-// Created by denn on 26.04.2021.
-//
-
 #include "dehancer/gpu/clut/CLutSquareInput.h"
 
 namespace dehancer {

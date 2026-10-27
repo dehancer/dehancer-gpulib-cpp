@@ -1,7 +1,3 @@
-//
-// Created by denn on 14.01.2021.
-//
-
 #ifndef DEHANCER_VIDEO_TYPE_CAST_H
 #define DEHANCER_VIDEO_TYPE_CAST_H
 

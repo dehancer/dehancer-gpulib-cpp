@@ -1,7 +1,3 @@
-//
-// Created by denn on 15.03.2021.
-//
-
 #include "dehancer/gpu/overlays/PromoLimitImageCache.h"
 
 extern "C" unsigned char dehancer_watermark_promo_16x9_1K[];

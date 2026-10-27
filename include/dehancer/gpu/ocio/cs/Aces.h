@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 03/06/2020.
-//
-
 #pragma once
 
 #include "dehancer/gpu/ocio/LogParams.h"

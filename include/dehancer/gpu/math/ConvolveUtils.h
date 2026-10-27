@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 30/11/2020.
-//
-
 #pragma once
 #if defined(_WIN32)
 // #define _USE_MATH_DEFINES // for C++

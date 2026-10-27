@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 15/11/2020.
-//
-
 #include "dehancer/gpu/DeviceCache.h"
 
 #include "dehancer/gpu/Command.h"

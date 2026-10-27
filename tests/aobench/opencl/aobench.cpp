@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 09/11/2020.
-//
-
 #include "tests/aobench/aobench.h"
 
 #include "gtest/gtest.h"

@@ -1,7 +1,3 @@
-//
-// Created by denn on 24.04.2021.
-//
-
 #ifndef DEHANCER_GPULIB_CLUT_KERNELS_NEW_H
 #define DEHANCER_GPULIB_CLUT_KERNELS_H
 

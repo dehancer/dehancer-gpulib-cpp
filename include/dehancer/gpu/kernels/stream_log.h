@@ -1,7 +1,3 @@
-//
-// Created by denn on 09.05.2021.
-//
-
 #ifndef DEHANCER_GPULIB_STREAM_LOG_H
 #define DEHANCER_GPULIB_STREAM_LOG_H
 

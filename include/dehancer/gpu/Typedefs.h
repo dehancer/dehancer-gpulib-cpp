@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 12/11/2020.
-//
-
 #ifndef DEHANCER_GPULIB_CPP_GPU_TYPEDEFS_H
 #define DEHANCER_GPULIB_CPP_GPU_TYPEDEFS_H
 

@@ -1,7 +1,3 @@
-//
-// Created by denn nevera on 14/11/2020.
-//
-
 #include "dehancer/gpu/TextureOutput.h"
 
 #include "platforms/TextureOutput.h"
