@@ -15,13 +15,13 @@
 #define DHCR_THREAD_ARG
 #define DHCR_CONST_ARG
 #define DHCR_CONST_ARG_REF(T) DHCR_CONST_ARG T
-#define DHCR_BLOCK_MEMORY  local
+#define DHCR_BLOCK_MEMORY local
 
 #define DHCR_KERNEL_GID_1D
 #define DHCR_KERNEL_GID_2D
 #define DHCR_KERNEL_GID_3D
 
-#define atomic_int_t  int
+#define atomic_int_t int
 #define atomic_bool_t uint
 #define atomic_uint_t uint
 
@@ -32,7 +32,7 @@
 
 #define uint_ref_t unsigned int
 #define int_ref_t int
-#define float_ref_t  float
+#define float_ref_t float
 #define float2_ref_t float2
 #define float3_ref_t float3
 #define float4_ref_t float4
@@ -51,32 +51,31 @@
 #define bool3_ref_t uint3
 #define bool4_ref_t uint4
 
-typedef struct  {
-    int gid;
-    int size;
+typedef struct {
+	int gid;
+	int size;
 } Texel1d;
 
-typedef struct  {
-    int2 gid;
-    int2 size;
+typedef struct {
+	int2 gid;
+	int2 size;
 } Texel2d;
 
-typedef struct  {
-    int3 gid;
-    int3 size;
+typedef struct {
+	int3 gid;
+	int3 size;
 } Texel3d;
 
 typedef struct {
-    int width;
-    int height;
-    int depth;
+	int width;
+	int height;
+	int depth;
 } Size;
 
-
 typedef struct {
-    Size   grid;
-    Size   block;
-    int    threads_in_grid;
+	Size grid;
+	Size block;
+	int threads_in_grid;
 } ComputeSize;
 
 #define texture1d_read_t DHCR_READ_ONLY image1d_t
@@ -92,20 +91,27 @@ typedef struct {
 #define float4x4 float16
 
 typedef union {
-    struct {
-        float m11; float m12; float m13;
-        float m21; float m22; float m23;
-        float m31; float m32; float m33;
-    };
-    struct {
-        float3 s0;
-        float3 s1;
-        float3 s2;
-    };
-    float3 v[3];
-    float entries[9];
-    float entries2[3][3];
+	struct {
+		float m11;
+		float m12;
+		float m13;
+		float m21;
+		float m22;
+		float m23;
+		float m31;
+		float m32;
+		float m33;
+	};
+
+	struct {
+		float3 s0;
+		float3 s1;
+		float3 s2;
+	};
+
+	float3 v[3];
+	float entries[9];
+	float entries2[3][3];
 } float3x3;
 
-
-#endif //DEHANCER_GPULIB_OPENCL_TYPES_H
+#endif  // DEHANCER_GPULIB_OPENCL_TYPES_H

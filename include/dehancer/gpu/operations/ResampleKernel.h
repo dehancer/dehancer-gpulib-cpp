@@ -8,35 +8,26 @@
 #include "dehancer/gpu/kernels/types.h"
 
 namespace dehancer {
-    
-    /**
-     * Resample kernel
-     */
-    class ResampleKernel: public Kernel {
-    
-    public:
-        using Kernel::Kernel;
-    
-        /***
-         * Resample mode
-         */
-        enum Mode {
-            bilinear = DHCR_Bilinear ,
-            bicubic  = DHCR_Bicubic,
-            smooth_bicubic   = DHCR_Smooth_Bicubic ,
-            box_average = DHCR_BoxAverage
-        };
-        
-        explicit ResampleKernel(const void *command_queue,
-                                const Texture &source,
-                                const Texture &destination,
-                                Mode mode = bilinear,
-                                bool wait_until_completed = WAIT_UNTIL_COMPLETED,
-                                const std::string &library_path = "");
-        
-        explicit ResampleKernel(const void *command_queue,
-                                Mode mode = bilinear,
-                                bool wait_until_completed = WAIT_UNTIL_COMPLETED,
-                                const std::string &library_path = "");
-    };
-}
+
+/**
+ * Resample kernel
+ */
+class ResampleKernel : public Kernel {
+public:
+	using Kernel::Kernel;
+
+	/***
+	 * Resample mode
+	 */
+	enum Mode { bilinear = DHCR_Bilinear, bicubic = DHCR_Bicubic, smooth_bicubic = DHCR_Smooth_Bicubic, box_average = DHCR_BoxAverage };
+
+	explicit ResampleKernel(const void* command_queue,
+	                        const Texture& source,
+	                        const Texture& destination,
+	                        Mode mode = bilinear,
+	                        bool wait_until_completed = WAIT_UNTIL_COMPLETED,
+	                        const std::string& library_path = "");
+
+	explicit ResampleKernel(const void* command_queue, Mode mode = bilinear, bool wait_until_completed = WAIT_UNTIL_COMPLETED, const std::string& library_path = "");
+};
+}  // namespace dehancer

@@ -4,30 +4,30 @@
 
 #pragma once
 
-#include "dehancer/opencl/common.h"
-#include "Command.h"
-#include <string>
 #include <mutex>
+#include <string>
+
+#include "Command.h"
+#include "dehancer/opencl/common.h"
 
 namespace dehancer::opencl {
-    class GPULibraryCache {
-    public:
-        explicit GPULibraryCache(dehancer::opencl::Command *command);
+class GPULibraryCache {
+public:
+	explicit GPULibraryCache(dehancer::opencl::Command* command);
 
-        bool exists(const std::string &library_source = "");
+	bool exists(const std::string& library_source = "");
 
-        bool compile_program(const std::string &library_source = "");
+	bool compile_program(const std::string& library_source = "");
 
-        cl_program program_for_source(const std::string &library_source,
-                                      const std::string &p_path, const std::string &kernel_name);
+	cl_program program_for_source(const std::string& library_source, const std::string& p_path, const std::string& kernel_name);
 
-    private:
-        [[nodiscard]] std::string get_cache_file_name(const std::string &library_source) const;
+private:
+	[[nodiscard]] std::string get_cache_file_name(const std::string& library_source) const;
 
-        [[nodiscard]] std::string get_device_name() const;
+	[[nodiscard]] std::string get_device_name() const;
 
-    private:
-        static std::mutex mutex_;
-        dehancer::opencl::Command *command_;
-    };
-}
+private:
+	static std::mutex mutex_;
+	dehancer::opencl::Command* command_;
+};
+}  // namespace dehancer::opencl

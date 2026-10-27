@@ -3,15 +3,12 @@
 //
 
 #include "gtest/gtest.h"
+#include "tests/aobench/aobench.h"
 #include "tests/cuda/paths_config.h"
 
-#include "tests/aobench/aobench.h"
-
 TEST(TEST, AOBENCH_Metal) {
+	std::cout << std::endl;
+	std::cerr << std::endl;
 
-  std::cout << std::endl;
-  std::cerr << std::endl;
-
-  test_bench("cuda");
-
+	test_bench("cuda");
 }

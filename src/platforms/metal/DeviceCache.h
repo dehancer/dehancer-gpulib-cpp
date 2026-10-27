@@ -8,37 +8,37 @@
 
 #pragma once
 
-#include "dehancer/gpu/DeviceConfig.h"
-#include "dehancer/gpu/DeviceCache.h"
 #include "dehancer/Common.h"
+#include "dehancer/gpu/DeviceCache.h"
+#include "dehancer/gpu/DeviceConfig.h"
 
 namespace dehancer::metal {
 
-    namespace device {
-        [[nodiscard]] std::string get_name(const void* device);
-        [[nodiscard]] uint64_t    get_id(const void* device);
-        [[nodiscard]] dehancer::device::Type  get_type(const void* device);
-    }
+namespace device {
+[[nodiscard]] std::string get_name(const void* device);
+[[nodiscard]] uint64_t get_id(const void* device);
+[[nodiscard]] dehancer::device::Type get_type(const void* device);
+}  // namespace device
 
-    struct gpu_device_cache {
-    public:
-        gpu_device_cache();
+struct gpu_device_cache {
+public:
+	gpu_device_cache();
 
-        std::vector<void *> get_device_list(dehancer::device::TypeFilter filter);
-        virtual void* get_device(uint64_t id) ;
-        virtual void* get_default_device() ;
-        virtual void* get_command_queue(uint64_t id) ;
-        virtual void* get_default_command_queue() ;
-        virtual void return_command_queue(const void *q)  ;
+	std::vector<void*> get_device_list(dehancer::device::TypeFilter filter);
+	virtual void* get_device(uint64_t id);
+	virtual void* get_default_device();
+	virtual void* get_command_queue(uint64_t id);
+	virtual void* get_default_command_queue();
+	virtual void return_command_queue(const void* q);
 
-        virtual ~gpu_device_cache() = default;
-        
-    private:
-        void* device_cache_;
-    };
+	virtual ~gpu_device_cache() = default;
 
-    class DeviceCache: public Singleton<gpu_device_cache>{
-       public:
-           DeviceCache() = default;
-       };
-}
+private:
+	void* device_cache_;
+};
+
+class DeviceCache : public Singleton<gpu_device_cache> {
+public:
+	DeviceCache() = default;
+};
+}  // namespace dehancer::metal

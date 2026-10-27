@@ -8,103 +8,81 @@
 #include "dehancer/gpu/Lib.h"
 #include "tests/test_config.h"
 
-auto function_test =  [] (int dev_num,
-                          const void* command_queue,
-                          const std::string& platform,
-                          const std::string& input_image,
-                          const std::string& output_image,
-                          int image_index) {
+auto function_test = [](int dev_num, const void* command_queue, const std::string& platform, const std::string& input_image, const std::string& output_image, int image_index) {
+	try {
+		std::cout << "Load file: " << input_image << std::endl;
 
-    try {
+		/***
+		 * Create 3D lut transformation
+		 */
+		auto kernel_make3DLut_transform = dehancer::Function(command_queue, "kernel_make3DLut_transform");
 
-      std::cout << "Load file: " << input_image << std::endl;
+		/***
+		 * Make empty 3D Lut
+		 */
+		auto clut = dehancer::TextureDesc{.width = 64, .height = 64, .depth = 64, .type = dehancer::TextureDesc::Type::i3d}.make(command_queue);
 
-      /***
-       * Create 3D lut transformation
-       */
-      auto kernel_make3DLut_transform = dehancer::Function(command_queue, "kernel_make3DLut_transform");
+		/***
+		 * Compute transformation
+		 */
+		kernel_make3DLut_transform.execute([&clut](dehancer::CommandEncoder& command_encoder) {
+			command_encoder.set(clut, 0);
+			command_encoder.set((dehancer::math::float2){1, 0}, 1);
+			return dehancer::CommandEncoder::Size::From(clut);
+		});
 
-      /***
-       * Make empty 3D Lut
-       */
-      auto clut = dehancer::TextureDesc{
-              .width = 64,
-              .height= 64,
-              .depth = 64,
-              .type  = dehancer::TextureDesc::Type::i3d
-      }.make(command_queue);
+		/***
+		 * Create 1D lut transformation
+		 */
+		auto kernel_make1DLut_transform = dehancer::Function(command_queue, "kernel_make1DLut_transform");
 
-      /***
-       * Compute transformation
-       */
-      kernel_make3DLut_transform.execute([&clut](dehancer::CommandEncoder &command_encoder) {
-          command_encoder.set(clut, 0);
-          command_encoder.set((dehancer::math::float2) {1, 0}, 1);
-          return dehancer::CommandEncoder::Size::From(clut);
-      });
+		/***
+		 * Make empty curve
+		 */
+		auto clut_curve = dehancer::TextureDesc{.width = 256, .height = 1, .depth = 1, .type = dehancer::TextureDesc::Type::i1d}.make(command_queue);
 
-      /***
-      * Create 1D lut transformation
-      */
-      auto kernel_make1DLut_transform = dehancer::Function(command_queue, "kernel_make1DLut_transform");
+		kernel_make1DLut_transform.execute([&clut_curve](dehancer::CommandEncoder& command_encoder) {
+			command_encoder.set(clut_curve, 0);
+			command_encoder.set((dehancer::math::float2){0.5, 0.5}, 1);
+			return dehancer::CommandEncoder::Size::From(clut_curve);
+		});
 
-      /***
-       * Make empty curve
-       */
-      auto clut_curve = dehancer::TextureDesc{
-              .width = 256,
-              .height= 1,
-              .depth = 1,
-              .type  = dehancer::TextureDesc::Type::i1d
-      }.make(command_queue);
+		/***
+		 * Load image to texture
+		 */
+		auto input_text = dehancer::TextureInput(command_queue);
+		std::ifstream ifs(input_image, std::ios::binary);
+		ifs >> input_text;
 
-      kernel_make1DLut_transform.execute([&clut_curve](dehancer::CommandEncoder &command_encoder) {
-          command_encoder.set(clut_curve, 0);
-          command_encoder.set((dehancer::math::float2) {0.5, 0.5}, 1);
-          return dehancer::CommandEncoder::Size::From(clut_curve);
-      });
+		auto output_text = dehancer::TextureOutput(command_queue, input_text.get_texture(), {.type = test::type, .compression = test::compression});
 
-      /***
-       * Load image to texture
-       */
-      auto input_text = dehancer::TextureInput(command_queue);
-      std::ifstream ifs(input_image, std::ios::binary);
-      ifs >> input_text;
+		/***
+		 * Execute transformation
+		 */
+		auto kernel_transform = dehancer::Function(command_queue, "kernel_test_transform", true);
 
-      auto output_text = dehancer::TextureOutput(command_queue, input_text.get_texture(), {
-              .type = test::type,
-              .compression = test::compression
-      });
+		kernel_transform.execute([&input_text, &output_text, &clut, &clut_curve](dehancer::CommandEncoder& command_encoder) {
+			command_encoder.set(input_text.get_texture(), 0);
+			command_encoder.set(output_text.get_texture(), 1);
+			command_encoder.set(clut, 2);
+			command_encoder.set(clut_curve, 3);
+			return dehancer::CommandEncoder::Size::From(output_text.get_texture());
+		});
 
-      /***
-       * Execute transformation
-       */
-      auto kernel_transform = dehancer::Function(command_queue, "kernel_test_transform", true);
+		{
+			std::ofstream os(output_image, std::ostream::binary | std::ostream::trunc);
+			if (os.is_open()) {
+				os << output_text << std::flush;
 
-      kernel_transform.execute(
-              [&input_text, &output_text, &clut, &clut_curve](dehancer::CommandEncoder &command_encoder) {
-                  command_encoder.set(input_text.get_texture(), 0);
-                  command_encoder.set(output_text.get_texture(), 1);
-                  command_encoder.set(clut, 2);
-                  command_encoder.set(clut_curve, 3);
-                  return dehancer::CommandEncoder::Size::From(output_text.get_texture());
-              });
+				std::cout << "Save to: " << output_image << std::endl;
 
-      {
-        std::ofstream os(output_image, std::ostream::binary | std::ostream::trunc);
-        if (os.is_open()) {
-          os << output_text << std::flush;
+			} else {
+				std::cerr << "File: " << output_image << " could not been opened..." << std::endl;
+			}
+		}
 
-          std::cout << "Save to: " << output_image << std::endl;
-
-        } else {
-          std::cerr << "File: " << output_image << " could not been opened..." << std::endl;
-        }
-      }
-
-    }
-    catch (const std::runtime_error &e) {
-      std::cerr << "Kernel error: " << e.what() << std::endl;
-    }
-    return 0;
+	} catch (const std::runtime_error& e) {
+		std::cerr << "Kernel error: " << e.what() << std::endl;
+	}
+	return 0;
 };

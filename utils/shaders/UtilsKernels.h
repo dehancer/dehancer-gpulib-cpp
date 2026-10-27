@@ -7,4 +7,4 @@
 
 #include "dehancer/gpu/kernels/lib.h"
 
-#endif //DEHANCER_GPULIB_UTILS_KERNELS_CPP
+#endif  // DEHANCER_GPULIB_UTILS_KERNELS_CPP

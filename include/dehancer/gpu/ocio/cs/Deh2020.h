@@ -8,15 +8,15 @@
 
 namespace dehancer::ocio::DEH2020 {
 
-    namespace forward {
-        struct lut {
-            static DHCR_LutParameters params;
-        };
-    }
+namespace forward {
+struct lut {
+	static DHCR_LutParameters params;
+};
+}  // namespace forward
 
-    namespace inverse {
-        struct lut {
-            static DHCR_LutParameters params;
-        };
-    }
-}
+namespace inverse {
+struct lut {
+	static DHCR_LutParameters params;
+};
+}  // namespace inverse
+}  // namespace dehancer::ocio::DEH2020

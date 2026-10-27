@@ -39,7 +39,7 @@ namespace dehancer {
 //      return {out[0], out[1], out[2]};
 //    };
 //
-//#ifndef __METAL_VERSION__
+// #ifndef __METAL_VERSION__
 //
 //    void StreamSpace::transform(const std::vector<float3> &in, std::vector<float3> &out,
 //                                StreamSpace::Direction direction) const {
@@ -75,6 +75,6 @@ namespace dehancer {
 //      return matrix;
 //    }
 //
-//#endif
+// #endif
 
 }

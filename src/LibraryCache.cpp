@@ -3,6 +3,7 @@
 //
 
 #include <dehancer/gpu/LibraryCache.h>
+
 #include "platforms/PlatformConfig.h"
 
 #if defined(DEHANCER_GPU_OPENCL)
@@ -11,33 +12,29 @@
 #include "platforms/opencl/LibraryCache.h"
 
 namespace dehancer {
-    namespace impl {
-        class GPULibraryCache : public dehancer::DEHANCER_GPU_PLATFORM::GPULibraryCache {
-        public:
-            using dehancer::DEHANCER_GPU_PLATFORM::GPULibraryCache::GPULibraryCache;
-        };
+namespace impl {
+class GPULibraryCache : public dehancer::DEHANCER_GPU_PLATFORM::GPULibraryCache {
+public:
+	using dehancer::DEHANCER_GPU_PLATFORM::GPULibraryCache::GPULibraryCache;
+};
 
-        class Command : public dehancer::DEHANCER_GPU_PLATFORM::Command {
-        public:
-            using dehancer::DEHANCER_GPU_PLATFORM::Command::Command;
-        };
-    }
+class Command : public dehancer::DEHANCER_GPU_PLATFORM::Command {
+public:
+	using dehancer::DEHANCER_GPU_PLATFORM::Command::Command;
+};
+}  // namespace impl
 
-    GPULibraryCache::GPULibraryCache(const void *command_queue)
-    :  Command(command_queue, true)
-    , impl_(std::make_shared<impl::GPULibraryCache>(Command::impl_.get())) {
+GPULibraryCache::GPULibraryCache(const void* command_queue) : Command(command_queue, true), impl_(std::make_shared<impl::GPULibraryCache>(Command::impl_.get())) {}
 
-    }
-
-    bool GPULibraryCache::exists(const std::string &library_source) {
-        return impl_->exists(library_source);
-    }
-
-    bool GPULibraryCache::compile_program( const std::string &library_source) {
-        return impl_->compile_program(library_source);
-    }
-
+bool GPULibraryCache::exists(const std::string& library_source) {
+	return impl_->exists(library_source);
 }
+
+bool GPULibraryCache::compile_program(const std::string& library_source) {
+	return impl_->compile_program(library_source);
+}
+
+}  // namespace dehancer
 
 #endif
 #endif

@@ -4,27 +4,27 @@
 
 #pragma once
 #if defined(_WIN32)
-//#define _USE_MATH_DEFINES // for C++
+// #define _USE_MATH_DEFINES // for C++
 #endif
-#include <vector>
-#include <set>
+#include <cfloat>
 #include <cmath>
 #include <limits>
-#include <cfloat>
+#include <set>
+#include <vector>
 
 namespace dehancer::math {
-    /***
-     * https://en.wikipedia.org/wiki/Gaussian_blur
-     * @param kernel
-     * @param size
-     * @param sigma
-     */
-    void make_gaussian_kernel(std::vector<float>& kernel, size_t size, float sigma);
-    
-    /**
-     * http://www.johncostella.com/magic/
-     * @param length
-     * @param kernel
-     */
-    void magic_resampler(float length, std::vector<float>& kernel);
-}
+/***
+ * https://en.wikipedia.org/wiki/Gaussian_blur
+ * @param kernel
+ * @param size
+ * @param sigma
+ */
+void make_gaussian_kernel(std::vector<float>& kernel, size_t size, float sigma);
+
+/**
+ * http://www.johncostella.com/magic/
+ * @param length
+ * @param kernel
+ */
+void magic_resampler(float length, std::vector<float>& kernel);
+}  // namespace dehancer::math

@@ -8,24 +8,23 @@
 #include "dehancer/gpu/kernels/common.h"
 #include "dehancer/gpu/kernels/stream_space.h"
 
-//#include "dehancer/gpu/spaces/StreamTransform.h"
+// #include "dehancer/gpu/spaces/StreamTransform.h"
 
-
-typedef struct  {
-//#if defined(CL_VERSION_1_2)
-//    float4x4      mat;
-//#else
-//  dehancer::math::float4x4 mat;
-//#endif
-    DHCR_TransformDirection direction;
-    DHCR_TransformType transform_type;
-    bool_t  enabled;
-    int     size;
-    float   data;
-    float   data1;
-    float   data2;
-    float   data3;
-    float   data4;
+typedef struct {
+	// #if defined(CL_VERSION_1_2)
+	//     float4x4      mat;
+	// #else
+	//   dehancer::math::float4x4 mat;
+	// #endif
+	DHCR_TransformDirection direction;
+	DHCR_TransformType transform_type;
+	bool_t enabled;
+	int size;
+	float data;
+	float data1;
+	float data2;
+	float data3;
+	float data4;
 } TestStruct;
 
-#endif //DEHANCER_GPULIB_TEST_STRUCT_H
+#endif  // DEHANCER_GPULIB_TEST_STRUCT_H

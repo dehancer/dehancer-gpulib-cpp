@@ -44,7 +44,6 @@ NSArray<id<MTLDevice>>* MTLGetAllDevices() {
 
 @end
 
-
 const NSUInteger    kMaxCommandQueues   = 16;
 static NSString*    kKey_InUse          = @"InUse";
 static NSString*    kKey_CommandQueue   = @"CommandQueue";
@@ -252,9 +251,8 @@ static MTLDeviceCache*   gDeviceCache    = nil;
     }
   }
 
-
   NSArray<id<MTLDevice>>* devices = MTLGetAllDevices();
-  
+
   id<MTLDevice>   device  = nil;
   for (id<MTLDevice> nextDevice in devices)
   {
@@ -292,9 +290,9 @@ static MTLDeviceCache*   gDeviceCache    = nil;
       return [nextCacheItem getNextFreeCommandQueue];
     }
   }
-  
+
   NSArray<id<MTLDevice>>* devices = MTLGetAllDevices();
-  
+
   id<MTLDevice>   device  = nil;
   for (id<MTLDevice> nextDevice in devices)
   {
@@ -384,15 +382,15 @@ namespace dehancer::metal {
     /// \return
     std::vector<void *> gpu_device_cache::get_device_list(dehancer::device::TypeFilter filter) {
       std::vector<void*> list ;
-  
+
       NSArray<id<MTLDevice>>* devices = MTLGetAllDevices();
-  
+
       for (id<MTLDevice> device in devices)
       {
         list.push_back(static_cast<id <MTLDevice>>([[device retain] autorelease]));
       }
       [devices release];
-      
+
       return std::move(list);
     }
 }

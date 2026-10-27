@@ -43,7 +43,7 @@ typedef NSImage DImage;
 #include "TextureSettings.h"
 
 namespace dehancer::impl {
-    
+
     #if defined(IOS_SYSTEM) and defined(DEHANCER_IOS_LOAD_NATIVE_IMAGE_LUT)
     Error TextureInput::load_from_image (const std::vector<uint8_t> &buffer) {
       @autoreleasepool {
@@ -70,27 +70,27 @@ namespace dehancer::impl {
       }
     }
     #endif
-    
+
     Error TextureInput::load_from_native_image (const void *handle) {
       #if defined(SUPPORT_NSIMAGE) || defined(SUPPORT_UIIMAGE)
 
       if (!handle)
         return Error(CommonError::EXCEPTION, "Input image is NULL");
-  
+
       @autoreleasepool {
-  
+
         try {
-    
+
           auto image = reinterpret_cast<DImage *>(handle);
-  
+
           #if PRINT_DEBUG
           dehancer::log::print(" ### TextureInput::load_from_native_image bits per pixel: %zu",
                                CGImageGetBitsPerPixel([image CGImage]));
           #endif //
-          
+
           auto command_queue = reinterpret_cast<id <MTLCommandQueue> >((__bridge id) get_command_queue());
           id <MTLDevice> device = command_queue.device;
-    
+
           NSDictionary *options = @{
                   kCIImageColorSpace: (__bridge id) color_space,
                   kCIContextOutputPremultiplied: @YES,
@@ -98,23 +98,23 @@ namespace dehancer::impl {
                   kCIContextHighQualityDownsample: @YES,
                   kCIContextWorkingFormat: @(pixel_format)
           };
-    
+
           CIContext *context = [CIContext contextWithMTLDevice:device options:options];
-    
+
           #if defined(SUPPORT_NSIMAGE)
           NSData *tiffData = [reinterpret_cast<DImage *>(handle) TIFFRepresentation];
           NSBitmapImageRep *bitmap = [NSBitmapImageRep imageRepWithData:tiffData];
-    
+
           CIImage *ciimage = [[CIImage alloc] initWithBitmapImageRep:bitmap];
           #else
           CIImage* ciimage = [[CIImage alloc] initWithImage: image options: options];
           #endif
-    
+
           auto height = ciimage.extent.size.height;
-  
+
           ciimage = [ciimage imageByApplyingTransform:CGAffineTransformMakeScale(1, -1)];
           ciimage = [ciimage imageByApplyingTransform:CGAffineTransformMakeTranslation(0, height)];
-  
+
           dehancer::TextureDesc desc = {
                   .width = static_cast<size_t>(ciimage.extent.size.width),
                   .height = static_cast<size_t>(ciimage.extent.size.height),
@@ -123,26 +123,26 @@ namespace dehancer::impl {
                   .type = dehancer::TextureDesc::Type::i2d,
                   .mem_flags = TextureDesc::MemFlags::read_write
           };
-    
+
           texture_ = desc.make(command_queue);
-    
+
           if (!texture_)
             return Error(CommonError::EXCEPTION, "Texture not created");
-    
+
           auto texture = reinterpret_cast<id <MTLTexture> >((__bridge id) texture_->get_memory());
-    
+
           id <MTLCommandBuffer> commandBuffer = [command_queue commandBuffer];
-    
+
           [context render:ciimage
              toMTLTexture:texture
             commandBuffer:commandBuffer
                    bounds:{0, 0, static_cast<CGFloat>(desc.width), static_cast<CGFloat>(desc.height)}
                colorSpace:color_space
           ];
-    
+
           [commandBuffer commit];
           [commandBuffer waitUntilCompleted];
-          
+
           return Error(CommonError::OK);
         }
         catch (const cv::Exception &e) { return Error(CommonError::EXCEPTION, e.what()); }

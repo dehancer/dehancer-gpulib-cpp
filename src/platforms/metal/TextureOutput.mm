@@ -32,13 +32,13 @@ typedef NSImage DImage;
 #include "TextureSettings.h"
 
 namespace dehancer::impl {
-    
+
     Error TextureOutput::write_as_native_image (void** handle) {
       #if defined(SUPPORT_NSIMAGE) || defined(SUPPORT_UIIMAGE)
       try {
-        
+
         auto texture = reinterpret_cast<id <MTLTexture> >((__bridge id) source_->get_memory());
-        
+
         NSDictionary *options = @{
                 kCIImageColorSpace: (__bridge id) color_space,
                 kCIContextOutputPremultiplied: @YES,
@@ -46,17 +46,17 @@ namespace dehancer::impl {
                 kCIContextHighQualityDownsample: @YES,
                 kCIContextWorkingFormat: @(pixel_format)
         };
-        
+
         CGSize size = {static_cast<CGFloat>([texture width]),
                        static_cast<CGFloat>([texture height])};
-        
+
         CIImage *ciimage = [[[CIImage alloc] initWithMTLTexture:texture options:options] autorelease];
-        
+
         auto height = ciimage.extent.size.height;
-        
+
         ciimage = [ciimage imageByApplyingTransform:CGAffineTransformMakeScale(1, -1)];
         ciimage = [ciimage imageByApplyingTransform:CGAffineTransformMakeTranslation(0, height)];
-        
+
         if (handle) {
           CIContext *context = [CIContext contextWithOptions:options];
           #if defined(SUPPORT_NSIMAGE)
@@ -68,18 +68,17 @@ namespace dehancer::impl {
           DImage *uiImage = [DImage imageWithCGImage:cgImage];
           CGImageRelease(cgImage);
           #endif
-          
+
           #if PRINT_DEBUG
           dehancer::log::print(" ### TextureOutput::write_as_native_image bits per pixel: %zu, retains: %i",
                                CGImageGetBitsPerPixel([uiImage CGImage]), [ciimage retainCount]);
           #endif //
-          
+
           *handle = uiImage;
-          
+
         } else
           return Error(CommonError::EXCEPTION, "UIImage null handle");
-        
-        
+
         return Error(CommonError::OK);
       }
       catch (const cv::Exception &e) { return Error(CommonError::EXCEPTION, e.what()); }

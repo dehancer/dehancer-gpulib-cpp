@@ -1,7 +1,7 @@
 /*********************************************************************************************
 //
 //  OpenCL Histogram kernels for GPU
-// 
+//
 // File:       gpu_histogram_buffer.cl
 //
 // Abstract:   This example demonstrates a CL histogram implementation using buffers
@@ -70,24 +70,24 @@ void histogram_sum_partial_results_fp(global uint *partial_histogram, int num_gr
     local uint  tmp_histogram[257 * 3];
 
     int     first_workitem_not_in_first_group = ((get_local_id(0) == 0) && group_id);
-    
+
     tid += group_id;
     int     tid_first = tid - 1;
     if (first_workitem_not_in_first_group)
         tmp_histogram[tid_first] = partial_histogram[tid_first];
-    
+
     tmp_histogram[tid] = partial_histogram[tid];
-    
+
     group_indx = 257*3;
     while (--n > 0)
     {
         if (first_workitem_not_in_first_group)
             tmp_histogram[tid_first] += partial_histogram[tid_first];
-            
+
         tmp_histogram[tid] += partial_histogram[group_indx+tid];
         group_indx += 257*3;
     }
-    
+
     if (first_workitem_not_in_first_group)
         histogram[tid_first] = tmp_histogram[tid_first];
     histogram[tid] = tmp_histogram[tid];
@@ -106,28 +106,28 @@ void histogram_rgba_fp32(global float4 *image_ptr, int image_width, int image_he
     int     gid = (int)get_global_id(0);
     int     local_size = (int)get_local_size(0);
     int     group_indx = (int)get_group_id(0) * 257 * 3;
-    
+
     local uint  tmp_histogram[257 * 3];
-        
+
     int     j = 257 * 3;
     int     indx = 0;
-    
+
     // clear the local buffer that will generate the partial histogram
     do
     {
         if (tid < j)
             tmp_histogram[indx+tid] = 0;
-            
+
         j -= local_size;
         indx += local_size;
     } while (j > 0);
-    
+
     barrier(CLK_LOCAL_MEM_FENCE);
-    
+
     if (gid < (image_width * image_height))
-    {                
+    {
         float4  clr = image_ptr[gid];
-    
+
         ushort   indx;
         indx = convert_ushort_sat(min(clr.x, 1.0f) * 256.0f);
         atom_inc(&tmp_histogram[indx]);
@@ -137,7 +137,7 @@ void histogram_rgba_fp32(global float4 *image_ptr, int image_width, int image_he
 
         indx = convert_ushort_sat(min(clr.z, 1.0f) * 256.0f);
         atom_inc(&tmp_histogram[514+indx]);
-    }        
+    }
 
     barrier(CLK_LOCAL_MEM_FENCE);
 
@@ -151,11 +151,11 @@ void histogram_rgba_fp32(global float4 *image_ptr, int image_width, int image_he
     {
         j = 257 * 3;
         indx = 0;
-        do 
+        do
         {
             if (tid < j)
                 histogram[group_indx + indx + tid] = tmp_histogram[indx + tid];
-                
+
             j -= local_size;
             indx += local_size;
         } while (j > 0);
@@ -175,28 +175,28 @@ void histogram_rgba_fp16(global half *image_ptr, int image_width, int image_heig
     int     gid = (int)get_global_id(0);
     int     local_size = (int)get_local_size(0);
     int     group_indx = (int)get_group_id(0) * 257 * 3;
-    
+
     local uint  tmp_histogram[257 * 3];
-        
+
     int     j = 257 * 3;
     int     indx = 0;
-    
+
     // clear the local buffer that will generate the partial histogram
     do
     {
         if (tid < j)
             tmp_histogram[indx+tid] = 0;
-            
+
         j -= local_size;
         indx += local_size;
     } while (j > 0);
-    
+
     barrier(CLK_LOCAL_MEM_FENCE);
-    
+
     if (gid < (image_width * image_height))
-    {                
+    {
         float4  clr = vloada_half4(gid, image_ptr);
-    
+
         ushort   indx;
         indx = convert_ushort_sat(min(clr.x, 1.0f) * 256.0f);
         atom_inc(&tmp_histogram[indx]);
@@ -206,7 +206,7 @@ void histogram_rgba_fp16(global half *image_ptr, int image_width, int image_heig
 
         indx = convert_ushort_sat(min(clr.z, 1.0f) * 256.0f);
         atom_inc(&tmp_histogram[514+indx]);
-    }        
+    }
 
     barrier(CLK_LOCAL_MEM_FENCE);
 
@@ -220,17 +220,16 @@ void histogram_rgba_fp16(global half *image_ptr, int image_width, int image_heig
     {
         j = 257 * 3;
         indx = 0;
-        do 
+        do
         {
             if (tid < j)
                 histogram[group_indx + indx + tid] = tmp_histogram[indx + tid];
-                
+
             j -= local_size;
             indx += local_size;
         } while (j > 0);
     }
 }
-
 
 /***************************************************************************************************************/
 
@@ -252,14 +251,14 @@ void histogram_sum_partial_results_unorm8(global uint *partial_histogram, int nu
     local uint  tmp_histogram[256 * 3];
 
     tmp_histogram[tid] = partial_histogram[tid];
-    
+
     group_indx = 256*3;
     while (--n > 0)
     {
         tmp_histogram[tid] += partial_histogram[group_indx + tid];
         group_indx += 256*3;
     }
-    
+
     histogram[tid] = tmp_histogram[tid];
 }
 
@@ -276,32 +275,32 @@ void histogram_rgba_unorm8(global uchar4 *image_ptr, int image_width, int image_
     int     gid = (int)get_global_id(0);
     int     local_size = (int)get_local_size(0);
     int     group_indx = (int)get_group_id(0) * 256 * 3;
-    
+
     local uint  tmp_histogram[256 * 3];
-        
+
     int     j = 256 * 3;
     int     indx = 0;
-    
+
     // clear the local buffer that will generate the partial histogram
     do
     {
         if (tid < j)
             tmp_histogram[indx+tid] = 0;
-            
+
         j -= local_size;
         indx += local_size;
     } while (j > 0);
-    
+
     barrier(CLK_LOCAL_MEM_FENCE);
-    
+
     if (gid < (image_width * image_height))
-    {                
+    {
         uchar4 clr = image_ptr[gid];
-    
+
         atom_inc(&tmp_histogram[clr.x]);
         atom_inc(&tmp_histogram[256 + (uint)clr.y]);
         atom_inc(&tmp_histogram[512 + (uint)clr.z]);
-    }        
+    }
 
     barrier(CLK_LOCAL_MEM_FENCE);
 
@@ -315,15 +314,13 @@ void histogram_rgba_unorm8(global uchar4 *image_ptr, int image_width, int image_
     {
         j = 256 * 3;
         indx = 0;
-        do 
+        do
         {
             if (tid < j)
                 histogram[group_indx + indx + tid] = tmp_histogram[indx + tid];
-                
+
             j -= local_size;
             indx += local_size;
         } while (j > 0);
     }
 }
-
-

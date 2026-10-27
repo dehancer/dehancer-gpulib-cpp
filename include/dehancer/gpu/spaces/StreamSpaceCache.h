@@ -4,43 +4,45 @@
 
 #pragma once
 
+#include <mutex>
+
 #include "dehancer/Common.h"
 #include "dehancer/gpu/StreamSpace.h"
 #include "dehancer/gpu/clut/CLut.h"
 #include "dehancer/gpu/clut/CLutCubeInput.h"
 
-#include <mutex>
-
 namespace dehancer {
 
-    class stream_space_cache {
+class stream_space_cache {
+public:
+	typedef std::unordered_map<std::size_t, std::shared_ptr<CLutCubeInput>> LutCache;
 
-    public:
-        typedef std::unordered_map<std::size_t, std::shared_ptr<CLutCubeInput>> LutCache;
+	stream_space_cache() : clut_cache_() {};
 
-        stream_space_cache():clut_cache_(){};
+	void invalidate();
+	[[nodiscard]] std::shared_ptr<CLut> get_lut(void* command_queue, const StreamSpace& space, StreamSpaceDirection direction);
 
-        void invalidate();
-        [[nodiscard]] std::shared_ptr<CLut> get_lut(void *command_queue, const StreamSpace& space, StreamSpaceDirection direction);
+	void lock() {
+		user_mutex_.lock();
+	}
 
-        void lock() { user_mutex_.lock(); }
-        void unlock() { user_mutex_.unlock(); }
+	void unlock() {
+		user_mutex_.unlock();
+	}
 
-    private:
-        StreamSpace           space_;
-        LutCache              clut_cache_;
+private:
+	StreamSpace space_;
+	LutCache clut_cache_;
 
-        std::mutex mutex_;
-        std::mutex user_mutex_;
+	std::mutex mutex_;
+	std::mutex user_mutex_;
 
-        static size_t get_hash(void *command_queue,
-                        const StreamSpace& space,
-                        StreamSpaceDirection direction) ;
-    };
+	static size_t get_hash(void* command_queue, const StreamSpace& space, StreamSpaceDirection direction);
+};
 
-    class StreamSpaceCache: public Singleton<stream_space_cache>{
-    public:
-        StreamSpaceCache() = default;
-    };
+class StreamSpaceCache : public Singleton<stream_space_cache> {
+public:
+	StreamSpaceCache() = default;
+};
 
-}
+}  // namespace dehancer

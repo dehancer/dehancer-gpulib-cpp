@@ -7,9 +7,9 @@
 
 #if defined(IOS_SYSTEM)
 
-#import <Metal/Metal.h>
-#import <CoreImage/CoreImage.h>
 #include <CoreGraphics/CoreGraphics.h>
+#import <CoreImage/CoreImage.h>
+#import <Metal/Metal.h>
 
 #define SUPPORT_UIIMAGE 1
 
@@ -19,18 +19,17 @@
 
 #define SUPPORT_NSIMAGE 1
 
-#import <CoreImage/CoreImage.h>
 #include <CoreGraphics/CoreGraphics.h>
+#import <CoreImage/CoreImage.h>
 #endif
 
 #endif
-
 
 #if defined(SUPPORT_NSIMAGE) || defined(SUPPORT_UIIMAGE)
 namespace dehancer::impl {
-    static const CGColorSpaceRef color_space = CGColorSpaceCreateDeviceRGB();
-    static const CIFormat pixel_format = kCIFormatRGBAh;
-}
+static const CGColorSpaceRef color_space = CGColorSpaceCreateDeviceRGB();
+static const CIFormat pixel_format = kCIFormatRGBAh;
+}  // namespace dehancer::impl
 #endif
 
-#endif //DEHANCER_GPULIB_TEXTURESETTINGS_H
+#endif  // DEHANCER_GPULIB_TEXTURESETTINGS_H

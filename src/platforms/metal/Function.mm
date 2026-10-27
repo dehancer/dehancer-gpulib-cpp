@@ -7,35 +7,35 @@
 #import <Metal/Metal.h>
 
 namespace dehancer::metal {
-    
+
     std::mutex Function::mutex_;
     Function::PipelineCache Function::pipelineCache_ = Function::PipelineCache();
-    
+
     inline static Function::PipelineState make_pipeline(
             id<MTLDevice> device,
             const std::string& kernel_name,
             const std::string& library_path
     );
-    
+
     const std::string &Function::get_library_path () const {
       return library_path_;
     }
-    
+
     void Function::execute_block (const Function::CommonEncodeHandler &block) {
-      
+
       auto queue = static_cast<id<MTLCommandQueue>>( (__bridge id) command_->get_command_queue());
-  
+
       id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];
       id<MTLComputeCommandEncoder> computeEncoder = [commandBuffer computeCommandEncoder];
-  
+
       auto c_pipeline = reinterpret_cast<id<MTLComputePipelineState> >((__bridge id)pipelineState_.pipeline);
       [computeEncoder setComputePipelineState: c_pipeline];
-  
+
       auto encoder = CommandEncoder(command_, pipelineState_.pipeline, computeEncoder);
       dehancer::CommandEncoder* encoder_ref = &encoder;
-      
+
       auto compute_size = block(encoder);
-  
+
       #ifdef PRINT_KERNELS_DEBUG
       size_t buffer_size = compute_size.threads_in_grid*257*4*sizeof(unsigned int);
       std::cout << " #Function " << kernel_name_
@@ -49,7 +49,7 @@ namespace dehancer::metal {
                 <<     buffer_size << "b" << ", " << buffer_size/1024/1204 << "Mb"
                 << std::endl;
       #endif
-  
+
       ComputeSize grid =
               {
                       .threadsPerThreadgroup = {
@@ -63,36 +63,36 @@ namespace dehancer::metal {
                               .depth = compute_size.grid.depth
                       }
               };
-  
+
       [computeEncoder
               dispatchThreadgroups: {grid.threadGroups.width, grid.threadGroups.height, grid.threadGroups.depth}
              threadsPerThreadgroup: {grid.threadsPerThreadgroup.width, grid.threadsPerThreadgroup.height, grid.threadsPerThreadgroup.depth}];
       [computeEncoder endEncoding];
-  
+
       [commandBuffer commit];
-  
+
       if (command_->get_wait_completed())
         [commandBuffer waitUntilCompleted];
     }
-    
+
     void Function::execute (CommandEncoder::ComputeSize compute_size,
                             const dehancer::Function::VoidEncodeHandler &block)
     {
       if (!block) return;
-      
+
       execute_block([this,block,compute_size](dehancer::CommandEncoder& encoder){
           block(encoder);
           return compute_size;
       });
     }
-    
+
     void Function::execute(const dehancer::Function::EncodeHandler& block){
       execute_block([this,block](dehancer::CommandEncoder& encoder){
           auto from_block = block(encoder);
           return encoder.ask_compute_size(from_block);
       });
     }
-    
+
     Function::Function(dehancer::metal::Command *command, const std::string& kernel_name,  const std::string &library_path):
             command_(command),
             kernel_name_(kernel_name),
@@ -103,16 +103,16 @@ namespace dehancer::metal {
       if (!pipelineState_.pipeline)
         throw std::runtime_error(error_string("Kernel %s could not execute with nil pipeline", kernel_name_.c_str()));
     }
-    
+
     void Function::set_current_pipeline() const {
-      
+
       std::unique_lock<std::mutex> lock(Function::mutex_);
-  
+
       auto queue = static_cast<id<MTLCommandQueue>>( (__bridge id) command_->get_command_queue());
       auto device = static_cast<id<MTLDevice>>( (__bridge id) command_->get_device());
-      
+
       const auto it = Function::pipelineCache_.find(queue);
-      
+
       if (it == Function::pipelineCache_.end())
       {
         pipelineState_  = make_pipeline(device, kernel_name_, library_path_);
@@ -122,9 +122,9 @@ namespace dehancer::metal {
       }
       else
       {
-        
+
         const auto kernel_pit = it->second.find(kernel_name_);
-        
+
         if (kernel_pit == it->second.end()) {
           pipelineState_  = make_pipeline(device, kernel_name_, library_path_);
           if (!pipelineState_.pipeline)
@@ -138,15 +138,15 @@ namespace dehancer::metal {
         }
       }
     }
-    
+
     const std::string &Function::get_name() const {
       return kernel_name_;
     }
-    
+
     std::vector<dehancer::Function::ArgInfo>& Function::get_arg_info_list() const {
       return pipelineState_.arg_list;
     }
-    
+
     size_t Function::get_block_max_size () const {
       auto encoder = CommandEncoder(command_, pipelineState_.pipeline, nullptr);
       return encoder.get_block_max_size();
@@ -156,26 +156,25 @@ namespace dehancer::metal {
       auto encoder = CommandEncoder(command_, pipelineState_.pipeline, nullptr);
       return encoder.ask_compute_size (width, height, depth);
     }
-    
-    
+
     Function::~Function() = default;
-    
+
     inline static Function::PipelineState make_pipeline(
             id<MTLDevice> device,
             const std::string& kernel_name,
             const std::string& library_path
     ) {
-      
+
       id<MTLComputePipelineState> pipelineState = nil;
       id<MTLLibrary>              metalLibrary;     // Metal library
       id<MTLFunction>             kernelFunction;   // Compute kernel
-      
+
       NSError* err;
-      
+
       std::string libpath = library_path.empty() ? device::get_lib_path() : library_path;
-      
+
       Function::PipelineState state{nullptr, {}};
-      
+
       if (libpath.empty()){
         if (!(metalLibrary    = [device newDefaultLibrary]))
         {
@@ -195,8 +194,7 @@ namespace dehancer::metal {
                 )
         );
       }
-      
-      
+
       if (!(kernelFunction  = [metalLibrary newFunctionWithName:[NSString stringWithUTF8String:kernel_name.c_str()]]))
       {
         std::string next_kernel_space = "IMProcessing::";
@@ -211,8 +209,7 @@ namespace dehancer::metal {
           );
         }
       }
-      
-      
+
       MTLAutoreleasedComputePipelineReflection reflection;
       if (!(pipelineState  = [device newComputePipelineStateWithFunction:kernelFunction
                                                                  options:MTLPipelineOptionArgumentInfo
@@ -229,7 +226,7 @@ namespace dehancer::metal {
                 )
         );
       }
-      
+
       state.pipeline = pipelineState;
       for(MTLArgument* a in reflection.arguments) {
         dehancer::Function::ArgInfo info {
@@ -239,11 +236,11 @@ namespace dehancer::metal {
         };
         state.arg_list.push_back(info);
       }
-      
+
       [metalLibrary release];
       [kernelFunction release];
-      
+
       return state;
     }
-  
+
 }

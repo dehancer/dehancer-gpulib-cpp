@@ -21,4 +21,4 @@
 
 #include "dehancer/gpu/kernels/types.h"
 
-#endif //DEHANCER_GPULIB_COMMON_LIB_H
+#endif  // DEHANCER_GPULIB_COMMON_LIB_H

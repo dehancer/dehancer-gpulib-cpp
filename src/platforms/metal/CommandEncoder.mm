@@ -37,19 +37,19 @@ namespace dehancer::metal {
         throw std::runtime_error("Unable to pass buffer to null kernel");
       }
     }
-    
+
     void CommandEncoder::set (const StreamSpace &p, int index) {
       StreamSpace copy = p;
       set(&copy, sizeof(copy), index);
     }
-    
+
     size_t CommandEncoder::get_block_max_size () const {
       auto pipeline = reinterpret_cast<id<MTLComputePipelineState> >((__bridge id)pipeline_);
       return pipeline.maxTotalThreadsPerThreadgroup;
     }
-    
+
     CommandEncoder::ComputeSize CommandEncoder::ask_compute_size (size_t width, size_t height, size_t depth) const {
-      
+
       auto pipeline = reinterpret_cast<id<MTLComputePipelineState> >((__bridge id)pipeline_);
       auto workgroup_size = static_cast<size_t>(pipeline.maxTotalThreadsPerThreadgroup);
       auto execution_width = static_cast<size_t>(pipeline.threadExecutionWidth);
@@ -81,7 +81,7 @@ namespace dehancer::metal {
       compute_size.grid.height = ((height + gsize[1] - 1) / gsize[1]);
 
       compute_size.threads_in_grid = compute_size.grid.width * compute_size.grid.height;
-  
+
       compute_size.grid.depth = depth;
       compute_size.block.depth = 1;
 

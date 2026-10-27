@@ -31,7 +31,7 @@
  * Dummy auto indentation for CLion
  */
 
-typedef  unsigned int uint;
+typedef unsigned int uint;
 
 #define __constant const
 #define __constant const
@@ -53,7 +53,7 @@ typedef  unsigned int uint;
 #define DHCR_CONST_ARG
 #define uint_ref_t unsigned int
 #define int_ref_t int
-#define float_ref_t  float
+#define float_ref_t float
 #define float2_ref_t float2
 #define float3_ref_t float3
 #define float3x3_ref_t float3x3
@@ -78,85 +78,69 @@ typedef  unsigned int uint;
 #define bool3_ref_t bool3
 #define bool4_ref_t bool4
 
-#include "dehancer/gpu/Typedefs.h"
-#include <climits>
 #include <cfloat>
+#include <climits>
 #include <cmath>
+
+#include "dehancer/gpu/Typedefs.h"
 
 #endif
 
-#define DHCR_READ_ONLY  __read_only
+#define DHCR_READ_ONLY __read_only
 #define DHCR_WRITE_ONLY __write_only
 #define DHCR_READ_WRITE __read_write
 
-typedef enum {
-    DHCR_ADDRESS_CLAMP,
-    DHCR_ADDRESS_BORDER,
-    DHCR_ADDRESS_WRAP
-} DHCR_EdgeMode;
+typedef enum { DHCR_ADDRESS_CLAMP, DHCR_ADDRESS_BORDER, DHCR_ADDRESS_WRAP } DHCR_EdgeMode;
 
 typedef enum {
-    DHCR_Normal     = 0,
-    DHCR_Luminosity = 1,
-    DHCR_Color      = 2,
-    DHCR_Mix        = 3,
-    DHCR_Overlay    = 4,
-    DHCR_Min        = 5,
-    DHCR_Max        = 6,
-    DHCR_Add        = 7,
-    DHCR_Subtract   = 8
+	DHCR_Normal = 0,
+	DHCR_Luminosity = 1,
+	DHCR_Color = 2,
+	DHCR_Mix = 3,
+	DHCR_Overlay = 4,
+	DHCR_Min = 5,
+	DHCR_Max = 6,
+	DHCR_Add = 7,
+	DHCR_Subtract = 8
 } DHCR_BlendingMode;
 
-typedef enum {
-    DHCR_Bilinear = 0 ,
-    DHCR_Bicubic  = 1,
-    DHCR_Smooth_Bicubic  = 2,
-    DHCR_BoxAverage  = 3
-} DHCR_InterpolationMode;
+typedef enum { DHCR_Bilinear = 0, DHCR_Bicubic = 1, DHCR_Smooth_Bicubic = 2, DHCR_BoxAverage = 3 } DHCR_InterpolationMode;
 
 typedef struct {
-    bool_t  enabled;
-    float base;
-    float lin_side_break;
-    float lin_side_coeff;
-    float lin_side_offset;
-    float lin_side_slope;
-    float gamma_side_break;
+	bool_t enabled;
+	float base;
+	float lin_side_break;
+	float lin_side_coeff;
+	float lin_side_offset;
+	float lin_side_slope;
+	float gamma_side_break;
 } DHCR_GammaParameters;
 
 typedef struct {
-    bool_t  enabled;
-    float base;
-    float log_side_slope;
-    float log_side_offset;
-    float lin_side_slope;
-    float lin_side_offset;
-    float lin_side_break;
-    float log_side_break;
-    float linear_slope;
-    float linear_offset;
-    float log2_base;
-} DHCR_LogParameters ;
+	bool_t enabled;
+	float base;
+	float log_side_slope;
+	float log_side_offset;
+	float lin_side_slope;
+	float lin_side_offset;
+	float lin_side_break;
+	float log_side_break;
+	float linear_slope;
+	float linear_offset;
+	float log2_base;
+} DHCR_LogParameters;
 
 typedef struct {
-    bool_t   enabled;
-    uint   size;
-    uint   channels;
+	bool_t enabled;
+	uint size;
+	uint channels;
 #if !DEHANCER_GPU_CODE
-    float* data;
+	float* data;
 #endif
 } DHCR_LutParameters;
 
-typedef enum {
-    DHCR_Forward = 0,
-    DHCR_Inverse,
-    DHCR_None
-} DHCR_TransformDirection;
+typedef enum { DHCR_Forward = 0, DHCR_Inverse, DHCR_None } DHCR_TransformDirection;
 
+typedef enum { DHCR_log_linear = 0, DHCR_pow_linear } DHCR_TransformType;
 
-typedef enum  {
-    DHCR_log_linear = 0,
-    DHCR_pow_linear
-} DHCR_TransformType;
-
-#endif //DEHANCER_GPULIB_TYPES_H
+#endif  // DEHANCER_GPULIB_TYPES_H

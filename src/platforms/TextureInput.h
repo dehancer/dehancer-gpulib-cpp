@@ -5,66 +5,49 @@
 #pragma once
 
 #include "dehancer/Common.h"
+#include "dehancer/gpu/Command.h"
 #include "dehancer/gpu/StreamSpace.h"
 #include "dehancer/gpu/Texture.h"
-#include "dehancer/gpu/Command.h"
 
 namespace dehancer::impl {
 
-    class TextureInput: public dehancer::Command {
+class TextureInput : public dehancer::Command {
+public:
+	explicit TextureInput(const void* command_queue, TextureDesc::PixelFormat pixelFormat);
 
-    public:
+	const Texture& get_texture() {
+		return texture_;
+	};
 
-        explicit TextureInput(const void *command_queue, TextureDesc::PixelFormat pixelFormat);
+	[[nodiscard]] const Texture& get_texture() const {
+		return texture_;
+	};
 
-        const Texture& get_texture() { return texture_; };
-        [[nodiscard]] const Texture& get_texture() const { return texture_; };
+	[[nodiscard]] size_t get_width() const;
+	[[nodiscard]] size_t get_height() const;
+	[[nodiscard]] size_t get_depth() const;
+	[[nodiscard]] size_t get_channels() const;
+	[[nodiscard]] size_t get_length() const;
 
-        [[nodiscard]] size_t get_width() const;
-        [[nodiscard]] size_t get_height() const;
-        [[nodiscard]] size_t get_depth() const;
-        [[nodiscard]] size_t get_channels() const;
-        [[nodiscard]] size_t get_length() const;
+	Error load_from_image(const std::vector<uint8_t>& buffer);
 
-        Error load_from_image(const std::vector<uint8_t>& buffer);
-    
-        static Error image_to_data(
-                const std::vector<uint8_t>& image,
-                TextureDesc::PixelFormat pixel_format,
-                std::vector<uint8_t>& result,
-                size_t& width,
-                size_t& height,
-                size_t& channels);
-        
-        Error image_to_data(const std::vector<uint8_t>& image,
-                            std::vector<uint8_t>& result,
-                            size_t& width,
-                            size_t& height,
-                            size_t& channels);
-    
-        Error load_from_native_image(const void* handle);
+	static Error image_to_data(
+	    const std::vector<uint8_t>& image, TextureDesc::PixelFormat pixel_format, std::vector<uint8_t>& result, size_t& width, size_t& height, size_t& channels);
 
-        Error
-        load_from_data(
-                const std::vector<float> &buffer,
-                size_t width,
-                size_t height,
-                size_t depth = 1);
+	Error image_to_data(const std::vector<uint8_t>& image, std::vector<uint8_t>& result, size_t& width, size_t& height, size_t& channels);
 
-        Error
-        load_from_data(
-                float *buffer,
-                size_t width,
-                size_t height,
-                size_t depth = 1);
+	Error load_from_native_image(const void* handle);
 
-        friend std::istream& operator>>(std::istream& is, TextureInput& dt);
+	Error load_from_data(const std::vector<float>& buffer, size_t width, size_t height, size_t depth = 1);
 
-        ~TextureInput() override ;
+	Error load_from_data(float* buffer, size_t width, size_t height, size_t depth = 1);
 
-    private:
-        Texture texture_;
-        TextureDesc::PixelFormat pixelFormat_;
-    };
-}
+	friend std::istream& operator>>(std::istream& is, TextureInput& dt);
 
+	~TextureInput() override;
+
+private:
+	Texture texture_;
+	TextureDesc::PixelFormat pixelFormat_;
+};
+}  // namespace dehancer::impl
