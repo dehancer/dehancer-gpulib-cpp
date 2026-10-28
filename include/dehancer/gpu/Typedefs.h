@@ -3,7 +3,7 @@
 
 #ifdef __METAL_VERSION__
 
-#elif CL_VERSION_1_2
+#elif defined(__OPENCL_C_VERSION__)
 
 #else
 

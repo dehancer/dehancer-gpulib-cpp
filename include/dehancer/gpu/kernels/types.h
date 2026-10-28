@@ -13,7 +13,7 @@
 
 #include "dehancer/gpu/kernels/metal/metal_types.h"
 
-#elif defined(CL_VERSION_1_2)
+#elif defined(__OPENCL_C_VERSION__)
 
 #define DEHANCER_GPU_CODE 1
 

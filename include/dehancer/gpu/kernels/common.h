@@ -9,7 +9,7 @@
 
 #include "dehancer/gpu/kernels/metal/metal.h"
 
-#elif defined(CL_VERSION_1_2)
+#elif defined(__OPENCL_C_VERSION__)
 
 #include "dehancer/gpu/kernels/opencl/opencl.h"
 

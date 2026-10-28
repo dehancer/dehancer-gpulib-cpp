@@ -17,7 +17,7 @@ typedef struct {
 } DHCR_StreamSpace_Params;
 
 typedef struct
-#if defined(CL_VERSION_1_2) || defined(DEHANCER_GPU_OPENCL)
+#if defined(__OPENCL_C_VERSION__) || defined(DEHANCER_GPU_OPENCL)
     __attribute__((packed))
 #endif
 {

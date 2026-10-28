@@ -15,7 +15,7 @@
 
 #include "dehancer/gpu/kernels/metal/cmath.h"
 
-#elif defined(CL_VERSION_1_2)
+#elif defined(__OPENCL_C_VERSION__)
 
 #include "dehancer/gpu/kernels/opencl/cmath.h"
 #include "dehancer/gpu/kernels/opencl/opencl.h"
@@ -225,7 +225,7 @@ static inline DHCR_HOST_DEVICE_FUNC float taylor_inv_sqrt(float r) {
  * @param v
  * @return
  */
-#if defined(__CUDA_ARCH__) || defined(CL_VERSION_1_2)
+#if defined(__CUDA_ARCH__) || defined(__OPENCL_C_VERSION__)
 static inline DHCR_HOST_DEVICE_FUNC float __attribute__((overloadable)) fract(float v) {
 	return fracf(v);
 }

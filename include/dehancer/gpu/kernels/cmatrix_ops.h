@@ -13,7 +13,7 @@ static inline DHCR_DEVICE_FUNC float3 float3_multiply_float3x3(float3 v, float3x
 	return M * v;
 #elif defined(__METAL_VERSION__)
 	return v * M;
-#elif defined(CL_VERSION_1_2)
+#elif defined(__OPENCL_C_VERSION__)
 #if DEHANCER_GPU_CODE
 	return make_float3(M.m11 * v.x + M.m12 * v.y + M.m13 * v.z, M.m21 * v.x + M.m22 * v.y + M.m23 * v.z, M.m31 * v.x + M.m32 * v.y + M.m33 * v.z);
 #else
@@ -29,7 +29,7 @@ static inline DHCR_DEVICE_FUNC float3x3 float3x3_multiply_float3x3(float3x3 M, f
 	return M * N;
 #elif defined(__METAL_VERSION__)
 	return M * N;
-#elif defined(CL_VERSION_1_2)
+#elif defined(__OPENCL_C_VERSION__)
 #if DEHANCER_GPU_CODE
 	return (float3x3){M.m11 * N.m11 + M.m12 * N.m21 + M.m13 * N.m31,
 	                  M.m11 * N.m12 + M.m12 * N.m22 + M.m13 * N.m32,
@@ -53,7 +53,7 @@ static inline DHCR_DEVICE_FUNC float4 float4_multiply_float4x4(float4 v, float4x
 	return M * v;
 #elif defined(__METAL_VERSION__)
 	return v * M;
-#elif defined(CL_VERSION_1_2)
+#elif defined(__OPENCL_C_VERSION__)
 #if DEHANCER_GPU_CODE
 	return make_float4(M.s0 * v.x + M.s1 * v.y + M.s2 * v.z + M.s3 * v.w,
 	                   M.s4 * v.x + M.s5 * v.y + M.s6 * v.z + M.s7 * v.w,
@@ -72,7 +72,7 @@ static inline DHCR_DEVICE_FUNC float4x4 float4x4_multiply_float4x4(float4x4 M, f
 	return M * N;
 #elif defined(__METAL_VERSION__)
 	return M * N;
-#elif defined(CL_VERSION_1_2)
+#elif defined(__OPENCL_C_VERSION__)
 #if DEHANCER_GPU_CODE
 	return (float4x4){M.s0 * N.s0 + M.s1 * N.s4 + M.s2 * N.s8 + M.s3 * N.sC,
 	                  M.s0 * N.s1 + M.s1 * N.s5 + M.s2 * N.s9 + M.s3 * N.sD,

@@ -15,7 +15,7 @@
 #define uint_as_float(x) __uint_as_float(x)
 #endif
 
-#elif defined(CL_VERSION_1_2)
+#elif defined(__OPENCL_C_VERSION__)
 
 inline DHCR_DEVICE_FUNC float uint_as_float(uint m) {
 	return as_float(m);
