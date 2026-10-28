@@ -28,8 +28,6 @@ if(OPENCL_VERSION STREQUAL "120")
     set(CL_STD_VERSION "1.2")
 elseif(OPENCL_VERSION STREQUAL "300")
     set(CL_STD_VERSION "3.0")
-else()
-    message(FATAL_ERROR "Unsupported OPENCL version: ${OPENCL_VERSION}. Use 120 or 300.")
 endif()
 
 set(CL_BUILD_PROGRAM_ARGS "-cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant" CACHE STRING "OpenCL kernel compiler arguments")
