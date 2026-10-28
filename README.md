@@ -19,6 +19,9 @@ cmake --install build --parallel $(nproc)
 Select the appropriate GPU backend: `DEHANCER_GPU_CUDA`,
 `DEHANCER_GPU_OPENCL` or `DEHANCER_GPU_METAL`.
 
+For OpenCL, use `-DOPENCL_VERSION=120` or `-DOPENCL_VERSION=300` (default).
+Build `dehancer_opencl_helper` with the same `OPENCL_VERSION` value.
+
 Make sure to set proper `CMAKE_PREFIX_PATH` and `CMAKE_INSTALL_PREFIX` to
 discover dependencies and install.
 
@@ -81,6 +84,8 @@ CMake files also export boolean definitions:
 * `DEHANCER_GPU_CUDA`
 * `DEHANCER_GPU_OPENCL`
 * `DEHANCER_GPU_METAL`
+
+The package config also exports `OPENCL_VERSION` as `120` or `300`.
 
 ## Usage with pkg-config
 

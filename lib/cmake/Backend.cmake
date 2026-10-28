@@ -112,7 +112,8 @@ function(dehancer_add_backend backend)
 
     elseif(backend STREQUAL "opencl")
         target_link_libraries(${target} PUBLIC dehancer_opencl_helper::dehancer_opencl_helper)
-        target_compile_definitions(${target} PRIVATE "CL_BUILD_PROGRAM_ARGS=\"${CL_BUILD_PROGRAM_ARGS}\"")
+        target_compile_definitions(${target} PUBLIC CL_TARGET_OPENCL_VERSION=${OPENCL_VERSION})
+        target_compile_definitions(${target} PRIVATE "CL_BUILD_PROGRAM_ARGS=\"${CL_BUILD_PROGRAM_ARGS} -cl-std=CL${CL_STD_VERSION}\"")
 
     elseif(backend STREQUAL "cuda")
         # Export the static CUDA runtime to consumers. This target is linked by

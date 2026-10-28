@@ -21,8 +21,18 @@ option(DEHANCER_DEBUG "Enable additional debug information" OFF)
 
 option(USE_OPENCOLORIO "Build OpenColorIO utilities" OFF)
 
-set(CL_STD_VERSION "3.0" CACHE STRING "OpenCL kernel standard")
-set(CL_BUILD_PROGRAM_ARGS "-cl-std=CL${CL_STD_VERSION} -cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant" CACHE STRING "OpenCL kernel compiler arguments")
+set(OPENCL_VERSION "300" CACHE STRING "OpenCL target version (120 or 300)")
+set_property(CACHE OPENCL_VERSION PROPERTY STRINGS 120 300)
+
+if(OPENCL_VERSION STREQUAL "120")
+    set(CL_STD_VERSION "1.2")
+elseif(OPENCL_VERSION STREQUAL "300")
+    set(CL_STD_VERSION "3.0")
+else()
+    message(FATAL_ERROR "Unsupported OPENCL version: ${OPENCL_VERSION}. Use 120 or 300.")
+endif()
+
+set(CL_BUILD_PROGRAM_ARGS "-cl-kernel-arg-info -cl-unsafe-math-optimizations -cl-single-precision-constant" CACHE STRING "OpenCL kernel compiler arguments")
 
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
@@ -49,6 +59,7 @@ find_package(OpenCV CONFIG REQUIRED)
 # We export the following GPU related variables:
 #   - `DEHANCER_BACKEND_GPU_NAME`
 #   - `DEHANCER_GPU_*`
+#   - `OPENCL_VERSION`
 #
 # Consumer projects should use these to determine which GPU
 # backend is in use instead of defining their own CMake vars.
