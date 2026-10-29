@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 4.3)
-project(dehancer_gpulib VERSION 1.20.0 LANGUAGES C CXX)
+project(dehancer_gpulib VERSION 1.40.0 LANGUAGES C CXX)
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
