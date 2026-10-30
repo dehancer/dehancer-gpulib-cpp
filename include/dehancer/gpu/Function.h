@@ -80,7 +80,7 @@ public:
 	[[nodiscard]] const std::vector<ArgInfo>& get_arg_list() const;
 
 	/**
-	 * Get the current device max number of threads in a block
+	 * Get the maximum number of threads in a block for this function on its device
 	 * @return max threads number
 	 * */
 	[[nodiscard]] virtual size_t get_block_max_size() const;

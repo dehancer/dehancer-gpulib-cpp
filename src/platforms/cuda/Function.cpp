@@ -2,6 +2,8 @@
 
 #include <cuda_runtime.h>
 
+#include <algorithm>
+
 #include "CommandEncoder.h"
 #include "dehancer/Log.h"
 #include "dehancer/gpu/Paths.h"
@@ -164,7 +166,12 @@ const std::string& Function::get_library_path() const {
 }
 
 size_t Function::get_block_max_size() const {
-	return max_device_threads_;
+	command_->push();
+	int kernel_max_threads = 0;
+	const auto result = cuFuncGetAttribute(&kernel_max_threads, CU_FUNC_ATTRIBUTE_MAX_THREADS_PER_BLOCK, kernel_);
+	command_->pop();
+	CHECK_CUDA_KERNEL(kernel_name_.c_str(), result);
+	return std::min(max_device_threads_, static_cast<size_t>(kernel_max_threads));
 }
 
 CommandEncoder::ComputeSize Function::ask_compute_size(size_t width, size_t height, size_t depth) const {

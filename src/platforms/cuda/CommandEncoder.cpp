@@ -1,5 +1,7 @@
 #include "dehancer/gpu/CommandEncoder.h"
 
+#include <algorithm>
+
 #include "dehancer/gpu/Lib.h"
 // #include "dehancer/gpu/kernels/cuda/cmatrix.h"
 #include "CommandEncoder.h"
@@ -239,23 +241,26 @@ void CommandEncoder::set(const math::bool4& p, int index) {
 }
 
 size_t CommandEncoder::get_block_max_size() const {
-	return function_->get_command()->get_max_threads();
+	return function_->get_block_max_size();
 };
 
 CommandEncoder::ComputeSize CommandEncoder::ask_compute_size(size_t width, size_t height, size_t depth) const {
 	cudaDeviceProp props{};
 	function_->get_command()->get_device_info(props);
-	auto execution_width = static_cast<size_t>(props.maxBlocksPerMultiProcessor);
+	const auto max_threads = get_block_max_size();
+	const auto warp_size = static_cast<size_t>(props.warpSize);
 
 	ComputeSize compute_size{};
 
-	size_t gsize[2] = {execution_width, execution_width};
+	// Registers and launch bounds can limit a kernel below the device's maximum.
+	const auto block_width = std::min({warp_size, static_cast<size_t>(props.maxThreadsDim[0]), max_threads});
+	const auto block_height = std::min({warp_size, static_cast<size_t>(props.maxThreadsDim[1]), max_threads / block_width});
 
-	compute_size.block.width = gsize[0];
-	compute_size.block.height = gsize[1];
+	compute_size.block.width = block_width;
+	compute_size.block.height = block_height;
 
-	compute_size.grid.width = ((width + gsize[0] - 1) / gsize[0]);
-	compute_size.grid.height = ((height + gsize[1] - 1) / gsize[1]);
+	compute_size.grid.width = ((width + block_width - 1) / block_width);
+	compute_size.grid.height = ((height + block_height - 1) / block_height);
 
 	compute_size.threads_in_grid = compute_size.grid.width * compute_size.grid.height;
 

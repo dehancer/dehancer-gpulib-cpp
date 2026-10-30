@@ -3,6 +3,14 @@
 
 #include "TestKernels.h"
 
+extern "C" __global__ __launch_bounds__(128) void kernel_limited_block(unsigned int* visits, int width, int height, int depth) {
+  const int x = blockIdx.x * blockDim.x + threadIdx.x;
+  const int y = blockIdx.y * blockDim.y + threadIdx.y;
+  const int z = blockIdx.z * blockDim.z + threadIdx.z;
+  if (x < width && y < height && z < depth)
+    atomicAdd(&visits[(z * height + y) * width + x], 1u);
+}
+
 DHCR_KERNEL void kernel_half_test (
         texture2d_read_t tex       DHCR_BIND_TEXTURE(0),
         DHCR_CONST_ARG int_ref_t n DHCR_BIND_BUFFER(1),
