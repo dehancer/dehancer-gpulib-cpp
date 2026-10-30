@@ -1,10 +1,13 @@
+// Parse Armadillo before CUDA defines its __noinline__ macro.
+#include "dehancer/gpu/Lib.h"
+#include "src/platforms/cuda/utils.h"
+
 #include <cuda.h>
 #include <cuda_runtime.h>
 
 #include <chrono>
 
 #include "dehancer/gpu/DeviceCache.h"
-#include "dehancer/gpu/Lib.h"
 #include "gtest/gtest.h"
 #include "tests/cuda/paths_config.h"
 #include "tests/shaders/test_struct.h"
