@@ -1,5 +1,6 @@
 #include "Function.h"
 #include "CommandEncoder.h"
+#include <dehancer/gpu/metal/CommandQueueCompletion.h>
 #import <Metal/Metal.h>
 
 namespace dehancer::metal {
@@ -22,7 +23,9 @@ namespace dehancer::metal {
       auto queue = static_cast<id<MTLCommandQueue>>( (__bridge id) command_->get_command_queue());
 
       id <MTLCommandBuffer> commandBuffer = [queue commandBuffer];
+      if (!commandBuffer) throw std::runtime_error("Metal command buffer allocation failed: " + kernel_name_);
       id<MTLComputeCommandEncoder> computeEncoder = [commandBuffer computeCommandEncoder];
+      if (!computeEncoder) throw std::runtime_error("Metal compute encoder allocation failed: " + kernel_name_);
 
       auto c_pipeline = reinterpret_cast<id<MTLComputePipelineState> >((__bridge id)pipelineState_.pipeline);
       [computeEncoder setComputePipelineState: c_pipeline];
@@ -66,6 +69,8 @@ namespace dehancer::metal {
       [computeEncoder endEncoding];
 
       [commandBuffer commit];
+      CommandQueueCompletion::track(command_->get_command_queue(),
+                                    (__bridge void*)commandBuffer, kernel_name_);
 
       if (command_->get_wait_completed())
         [commandBuffer waitUntilCompleted];
